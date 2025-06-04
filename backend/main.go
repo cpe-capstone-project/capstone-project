@@ -1,6 +1,9 @@
 package main
 
-import "capstone-project/config"
+import (
+	"capstone-project/config"
+	"capstone-project/routers"
+)
 
 func main() {
 	// เปิดการเชื่อมต่อฐานข้อมูล
@@ -8,6 +11,10 @@ func main() {
 
 	// สร้างฐานข้อมูล
 	config.SetupDatabase()
-	
-	// r.Run("localhost:" + routers.PORT)
+
+	// เรียกใช้ Router จาก package routers
+	r := routers.SetupRouter()
+
+	// เริ่มต้น server
+	r.Run("localhost:" + routers.PORT)
 }

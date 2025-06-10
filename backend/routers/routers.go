@@ -15,14 +15,14 @@ func SetupRouter() *gin.Engine {
 	r.Use(middlewares.CORSMiddleware())
 
 	// Public Routes
-	// setupAuthRoutes(r)
+	SetupAuthenticationRoutes(r)
 	// setupGuestAuthRoutes(r)
 
 	// Private Routes (Require Authorization)
 	private := r.Group("/")
-	// private.Use(middlewares.Authorizes())
+	private.Use(middlewares.Authorizes())
 
-	setupAuthRoutes(private)
+	SetupDiaryRoutes(private)
 
 
 	// Public Route for Genders

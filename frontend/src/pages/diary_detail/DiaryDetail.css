@@ -1,0 +1,218 @@
+.diary-detail-container {
+  display: flex;
+  width: 100%;
+  max-height: calc(100vh - var(--navbar-height));
+}
+
+.left-side {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  height: calc(100vh - var(--navbar-height));
+  gap: var(--space-lg);
+  padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  background-color: #ddd;
+  overflow-y: scroll;
+
+  .control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .back-container {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-size: var(--font-size-xl);
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+}
+
+.diary-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.left-side-diary {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: var(--padding-patient-home-page);
+  background-color: white;
+  color: black;
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+
+  .left-side-diary-info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: var(--space-xs);
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      h1 {
+        width: 80%;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
+        font-size: var(--font-size-md);
+      }
+
+      p {
+        font-size: var(--font-size-sm);
+      }
+    }
+
+    .content {
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* หรือ 1 ถ้าอยากให้เหลือบรรทัดเดียว */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.left-side-diary:hover {
+  background-color: var(--color-surface);
+}
+
+.left-side-diary.active {
+  background-color: var(--ant-color-primary);
+  color: white;
+}
+
+.right-side {
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--padding-left-right-patient-home-page);
+
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-text-editor);
+    padding: var(--padding-text-editor);
+
+    .title {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--padding-patient-home-page);
+      font-size: var(--font-size-xl);
+
+      input {
+        width: 100%;
+        padding: calc(var(--padding-text-editor) / 2);
+        border: 0;
+        font-weight: bold;
+        font-size: var(--font-size-lg);
+      }
+
+      input:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .editor-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--padding-text-editor));
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    .ProseMirror {
+      outline: none;
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    /* 🔧 Reset default list styles */
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+    
+    ul,
+    ol {
+      padding-left: 1.5rem; /* หรือปรับให้เหมาะกับพื้นที่ */
+      margin: 0;
+    }
+
+    li {
+      margin: 0.25rem 0;
+      word-break: break-word; /* ป้องกันล้น */
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 400px;
+      height: auto;
+      width: auto;
+      display: block;
+      margin: 1rem auto;
+      object-fit: contain;
+    }
+  }
+
+  .diary-save-btn {
+    align-self: center;
+    text-align: center;
+    background-color: var(--ant-color-primary);
+    color: white;
+    padding: 4px 24px;
+    margin-left: auto;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition-fast);
+  }
+
+  .diary-save-btn:hover {
+    /* opacity: 0.5; */
+  }
+
+  .diary-save-btn:disabled {
+    background-color: var(--background-color-disable);
+    color: var(--color-disable);
+    cursor: not-allowed;
+  }
+}
+
+.diary-float-button {
+  bottom: var(--padding-patient-home-page);
+  inset-inline-end: var(--padding-patient-home-page);
+}

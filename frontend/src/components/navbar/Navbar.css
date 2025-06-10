@@ -1,0 +1,38 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    height: var(--navbar-height);
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .1);
+    padding: var(--padding-left-right-patient-home-page);
+    z-index: 9999;
+}
+
+.logo {
+    width: auto;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+.menu {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--menu-gap);
+
+    li {
+        list-style: none;
+        cursor: pointer;
+    }
+}
+
+.profile {
+    width: auto;
+    height: 80%;
+    border-radius: 50%;
+    cursor: pointer;
+}

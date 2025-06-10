@@ -1,0 +1,40 @@
+.diary-list-container {
+    padding: var(--padding-patient-home-page);
+
+    header {
+        font-size: var(--font-header-size);
+    }
+}
+
+.diary-list {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 90px;
+}
+
+.diary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--flex-gap);
+
+    img {
+        width: 100%;
+    }
+
+    .diary-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        h1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
+}

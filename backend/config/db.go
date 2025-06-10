@@ -22,6 +22,7 @@ func ConnectionDB() {
 }
 
 func SetupDatabase() {
+	SetupPatientDatabase()
 	SetupDiaryDatabase()
 	
 	fmt.Println("Sample data has been added to the database.")

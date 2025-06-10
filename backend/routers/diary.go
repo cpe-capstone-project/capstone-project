@@ -2,11 +2,10 @@ package routers
 
 import (
 	"capstone-project/controller/diary"
-
 	"github.com/gin-gonic/gin"
 )
 
-func setupAuthRoutes(r *gin.RouterGroup) {
+func SetupDiaryRoutes(r *gin.RouterGroup) {
 	r.GET("/diaries", diary.ListDiaries)
 	r.GET("/diary/:id", diary.GetDiaryByID)
 	r.POST("/diary", diary.CreateDiary)

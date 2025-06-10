@@ -1,68 +1,72 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+* {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+:root {
+  /* === Spacing === */
+  --space-0: 0px;
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+  /* === Container Widths === */
+  --container-sm: 540px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  /* font size */
+  --font-header-size: 48px;
+  --font-size-xs: 12px; /* extra small */
+  --font-size-sm: 14px; /* small */
+  --font-size-md: 16px; /* medium */
+  --font-size-lg: 20px; /* large */
+  --font-size-xl: 24px; /* extra large */
+
+  /* === Border Radius === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* element size */
+  --navbar-height: 64px;
+  --padding-patient-home-page: 24px;
+  --padding-left-right-patient-home-page: 0 24px;
+  --padding-top-bottom-patient-home-page: 24px 0;
+  --padding-text-editor: 12px;
+  --flex-gap: 16px;
+  --menu-gap: 24px;
+
+  /* color */
+  --ant-color-primary: #1677ff;
+  --color-surface: #f5f5f5;
+  --color-disable: #9e9e9e;
+
+  /* background color */
+  --background-color-disable: #e0e0e0;
+
+    /* === Transition Durations === */
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 300ms;
+  --transition-duration-slow: 500ms;
+
+  /* === Transition Timing Functions === */
+  --transition-ease-in: ease-in;
+  --transition-ease-out: ease-out;
+  --transition-ease-in-out: ease-in-out;
+  --transition-linear: linear;
+
+  /* === Common Transitions === */
+  --transition-base: all var(--transition-duration-normal) var(--transition-ease-in-out);
+  --transition-fast: all var(--transition-duration-fast) var(--transition-ease-in-out);
 }

@@ -14,13 +14,15 @@ const requestOptions = {
   },
 };
 
-async function GetDiary() {
+async function GetDiary(
+  sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
+  order: "asc" | "desc" = "desc"
+) {
   return await axios
-    .get(`${apiUrl}/diaries`, requestOptions)
+    .get(`${apiUrl}/diaries?sort=${sort}&order=${order}`, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }
-
 
 async function GetDiaryById(id: number) {
   return await axios
@@ -48,7 +50,7 @@ async function DeleteDiaryById(id: number) {
 
 async function CreateDiary(data: DiaryInterface) {
   return await axios
-    .post(`${apiUrl}/signup`, data, requestOptions)
+    .post(`${apiUrl}/diary`, data, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }

@@ -13,23 +13,33 @@ interface DiaryContextType {
   diaries: DiaryInterface[];
   loading: boolean;
   error: string | null;
-  fetchDiaries: () => void;
+  fetchDiaries: (
+    sortBy?: "CreatedAt" | "UpdatedAt",
+    order?: "asc" | "desc"
+  ) => void;
   getDiaryById: (id: number) => Promise<DiaryInterface | null>;
-  createDiary: (data: DiaryInterface) => Promise<boolean>;
-  updateDiary: (id: number, data: DiaryInterface) => Promise<boolean>;
+  createDiary: (data: DiaryInterface) => Promise<DiaryInterface | null>;
+  updateDiary: (id: number, data: DiaryInterface) => Promise<boolean | null>;
   deleteDiary: (id: number) => Promise<boolean>;
 }
 
 const DiaryContext = createContext<DiaryContextType | undefined>(undefined);
 
-export const DiaryContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const DiaryContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [diaries, setDiaries] = useState<DiaryInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDiaries = () => {
+  const fetchDiaries = (
+    sortBy: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
+    order: "asc" | "desc" = "desc"
+  ) => {
     setLoading(true);
-    GetDiary()
+    GetDiary(sortBy, order)
       .then((res) => {
         if (res?.status === 200) {
           setDiaries(res.data);
@@ -47,16 +57,21 @@ export const DiaryContextProvider = ({ children }: { children: React.ReactNode }
     return res?.status === 200 ? res.data : null;
   };
 
-  const createDiary = async (data: DiaryInterface): Promise<boolean> => {
+  const createDiary = async (
+    data: DiaryInterface
+  ): Promise<DiaryInterface | null> => {
     const res = await CreateDiary(data);
     if (res?.status === 201 || res?.status === 200) {
       fetchDiaries(); // reload list
-      return true;
+      return res.data;
     }
-    return false;
+    return res;
   };
 
-  const updateDiary = async (id: number, data: DiaryInterface): Promise<boolean> => {
+  const updateDiary = async (
+    id: number,
+    data: DiaryInterface
+  ): Promise<boolean | null> => {
     const res = await UpdateDiaryById(id, data);
     if (res?.status === 200) {
       fetchDiaries();

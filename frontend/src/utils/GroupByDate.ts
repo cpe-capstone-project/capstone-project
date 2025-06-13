@@ -1,46 +1,29 @@
-import {
-  parseISO,
-  isToday,
-  isYesterday,
-  isThisWeek,
-  isThisMonth,
-  format,
-  // startOfWeek,
-  // endOfWeek,
-} from "date-fns";
+import { parseISO, isToday, isYesterday, isThisWeek, isThisMonth, format } from "date-fns";
 import type { Locale } from "date-fns";
 
-/**
- * จัดกลุ่ม item ตามช่วงเวลาที่แตกต่างกัน โดยใช้ฟิลด์วันที่ที่ระบุ และ locale สำหรับการแสดงผลวันที่
- * @param items - รายการข้อมูลที่ต้องการจัดกลุ่ม
- * @param dateField - ชื่อฟิลด์วันที่ (default: "UpdatedAt")
- * @param locale - locale ของ date-fns สำหรับแสดงวันที่ (default: enUS)
- * @returns กลุ่มข้อมูลตามช่วงเวลาที่จัดกลุ่ม
-**/
-export function groupByDate<
-  T extends Partial<Record<K, string | undefined>>,
-  K extends keyof T = keyof T
->(
+export function groupByDate<T>(
   items: T[],
-  dateField: K = "UpdatedAt" as K,
+  dateField: keyof T = "UpdatedAt" as keyof T,
   locale?: Locale
-): { [key: string]: T[] } {
-  return items.reduce((acc, item) => {
-    const dateString = item[dateField];
-    if (!dateString) return acc;
+): Record<string, T[]> {
+  
+  const getLabel = (date: Date) => {
+    if (isToday(date)) return locale?.code === "th" ? "วันนี้" : "Today";
+    if (isYesterday(date)) return locale?.code === "th" ? "เมื่อวานนี้" : "Yesterday";
+    if (isThisWeek(date)) return locale?.code === "th" ? "สัปดาห์นี้" : "This Week";
+    if (isThisMonth(date)) return locale?.code === "th" ? "เดือนนี้" : "This Month";
+    return format(date, "MMMM yyyy", { locale });
+  };
 
-    const date = parseISO(dateString);
-    let label = "";
+  return items.reduce((groups, item) => {
+    const raw = item[dateField];
+    if (typeof raw !== "string") return groups;
 
-    if (isToday(date)) label = locale?.code === "th" ? "วันนี้" : "Today";
-    else if (isYesterday(date)) label = locale?.code === "th" ? "เมื่อวานนี้" : "Yesterday";
-    else if (isThisWeek(date)) label = locale?.code === "th" ? "สัปดาห์นี้" : "This Week";
-    else if (isThisMonth(date)) label = locale?.code === "th" ? "เดือนนี้" : "This Month";
-    else label = format(date, "MMMM yyyy", { locale });
+    const date = parseISO(raw);
+    const label = getLabel(date);
 
-    if (!acc[label]) acc[label] = [];
-    acc[label].push(item);
-
-    return acc;
-  }, {} as { [key: string]: T[] });
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(item);
+    return groups;
+  }, {} as Record<string, T[]>);
 }

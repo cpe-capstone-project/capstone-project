@@ -1,0 +1,207 @@
+/* Sidebar animation */
+.sidebar-anim {
+  width: var(--diary-sidebar-width);
+  transition: width 0.4s;
+  will-change: width;
+}
+.sidebar-anim.hide {
+  width: 0;
+  pointer-events: none;
+}
+
+.left-side {
+  display: flex;
+  flex-direction: column;
+  width: var(--diary-sidebar-width);
+  height: calc(100vh - var(--navbar-height));
+  gap: var(--space-lg);
+  padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  background-color: #ddd;
+   overflow-y: auto;
+
+  .control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .back-container {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-size: var(--font-size-xl);
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .sort-container {
+      width: 24px;
+      height: 24px;
+    }
+
+  }
+}
+
+.delete-selected-container {
+  position: sticky;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  top: 20px;
+  width: 100%;
+  padding: var(--padding-patient-home-page);
+  background-color: var(--color-red);
+  color: white;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-duration-fast);
+  z-index: 9999999;
+  
+  .delete-selected-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color:transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    padding: calc(var(--padding-text-editor) / 2);
+    /* font-size: var(--font-size-md); */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+
+    svg {
+      color: white;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .delete-selected-btn:hover {
+    background-color: var(--color-red-hover);
+  }
+}
+
+.diary-list-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-md);
+  padding: var(--padding-patient-home-page);
+  background-color: white;
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+}
+
+.diary-list-item:hover {
+  background-color: var(--color-surface);
+}
+
+.diary-list-item.active {
+  background-color: #b9b9b9;
+}
+
+.diary-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.left-side-diary {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-md);
+  color: black;
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+
+  .left-side-diary-info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: var(--space-xs);
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      h1 {
+        width: 80%;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
+        font-size: var(--font-size-md);
+      }
+
+      p {
+        font-size: var(--font-size-sm);
+      }
+    }
+
+    .content {
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* หรือ 1 ถ้าอยากให้เหลือบรรทัดเดียว */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: lighter !important;
+    }
+  }
+}
+
+/* .left-side-diary:hover {
+  background-color: var(--color-surface);
+}
+
+.left-side-diary.active {
+  background-color: var(--ant-color-primary);
+  color: white;
+} */
+
+.circle-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #6E6D70;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background-color: white;
+
+}
+.circle-select-btn.selected {
+  border-radius: 50%;
+  border: 2px solid var(--ant-color-primary);
+  background-color: var(--ant-color-primary);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.check-icon {
+  /* color: #1890ff; */
+  font-size: 16px;
+  width: 16px;
+}
+
+.check-icon-placeholder {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}

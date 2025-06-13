@@ -1,20 +1,40 @@
 package diary
 
 import (
-	"net/http"
 	"capstone-project/config"
 	"capstone-project/entity"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GET /diaries
+// GET /diaries?sort=updated_at&order=asc
 func ListDiaries(c *gin.Context){
 	var diaries []entity.Diaries
-
 	db := config.DB()
+
+	sortField := c.DefaultQuery("sort", "updated_at")
+	order := c.DefaultQuery("order", "desc")
+
+	// ตรวจสอบว่า order มีค่าถูกต้องหรือไม่
+	if order != "asc" && order != "desc" {
+		order = "desc"
+	}
+
+	var sortColumn string
+	switch sortField {
+	case "CreatedAt":
+		sortColumn = "created_at"
+	case "UpdatedAt":
+		sortColumn = "updated_at"
+	default:
+		sortColumn = "updated_at" // fallback
+	}
+	db = db.Order(sortColumn + " " + order)
+
 	results := db.Find(&diaries)
-	if results.Error != nil{
+	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -51,33 +71,10 @@ func CreateDiary(c *gin.Context){
 
 	db := config.DB()
 
-	//ค้นหา bookingtrip ด้วย id
-	// var bookingtrip entity.BookingTrip
-	// db.First(&bookingtrip, diary.BookingTripID)
-	// if bookingtrip.ID == 0 {
-	// 	c.JSON(http.StatusNotFound, gin.H{"error": "bookingtrip not found"})
-	// 	return
-	// } 
-
-	//ค้นหา cabin ด้วย id
-	// var cabin entity.Cabin
-	// db.First(&cabin, diary.CabinID)
-	// if cabin.ID == 0 {
-	// 	c.JSON(http.StatusNotFound, gin.H{"error": "cabin not found"})
-	// 	return
-	// }
-
-	// //ค้นหา status ด้วย id
-	// var status entity.Stats
-	// db.First(&status, diary.StatusID)
-	// if status.ID == 0 {
-	// 	c.JSON(http.StatusNotFound, gin.H{"error": "status not found"})
-	// 	return
-	// }
-
 	bc := entity.Diaries{
 		Title: diary.Title,
 		Content: diary.Content,
+		UpdatedAt: time.Now(),
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 
@@ -86,7 +83,7 @@ func CreateDiary(c *gin.Context){
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "Create success", "data": bc})
+	c.JSON(http.StatusCreated, bc)
 }
 
 // PATCH /diary/:id

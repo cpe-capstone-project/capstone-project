@@ -4,7 +4,6 @@ import (
 	"capstone-project/config"
 	"capstone-project/entity"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -74,7 +73,6 @@ func CreateDiary(c *gin.Context){
 	bc := entity.Diaries{
 		Title: diary.Title,
 		Content: diary.Content,
-		UpdatedAt: time.Now(),
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 

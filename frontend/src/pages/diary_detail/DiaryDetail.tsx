@@ -29,6 +29,7 @@ import Toolbar from "../../components/text-editor/Toolbar";
 // import { groupByDate } from "../../utils/GroupByDate";
 import DiarySidebar from "./DiarySidebar";
 import "./DiaryDetail.css";
+import NotFound from "../NotFound/NotFound";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 
 function DiaryDetail() {
@@ -70,9 +71,12 @@ function DiaryDetail() {
       Underline,
       Highlight,
       TiptapLink.configure({ openOnClick: false }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+        defaultAlignment: "left", // <<< อันนี้คือค่า default
+      }),
     ],
-    content: "<p></p>",
+    content: '<p style="text-align: left;"></p>',
   });
 
   // ฟังก์ชันบันทึกข้อมูล diary
@@ -104,9 +108,8 @@ function DiaryDetail() {
   const handleCreateDiary = async () => {
     const newDiary: DiaryInterface = {
       Title: "New Diary",
-      Content: "<p></p>",
+      Content: '<p style="text-align: left;"></p>',
       TherapyCaseID: 1,
-      // เพิ่ม field อื่นๆ ตามที่จำเป็น เช่น วันที่, ผู้ใช้ ฯลฯ
     };
     const res = await createDiary(newDiary);
     if (res) {
@@ -132,7 +135,11 @@ function DiaryDetail() {
       setDiary(found);
       setOriginalDiary(found);
       editor.commands.clearContent();
-      editor.commands.setContent(found.Content || "<p></p>");
+      editor.commands.setContent(
+        found.Content?.trim()
+          ? found.Content
+          : '<p style="text-align: left;"></p>'
+      );
       setIsModified(false);
     }
   }, [id, diaries, editor]);
@@ -167,7 +174,7 @@ function DiaryDetail() {
   }, [transcript, editor]);
 
   // ถ้าไม่มี diary หรือ editor ให้ return null
-  if (!diary || !editor) return null;
+  if (!diary || !editor) return <NotFound />;
 
   return (
     <section className="diary-detail-container">

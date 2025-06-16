@@ -8,6 +8,7 @@ import Loadable from "../components/third-patry/Loadable";
 import type { RouteObject } from "react-router";
 // import PatientHomePage from "../pages/home/PatientHomePage";
 import MinimalLayout from "../layout/MinimalLayout/MinimalLayout";
+import NotFound from "../pages/NotFound/NotFound";
 // import SignInPages from "../pages/authentication/Login/signin";
 
 const SignIn = Loadable(lazy(() => import("../pages/authentication/Login/SignIn")));
@@ -29,7 +30,7 @@ const MainRoutes = (): RouteObject => {
       },
       {
         path: "*",
-        element: <SignIn />,
+        element: <NotFound />,
       },
     ],
   };

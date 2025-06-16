@@ -9,16 +9,31 @@
   pointer-events: none;
 }
 
+/* Sidebar Layout */
 .left-side {
   display: flex;
   flex-direction: column;
   width: var(--diary-sidebar-width);
   height: calc(100vh - var(--navbar-height));
   gap: var(--space-lg);
-  padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  padding-bottom: var(--padding-text-editor);
   background-color: #ddd;
-   overflow-y: auto;
+  overflow-y: auto;
+}
 
+/* Header */
+.left-side-header {
+  position: sticky;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  top: 0;
+  gap: var(--space-sm);
+  padding: var(--padding-text-editor) var(--padding-patient-home-page) 0
+    var(--padding-patient-home-page);
+  background-color: #ddd;
+
+  /* Control Bar */
   .control {
     display: flex;
     justify-content: space-between;
@@ -42,49 +57,18 @@
       width: 24px;
       height: 24px;
     }
-
   }
 }
 
-.delete-selected-container {
-  position: sticky;
+/* Diary Group */
+.diary-group {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  top: 20px;
-  width: 100%;
-  padding: var(--padding-patient-home-page);
-  background-color: var(--color-red);
-  color: white;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-duration-fast);
-  z-index: 9999999;
-  
-  .delete-selected-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color:transparent;
-    border: 0;
-    border-radius: var(--radius-md);
-    padding: calc(var(--padding-text-editor) / 2);
-    /* font-size: var(--font-size-md); */
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    z-index: 10;
-
-    svg {
-      color: white;
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .delete-selected-btn:hover {
-    background-color: var(--color-red-hover);
-  }
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 0 var(--padding-patient-home-page);
 }
 
+/* Diary List Item */
 .diary-list-item {
   display: flex;
   align-items: center;
@@ -93,7 +77,6 @@
   padding: var(--padding-patient-home-page);
   background-color: white;
   border-radius: var(--radius-md);
-  transition: background 0.2s;
 }
 
 .diary-list-item:hover {
@@ -104,12 +87,7 @@
   background-color: #b9b9b9;
 }
 
-.diary-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
+/* Diary Link */
 .left-side-diary {
   text-decoration: none;
   display: flex;
@@ -119,7 +97,7 @@
   color: black;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
-
+  /* Diary Info */
   .left-side-diary-info {
     display: flex;
     flex-direction: column;
@@ -130,6 +108,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: var(--space-xs);
 
       h1 {
         width: 80%;
@@ -159,15 +138,7 @@
   }
 }
 
-/* .left-side-diary:hover {
-  background-color: var(--color-surface);
-}
-
-.left-side-diary.active {
-  background-color: var(--ant-color-primary);
-  color: white;
-} */
-
+/* Circle Select Button */
 .circle-select-btn {
   display: flex;
   align-items: center;
@@ -176,11 +147,10 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid #6E6D70;
+  border: 2px solid #6e6d70;
   cursor: pointer;
   transition: var(--transition-fast);
   background-color: white;
-
 }
 .circle-select-btn.selected {
   border-radius: 50%;
@@ -195,7 +165,6 @@
 }
 
 .check-icon {
-  /* color: #1890ff; */
   font-size: 16px;
   width: 16px;
 }
@@ -205,3 +174,77 @@
   height: 16px;
   display: inline-block;
 }
+
+/* Delete Selected Animation */
+.delete-selected-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--padding-patient-home-page);
+  background-color: var(--color-red);
+  color: white;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-duration-fast);
+  height: 0;
+  /* opacity: 0; */
+  overflow: hidden;
+
+  .delete-selected-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    padding: calc(var(--padding-text-editor) / 2);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+
+    svg {
+      color: white;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.delete-selected-container.active {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: var(--padding-patient-home-page);
+  background-color: var(--color-red);
+  color: white;
+  border-radius: var(--radius-md);
+  opacity: 1;
+  margin-bottom: var(--space-md);
+    transition: all var(--transition-duration-fast);
+  will-change: auto;
+
+  .delete-selected-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    padding: calc(var(--padding-text-editor) / 2);
+    /* font-size: var(--font-size-md); */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+
+    svg {
+      color: white;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .delete-selected-btn:hover {
+    background-color: var(--color-red-hover);
+  }
+}
+

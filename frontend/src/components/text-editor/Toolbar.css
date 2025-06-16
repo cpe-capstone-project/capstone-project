@@ -79,37 +79,23 @@
   height: 20px;
 }
 
-/* .upload-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  padding: calc(var(--padding-text-editor));
-  border-radius: var(--radius-md);;
-  cursor: pointer;
-}
-
-.upload-btn:hover {
-  background: #eee;
-} */
-
 .toolbar button.reset-btn {
   display: flex;  
   align-items: center;         
   justify-content: center;    
   gap: var(--space-xs);   
-  background-color: #e53e3e;
+  background-color: var(--color-red);
   color: white;
-  border: none;
+  border: 0;
   border-radius: var(--radius-md);
-  cursor: pointer;
+  padding: calc(var(--padding-text-editor) / 2);
   font-size: var(--font-size-md);
-  padding: 4px 8px;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .toolbar button.reset-btn:hover {
-  background-color: #c53030;
+  background-color: var(--color-red-hover);
 }
 
 .mic-dot {

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { IoChevronBackOutline } from "react-icons/io5";
-import { RiSortDesc, RiCheckFill, RiDeleteBin6Line  } from "react-icons/ri";
+import { RiSortDesc, RiCheckFill, RiDeleteBin6Line } from "react-icons/ri";
 
 import { th } from "date-fns/locale";
-import { Dropdown } from "antd";
+import { Dropdown, Popconfirm } from "antd";
 import type { MenuProps } from "antd";
 
 import { usePath } from "../../contexts/PathContext";
@@ -26,6 +26,7 @@ const DiarySidebar = () => {
   const { basePath, getBackPath } = usePath();
   const { formatShort } = useDate();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [sortField, setSortField] = useState<"UpdatedAt" | "CreatedAt">(
     "UpdatedAt"
@@ -82,6 +83,28 @@ const DiarySidebar = () => {
     },
   ];
 
+  // ฟังก์ชันสำหรับ toggle ID ของ item เข้า/ออกจาก selectedIds
+  const handleAddDeleteList = (id: number) => {
+    setSelectedIds(
+      (prevSelected) =>
+        prevSelected.includes(id)
+          ? prevSelected.filter((itemId) => itemId !== id) // ถ้า id มีอยู่แล้ว → ลบออก
+          : [...prevSelected, id] // ถ้า id ยังไม่มี → เพิ่มเข้าไป
+    );
+  };
+
+const handleDeleteSelected = async () => {
+  try {
+    await new Promise((res) => setTimeout(res, 1500));
+    await Promise.all(selectedIds.map((id) => deleteDiary(id)));
+    setSelectedIds([]); // ล้าง selectedIds หลังจากลบเสร็จ
+
+  } catch (error) {
+    console.error("Failed to delete selected diaries:", error);
+  }
+};
+
+
   useEffect(() => {
     if (id) {
       const el = document.getElementById(`diary-${id}`);
@@ -91,7 +114,7 @@ const DiarySidebar = () => {
 
   return (
     <aside className="left-side">
-      <section className="left-side-header" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "var(--space-md)" }}>
+      <section className="left-side-header">
         <div className="control">
           <Link to={getBackPath(2)} className="back-container">
             <IoChevronBackOutline />
@@ -113,23 +136,36 @@ const DiarySidebar = () => {
           </Dropdown>
         </div>
 
-        {selectedIds.length > 0 && (
-          <div className={`delete-selected-container`}>
-            <p>
-              ลบที่เลือก ({selectedIds.length})
-            </p>
-            <button className="delete-selected-btn"
-              onClick={async () => {
-                for (const id of selectedIds) {
-                  await deleteDiary(id);
-                }
-                setSelectedIds([]);
-              }}
+        <div
+          className={`delete-selected-container${
+            selectedIds.length > 0 ? " active" : ""
+          }`}
+        >
+          <p>ลบรายการที่เลือก ({selectedIds.length})</p>
+          <Popconfirm
+            title="ยืนยันการลบ"
+            description="คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่ที่เลือกไว้ ?"
+            onConfirm={handleDeleteSelected}
+            okText="ลบ"
+            okButtonProps={{ className: "confirm-btn", danger: true }}
+            cancelText="ยกเลิก"
+            cancelButtonProps={{
+              className: "cancel-btn",
+              color: "gray",
+              variant: "text",
+            }}
+            zIndex={1000}
+          >
+            <button
+              className="delete-selected-btn"
+              disabled={selectedIds.length === 0}
             >
               <RiDeleteBin6Line />
             </button>
-          </div>
-        )}
+          </Popconfirm>
+        </div>
+        {/* {selectedIds.length > 0 && (
+        )} */}
       </section>
       {Object.entries(grouped).map(([label, items]) => (
         <div key={label} className="diary-group">
@@ -139,20 +175,14 @@ const DiarySidebar = () => {
               id={`diary-${item.ID}`}
               key={item.ID}
               className={`diary-list-item${
-                  Number(id) === item.ID ? " active" : ""
-                }`}
+                Number(id) === item.ID ? " active" : ""
+              }`}
             >
               <button
                 className={`circle-select-btn${
-                  selectedIds.includes(item.ID) ? " selected" : ""
+                  selectedIds.includes(item.ID!) ? " selected" : ""
                 }`}
-                onClick={() => {
-                  setSelectedIds((prev) =>
-                    prev.includes(item.ID)
-                      ? prev.filter((id) => id !== item.ID)
-                      : [...prev, item.ID]
-                  );
-                }}
+                onClick={() => handleAddDeleteList(item.ID!)}
               />
               <Link
                 // id={`diary-${item.ID}`}
@@ -163,7 +193,7 @@ const DiarySidebar = () => {
                 <div className="left-side-diary-info">
                   <header>
                     <h1>{item.Title}</h1>
-                    <p>{formatShort(item[sortField])}</p>
+                    <p>{formatShort(item[sortField] ?? "")}</p>
                   </header>
                   <div className="content">
                     <p>{stripHtml(item.Content ?? "")}</p>

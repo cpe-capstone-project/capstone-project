@@ -193,7 +193,7 @@ function DiaryDetail() {
         </section>
 
         {/* right text editor */}
-        <section className={`diary-editor${fullscreen ? " fullscreen" : ""}`}>
+        <section className={`diary-editor${fullscreen ? " fullscreen" : ""}${showFeedback ? " with-feedback" : ""}`}>
           <div className="title-container">
             <div className="title">
               <h1>Title</h1>
@@ -247,8 +247,10 @@ function DiaryDetail() {
           {/* พื้นที่แสดง editor */}
           <EditorContent editor={editor} className="editor-content" />
         </section>
-          <hr />
+
+        {/* พื้นที่แสดง diary feedback  */}
         <section className={`diary-feedback-container${showFeedback ? "" : " hide"}`}>
+          <hr />
           <DiaryFeedback />
         </section>
 

@@ -1,25 +1,25 @@
 .diary-feedback {
-    
+    display: flex;
+    flex-direction: column;
+    width: var(--diary-feedback-width);
+    padding: var(--padding-text-editor) var(--padding-patient-home-page);
 }
 
 .psy-profile {
-    width: auto;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: auto;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .psy-info {
-    font-weight: bold;
-    p {
+  font-weight: bold;
+  p {
+    font-size: var(--font-size-sm);
+    opacity: 0.5;
+  }
 
-        font-size: var(--font-size-sm);
-        opacity: 0.5;
-        /* color: var(--color-text-secondary); */
-    }
-
-    h1 {
-        font-size: var(--font-size-md);
-    }
-
+  h1 {
+    font-size: var(--font-size-md);
+  }
 }

@@ -6,6 +6,9 @@ import (
 )
 
 func SetupDiaryRoutes(r *gin.RouterGroup) {
+
+	r.POST("/diary/summary", diary.GenerateDiarySummary)
+
 	r.GET("/diaries", diary.ListDiaries)
 	r.GET("/diary/:id", diary.GetDiaryByID)
 	r.POST("/diary", diary.CreateDiary)

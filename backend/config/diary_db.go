@@ -9,6 +9,7 @@ import (
 func SetupDiaryDatabase() {
 	db.AutoMigrate(
 		&entity.Diaries{},
+		&entity.DiarySummary{},
 	)
 
 	diaries := []entity.Diaries{

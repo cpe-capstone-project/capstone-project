@@ -5,6 +5,7 @@
   gap: var(--space-xl);
   border-radius: 8px;
   padding: calc(var(--padding-text-editor) / 2);
+  overflow-x: auto;
 }
 
 .toolbar select {
@@ -40,6 +41,10 @@
   gap: var(--space-xs);
   border-radius: var(--radius-md);
   font-size: var(--font-size-md);
+}
+
+.toolbar div.fullscreen-container {
+  margin-right: var(--space-xl);
 }
 
 .toolbar button {

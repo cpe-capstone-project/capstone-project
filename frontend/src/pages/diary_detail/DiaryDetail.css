@@ -1,23 +1,23 @@
-.diary-detail-content {
+/* .diary-detail-content {
   display: flex;
   width: 100%;
   height: 100%;
 
-}
+} */
 
 .diary-detail-content {
   display: flex;
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   max-height: calc(100vh - var(--navbar-height));
 }
 
-.right-side {
+.diary-editor {
   position: relative;
   display: flex;
-  /* transition: width 0.4s; */
-  flex: 1;
   flex-direction: column;
+  flex: 1;
+  max-width:calc(100% - var(--diary-sidebar-width) - var(--diary-feedback-width));
   padding: var(--padding-left-right-patient-home-page);
   background-color: #fff;
 
@@ -136,7 +136,17 @@
 
 .fullscreen {
   position: relative;
-  width: 100%;
+  max-width:calc(100% - var(--diary-feedback-width));
   z-index: 10;
   background: #fff;
+}
+
+.diary-feedback-container {
+  width: var(--diary-feedback-width);
+  padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  right: 0;
+}
+
+.diary-feedback-container.hide {
+  display: none;
 }

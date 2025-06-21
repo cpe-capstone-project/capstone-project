@@ -4,7 +4,6 @@ import (
 	"capstone-project/config"
 	"capstone-project/entity"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 

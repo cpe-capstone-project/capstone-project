@@ -17,7 +17,7 @@
   height: calc(100vh - var(--navbar-height));
   gap: var(--space-lg);
   padding-bottom: var(--padding-text-editor);
-  background-color: #ddd;
+  background-color: var(--color-grey);
   overflow-y: auto;
 }
 
@@ -31,7 +31,7 @@
   gap: var(--space-sm);
   padding: var(--padding-text-editor) var(--padding-patient-home-page) 0
     var(--padding-patient-home-page);
-  background-color: #ddd;
+  background-color: var(--color-grey);
 
   /* Control Bar */
   .control {
@@ -84,7 +84,7 @@
 }
 
 .diary-list-item.active {
-  background-color: #b9b9b9;
+  background-color: #ddd;
 }
 
 /* Diary Link */

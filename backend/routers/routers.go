@@ -16,7 +16,7 @@ func SetupRouter() *gin.Engine {
 
 	// Public Routes
 	SetupAuthenticationRoutes(r)
-	// setupGuestAuthRoutes(r)
+	// setupGuestAuthRoutes(r๐)
 
 	// Private Routes (Require Authorization)
 	private := r.Group("/")

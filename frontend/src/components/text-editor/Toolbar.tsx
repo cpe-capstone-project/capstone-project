@@ -53,7 +53,7 @@ function Toolbar({
 
   return (
     <div className="toolbar">
-      <section className="fullscreen-container">
+      {/* <section className="fullscreen-container">
         <button
           onClick={onToggleFullscreen}
           title={fullscreen ? "Exit Fullscreen" : "Fullscreen"}
@@ -61,9 +61,19 @@ function Toolbar({
         >
           {fullscreen ? <RiFullscreenExitFill /> : <RiFullscreenFill />}
         </button>
-      </section>
+      </section> */}
 
       <section className="toolbar-container">
+        <div className="fullscreen-container">
+          <button
+            onClick={onToggleFullscreen}
+            title={fullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            // style={{ marginRight: "var(--space-xl)" }}
+          >
+            {fullscreen ? <RiFullscreenExitFill /> : <RiFullscreenFill />}
+          </button>
+        </div>
+      
         <div className="undo-redo-container">
           {/* Undo */}
           <button

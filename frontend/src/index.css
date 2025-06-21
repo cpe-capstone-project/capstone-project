@@ -28,12 +28,12 @@
   --container-xl: 1280px;
 
   /* font size */
-  --font-header-size: 48px;
   --font-size-xs: 12px; /* extra small */
   --font-size-sm: 14px; /* small */
   --font-size-md: 16px; /* medium */
   --font-size-lg: 20px; /* large */
   --font-size-xl: 24px; /* extra large */
+  --font-header-size: 48px;
 
   /* === Border Radius === */
   --radius-sm: 4px;
@@ -50,6 +50,7 @@
   --flex-gap: 16px;
   --menu-gap: 24px;
   --diary-sidebar-width: 400px;
+  --diary-feedback-width: 400px;
 
   /* color */
   --ant-color-primary: #1677ff;
@@ -58,6 +59,7 @@
   --color-yellow-alert: #faad14;
   --color-red: #e53e3e;
   --color-red-hover: #c53030;
+  --color-grey: #F5F5F5;
 
   /* background color */
   --background-color-disable: #e0e0e0;

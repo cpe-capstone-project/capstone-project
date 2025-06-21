@@ -11,6 +11,7 @@ import { RiSortDesc, RiCheckFill } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import { usePath } from "../../contexts/PathContext";
 import "./DiaryList.css";
+import type { DiaryInterface } from "../../interfaces/IDiary";
 
 function DiaryList() {
   // ดึงข้อมูล diaries จาก context

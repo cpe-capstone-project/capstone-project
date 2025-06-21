@@ -6,7 +6,7 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 import { usePath } from "../../contexts/PathContext";
 // import { useDate } from "../../contexts/DateContext";
 import { FloatButton } from "antd";
-import { CommentOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { CloseOutlined, CommentOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 // import { th } from "date-fns/locale";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -30,6 +30,7 @@ import Toolbar from "../../components/text-editor/Toolbar";
 import DiarySidebar from "./DiarySidebar";
 import "./DiaryDetail.css";
 import NotFound from "../NotFound/NotFound";
+import DiaryFeedback from "./DiaryFeedback";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 
 function DiaryDetail() {
@@ -46,6 +47,7 @@ function DiaryDetail() {
   const [isModified, setIsModified] = useState(false);
 
   const [fullscreen, setFullscreen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const navigate = useNavigate();
 
@@ -178,6 +180,7 @@ function DiaryDetail() {
 
   return (
     <section className="diary-detail-container">
+
       {!browserSupportsSpeechRecognition && (
         <div className="speech-recognition-warning">
           Browser does not support speech recognition.
@@ -185,12 +188,12 @@ function DiaryDetail() {
       )}
       <div className="diary-detail-content">
         {/* left side bar */}
-        <div className={`sidebar-anim${fullscreen ? " hide" : ""}`}>
+        <section className={`sidebar-anim${fullscreen ? " hide" : ""}`}>
           <DiarySidebar />
-        </div>
+        </section>
 
         {/* right text editor */}
-        <section className={`right-side${fullscreen ? " fullscreen" : ""}`}>
+        <section className={`diary-editor${fullscreen ? " fullscreen" : ""}`}>
           <div className="title-container">
             <div className="title">
               <h1>Title</h1>
@@ -244,6 +247,11 @@ function DiaryDetail() {
           {/* พื้นที่แสดง editor */}
           <EditorContent editor={editor} className="editor-content" />
         </section>
+          <hr />
+        <section className={`diary-feedback-container${showFeedback ? "" : " hide"}`}>
+          <DiaryFeedback />
+        </section>
+
         {/* Float button สำหรับฟังก์ชันเสริม */}
         <FloatButton.Group
           trigger="hover"
@@ -252,7 +260,10 @@ function DiaryDetail() {
           icon={<PlusOutlined />}
         >
           <FloatButton icon={<EditOutlined />} onClick={handleCreateDiary} />
-          <FloatButton icon={<CommentOutlined />} />
+          <FloatButton 
+            icon={showFeedback ? <CloseOutlined /> : <CommentOutlined />} 
+            onClick={() => setShowFeedback(prev => !prev)} 
+          />
         </FloatButton.Group>
       </div>
     </section>

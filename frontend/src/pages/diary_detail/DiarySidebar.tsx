@@ -95,7 +95,7 @@ const DiarySidebar = () => {
 
 const handleDeleteSelected = async () => {
   try {
-    await new Promise((res) => setTimeout(res, 1500));
+    await new Promise((res) => setTimeout(res, 500));
     await Promise.all(selectedIds.map((id) => deleteDiary(id)));
     setSelectedIds([]); // ล้าง selectedIds หลังจากลบเสร็จ
 
@@ -151,7 +151,7 @@ const handleDeleteSelected = async () => {
             cancelText="ยกเลิก"
             cancelButtonProps={{
               className: "cancel-btn",
-              color: "gray",
+              color: "default",
               variant: "text",
             }}
             zIndex={1000}

@@ -15,7 +15,7 @@ func DB() *gorm.DB {
 func ConnectionDB() {
    database, err := gorm.Open(sqlite.Open("capstone-project.db?cache=shared"), &gorm.Config{})
    if err != nil {
-       panic("failed to connect databaase")
+       panic("failed to connect database")
    }
    fmt.Println("connected database")
    db = database

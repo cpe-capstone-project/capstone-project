@@ -21,6 +21,7 @@ import { AiOutlineUnderline } from "react-icons/ai";
 import { BiHighlight } from "react-icons/bi";
 import { FiAlertTriangle } from "react-icons/fi";
 import "./Toolbar.css";
+import { useRef } from "react";
 
 type ToolbarProps = {
   editor: Editor;
@@ -44,7 +45,16 @@ function Toolbar({
   const canUndo = editor.can().undo();
   const canRedo = editor.can().redo();
 
-  // const [showSpeechAlert, setShowSpeechAlert] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollRef.current) {
+      // ป้องกัน scroll แนวตั้ง
+      e.preventDefault();
+      // แปลงการ scroll แนวตั้ง เป็นแนวนอน
+      scrollRef.current.scrollLeft += e.deltaY;
+    }
+  };
 
   if (!editor) return null;
   const isAlign = (align: string) =>
@@ -52,7 +62,11 @@ function Toolbar({
     editor.getAttributes("paragraph").textAlign === align;
 
   return (
-    <div className="toolbar">
+    <div 
+      className="toolbar"
+      ref={scrollRef}
+      onWheel={handleWheel}
+    >
       {/* <section className="fullscreen-container">
         <button
           onClick={onToggleFullscreen}

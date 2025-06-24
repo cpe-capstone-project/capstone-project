@@ -16,7 +16,7 @@
   flex-direction: column;
   flex: 1;
   padding: var(--padding-left-right-patient-home-page);
-  background-color: #fff;
+  background-color: #ffffff;
 
   .title-container {
     display: flex;
@@ -137,16 +137,17 @@
   );
 }
 
+.diary-editor.fullscreen {
+  width: 100%;
+}
+
 .diary-editor.fullscreen.with-feedback {
   max-width: calc(100% - var(--diary-feedback-width));
 }
 
 
 .diary-feedback-container {
-  display: flex;
-  visibility: visible;
   width: var(--diary-feedback-width);
-  background-color: rgb(255, 255, 255);
   transition: width 0.4s;
   will-change: auto;
   overflow: hidden;
@@ -154,6 +155,5 @@
 
 .diary-feedback-container.hide {
   width: 0;
-  visibility: hidden;
   pointer-events: none;
 }

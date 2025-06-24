@@ -19,6 +19,11 @@
   padding-bottom: var(--padding-text-editor);
   background-color: var(--color-grey);
   overflow-y: auto;
+  scrollbar-color: #00000000 transparent;
+}
+
+.left-side:hover {
+scrollbar-color: #0000004d transparent;
 }
 
 /* Header */

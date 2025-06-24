@@ -1,8 +1,8 @@
 .diary-feedback {
-    display: flex;
-    flex-direction: column;
-    width: var(--diary-feedback-width);
-    padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  display: flex;
+  flex-direction: column;
+  width: var(--diary-feedback-width);  
+  padding: var(--padding-text-editor) var(--padding-patient-home-page);
 }
 
 .psy-profile {

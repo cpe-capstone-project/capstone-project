@@ -6,7 +6,12 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 import { usePath } from "../../contexts/PathContext";
 // import { useDate } from "../../contexts/DateContext";
 import { FloatButton } from "antd";
-import { CloseOutlined, CommentOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  CommentOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 // import { th } from "date-fns/locale";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -180,7 +185,6 @@ function DiaryDetail() {
 
   return (
     <section className="diary-detail-container">
-
       {!browserSupportsSpeechRecognition && (
         <div className="speech-recognition-warning">
           Browser does not support speech recognition.
@@ -193,7 +197,11 @@ function DiaryDetail() {
         </section>
 
         {/* right text editor */}
-        <section className={`diary-editor${fullscreen ? " fullscreen" : ""}${showFeedback ? " with-feedback" : ""}`}>
+        <section
+          className={`diary-editor${fullscreen ? " fullscreen" : ""}${
+            showFeedback ? " with-feedback" : ""
+          }`}
+        >
           <div className="title-container">
             <div className="title">
               <h1>Title</h1>
@@ -248,9 +256,11 @@ function DiaryDetail() {
           <EditorContent editor={editor} className="editor-content" />
         </section>
 
+        {showFeedback && <hr />}
         {/* พื้นที่แสดง diary feedback  */}
-        <section className={`diary-feedback-container${showFeedback ? "" : " hide"}`}>
-          <hr />
+        <section
+          className={`diary-feedback-container${showFeedback ? "" : " hide"}`}
+        >
           <DiaryFeedback />
         </section>
 
@@ -262,9 +272,9 @@ function DiaryDetail() {
           icon={<PlusOutlined />}
         >
           <FloatButton icon={<EditOutlined />} onClick={handleCreateDiary} />
-          <FloatButton 
-            icon={showFeedback ? <CloseOutlined /> : <CommentOutlined />} 
-            onClick={() => setShowFeedback(prev => !prev)} 
+          <FloatButton
+            icon={showFeedback ? <CloseOutlined /> : <CommentOutlined />}
+            onClick={() => setShowFeedback((prev) => !prev)}
           />
         </FloatButton.Group>
       </div>

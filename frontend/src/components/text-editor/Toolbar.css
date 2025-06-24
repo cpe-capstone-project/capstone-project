@@ -6,6 +6,9 @@
   border-radius: 8px;
   padding: calc(var(--padding-text-editor) / 2);
   overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+  user-select: none;
 }
 
 .toolbar select {

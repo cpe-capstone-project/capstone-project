@@ -72,4 +72,5 @@ func (j *JwtWrapper) ValidateToken(signedToken string) (claims *JwtClaim, err er
 	fmt.Printf("JWT Claims: Email=%s, Role=%s\n", claims.Email, claims.Role)
 
 	return
+	//
 }

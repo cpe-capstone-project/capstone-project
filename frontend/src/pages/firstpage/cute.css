@@ -1,0 +1,330 @@
+/* รีเซ็ตพื้นฐานแบบใช้ class */
+.health-reset {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  height: auto;
+  width: auto;
+}
+
+.health-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(270deg, #e0f7fa, #ffffff, #b3e5fc, #ffffff);
+  background-size: 800% 800%;
+  animation: gradientShift 20s ease infinite;
+  color: #333;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.medic-star {
+  position: absolute;
+  top: -30px; /* เริ่มจากนอกจอด้านบน -10px */
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+  animation-name: medic-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+
+.medic-star {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  animation: medic-fall 5s linear infinite;
+  opacity: 0.7;
+}
+
+.medic-star1 {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.medic-star2 {
+  left: 30%;
+  animation-delay: 3s;
+}
+
+.medic-star3 {
+  left: 45%;
+  animation-delay: 1.5s;
+}
+
+.medic-star4 {
+  left: 70%;
+  animation-delay: 2.2s;
+}
+
+.medic-star5 {
+  left: 85%;
+  animation-delay: 4s;
+}
+
+@keyframes medic-fall {
+  0% {
+    top: -40px;
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    top: 110%;
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+
+
+@media (min-width: 768px) {
+  .health-app {
+    flex-direction: row; /* Side-by-side layout on larger screens */
+  }
+}
+
+.health-info-section {
+  flex: 1;
+  padding: 2rem 2.5rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* กึ่งกลางแนวตั้ง */
+  align-items: center;      /* กึ่งกลางแนวนอน */
+  min-width: 0;
+  text-align: center;       /* ทำให้ข้อความอยู่กลางด้วย */
+}
+
+
+.health-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8 rem;
+  flex-wrap: wrap;
+}
+
+.health-logo {
+  width: 100px;
+  margin-right: 0.8rem;
+}
+
+.health-brand {
+  font-size: 2.2rem;  /* ขยายขึ้นอีก */
+  color: #2b6c83;
+  letter-spacing: 0.03em;
+}
+
+.health-text h2 {
+  font-size: 4rem;    /* ใหญ่ขึ้นมาก */
+  color: #226373;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+}
+
+.health-subtext {
+  font-size: 1.6rem;  /* ขยายตาม */
+  color: #226373;
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+}
+.health-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+    justify-content: center; /* กึ่งกลางปุ่มในแนวนอน */
+     gap: 2.5rem;
+}
+
+/* ปุ่มสุขภาพพาสเทล */
+.health-btn {
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  border: none;
+  color: #004466;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.health-btn:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.health-link {
+  font-size: 1rem;
+  color: #226373;
+  text-decoration: none;
+  word-break: break-word;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+/* ฝั่งขวา: รูปภาพในกรอบ */
+.health-image-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  width: 100%;
+  height: auto ;
+}
+.health-image-wrapper {
+  background: rgba(255, 255, 255, 0.2); /* พื้นหลังขาวโปร่งใส */
+  backdrop-filter: blur(12px);          /* ทำให้ฉากหลังเบลอ */
+  -webkit-backdrop-filter: blur(12px);  /* รองรับ Safari */
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* ขอบโปร่งใส */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);  /* เงาแบบ soft หรูหรา */
+
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  transition: transform 0.4s ease;
+  animation: glow-pastel 4s infinite ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+.health-image-wrapper:hover {
+  transform: scale(1.03);
+  animation: glow-pastel-fast 2s infinite ease-in-out;
+}
+
+/* 🎆 Glow Animation: Pastel effect */
+@keyframes glow-pastel {
+  0% {
+    box-shadow:
+      0 0 10px rgba(173, 216, 230, 0.2),   /* pastel blue */
+      0 0 20px rgba(255, 255, 255, 0.15),
+      0 0 30px rgba(173, 216, 230, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(173, 216, 230, 0.35),
+      0 0 35px rgba(255, 255, 255, 0.25),
+      0 0 45px rgba(173, 216, 230, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 10px rgba(173, 216, 230, 0.2),
+      0 0 20px rgba(255, 255, 255, 0.15),
+      0 0 30px rgba(173, 216, 230, 0.1);
+  }
+}
+
+/* เวอร์ชันเร็วตอน hover */
+@keyframes glow-pastel-fast {
+  0% {
+    box-shadow:
+      0 0 15px rgba(173, 216, 230, 0.3),
+      0 0 30px rgba(255, 255, 255, 0.2),
+      0 0 40px rgba(173, 216, 230, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 25px rgba(173, 216, 230, 0.45),
+      0 0 50px rgba(255, 255, 255, 0.3),
+      0 0 70px rgba(173, 216, 230, 0.25);
+  }
+  100% {
+    box-shadow:
+      0 0 15px rgba(173, 216, 230, 0.3),
+      0 0 30px rgba(255, 255, 255, 0.2),
+      0 0 40px rgba(173, 216, 230, 0.15);
+  }
+}
+
+
+
+/* Optional: เพิ่ม glow ที่ตัวภาพด้วย */
+.health-illustration {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+/* Responsive Font & Padding Adjustments */
+@media (max-width: 768px) {
+  .health-info-section {
+    padding: 2rem;
+  }
+
+  .health-text h2 {
+    font-size: 2rem;
+  }
+
+  .health-subtext,
+  .health-link {
+    font-size: 1rem;
+  }
+
+  .health-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+        align-content: space-between;
+  }
+
+  .health-app {
+    flex-direction: column;
+  }
+}
+/* ใส่ในไฟล์ global เช่น index.css หรือแนบผ่าน style tag ถ้าใช้ CSS module */
+.swal2-role-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.swal2-role-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.swal2-role-item:hover {
+  transform: scale(1.05);
+}
+
+.swal2-role-item img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 10px;
+}
+
+.swal2-role-item p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}

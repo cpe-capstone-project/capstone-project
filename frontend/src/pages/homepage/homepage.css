@@ -1,0 +1,268 @@
+.housemed-homepage {
+  font-family: 'Segoe UI', 'Sarabun', sans-serif;
+  background-color: #f4faff;
+  color: #2b6c83;
+  min-height: 100vh;
+}
+
+.housemed-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 153, 255, 0.1);
+}
+
+.housemed-logo {
+  font-weight: bold;
+  color: #226373;
+  font-size: 1.2rem;
+}
+
+.housemed-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.housemed-nav a {
+  color: #226373;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.housemed-nav a:hover {
+  text-decoration: underline;
+}
+
+.housemed-profile-wrapper {
+  position: relative;
+}
+
+.housemed-profile-icon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.housemed-profile-icon img {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.housemed-profile-icon:hover img {
+  transform: scale(1.05);
+}
+
+.housemed-profile-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+  min-width: 140px;
+}
+
+.housemed-profile-menu button {
+  background: linear-gradient(to right, #d4f0ff, #f0fcff);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #004466;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.housemed-profile-menu button:hover {
+  background: linear-gradient(to right, #ffffff, #cceeff);
+}
+.housemed-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #145374; /* ใช้สีเหมือน .docflour-logo */
+  gap: 0.5rem;
+}
+
+.housemed-logo-img {
+  width: 32px;  /* ตาม .docflour-logo-icon */
+  height: 32px;
+  object-fit: contain;
+}
+
+
+.housemed-notification {
+  background-color: #e0f4ff;
+  color: #004466;
+  padding: 0.8rem 1.5rem;
+  margin: 1rem auto;
+  border-radius: 16px;
+  text-align: center;
+  width: fit-content;
+  font-weight: bold;
+}
+
+.housemed-main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.housemed-left-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 600px;
+}
+
+.housemed-left-section h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #004466;
+}
+
+.housemed-subtitle {
+  font-size: 1.3rem; /* เดิม 1.1rem → เพิ่มขนาด */
+  margin-bottom: 2rem;
+  color: #336677;
+  letter-spacing: 0.5px;
+}
+.housemed-feature-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+
+  width: 750px;          /* ขยายเต็มความกว้างของพ่อแม่ */
+  max-width: 1200px;    /* กำหนดขนาดกว้างสูงสุดที่ต้องการ */
+  margin: 0 auto;       /* จัดกึ่งกลาง container */
+  box-sizing: border-box;
+}
+
+.housemed-feature {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e9f7ff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
+  flex-wrap: wrap;
+
+  width: 100%;          /* เต็มความกว้าง container */
+  box-sizing: border-box;
+}
+
+.housemed-feature-left {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.housemed-feature-left h2 {
+  color: #145374;
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(20, 83, 116, 0.3);
+  margin-left: 1rem;
+}
+
+.housemed-icon {
+  width: 200px;
+}
+
+.housemed-feature-right {
+  flex: 1;
+  text-align: center;
+  gap: 5 rem;
+}
+
+.housemed-start-btn {
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  border: none;
+  padding: 0.9rem 2.4rem;       /* ขยาย padding */
+  font-size: 1.2rem;            /* ขยายตัวอักษร */
+  font-weight: 700;             /* หนาขึ้น */
+  color: #004466;
+  border-radius: 16px;          /* โค้งมนมากขึ้น */
+  box-shadow: 0 6px 14px rgba(0, 153, 255, 0.25); /* เงาชัดขึ้น */
+  transition: 0.3s ease;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;        /* เพิ่มระยะห่างตัวอักษร */
+  text-transform: uppercase;    /* เปลี่ยนเป็นตัวพิมพ์ใหญ่ทั้งหมด */
+}
+
+
+.housemed-start-btn:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 153, 255, 0.35);
+}
+
+.housemed-feature-desc {
+  font-size: 1rem;
+  color: #3a6c7c;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  margin-top: 15%;
+}
+
+/* Responsive: ซ้อนเป็นแนวตั้งเมื่อจอเล็ก */
+@media (max-width: 768px) {
+  .housemed-feature-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.housemed-right-section {
+  background: rgba(255, 255, 255, 0.2); /* พื้นหลังขาวโปร่งใส */
+  backdrop-filter: blur(12px);          /* ทำให้ฉากหลังเบลอ */
+  -webkit-backdrop-filter: blur(12px);  /* รองรับ Safari */
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* ขอบโปร่งใส */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);  /* เงาแบบ soft หรูหรา */
+
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  transition: transform 0.4s ease;
+  animation: glow-pastel 4s infinite ease-in-out;
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.housemed-doctor-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .housemed-main-content {
+    flex-direction: column;
+    align-items: center;
+  }
+}

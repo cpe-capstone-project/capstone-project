@@ -1,0 +1,157 @@
+.hospitalcare-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(270deg, #e0f7fa, #ffffff, #b3e5fc, #ffffff);
+  background-size: 800% 800%;
+  animation: gradientShift 20s ease infinite;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #226373;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hospitalcare-box {
+  background: rgba(255, 255, 255, 0.85);
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  width: 350px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.hospitalcare-box:hover {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 25px rgba(34, 99, 115, 0.45),
+    0 0 50px rgba(255, 255, 255, 0.3),
+    0 0 70px rgba(34, 99, 115, 0.25);
+}
+
+.hospitalcare-title {
+  color: #2b6c83;
+  margin-bottom: 30px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.hospitalcare-label {
+  display: block;
+  text-align: left;
+  margin-top: 15px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #226373;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.hospitalcare-input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border: 1.8px solid #226373;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hospitalcare-input:focus {
+  border-color: #2b6c83;
+  box-shadow: 0 0 8px rgba(34, 99, 115, 0.3);
+}
+
+.hospitalcare-button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px 0;
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  color: #004466;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.hospitalcare-button:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* SweetAlert2 custom classes */
+.swal-popup-custom {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #226373;
+}
+
+.swal-title-custom {
+  color: #2b6c83;
+  font-weight: 700;
+}
+
+.swal-confirm-btn {
+  background: #2b6c83 !important;
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.swal-icon-custom {
+  color: #2b6c83 !important;
+}
+.composition-confirm-btn {
+  background-color: #004aad !important;  /* สีพื้นหลัง */
+  color: white !important;                /* สีตัวอักษร */
+  font-weight: 600 !important;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.composition-confirm-btn:hover {
+  background-color: #0066ff !important;
+}
+.composition-popup {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.composition-title {
+  color: #004aad;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+.swal2-confirm.composition-confirm-btn {
+  background-color: #004aad !important;  /* สีฟ้าลึก */
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.3s ease;
+}
+
+.swal2-confirm.composition-confirm-btn:hover {
+  background-color: #0066ff !important; /* สีฟ้าสว่างขึ้นเวลา hover */
+}

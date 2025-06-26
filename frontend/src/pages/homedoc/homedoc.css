@@ -1,0 +1,208 @@
+/* ---------------------- Overall Layout ---------------------- */
+.docflour-homepage {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f8fdff;
+  color: #155e75;
+  min-height: 100vh;
+}
+
+/* ---------------------- Header ---------------------- */
+.docflour-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 10px rgba(0, 153, 255, 0.1);
+}
+
+.docflour-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #004466;
+}
+
+.docflour-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.docflour-nav a {
+  text-decoration: none;
+  color: #004466;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.docflour-nav a:hover {
+  color: #0077aa;
+}
+
+.docflour-profile-wrapper {
+  position: relative;
+}
+
+.docflour-profile-icon img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.docflour-profile-menu {
+  position: absolute;
+  top: 45px; /* เปลี่ยนจาก 120% เพื่อให้เลื่อนลงมาตามไอคอน */
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+  min-width: 140px;
+  border: 1px solid #d0e7ef; /* เพิ่มขอบอ่อน */
+}
+
+.docflour-profile-menu button {
+  background: linear-gradient(to right, #d4f0ff, #f0fcff);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #004466;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.docflour-profile-menu button:hover {
+  background: linear-gradient(to right, #ffffff, #cceeff);
+}
+.docflour-logo {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #145374;
+  gap: 0.5rem;
+}
+
+.docflour-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* ---------------------- Welcome Section ---------------------- */
+.docflour-welcome-box {
+  text-align: center;
+  padding: 3rem 2rem 1rem;
+}
+
+.docflour-welcome-box h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #145374;
+}
+
+.docflour-welcome-box p {
+  font-size: 1.25rem;
+  color: #3a6c7c;
+}
+
+/* ---------------------- Therapy Section ---------------------- */
+.docflour-therapy-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e9f7ff;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
+  flex-wrap: wrap;
+}
+
+.docflour-icon-card,
+.docflour-doctor-illustration {
+  flex: 1;
+  text-align: center;
+}
+
+.docflour-icon-card img,
+.docflour-doctor-illustration img {
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  user-select: none;
+}
+
+.docflour-case-content {
+  flex: 1;
+  text-align: center;
+  padding: 1rem 2rem;
+}
+
+.docflour-case-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #145374;
+  text-shadow: 0 1px 2px rgba(20, 83, 116, 0.3);
+  letter-spacing: 1px;
+}
+
+.docflour-case-content p {
+  font-size: 1rem;
+  color: #3a6c7c;
+  line-height: 1.6;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+/* Start Button */
+.docflour-start-button {
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  border: none;
+  padding: 0.9rem 2.4rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #004466;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 153, 255, 0.25);
+  transition: 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.docflour-start-button:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 153, 255, 0.35);
+}
+
+/* ---------------------- Responsive ---------------------- */
+@media (max-width: 768px) {
+  .docflour-therapy-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .docflour-nav {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .docflour-case-content {
+    padding: 1rem 0;
+  }
+
+  .docflour-welcome-box h1 {
+    font-size: 2rem;
+  }
+}

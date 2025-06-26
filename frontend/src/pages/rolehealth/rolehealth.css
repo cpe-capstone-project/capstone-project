@@ -1,0 +1,376 @@
+/* Container */
+.wellness-register-form {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f3fdff;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 153, 255, 0.15);
+  font-family: "Segoe UI", "Sarabun", sans-serif;
+  color: #2b6c83;
+}
+
+/* Heading */
+.wellness-heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: #226373;
+}
+
+/* Labels and Inputs */
+.wellness-label {
+  display: block;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: #226373;
+}
+
+.wellness-input,
+.wellness-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.25rem;
+  border: 1.5px solid #b3e5fc;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  font-family: inherit;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.wellness-input:focus,
+.wellness-select:focus {
+  outline: none;
+  border-color: #00aaff;
+  background-color: #e6faff;
+  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+}
+
+/* Error messages */
+.wellness-error {
+  position: relative;
+  color: #8b2e2e;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  padding: 10px 20px 10px 36px;
+  background: #fff0f0;
+  border: 1px solid #ffa4a4;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(255, 102, 102, 0.2);
+  text-align: left;
+  transition: all 0.3s ease;
+  overflow-wrap: break-word;
+}
+
+.wellness-error::before {
+  content: "❗";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #ff6b6b;
+}
+
+.wellness-error:hover {
+  background: #ffeaea;
+  box-shadow: 0 6px 16px rgba(255, 102, 102, 0.35);
+  transform: scale(1.03);
+}
+
+/* Step indicator */
+.wellness-steps-after-submit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.wellness-steps-after-submit::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  /* เปลี่ยนจาก background เป็น border-bottom แบบเส้นประ */
+  background: none;  /* เอา background ออก */
+  border-bottom: 3px dashed #d1f4ff;  /* เส้นประสีฟ้าอ่อน */
+  z-index: 0;
+}
+
+
+.step-box {
+  position: relative;
+  text-align: center;
+  flex: 1;
+  z-index: 1;
+}
+
+.step-box .circle {
+  width: 40px;
+  height: 40px;
+  background: #d1f4ff;
+  color: #007baf;
+  font-weight: bold;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 153, 255, 0.2);
+  font-size: 1.1rem;
+  z-index: 2;
+}
+
+.step-box p {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #7a9ca5;
+}
+
+/* Active step */
+.step-box.active .circle {
+  background: #00bcd4;
+  color: white;
+}
+
+.step-box.active p {
+  color: #00bcd4;
+}
+
+/* Consent checkbox */
+.wellness-consent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-top: 1rem;
+  color: #226373;
+}
+
+.wellness-consent input[type="checkbox"] {
+  accent-color: #00aaff;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Buttons */
+.wellness-submit-button,
+.health-btn-swal {
+  width: 100%;
+  margin-top: 1.8rem;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #004466;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.wellness-submit-button:hover,
+.health-btn-swal:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.wellness-submit-button:focus,
+.health-btn-swal:focus {
+  outline: 3px solid rgba(0, 153, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* Link to login */
+.wellness-login-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.95rem;
+}
+
+.wellness-login-link a {
+  color: #4aa8f0;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.wellness-login-link a:hover {
+  text-decoration: underline;
+}
+
+/* SweetAlert2 input style */
+.swal2-input {
+  font-family: "Segoe UI", "Sarabun", sans-serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1.5px solid #b3e5fc;
+  transition: all 0.3s ease;
+}
+
+.swal2-input:focus {
+  border-color: #00aaff;
+  background-color: #e6faff;
+  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+}
+
+.swal2-popup {
+  font-family: "Segoe UI", "Sarabun", sans-serif !important;
+  border-radius: 16px !important;
+}
+
+/* Upload button for medical license file */
+.health-btn-upload {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #004466;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.health-btn-upload:hover {
+  background: linear-gradient(to right, #ffffff, #dff9ff);
+  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.health-btn-upload:focus {
+  outline: 3px solid rgba(0, 153, 255, 0.3);
+  outline-offset: 2px;
+}
+
+.success-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.success-message {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #226373;
+  margin-bottom: 1rem;
+}
+
+.success-subtext {
+  font-size: 1.2rem;
+  color: #4a7a84;
+  margin-bottom: 2rem;
+}
+.rolehealth-background {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  /* ไล่สีแบบ gradient animation */
+  background: linear-gradient(270deg, #a0e9fd, #75c7e6, #a0e9fd);
+  background-size: 600% 600%;
+  animation: gradientShift 15s ease infinite;
+
+  /* ขอบใสแบบกระจก */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+
+  /* เบลอฉากหลังที่อยู่หลังขอบ */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari */
+
+  /* เงาเล็กๆ รอบขอบ */
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+
+  background-clip: padding-box;
+
+  /* ใส่ glow effect ด้วย box-shadow (ใช้ animation เพิ่มเติมด้านล่าง) */
+  /* ตัว glow-pastel จะใช้กับ pseudo element ด้านล่างเพื่อไม่ให้บั๊กกับ background */
+}
+.rolehealth-background {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  /* ไล่สีพื้นหลังนุ่มๆ ฟ้า-ขาว-ฟ้า */
+  background: linear-gradient(270deg, #e0f7fa, #ffffff, #b3e5fc, #ffffff);
+  background-size: 800% 800%;
+
+  /* animation ไล่สี */
+  animation: gradientShift 20s ease infinite;
+
+  /* ฟ้อนต์สี */
+  color: #226373;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ไล่สี animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glassmorphism effect สำหรับกล่องภายใน */
+.rolehealth-box {
+  background: rgba(255, 255, 255, 0.85); /* ขาวโปร่งแสง */
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  width: 350px;
+  margin: 0 auto; /* กึ่งกลาง */
+  text-align: center;
+
+  /* เบลอฉากหลังหลังกล่อง */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* ขอบโปร่งแสงแบบ glass */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  /* transition effect เวลาชี้ */
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.rolehealth-box:hover {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 25px rgba(34, 99, 115, 0.45),
+    0 0 50px rgba(255, 255, 255, 0.3),
+    0 0 70px rgba(34, 99, 115, 0.25);
+}

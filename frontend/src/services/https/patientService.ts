@@ -1,5 +1,5 @@
 import type { PatientInterface } from "../../interfaces/IPatient";
-
+import type { LoginResponse } from "./LoginResponse";
 const apiUrl = "http://localhost:8000";
 
 export async function CreatePatient(data: PatientInterface) {
@@ -24,7 +24,7 @@ export async function CreatePatient(data: PatientInterface) {
   }
 }
 
-export async function LoginPatient(email: string, password: string) {
+export async function LoginPatient(email: string, password: string): Promise<LoginResponse> {
   const isDepressionEmail = email.endsWith("@depressionrec.go.th");
   const endpoint = isDepressionEmail ? "/psychologists/login" : "/patients/login";
 
@@ -43,6 +43,7 @@ export async function LoginPatient(email: string, password: string) {
       userType: data.userType || null,
       profileName: data.profileName || "",
       imagePath: data.imagePath || "",
+      token: data.token || "",   // เพิ่ม token
     };
   } catch (error) {
     return {

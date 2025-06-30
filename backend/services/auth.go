@@ -8,43 +8,48 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// JwtWrapper wraps the signing key and the issuer
 type JwtWrapper struct {
 	SecretKey       string
 	Issuer          string
 	ExpirationHours int64
 }
 
-// JwtClaim adds email, role, and branchID as claims to the token
 type JwtClaim struct {
-	Email    string `json:"email"`
-	Role     string `json:"role"`      // ฟิลด์ Role
+	Email       string `json:"email"`
+	Role        string `json:"role"`
+	UserID      uint   `json:"user_id"`
+	ProfileName string `json:"profile_name"`
+	ImagePath   string `json:"image_path"`
 	jwt.StandardClaims
 }
 
-// GenerateToken generates a jwt token with email, role, and branchID
-func (j *JwtWrapper) GenerateToken(email string, role string) (signedToken string, err error) {
+func (j *JwtWrapper) GenerateToken(email, role string, userID uint, profileName, imagePath string) (string, error) {
 	claims := &JwtClaim{
-		Email:    email,
-		Role:     role,
+		Email:       email,
+		Role:        role,
+		UserID:      userID,
+		ProfileName: profileName,
+		ImagePath:   imagePath,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(j.ExpirationHours)).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.ExpirationHours)).Unix(),
 			Issuer:    j.Issuer,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, err = token.SignedString([]byte(j.SecretKey))
+	signedToken, err := token.SignedString([]byte(j.SecretKey))
 	if err != nil {
-		return
+		return "", err
 	}
 
-	return
+	fmt.Printf("JWT Claims: Email=%s, Role=%s, UserID=%d, ProfileName=%s, ImagePath=%s\n",
+		claims.Email, claims.Role, claims.UserID, claims.ProfileName, claims.ImagePath)
+
+	return signedToken, nil
 }
 
-// ValidateToken validates the jwt token and extracts the claims
-func (j *JwtWrapper) ValidateToken(signedToken string) (claims *JwtClaim, err error) {
+func (j *JwtWrapper) ValidateToken(signedToken string) (*JwtClaim, error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&JwtClaim{},
@@ -54,23 +59,17 @@ func (j *JwtWrapper) ValidateToken(signedToken string) (claims *JwtClaim, err er
 	)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*JwtClaim)
 	if !ok {
-		err = errors.New("couldn't parse claims")
-		return
+		return nil, errors.New("couldn't parse claims")
 	}
 
-	if claims.ExpiresAt < time.Now().Local().Unix() {
-		err = errors.New("JWT is expired")
-		return
+	if claims.ExpiresAt < time.Now().Unix() {
+		return nil, errors.New("JWT is expired")
 	}
 
-	// เพิ่ม Log เพื่อ Debug ค่า Claims
-	fmt.Printf("JWT Claims: Email=%s, Role=%s\n", claims.Email, claims.Role)
-
-	return
-	//
+	return claims, nil
 }

@@ -2,12 +2,11 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
-import { LoginPatient } from "../../services/https/patientService"; // import ที่ใช้เรียก login API
+import { LoginPatient } from "../../services/https/patientService";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // ใช้งาน useNavigate
-
 const handleLogin = async () => {
   if (!email && !password) {
     Swal.fire({
@@ -33,7 +32,6 @@ const handleLogin = async () => {
     return;
   }
 
-  // (ยังคงเช็ครูปแบบอีเมล)
   const isGmail = email.endsWith("@gmail.com");
   const isDepressionEmail = email.endsWith("@depressionrec.go.th");
 
@@ -45,7 +43,7 @@ const handleLogin = async () => {
     return;
   }
 
-  // เรียก API เช็ค email/password จริงจาก backend
+  // ✅ เรียก API
   const res = await LoginPatient(email, password);
 
   if (!res.status) {
@@ -56,11 +54,16 @@ const handleLogin = async () => {
     return;
   }
 
-  // ถ้าผ่าน ให้บันทึกข้อมูล user ลง localStorage
-  localStorage.setItem("user", JSON.stringify({ email }));
+  localStorage.setItem("token", res.token ?? ""); // ใช้ ?? เพื่อเช็ค undefined
+  localStorage.setItem("user", JSON.stringify({
+  email,
+  profileName: res.profileName || "",
+  userType: res.userType || "",
+}));
 
+  // ✅ แสดง SweetAlert แล้ว navigate ต่อ
   Swal.fire({
-    title: "Login Success!",
+    title: "เข้าสู่ระบบสำเร็จ!",
     icon: "success",
     confirmButtonText: "OK",
     customClass: {
@@ -71,7 +74,7 @@ const handleLogin = async () => {
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      if (isDepressionEmail) {
+      if (res.userType === "psychologist" || isDepressionEmail) {
         navigate("/homedoc");
       } else {
         navigate("/homepage");

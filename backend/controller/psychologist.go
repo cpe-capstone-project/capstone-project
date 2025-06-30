@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"capstone-project/entity"
 	"capstone-project/config"
+	"capstone-project/services"
 )
-
 
 // CreatePsychologist รับข้อมูลนักจิตวิทยา พร้อมอัปโหลดรูปใบรับรอง
 func CreatePsychologist(c *gin.Context) {
@@ -23,25 +24,38 @@ func CreatePsychologist(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	// แปลงวันเกิด
-	dob, err := time.Parse("2006-01-02", dobStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "รูปแบบวันเกิดไม่ถูกต้อง"})
+	// ตรวจสอบว่าข้อมูลจำเป็นครบหรือไม่
+	if firstName == "" || lastName == "" || gender == "" || dobStr == "" || phone == "" || medicalLicense == "" || email == "" || password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "กรุณากรอกข้อมูลให้ครบถ้วน"})
 		return
 	}
 
-	// อัปโหลดใบรับรอง
+	// ตรวจสอบอีเมลซ้ำ
+	var existing entity.Psychologist
+	if err := config.DB().Where("email = ?", email).First(&existing).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"message": "อีเมลนี้ถูกใช้งานแล้ว"})
+		return
+	}
+
+	// แปลงวันเกิด
+	dob, err := time.Parse("2006-01-02", dobStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "รูปแบบวันเกิดไม่ถูกต้อง (ต้องเป็น YYYY-MM-DD)"})
+		return
+	}
+
+	// อัปโหลดรูปใบรับรอง
 	file, err := c.FormFile("licenseImage")
-	var filename string
-	if err == nil && file != nil {
-		timestamp := time.Now().Unix()
-		filename = fmt.Sprintf("uploads/%d_%s", timestamp, file.Filename)
-		if err := c.SaveUploadedFile(file, filename); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "ไม่สามารถบันทึกรูปได้"})
-			return
-		}
-	} else {
+	if err != nil || file == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "กรุณาแนบรูปใบรับรองแพทย์"})
+		return
+	}
+
+	// สร้าง path สำหรับเก็บรูป
+	timestamp := time.Now().Unix()
+	filename := fmt.Sprintf("uploads/%d_%s", timestamp, file.Filename)
+	if err := c.SaveUploadedFile(file, filename); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "ไม่สามารถบันทึกรูปได้"})
 		return
 	}
 
@@ -52,7 +66,7 @@ func CreatePsychologist(c *gin.Context) {
 		return
 	}
 
-	// สร้างข้อมูลนักจิตวิทยา
+	// สร้าง struct และบันทึก
 	psych := entity.Psychologist{
 		FirstName:      firstName,
 		LastName:       lastName,
@@ -64,8 +78,6 @@ func CreatePsychologist(c *gin.Context) {
 		PasswordHash:   hashed,
 		LicenseImage:   filename,
 	}
-
-	// ✅ บันทึกข้อมูลด้วย config.DB()
 	if err := config.DB().Create(&psych).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "ไม่สามารถบันทึกข้อมูลได้"})
 		return
@@ -73,12 +85,13 @@ func CreatePsychologist(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "ลงทะเบียนนักจิตวิทยาสำเร็จ", "psychologist": psych})
 }
+
+// LoginPaylead สำหรับรับข้อมูลล็อกอิน
 type LoginPaylead struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-// PsychologistLogin สำหรับล็อกอิน
 func PsychologistLogin(c *gin.Context) {
 	var payload LoginPaylead
 	if err := c.ShouldBindJSON(&payload); err != nil {
@@ -92,16 +105,37 @@ func PsychologistLogin(c *gin.Context) {
 		return
 	}
 
-	// ตรวจสอบรหัสผ่าน
 	if !config.CheckPasswordHash(payload.Password, psychologist.PasswordHash) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "รหัสผ่านไม่ถูกต้อง"})
 		return
 	}
 
+	jwtWrapper := services.JwtWrapper{
+		SecretKey:       os.Getenv("JWT_SECRET"), // ควรตั้งใน env
+		Issuer:          "PsychologistAuthService",
+		ExpirationHours: 24,
+	}
+
+	token, err := jwtWrapper.GenerateToken(
+		psychologist.Email,
+		"psychologist",
+		psychologist.ID,
+		psychologist.FirstName+" "+psychologist.LastName,
+		psychologist.LicenseImage,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "ไม่สามารถสร้าง token ได้"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "เข้าสู่ระบบสำเร็จ",
-		"userType":    "psychologist",
-		"profileName": psychologist.FirstName + " " + psychologist.LastName,
-		"imagePath":   psychologist.LicenseImage,
-	})
+	"message":     "เข้าสู่ระบบสำเร็จ",
+	"token_type":  "Bearer",
+	"token":       token,
+	"id":          psychologist.ID,
+	"role":        "psychologist",
+	"profileName": psychologist.FirstName + " " + psychologist.LastName,
+	"imagePath":   psychologist.LicenseImage,
+})
+
 }

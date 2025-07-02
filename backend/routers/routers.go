@@ -8,17 +8,20 @@ import (
 
 const PORT = "8000"
 
+// SetupRouter initializes the router
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CORSMiddleware())
 
-	// ✅ ตรงกันแล้ว เพราะส่ง *gin.Engine
-	SetuploginRoutes(r)
+	// Public Routes
+	SetupAuthenticationRoutes(r)
 
+	// Private Routes (Require Authorization)
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())
 	SetupDiaryRoutes(private)
 
+	// Root Route
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "API RUNNING... PORT: %s", PORT)
 	})

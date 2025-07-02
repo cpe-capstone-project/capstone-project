@@ -6,7 +6,8 @@ import Loadable from "../components/third-patry/Loadable";
 import DiaryDetail from "../pages/diary_detail/DiaryDetail";
 import { DiaryContextProvider } from "../contexts/DiaryContext";
 import Unknown from "../pages/ีunknown/Unknown";
-import Cute from "../pages/firstpage/cute";
+// import Cute from "../pages/firstpage/cute";
+import SignInPages from "../pages/authentication/Login/SignIn";
 
 //const SignIn = Loadable(lazy(() => import("../pages/authentication/Login/SignIn")));
 const DiaryList = Loadable(lazy(() => import("../pages/diary_list/DiaryList")));
@@ -72,7 +73,7 @@ const AdminRoutes = (): RouteObject => {
   // ถ้าไม่มีบทบาทหรือบทบาทไม่รู้จัก -> กลับไปหน้า SignIn
   return {
     path: "/",
-    element: <Cute />
+    element: <SignInPages />
   };
 };
 

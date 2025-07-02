@@ -1,46 +1,35 @@
 package config
 
 import (
-	"fmt"
-	"log"
-
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-
-	"capstone-project/entity" // ตรวจสอบว่า path นี้ถูกต้องตามโปรเจกต์คุณ
+    "fmt"
+    "gorm.io/driver/sqlite"
+    "gorm.io/gorm"
 )
 
+// ตัวแปร db ใช้เก็บ instance ของ gorm.DB สำหรับเชื่อมต่อฐานข้อมูล
 var db *gorm.DB
 
-// Getter ฟังก์ชันเพื่อให้ controller อื่นเรียกใช้งาน DB ได้
+// DB คืนค่า instance ของ gorm.DB ที่ใช้ในโปรเจกต์
 func DB() *gorm.DB {
-	return db
+    return db
 }
 
-// เชื่อมต่อฐานข้อมูล capstone-project.db
+// ConnectionDB ใช้สำหรับเชื่อมต่อกับฐานข้อมูล SQLite
+// หากเชื่อมต่อไม่สำเร็จจะ panic ทันที
 func ConnectionDB() {
-	database, err := gorm.Open(sqlite.Open("capstone-project.db?cache=shared"), &gorm.Config{})
-	if err != nil {
-		log.Fatal("failed to connect to database:", err)
-	}
-	fmt.Println("connected database")
-
-	db = database
-
-	// ทำ AutoMigrate ตารางในฐานข้อมูล
-	err = db.AutoMigrate(
-		&entity.Patient{},
-		&entity.Psychologist{},
-		// เพิ่ม entity อื่น ๆ ได้ที่นี่ เช่น &entity.Diary{}, &entity.Appointment{} เป็นต้น
-	)
-	if err != nil {
-		log.Fatal("failed to migrate database:", err)
-	}
+   database, err := gorm.Open(sqlite.Open("capstone-project.db?cache=shared"), &gorm.Config{})
+   if err != nil {
+       panic("failed to connect database")
+   }
+   fmt.Println("connected database")
+   db = database
 }
 
-// เตรียมข้อมูลเริ่มต้น (ถ้ามี)
+// SetupDatabase ใช้สำหรับตั้งค่าฐานข้อมูลเบื้องต้น
+// เช่น การสร้างตารางและเพิ่มข้อมูลตัวอย่าง
 func SetupDatabase() {
-	SetupDiaryDatabase()
-
-	fmt.Println("Sample data has been added to the database.")
+    SetupPatientDatabase()
+    SetupDiaryDatabase()
+    
+    fmt.Println("Sample data has been added to the database.")
 }

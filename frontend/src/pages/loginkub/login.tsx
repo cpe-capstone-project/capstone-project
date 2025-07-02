@@ -53,7 +53,9 @@ const handleLogin = async () => {
     });
     return;
   }
-
+  console.log("res", res)
+  localStorage.setItem("isLogin", "true");
+  localStorage.setItem("token_type", "Bearer");
   localStorage.setItem("token", res.token ?? ""); // ใช้ ?? เพื่อเช็ค undefined
   localStorage.setItem("user", JSON.stringify({
   email,

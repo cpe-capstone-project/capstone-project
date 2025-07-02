@@ -70,7 +70,7 @@ const handleEditProfile = () => {
 </div>
         <nav className="housemed-nav">
           <a href="#">HOME PAGE</a>
-          <a href="#">DIARY</a>
+          <a href="/diary">DIARY</a>
           <a href="#">THOUGH RECORD</a>
 
           <div className="housemed-profile-wrapper">

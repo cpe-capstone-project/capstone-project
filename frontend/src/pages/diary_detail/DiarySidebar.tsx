@@ -153,27 +153,38 @@ const DiarySidebar = () => {
           }`}
         >
           <p>ลบรายการที่เลือก ({selectedIds.length})</p>
-          <Popconfirm
-            title="ยืนยันการลบ"
-            description="คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่ที่เลือกไว้ ?"
-            onConfirm={handleDeleteSelected}
-            okText="ลบ"
-            okButtonProps={{ className: "confirm-btn", danger: true }}
-            cancelText="ยกเลิก"
-            cancelButtonProps={{
-              className: "cancel-btn",
-              color: "default",
-              variant: "text",
-            }}
-            zIndex={1000}
-          >
+
+          <div className="action-buttons">
             <button
-              className="delete-selected-btn"
-              disabled={selectedIds.length === 0}
+              className="reset-selected-btn"
+              onClick={() => setSelectedIds([])}
+              title="Clear selection"
             >
-              <RiDeleteBin6Line />
+              ยกเลิก
             </button>
-          </Popconfirm>
+
+            <Popconfirm
+              title="ยืนยันการลบ"
+              description="คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่ที่เลือกไว้?"
+              onConfirm={handleDeleteSelected}
+              okText="Delete"
+              okButtonProps={{ className: "confirm-btn", danger: true }}
+              cancelText="Cancel"
+              cancelButtonProps={{
+                className: "cancel-btn",
+                color: "default",
+                variant: "text",
+              }}
+              zIndex={1000}
+            >
+              <button
+                className="delete-selected-btn"
+                disabled={selectedIds.length === 0}
+              >
+                <RiDeleteBin6Line />
+              </button>
+            </Popconfirm>
+          </div>
         </div>
         {/* {selectedIds.length > 0 && (
         )} */}

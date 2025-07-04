@@ -15,34 +15,6 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
-
-    .diary-list-create-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-xs);
-      width: 120px;
-      height: 30px;
-      padding: 4px;
-      background-color: var(--ant-color-primary);
-      color: rgb(255, 255, 255);
-      border: 3px solid var(--ant-color-primary);
-      border-radius: var(--radius-full);
-      cursor: pointer;
-      font-size: var(--font-size-sm);
-      /* font-weight: bold; */
-      transition: var(--transition-fast);
-  
-      &:hover {
-        color: var(--ant-color-primary);
-        background-color: white;
-      }
-  
-      svg {
-        /* width: 20px;
-        height: 20px; */
-      }
-    }
   }
 }
 
@@ -97,3 +69,25 @@
   }
 }
 
+/* fade */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}

@@ -225,6 +225,7 @@ function DiaryDetail() {
             </button>
           </div>
           <hr />
+          
           {/* Toolbar สำหรับจัดการ editor และปุ่มบันทึกเสียง */}
           <Toolbar
             editor={editor}
@@ -256,7 +257,7 @@ function DiaryDetail() {
           <EditorContent editor={editor} className="editor-content" />
         </section>
 
-        {showFeedback && <hr />}
+        {/* {showFeedback && <hr />} */}
         {/* พื้นที่แสดง diary feedback  */}
         <section
           className={`diary-feedback-container${showFeedback ? "" : " hide"}`}

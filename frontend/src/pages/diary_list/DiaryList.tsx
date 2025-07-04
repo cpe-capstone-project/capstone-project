@@ -5,7 +5,7 @@ import { useDiary } from "../../contexts/DiaryContext";
 import { useDate } from "../../contexts/DateContext";
 import { th } from "date-fns/locale";
 import { groupByDate } from "../../utils/GroupByDate";
-import { Select } from "antd";
+import { Button, Select } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { usePath } from "../../contexts/PathContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
@@ -35,7 +35,7 @@ function DiaryList() {
       (localStorage.getItem("diary_sortField") as "UpdatedAt" | "CreatedAt") ||
       "UpdatedAt"
   );
-  
+
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
     () => (localStorage.getItem("diary_sortOrder") as "asc" | "desc") || "desc"
   );
@@ -72,8 +72,8 @@ function DiaryList() {
   }, [sortField]);
 
   useEffect(() => {
-      fetchDiaries(sortField, sortOrder);
-    }, [sortField, sortOrder]);
+    fetchDiaries(sortField, sortOrder);
+  }, [sortField, sortOrder]);
 
   return (
     <section className="diary-list-container">
@@ -83,23 +83,23 @@ function DiaryList() {
         <div className="diary-list-menu">
           {/* กรองข้อมูล */}
           <Select
-          value={sortField}
-          style={{ width: 120, marginRight: 8 }}
-          onChange={(value) => setSortField(value)}
-          options={[
-            { value: "UpdatedAt", label: "วันที่แก้ไข" },
-            { value: "CreatedAt", label: "วันที่สร้าง" },
-          ]}
-        />
-        <Select
-          value={sortOrder}
-          style={{ width: 100 }}
-          onChange={(value) => setSortOrder(value)}
-          options={[
-            { value: "desc", label: "ล่าสุด" },
-            { value: "asc", label: "เก่าสุด" },
-          ]}
-        />
+            value={sortField}
+            style={{ width: 120, marginRight: 8 }}
+            onChange={(value) => setSortField(value)}
+            options={[
+              { value: "UpdatedAt", label: "วันที่แก้ไข" },
+              { value: "CreatedAt", label: "วันที่สร้าง" },
+            ]}
+          />
+          <Select
+            value={sortOrder}
+            style={{ width: 100 }}
+            onChange={(value) => setSortOrder(value)}
+            options={[
+              { value: "desc", label: "ล่าสุด" },
+              { value: "asc", label: "เก่าสุด" },
+            ]}
+          />
 
           {/* Switch สลับ Mode การแสดงผล */}
           <ToggleSwitch
@@ -109,10 +109,14 @@ function DiaryList() {
             dataOff="รายการ"
           />
 
-          <button className="diary-list-create-btn" onClick={handleCreateDiary}>
+          <Button
+            type="primary"
+            style={{ borderRadius: "var(--radius-full)" }}
+            onClick={handleCreateDiary}
+          >
             <FaPlus />
-            <p>สร้างไดอารี่</p>
-          </button>
+            สร้างไดอารี่
+          </Button>
         </div>
       </div>
 
@@ -147,7 +151,7 @@ function DiaryList() {
           ))}
         </>
       ) : (
-          <DiaryCalendar diaries={diaries} dateField={sortField} />
+        <DiaryCalendar diaries={diaries} dateField={sortField} />
       )}
     </section>
   );

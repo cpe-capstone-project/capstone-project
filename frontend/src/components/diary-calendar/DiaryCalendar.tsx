@@ -1,6 +1,6 @@
 import React from "react";
 import type { CalendarProps } from "antd";
-import { Badge, Calendar } from "antd";
+import { Badge, Calendar, Tooltip } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -34,26 +34,46 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
     return map;
   }, [diaries, dateField]);
 
-  const dateCellRender = (value: Dayjs) => {
-    const dateKey = value.format("YYYY-MM-DD");
-    const listData = diaryMap[dateKey] || [];
-    if (listData.length === 0) return null;
+  const stripHtml = (html: string) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
 
-    return (
-      <div className="ant-picker-calendar-date-content">
-        {listData.map((diary) => (
+  const dateCellRender = (value: Dayjs) => {
+  const dateKey = value.format("YYYY-MM-DD");
+  const listData = diaryMap[dateKey] || [];
+  if (listData.length === 0) return null;
+
+  return (
+    <div className="ant-picker-calendar-date-content">
+      {listData.map((diary) => (
+        <Tooltip
+          key={diary.ID}
+          title={
+            <div>
+              <strong>{diary.Title || "No Title"}</strong>
+              <br />
+              <span>{dayjs(diary[dateField] || diary.CreatedAt).format("DD MMM YYYY HH:mm")}</span>
+              <br />
+              <span>{stripHtml(diary.Content || "").slice(0, 100)}...</span>
+            </div>
+          }
+          placement="topLeft"
+          arrow={true}
+        >
           <div
-            key={diary.ID}
             style={{ cursor: "pointer", marginBottom: 4 }}
             onClick={() => navigate(`${location.pathname}/detail/${diary.ID}`)}
-            title={diary.Title || "No Title"}
           >
             <Badge status="success" text={diary.Title || "No Title"} />
           </div>
-        ))}
-      </div>
-    );
-  };
+        </Tooltip>
+      ))}
+    </div>
+  );
+};
+
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;

@@ -37,6 +37,7 @@ scrollbar-color: #0000004d transparent;
   padding: var(--padding-text-editor) var(--padding-patient-home-page) 0
     var(--padding-patient-home-page);
   background-color: var(--color-grey);
+  z-index: 1;
 
   /* Control Bar */
   .control {
@@ -108,7 +109,7 @@ scrollbar-color: #0000004d transparent;
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: var(--space-xs);
+    /* gap: var(--space-xs); */
 
     header {
       display: flex;
@@ -139,7 +140,8 @@ scrollbar-color: #0000004d transparent;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-weight: lighter !important;
+      font-weight: normal;
+      opacity: 0.8;
     }
   }
 }

@@ -1,176 +1,156 @@
-import React, { useState } from "react";
-import { useNavigate} from "react-router";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { Link } from "react-router";
 import { useDiary } from "../../contexts/DiaryContext";
 import { useDate } from "../../contexts/DateContext";
 import { th } from "date-fns/locale";
 import { groupByDate } from "../../utils/GroupByDate";
-import { Dropdown } from "antd";
-import type { MenuProps } from "antd";
-import { RiSortDesc, RiCheckFill } from "react-icons/ri";
+import { Select } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { usePath } from "../../contexts/PathContext";
-import "./DiaryList.css";
 import type { DiaryInterface } from "../../interfaces/IDiary";
+import CoverBook from "../../assets/book cover/cover1.jpg";
+import "./DiaryList.css";
+import ToggleSwitch from "../../components/togle-switch/ToggleSwitch";
+import DiaryCalendar from "../../components/diary-calendar/DiaryCalendar";
 
 function DiaryList() {
   // ดึงข้อมูล diaries จาก context
-  const { diaries } = useDiary();
+  const { diaries, fetchDiaries } = useDiary();
   // ดึงฟังก์ชัน formatLong จาก context สำหรับแสดงวันที่
   const { formatLong } = useDate();
- // ดึง path และฟังก์ชันจัดการ path
+  // ดึง path และฟังก์ชันจัดการ path
   const { fullPath } = usePath();
-  console.log("fullPath", fullPath);
 
   const { createDiary } = useDiary();
 
   const navigate = useNavigate();
 
-  // const [isloading, setIsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "date">(
+    () => (localStorage.getItem("diary_viewMode") as "list" | "date") || "list"
+  );
 
   const [sortField, setSortField] = useState<"UpdatedAt" | "CreatedAt">(
-    "UpdatedAt"
+    () =>
+      (localStorage.getItem("diary_sortField") as "UpdatedAt" | "CreatedAt") ||
+      "UpdatedAt"
   );
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("diary_sortOrder") as "asc" | "desc") || "desc"
+  );
+
+  const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setViewMode(e.target.checked ? "date" : "list");
+  };
 
   // เรียกใช้ฟังก์ชันจัดกลุ่ม diary
   const grouped = groupByDate(diaries, sortField, th);
 
   const handleCreateDiary = async () => {
-      const newDiary: DiaryInterface = {
-        Title: "New Diary",
-        Content: '<p style="text-align: left;"></p>',
-        TherapyCaseID: 1,
-      };
-      const res = await createDiary(newDiary);
-      if (res) {
-        navigate(`${fullPath}/detail/${res.ID}`);
-      }
+    const newDiary: DiaryInterface = {
+      Title: "New Diary",
+      Content: '<p style="text-align: left;"></p>',
+      TherapyCaseID: 1,
     };
+    const res = await createDiary(newDiary);
+    if (res) {
+      navigate(`${fullPath}/detail/${res.ID}`);
+    }
+  };
 
-  const items: MenuProps["items"] = [
-    {
-      key: "updated",
-      label: (
-        <SortMenuItem
-          label="วันที่แก้ไข"
-          active={sortField === "UpdatedAt"}
-          onClick={() => setSortField("UpdatedAt")}
-        />
-      ),
-    },
-    {
-      key: "created",
-      label: (
-        <SortMenuItem
-          label="วันที่สร้าง"
-          active={sortField === "CreatedAt"}
-          onClick={() => setSortField("CreatedAt")}
-        />
-      ),
-    },
-    { key: "divider-1", type: "divider" },
-    {
-      key: "desc",
-      label: (
-        <SortMenuItem
-          label="ล่าสุด"
-          active={sortOrder === "desc"}
-          onClick={() => setSortOrder("desc")}
-        />
-      ),
-    },
-    {
-      key: "asc",
-      label: (
-        <SortMenuItem
-          label="เก่าสุด"
-          active={sortOrder === "asc"}
-          onClick={() => setSortOrder("asc")}
-        />
-      ),
-    },
-  ];
+  useEffect(() => {
+    localStorage.setItem("diary_viewMode", viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem("diary_sortOrder", sortOrder);
+  }, [sortOrder]);
+
+  useEffect(() => {
+    localStorage.setItem("diary_sortField", sortField);
+  }, [sortField]);
+
+  useEffect(() => {
+      fetchDiaries(sortField, sortOrder);
+    }, [sortField, sortOrder]);
 
   return (
     <section className="diary-list-container">
       <div className="diary-list-header">
-        <h1>My Diary</h1>
-        <Dropdown
-          menu={{ items }}
-          placement="bottomRight"
-          trigger={["click"]}
-          className="sort-container"
-          overlayStyle={{ borderRadius: "50px" }}
-        >
-          <RiSortDesc
-            className="options-icon"
-            title="Sort Options"
-            style={{ cursor: "pointer" }}
+        <h1 style={{ fontSize: "var(--font-size-2xl)" }}>My Diary</h1>
+
+        <div className="diary-list-menu">
+          {/* กรองข้อมูล */}
+          <Select
+          value={sortField}
+          style={{ width: 120, marginRight: 8 }}
+          onChange={(value) => setSortField(value)}
+          options={[
+            { value: "UpdatedAt", label: "วันที่แก้ไข" },
+            { value: "CreatedAt", label: "วันที่สร้าง" },
+          ]}
+        />
+        <Select
+          value={sortOrder}
+          style={{ width: 100 }}
+          onChange={(value) => setSortOrder(value)}
+          options={[
+            { value: "desc", label: "ล่าสุด" },
+            { value: "asc", label: "เก่าสุด" },
+          ]}
+        />
+
+          {/* Switch สลับ Mode การแสดงผล */}
+          <ToggleSwitch
+            checked={viewMode === "date"}
+            onChange={handleToggle}
+            dataOn="วันที่"
+            dataOff="รายการ"
           />
-        </Dropdown>
-        <button className="diary-list-create-btn" onClick={handleCreateDiary}>
-          <FaPlus /> 
-          <p>สร้างไดอารี่</p>
-        </button>
-      </div>
-      {/* วนลูปแสดงกลุ่ม diary */}
-      {Object.entries(grouped).map(([label, items]) => (
-        <div key={label}>
-          <h2>{label}</h2>
-          <div className="diary-list">
-            {/* แสดง diary ภายในกลุ่มนี้ */}
-            {items.map((item) => (
-              <Link
-                key={item.ID}
-                to={`${location.pathname}/detail/${item.ID}`}
-                style={{
-                  textDecoration: "none",
-                  color: "black",
-                  width: "auto",
-                  height: "100%",
-                }}
-              >
-                <div className="diary">
-                  {/* รูปภาพตัวอย่าง */}
-                  <img
-                    src="https://png.pngtree.com/background/20210709/original/pngtree-memphis-yellow-poster-geometric-picture-image_941965.jpg"
-                    alt="Diary"
-                  />
-                  <div className="diary-info">
-                    <h1>{item.Title}</h1>
-                    {/* แสดงวันที่แบบยาวที่ formatLong ช่วยแปลง */}
-                    <p>{formatLong(item.UpdatedAt ?? "", "th")}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+
+          <button className="diary-list-create-btn" onClick={handleCreateDiary}>
+            <FaPlus />
+            <p>สร้างไดอารี่</p>
+          </button>
         </div>
-      ))}
+      </div>
+
+      {viewMode === "list" ? (
+        // แสดงเฉพาะเมื่อ viewMode เป็น list
+        <>
+          {Object.entries(grouped).map(([label, items]) => (
+            <div
+              key={label}
+              className="diary-list"
+              style={{ marginBottom: "var(--space-2xl)" }}
+            >
+              <h2>{label}</h2>
+              <div className="diary-grid">
+                {items.map((item) => (
+                  <Link
+                    key={item.ID}
+                    to={`${location.pathname}/detail/${item.ID}`}
+                    className="diary-item"
+                  >
+                    <div className="diary">
+                      <img src={CoverBook} alt="Diary" />
+                      <div className="diary-info">
+                        <h1>{item.Title}</h1>
+                        <p>{formatLong(item.UpdatedAt ?? "", "th")}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      ) : (
+          <DiaryCalendar diaries={diaries} dateField={sortField} />
+      )}
     </section>
   );
 }
-
-const SortMenuItem = ({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) => (
-  <div onClick={onClick}>
-    <div className="menu-item">
-      {active ? (
-        <RiCheckFill className="check-icon" />
-      ) : (
-        <span className="check-icon-placeholder" />
-      )}
-      {label}
-    </div>
-  </div>
-);
 
 export default DiaryList;

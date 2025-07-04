@@ -19,7 +19,7 @@ function SignInPages() {
       messageApi.success("Sign-in successful");
 
       localStorage.setItem("isLogin", "true");
-      localStorage.setItem("page", "dashboard");
+      // localStorage.setItem("page", "dashboard");
       localStorage.setItem("token_type", res.data.token_type);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("id", res.data.id);

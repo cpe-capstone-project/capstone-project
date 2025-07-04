@@ -17,6 +17,7 @@
   flex: 1;
   padding: var(--padding-left-right-patient-home-page);
   background-color: #ffffff;
+  z-index: 2;
 
   .title-container {
     display: flex;

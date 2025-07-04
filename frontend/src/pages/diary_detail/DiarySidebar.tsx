@@ -29,13 +29,26 @@ const DiarySidebar = () => {
   // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [sortField, setSortField] = useState<"UpdatedAt" | "CreatedAt">(
-    "UpdatedAt"
+    () =>
+      (localStorage.getItem("diary_sortField") as "UpdatedAt" | "CreatedAt") ||
+      "UpdatedAt"
   );
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("diary_sortOrder") as "asc" | "desc") || "desc"
+  );
 
   useEffect(() => {
     fetchDiaries(sortField, sortOrder);
   }, [sortField, sortOrder]);
+
+  useEffect(() => {
+    localStorage.setItem("diary_sortOrder", sortOrder);
+  }, [sortOrder]);
+
+  useEffect(() => {
+    localStorage.setItem("diary_sortField", sortField);
+  }, [sortField]);
 
   const grouped = groupByDate(diaries, sortField, th);
 
@@ -93,17 +106,15 @@ const DiarySidebar = () => {
     );
   };
 
-const handleDeleteSelected = async () => {
-  try {
-    await new Promise((res) => setTimeout(res, 500));
-    await Promise.all(selectedIds.map((id) => deleteDiary(id)));
-    setSelectedIds([]); // ล้าง selectedIds หลังจากลบเสร็จ
-
-  } catch (error) {
-    console.error("Failed to delete selected diaries:", error);
-  }
-};
-
+  const handleDeleteSelected = async () => {
+    try {
+      await new Promise((res) => setTimeout(res, 500));
+      await Promise.all(selectedIds.map((id) => deleteDiary(id)));
+      setSelectedIds([]); // ล้าง selectedIds หลังจากลบเสร็จ
+    } catch (error) {
+      console.error("Failed to delete selected diaries:", error);
+    }
+  };
 
   useEffect(() => {
     if (id) {

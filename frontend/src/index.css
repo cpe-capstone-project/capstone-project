@@ -82,4 +82,6 @@
   /* === Common Transitions === */
   --transition-base: all var(--transition-duration-normal) var(--transition-ease-in-out);
   --transition-fast: all var(--transition-duration-fast) var(--transition-ease-in-out);
+
+  /* background-color:  #f8fafc; */
 }

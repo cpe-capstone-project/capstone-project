@@ -8,14 +8,16 @@ import { BrowserRouter } from "react-router-dom";
 // import DiaryList from "./pages/diary_list/DiaryList";
 import { PathContextProvider } from "./contexts/PathContext";
 import { DateContextProvider } from "./contexts/DateContext";
-import ConfigRoutes from "./routes/ConfigRoutes";
+// import ConfigRoutes from "./routes/ConfigRoutes";
+import RouterComponent from "./routes/RouterComponent";
 
 function App() {
   return (
     <BrowserRouter>
       <PathContextProvider>
         <DateContextProvider>
-          <ConfigRoutes />
+          {/* <ConfigRoutes /> */}
+          <RouterComponent/>
         </DateContextProvider>
       </PathContextProvider>
     </BrowserRouter>

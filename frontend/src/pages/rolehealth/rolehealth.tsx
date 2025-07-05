@@ -380,7 +380,7 @@ const Rolehealth: React.FC = () => {
           <p className="success-subtext">ขอบคุณที่ลงทะเบียนกับเรา</p>
           <button
             className="wellness-submit-button"
-            onClick={() => navigate("/cute")}
+            onClick={() => navigate("/")}
           >
             ไปหน้าหลัก
           </button>

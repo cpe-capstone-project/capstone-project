@@ -32,6 +32,8 @@ type (
 		Picture   string    `json:"picture"`
 		GenderID  uint      `json:"gender_id"`
 		RoleID    uint      `json:"role_id"`
+		Consent   bool      `json:"consent"`  // ✅ เพิ่ม
+  		Address   string    `json:"address"`  // ✅ เพิ่ม
 	}
 )
 
@@ -92,6 +94,8 @@ func SignUp(c *gin.Context) {
 		Image:     payload.Picture,
 		GenderID:  payload.GenderID,
 		RoleID:    1,
+		Consent:   payload.Consent,  // ✅ เพิ่ม
+  		Address:   payload.Address,  // ✅ เพิ่ม
 	}
 
 	// Save the user to the database

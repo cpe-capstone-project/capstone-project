@@ -1,39 +1,21 @@
 import { Button, Card, Form, Input, message, Flex, Row, Col } from "antd";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { SignIn } from "../../../services/https/Authentication";
 import type { SignInInterface } from "../../../interfaces/SignIn";
-import doImage from "../../../assets/doctor.png";
-import do1Image from "../../../assets/med2.png";
-import do2Image from "../../../assets/med3.png";
-import do3Image from "../../../assets/med4.png";
-import med5Image from "../../../assets/med5.png";
+import Swal from "sweetalert2";
+import patientImage from "../../../assets/patient.png";
+import psychologyImage from "../../../assets/psychology.png";
 
-import "./signin.css";
 
 function SignInPages() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // เพิ่ม do4Image เข้าไปด้วยเลย
-  const doctorImages = [doImage,do1Image, do2Image, do3Image];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % doctorImages.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const onFinish = async (values: SignInInterface) => {
     const res = await SignIn(values);
-
     if (res.status === 200) {
-      messageApi.success("เข้าสู่ระบบสำเร็จ");
+      messageApi.success("Sign-in successful");
       localStorage.setItem("isLogin", "true");
-      localStorage.setItem("page", "dashboard");
       localStorage.setItem("token_type", res.data.token_type);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("id", res.data.id);
@@ -45,94 +27,152 @@ function SignInPages() {
       else if (role === "Psychologist") redirectPath = "/psychologist";
       else if (role === "Unknown") redirectPath = "/unknown";
       else {
-        messageApi.error("ไม่สามารถระบุบทบาทผู้ใช้ได้");
+        messageApi.error("Unknown role");
         return;
       }
 
       setTimeout(() => {
-        navigate(redirectPath);
+        location.href = redirectPath;
       }, 1000);
     } else {
-      messageApi.error(res.data.error || "เข้าสู่ระบบไม่สำเร็จ");
+      messageApi.error(res.data.error);
     }
   };
+  // เพิ่มใน component ด้านบน
+const handleRegisterClick = () => {
+  Swal.fire({
+    title: "Choose Your Role?",
+    html: `
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
+        <div id="patient-role" style="text-align: center; cursor: pointer;">
+          <img 
+            src="${patientImage}" 
+            alt="Patient" 
+            style="width: 200px; height: 200px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" 
+          />
+          <p style="margin-top: 10px; font-weight: bold;">Patient</p>
+        </div>
+        <div id="psychology-role" style="text-align: center; cursor: pointer;">
+          <img 
+            src="${psychologyImage}" 
+            alt="Psychology" 
+            style="width: 200px; height: 200px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" 
+          />
+          <p style="margin-top: 10px; font-weight: bold;">Psychology</p>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    showConfirmButton: false,
+    customClass: {
+      popup: "swal2-border-radius",
+    },
+    didOpen: () => {
+      const patientDiv = Swal.getPopup()?.querySelector("#patient-role");
+      const psychologyDiv = Swal.getPopup()?.querySelector("#psychology-role");
+
+      patientDiv?.addEventListener("click", () => {
+        Swal.close();
+        navigate("/register");
+      });
+
+      psychologyDiv?.addEventListener("click", () => {
+        Swal.close();
+        navigate("/rolehealth");
+      });
+    },
+  });
+};
 
   return (
     <>
       {contextHolder}
-      <Flex justify="center" align="center" className="signin-container">
-        <Card className="card-login" style={{ width: 900, padding: "2rem" }}>
-          <Row align="middle" justify="space-between">
-            {/* Left: Logo + form */}
-            <Col span={11} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "1rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                <img
-                  alt="logo"
-                  src={med5Image}
-                  className="images-logo"
-                  style={{ maxWidth: 300, borderRadius: "1rem" }}
-                />
-              </div>
-
-              <Form
-                name="basic"
-                onFinish={onFinish}
-                autoComplete="off"
-                layout="vertical"
-                style={{ marginTop: "1rem" }}
-              >
-                <Form.Item
-                  label="อีเมล"
-                  name="email"
-                  rules={[{ required: true, message: "กรุณากรอกอีเมล!" }]}
-                >
-                  <Input />
-                </Form.Item>
-
-                <Form.Item
-                  label="รหัสผ่าน"
-                  name="password"
-                  rules={[{ required: true, message: "กรุณากรอกรหัสผ่าน!" }]}
-                >
-                  <Input.Password />
-                </Form.Item>
-   <Form.Item>
-  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-    <Button htmlType="submit" className="login-form-button">
-      Login
-    </Button>
-    <Button
-      type="default"
-      className="signup-button"
-      onClick={() => navigate("/signup")}
-    >
-      Signup
-    </Button>
-  </div>
-</Form.Item>
-              </Form> 
+      <Flex justify="center" align="center" style={{ minHeight: "100vh", background: "#f9f9f9" }}>
+        <Card style={{ width: 500, borderRadius: 16, boxShadow: "0 8px 24px rgba(0,0,0,0.05)", border: "1px solid #fff", padding: "2rem" }}>
+          <Row justify="center">
+            <Col span={24} style={{ textAlign: "center", marginBottom: 32 }}>
+              <h1 style={{ fontWeight: 700, fontSize: 26 }}>Welcome Back</h1>
             </Col>
+            <Col span={24}>
+              <Form name="login" layout="vertical" onFinish={onFinish} autoComplete="off">
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Email</span>}
+                  name="email"
+                  rules={[{ required: true, message: "Please enter your email" }]}
+                >
+                  <Input
+                    size="large"
+                    style={{
+                      borderRadius: 12,
+                      height:40,
+                      backgroundColor: "#f5faff",
+                      border: "1px solid #dbe9f9",
+                      padding: "0 18px"
+                    }}
+                    placeholder="Enter your email"
+                  />
+                </Form.Item>
 
-           {/* Right: Rotating images */}
-<Col span={12}>
-  <div className="doctor-image-wrapper">
-    <img
-      src={doctorImages[currentImageIndex]}
-      alt="doctor"
-      className="doctor-image-glass"
-      key={currentImageIndex}
-    />
-  </div>
-</Col>
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Password</span>}
+                  name="password"
+                  rules={[{ required: true, message: "Please enter your password" }]}
+                >
+                  <Input.Password
+                    size="large"
+                    style={{
+                      borderRadius: 12,
+                      height:40,
+                      backgroundColor: "#f5faff",
+                      border: "1px solid #dbe9f9",
+                      padding: "0 18px"
+                    }}
+                    placeholder="Enter your password"
+                  />
+                </Form.Item>
 
+                <div style={{ marginBottom: 12, textAlign: "left", color: "#5c82b8", fontSize: 14 }}>
+                  Forgot Password?
+                </div>
+
+               <Form.Item>
+  <Button
+    type="primary"
+    htmlType="submit"
+    style={{
+      width: "100%",
+      borderRadius: 12,
+      backgroundColor: "#1890ff",
+      color: "#ffffff",
+      fontWeight: 600,
+      fontSize: 14,
+      border: "none",
+      boxShadow: "none",         // ไม่มีเงา
+      transition: "none",        // ไม่มี animation
+    }}
+  >
+    Login
+  </Button>
+</Form.Item>
+
+              </Form>
+
+              <div style={{ textAlign: "center", fontSize: 14, marginTop: 8 }}>
+                Don’t have an account?{" "}
+                <a
+  onClick={handleRegisterClick}
+  style={{
+    color: "#5c82b8",
+    fontWeight: 500,
+    textDecoration: "none",
+    cursor: "pointer"
+  }}
+>
+  Sign Up
+</a>
+
+              </div>
+            </Col>
           </Row>
         </Card>
       </Flex>

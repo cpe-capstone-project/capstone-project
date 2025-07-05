@@ -6,8 +6,9 @@ import (
 	"capstone-project/services"
 	"fmt"
 	"net/http"
-	"time"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -25,7 +26,16 @@ func Register(c *gin.Context) {
 		medicalLicense = c.PostForm("medicalLicense")
 		email          = c.PostForm("email")
 		password       = c.PostForm("password")
+		roleIDStr      = c.PostForm("role_id") // 🟡 รับค่ามาแบบ string
 	)
+
+	// แปลง role_id เป็น uint
+	roleIDUint64, err := strconv.ParseUint(roleIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid role ID"})
+		return
+	}
+	roleID := uint(roleIDUint64)
 
 	// ตรวจสอบซ้ำ
 	var existing entity.Psychologist
@@ -67,6 +77,7 @@ func Register(c *gin.Context) {
 		Email:          email,
 		PasswordHash:   hashedPassword,
 		LicenseImage:   filename,
+		RoleID:         roleID, // ✅ ใช้ค่าที่แปลงแล้ว
 	}
 
 	if err := db.Create(&user).Error; err != nil {

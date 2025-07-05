@@ -93,7 +93,7 @@ func SignUp(c *gin.Context) {
 		Password:  hashedPassword,
 		Image:     payload.Picture,
 		GenderID:  payload.GenderID,
-		RoleID:    payload.RoleID, // ✅ ใช้ค่าที่ส่งมาจริง
+		RoleID:    payload.RoleID, // ✅ ใช้ค่าที่ส่งมาจริงนะครับ
 		Consent:   payload.Consent,  // ✅ เพิ่ม
   		Address:   payload.Address,  // ✅ เพิ่ม
 	}

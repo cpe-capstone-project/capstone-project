@@ -18,4 +18,7 @@ type Psychologist struct {
 	Email          string    `gorm:"size:100;not null;unique"`// อีเมล
 	PasswordHash   string    `gorm:"size:255;not null"`       // รหัสผ่านแฮช
 	LicenseImage   string    `gorm:"size:255;not null"`       // ชื่อไฟล์หรือ path ของรูปใบรับรองแพทย์
+	
+	RoleID    uint     // FK ไปยังตาราง roles
+	Role      *Roles   // ความสัมพันธ์
 }

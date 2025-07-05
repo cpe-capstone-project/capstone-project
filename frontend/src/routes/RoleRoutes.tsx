@@ -16,7 +16,7 @@ const RoleRoutes = [
     element: <Register />,
   },
   {
-    path: "/register", // ✅ สำหรับผู้ป่วย
+    path: "/register", // ✅ สำหรับลงทะเบียนผู้ป่วย
     element: <Register />,
   },
   {

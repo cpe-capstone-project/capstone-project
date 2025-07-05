@@ -105,6 +105,9 @@ const Rolehealth: React.FC = () => {
       formPayload.append("medicalLicense", formData.medicalLicense);
       formPayload.append("email", formData.email);
       formPayload.append("password", formData.password);
+      // ✅ เพิ่มตรงนี้
+      formPayload.append("role_id", "4");
+
 
       if (attachedFile) {
         formPayload.append("licenseImage", attachedFile);
@@ -118,18 +121,34 @@ const Rolehealth: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        await Swal.fire({
-          title: "🎉 ลงทะเบียนสำเร็จ!",
-          text: "ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว",
-          icon: "success",
-          confirmButtonText: "ตกลง",
-          timer: 3000,
-          showClass: { popup: "animate__animated animate__fadeInDown" },
-          hideClass: { popup: "animate__animated animate__fadeOutUp" },
-        });
-        setStep(3);
+  await Swal.fire({
+    title: "🎉 ลงทะเบียนสำเร็จ!",
+    text: "ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว",
+    icon: "success",
+    confirmButtonText: "ตกลง",
+    timer: 3000,
+    showClass: { popup: "animate__animated animate__fadeInDown" },
+    hideClass: { popup: "animate__animated animate__fadeOutUp" },
+  });
+
+  // ✅ รีเซ็ต state หลังสำเร็จ
+  setFormData({
+    firstName: "",
+    lastName: "",
+    gender: "",
+    dob: "",
+    phone: "",
+    medicalLicense: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  setAttachedFile(null);
+  setErrors({});
+  setStep(3); // แสดงหน้า success
+}
         // หรือ navigate("/login");
-      } else {
+     else {
         Swal.fire({
           title: "❌ เกิดข้อผิดพลาด",
           text: data.message || "ไม่สามารถลงทะเบียนได้",

@@ -1,0 +1,143 @@
+.diary-summary-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 128px;
+    gap: var(--space-lg);
+}
+
+.diary-summary-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  p {
+    font-size: var(--font-size-md);
+    color: #4e7397;
+    margin-bottom: var(--space-md);
+  }
+}
+
+.timeframe-container {
+  display: flex;
+  gap: var(--space-md);
+  height: 40px;
+  background-color: #e7edf3;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.timeframe-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4e7397;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.timeframe-option.selected {
+  background-color: #f8fafc; /* เหมือน bg-slate-50 */
+  color: #0e141b;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.timeframe-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeframe-input {
+  display: none;
+}
+
+/* Content */
+.diary-summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+
+    h1 {
+        font-size: var(--font-size-lg);
+    }
+}
+
+.summary-card {
+  position: relative;
+  border-radius: var(--radius-lg); /* rounded-xl */
+  padding-top: 132px;
+  overflow: hidden; /* กัน blur ล้นขอบ */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+   overflow: hidden;
+   margin-bottom: var(--space-lg);
+}
+
+.summary-card-content {
+  position: relative;
+  z-index: 1; /* ให้เนื้อหาอยู่บน background เบลอ */
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.summary-text {
+color: white;
+  font-weight: bold;
+  font-size: 1.5rem; /* Tailwind: text-2xl */
+  line-height: 1.25; /* Tailwind: leading-tight */
+  flex: 1;
+  letter-spacing: -0.015em; /* Tailwind: tracking-light */
+} 
+
+@keyframes moveBackground {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Emotion */
+.tags-container {
+  display: flex;
+  gap: var(--space-xs); 
+  flex-wrap: wrap;
+}
+
+.tag-item {
+  display: flex;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border-radius: var(--space-xs); /* rounded-xl */
+  background-color: #e7edf3;
+  padding-left: var(--space-md); /* pl-4 */
+  padding-right: var(--space-md); /* pr-4 */
+}
+
+.tag-text {
+  color: #0e141b;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  line-height: 1.25rem; /* leading-normal */
+  margin: 0;
+}

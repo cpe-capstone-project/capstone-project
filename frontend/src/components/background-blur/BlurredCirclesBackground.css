@@ -1,0 +1,58 @@
+.blurred-bg-container {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+  overflow: hidden;  /* กันล้นกรอบ */
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  mix-blend-mode: screen;
+}
+
+.circle1 {
+  width: 200%;
+  height: 200%;
+  background: #a81b1b;
+  top: -50%;
+  left: -25%;
+}
+
+.circle2 {
+  width: 300%;
+  height: 100%;
+  background: #003366;
+  top: -50%;
+  left: 0;
+}
+
+.circle3 {
+  width: 100%;
+  height: 200%;
+  background: #4b0082;
+  top: 0;
+  left: -50%;
+}
+
+.circle4 {
+  width: 200%;
+  height: 100%;
+  background: #cc5500;
+  top: 50%;
+  left: 60%;
+}
+
+.circle5 {
+  width: 100%;
+  height: 100%;
+  background: #006400;
+  top: 80%;
+  left: 80%;
+}

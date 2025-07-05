@@ -3,6 +3,7 @@ import PatientLayout from "../layout/FullLayout/PatientLayout";
 import DiaryList from "../pages/diary_list/DiaryList";
 import DiaryDetail from "../pages/diary_detail/DiaryDetail";
 import RequireRole from "./RequireRole";
+import DiarySummary from "../pages/diary_summary/DiarySummary";
 
 const PatientRoutes = {
   path: "/patient",
@@ -16,6 +17,7 @@ const PatientRoutes = {
   children: [
     { path: "diary", element: <DiaryList /> },
     { path: "diary/detail/:id", element: <DiaryDetail /> },
+    { path: "diary-summary", element: <DiarySummary /> },
   ],
 };
 

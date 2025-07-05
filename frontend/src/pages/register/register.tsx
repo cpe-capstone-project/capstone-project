@@ -113,13 +113,23 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   if (Object.keys(allErrors).length === 0) {
     try {
-      // แปลง age ให้เป็น number ก่อนส่ง
+      // สร้าง body ที่ตรงกับ backend
       const dataToSend = {
-        ...formData,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
         age: Number(formData.age),
+        birthday: new Date(formData.dob).toISOString(), // 👈 เพิ่มตรงนี้
+        password: formData.password,
+        picture: "https://i.imgur.com/default-avatar.png", // หรือให้ผู้ใช้เลือก
+        gender_id: formData.gender === "male" ? 1 : 2, // Mapping เพศ
+        role_id: 3, // 👈 ถ้าสมัคร Patient = 3 / Psychologist = 4
+        consent: formData.consent,
+        address: formData.address,
       };
 
-      const response = await fetch("http://localhost:8000/patients/register", {
+      const response = await fetch("http://localhost:8000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
@@ -141,7 +151,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       } else {
         Swal.fire({
           title: "❌ เกิดข้อผิดพลาด",
-          text: data.message || "ไม่สามารถลงทะเบียนได้",
+          text: data.error || "ไม่สามารถลงทะเบียนได้",
           icon: "error",
           confirmButtonText: "ตกลง",
         });
@@ -156,6 +166,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
   }
 };
+
 
 
   return (
@@ -405,7 +416,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   <p className="northsubtext">ขอบคุณที่ลงทะเบียนกับเรา</p>
 </div>
 
-          <button type="button" className="yokhealth-btn" onClick={() => navigate("/cute")}>ไปหน้าหลัก</button>
+          <button type="button" className="yokhealth-btn" onClick={() => navigate("/")}>ไปหน้าหลัก</button>
         </>
       )}
     </form>

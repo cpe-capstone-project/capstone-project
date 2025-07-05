@@ -529,3 +529,44 @@ button[type="submit"]:focus {
   border-color: #ff6b6b;
   background-color: #fff0f0;
 }
+.profile-upload-section {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.profile-upload-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.profile-upload-input {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.profile-preview-wrapper {
+  margin-top: 1rem;
+}
+
+.profile-preview-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 3px solid #1890ff;
+}
+
+.profile-preview-caption {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 0.5rem;
+}

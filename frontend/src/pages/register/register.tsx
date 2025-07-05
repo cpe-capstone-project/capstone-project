@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
 import privacyImage from "../../assets/privacy.png";
+
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"TH" | "EN">("TH");
@@ -198,6 +200,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* STEP 1 */}
       {step === 1 && (
+        
         <>
           <label className="input-label">
             ชื่อ
@@ -266,8 +269,12 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
           </label>
           {errors.phone && <div className="error-message">{errors.phone}</div>}
+
+
+
+
               <p className="login-link">
-            มีบัญชีผู้ใช้แล้ว? <a href="/login">เข้าสู่ระบบ</a>
+            มีบัญชีผู้ใช้แล้ว? <a href="/">เข้าสู่ระบบ</a>
           </p>
           <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป
           </button>

@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./rolehealth.css";
 
+
 const Rolehealth: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -89,53 +90,65 @@ const Rolehealth: React.FC = () => {
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  // ตรวจสอบความถูกต้องของข้อมูลใน step 2 (email, password)
   const validationErrors = validateStep2();
   setErrors(validationErrors);
 
-  // ถ้าไม่มี error ใดๆ ให้ดำเนินการส่งข้อมูล
   if (Object.keys(validationErrors).length === 0) {
     try {
       const formPayload = new FormData();
 
-      // เติมข้อมูล text fields ลงใน FormData (ใช้ชื่อ field ตาม backend)
       formPayload.append("firstName", formData.firstName);
       formPayload.append("lastName", formData.lastName);
       formPayload.append("gender", formData.gender);
-      formPayload.append("dob", formData.dob); // ต้องเป็นรูปแบบ "YYYY-MM-DD"
+      formPayload.append("dob", formData.dob);
       formPayload.append("phone", formData.phone);
       formPayload.append("medicalLicense", formData.medicalLicense);
       formPayload.append("email", formData.email);
       formPayload.append("password", formData.password);
+      // ✅ เพิ่มตรงนี้
+      formPayload.append("role_id", "4");
 
-      // เติมไฟล์รูปใบรับรองแพทย์ (ถ้ามี)
+
       if (attachedFile) {
         formPayload.append("licenseImage", attachedFile);
       }
 
-      // ส่งข้อมูลไป backend ผ่าน API endpoint ที่ถูกต้อง
       const response = await fetch("http://localhost:8000/psychologists/register", {
         method: "POST",
         body: formPayload,
-        // ห้ามตั้ง headers Content-Type เอง เพราะ browser จะตั้ง multipart/form-data พร้อม boundary ให้อัตโนมัติ
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // แจ้ง success
-        await Swal.fire({
-          title: "🎉 ลงทะเบียนสำเร็จ!",
-          text: "ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว",
-          icon: "success",
-          confirmButtonText: "ตกลง",
-          timer: 3000,
-          showClass: { popup: "animate__animated animate__fadeInDown" },
-          hideClass: { popup: "animate__animated animate__fadeOutUp" },
-        });
-        setStep(3); // ไปหน้าสำเร็จ
-      } else {
-        // แจ้ง error ที่ backend ส่งกลับมา
+  await Swal.fire({
+    title: "🎉 ลงทะเบียนสำเร็จ!",
+    text: "ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว",
+    icon: "success",
+    confirmButtonText: "ตกลง",
+    timer: 3000,
+    showClass: { popup: "animate__animated animate__fadeInDown" },
+    hideClass: { popup: "animate__animated animate__fadeOutUp" },
+  });
+
+  // ✅ รีเซ็ต state หลังสำเร็จ
+  setFormData({
+    firstName: "",
+    lastName: "",
+    gender: "",
+    dob: "",
+    phone: "",
+    medicalLicense: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  setAttachedFile(null);
+  setErrors({});
+  setStep(3); // แสดงหน้า success
+}
+        // หรือ navigate("/login");
+     else {
         Swal.fire({
           title: "❌ เกิดข้อผิดพลาด",
           text: data.message || "ไม่สามารถลงทะเบียนได้",
@@ -144,7 +157,6 @@ const Rolehealth: React.FC = () => {
         });
       }
     } catch (error) {
-      // กรณีเชื่อมต่อ backend ไม่ได้ หรือ error อื่นๆ
       Swal.fire({
         title: "❌ เกิดข้อผิดพลาด",
         text: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
@@ -154,6 +166,7 @@ const Rolehealth: React.FC = () => {
     }
   }
 };
+
 
 
   const handleUploadFile = async () => {
@@ -294,9 +307,6 @@ const Rolehealth: React.FC = () => {
             />
             {errors.medicalLicense && <div className="wellness-error">{errors.medicalLicense}</div>}
           </label>
-           <p className="login-link">
-            มีบัญชีผู้ใช้แล้ว? <a href="/login">เข้าสู่ระบบ</a>
-          </p>
           <button
             type="button"
             className="health-btn-upload"
@@ -316,6 +326,9 @@ const Rolehealth: React.FC = () => {
           <button className="wellness-submit-button" type="submit">
             ถัดไป
           </button>
+          <p className="login-link">
+            มีบัญชีผู้ใช้แล้ว? <a href="/">เข้าสู่ระบบ</a>
+          </p>
         </>
       )}
 

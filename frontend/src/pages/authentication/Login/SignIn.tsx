@@ -103,7 +103,7 @@ const handleRegisterClick = () => {
                   <Input
                     size="large"
                     style={{
-                      borderRadius: 12,
+                      borderRadius: 8,
                       height:40,
                       backgroundColor: "#f5faff",
                       border: "1px solid #dbe9f9",
@@ -121,7 +121,7 @@ const handleRegisterClick = () => {
                   <Input.Password
                     size="large"
                     style={{
-                      borderRadius: 12,
+                      borderRadius: 8,
                       height:40,
                       backgroundColor: "#f5faff",
                       border: "1px solid #dbe9f9",
@@ -141,7 +141,7 @@ const handleRegisterClick = () => {
     htmlType="submit"
     style={{
       width: "100%",
-      borderRadius: 12,
+      borderRadius: 8,
       backgroundColor: "#1890ff",
       color: "#ffffff",
       fontWeight: 600,

@@ -3,8 +3,6 @@ import PatientLayout from "../layout/FullLayout/PatientLayout";
 import DiaryList from "../pages/diary_list/DiaryList";
 import DiaryDetail from "../pages/diary_detail/DiaryDetail";
 import RequireRole from "./RequireRole";
-import Homepage from "../pages/homepage/homepage";
-
 const PatientRoutes = {
   path: "/patient",
   element: (

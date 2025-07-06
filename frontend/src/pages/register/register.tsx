@@ -135,7 +135,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         consent: formData.consent,
         address: formData.address,
       };
-
+//
       const response = await fetch("http://localhost:8000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

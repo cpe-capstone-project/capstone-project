@@ -87,7 +87,7 @@ func Register(c *gin.Context) {
 		RoleID:         roleID,
 		GenderID:       genderID,
 	}
-
+//
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

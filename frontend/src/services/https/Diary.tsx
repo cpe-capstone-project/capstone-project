@@ -54,11 +54,17 @@ async function CreateDiary(data: DiaryInterface) {
     .then((res) => res)
     .catch((e) => e.response);
 }
-
+async function GetLatestDiaries(limit = 5) {
+  return await axios
+    .get(`${apiUrl}/diaries/latest?limit=${limit}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 export {
   GetDiary,
   GetDiaryById,
   UpdateDiaryById,
   DeleteDiaryById,
   CreateDiary,
+  GetLatestDiaries,
 };

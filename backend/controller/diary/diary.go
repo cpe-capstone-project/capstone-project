@@ -4,6 +4,8 @@ import (
 	"capstone-project/config"
 	"capstone-project/entity"
 	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +16,7 @@ func ListDiaries(c *gin.Context){
 
 	sortField := c.DefaultQuery("sort", "updated_at")
 	order := c.DefaultQuery("order", "desc")
+	
 
 	// ตรวจสอบว่า order มีค่าถูกต้องหรือไม่
 	if order != "asc" && order != "desc" {
@@ -119,4 +122,22 @@ func DeleteDiary(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Deleted successful"})
+}
+// GET /diaries/latest?limit=5
+func ListLatestDiaries(c *gin.Context) {
+	var diaries []entity.Diaries
+	db := config.DB()
+
+	limitStr := c.DefaultQuery("limit", "5")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 5
+	}
+
+	if err := db.Order("updated_at desc").Limit(limit).Find(&diaries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, diaries)
 }

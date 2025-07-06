@@ -1,13 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./HomePage.css";
 import diaryImage from "../../assets/diary.png";
 import recordImage from "../../assets/record.png";
-import medImage from "../../assets/med.png";
+import { GetLatestDiaries } from "../../services/https/Diary";
+import type { DiaryInterface } from "../../interfaces/IDiary";
 
 function HomePage() {
   const navigate = useNavigate();
+  const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
+  const [checklist, setChecklist] = useState({
+    diary: false,
+    thoughtRecord: false,
+    dailySummary: false,
+    cbtConfirm: false,
+  });
 
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -18,52 +26,91 @@ function HomePage() {
         icon: "warning",
         title: "กรุณาเข้าสู่ระบบก่อนใช้งาน",
       }).then(() => {
-        navigate("/"); // กลับหน้า login
+        navigate("/");
       });
     }
   }, [navigate]);
 
+  useEffect(() => {
+    GetLatestDiaries(3).then((res) => {
+      if (res.status === 200) {
+        setLatestDiaries(res.data);
+      }
+    });
+  }, []);
+
+  const toggleCheck = (key: keyof typeof checklist) => {
+    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <div className="housemed-homepage">
       <main className="housemed-main-content">
-        <div className="housemed-left-section">
-          <h1>Welcome to your mental wellness space</h1>
+        {/* CHECKLIST SECTION */}
+        <div className="housemed-checklist-section">
+          <h1 className="main-title">Welcome to your mental wellness space</h1>
           <p className="housemed-subtitle">
             "Your health, our mission." <br /> Let’s take today one step at a time.
           </p>
 
-     <div className="housemed-feature-container">
-  <section className="housemed-feature">
-    <div className="housemed-feature-left">
-      <h2>Dairy</h2>
-      <img src={diaryImage} alt="Diary illustration" className="housemed-icon" />
-    </div>
+          <h2 className="checklist-title">CHECKLIST</h2>
+          <div className="checklist-item" onClick={() => toggleCheck("diary")}>
+            <span className={`check-icon ${checklist.diary ? "checked" : ""}`}>
+              {checklist.diary ? "✔️" : "⭕"}
+            </span>
+            จดบันทึกไดอารี่
+          </div>
+          <div className="checklist-item" onClick={() => toggleCheck("thoughtRecord")}>
+            <span className={`check-icon ${checklist.thoughtRecord ? "checked" : ""}`}>
+              {checklist.thoughtRecord ? "✔️" : "⭕"}
+            </span>
+            ทำแบบประเมิน Though Record
+          </div>
+          <div className="checklist-item" onClick={() => toggleCheck("dailySummary")}>
+            <span className={`check-icon ${checklist.dailySummary ? "checked" : ""}`}>
+              {checklist.dailySummary ? "✔️" : "⭕"}
+            </span>
+            ติดตามผลสรุปรายวัน
+          </div>
+          <div className="checklist-item" onClick={() => toggleCheck("cbtConfirm")}>
+            <span className={`check-icon ${checklist.cbtConfirm ? "checked" : ""}`}>
+              {checklist.cbtConfirm ? "✔️" : "⭕"}
+            </span>
+            ยืนยันการทำแบบฝึกหัด CBT
+          </div>
+        </div>
 
-    <div className="housemed-feature-right">
-      <button className="housemed-start-btn">LET’S START</button>
-      <p className="housemed-feature-desc">
-        "Reflect, reframe, and grow through your thoughts."
-      </p>
-    </div>
-  </section>
+        {/* CENTER NOTE */}
+        <div className="housemed-note-center">
+          <span role="img" aria-label="note">
+            🖊
+          </span>{" "}
+          กระดาษจดบันทึก
+        </div>
 
-  <section className="housemed-feature">
-    <div className="housemed-feature-left">
-      <h2>Thought Record</h2>
-      <img src={recordImage} alt="Thought record illustration" className="housemed-icon" />
-    </div>
-
-    <div className="housemed-feature-right">
-      <button className="housemed-start-btn">LET’S START</button>
-      <p className="housemed-feature-desc">
-        "Write from the heart — your thoughts are safe here."
-      </p>
-    </div>
-  </section>
-</div>
-</div>
+        {/* DIARY SECTION */}
         <div className="housemed-right-section">
-          <img src={medImage} alt="Doctor and patient" className="housemed-doctor-img" />
+          <div className="latest-diary-box">
+            <h2 className="section-title">📘 ไดอารี่ล่าสุดของคุณ</h2>
+            <div className="diary-preview-list">
+              {latestDiaries.map((d) => (
+                <div key={d.ID} className="diary-card">
+                  <h3>{d.Title}</h3>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: (d.Content ?? "").slice(0, 100) + "...",
+                    }}
+                  />
+                  <small>
+                    อัปเดตเมื่อ:{" "}
+                    {d.UpdatedAt
+                      ? new Date(d.UpdatedAt).toLocaleDateString("th-TH")
+                      : "-"}
+                  </small>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     </div>

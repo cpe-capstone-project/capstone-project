@@ -13,23 +13,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
-
 func Register(c *gin.Context) {
 	db := config.DB()
 
-	var (
-		firstName      = c.PostForm("firstName")
-		lastName       = c.PostForm("lastName")
-		gender         = c.PostForm("gender")
-		dobStr         = c.PostForm("dob")
-		phone          = c.PostForm("phone")
-		medicalLicense = c.PostForm("medicalLicense")
-		email          = c.PostForm("email")
-		password       = c.PostForm("password")
-		roleIDStr      = c.PostForm("role_id") // 🟡 รับค่ามาแบบ string
-	)
+	firstName := c.PostForm("firstName")
+	lastName := c.PostForm("lastName")
+	dobStr := c.PostForm("dob")
+	phone := c.PostForm("phone")
+	medicalLicense := c.PostForm("medicalLicense")
+	email := c.PostForm("email")
+	password := c.PostForm("password")
+	roleIDStr := c.PostForm("role_id")
+	genderIDStr := c.PostForm("gender_id") // ✅
 
-	// แปลง role_id เป็น uint
+	// แปลง role_id และ gender_id
 	roleIDUint64, err := strconv.ParseUint(roleIDStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid role ID"})
@@ -37,24 +34,35 @@ func Register(c *gin.Context) {
 	}
 	roleID := uint(roleIDUint64)
 
-	// ตรวจสอบซ้ำ
+	genderIDUint64, err := strconv.ParseUint(genderIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid gender ID"})
+		return
+	}
+	genderID := uint(genderIDUint64)
+
+	// ดึง gender เพื่อ validate
+	var gender entity.Genders
+	if err := db.First(&gender, genderID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Gender not found"})
+		return
+	}
+
+	// ตรวจสอบ email ซ้ำ
 	var existing entity.Psychologist
 	if err := db.Where("email = ?", email).First(&existing).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"message": "Email already registered"})
 		return
 	}
 
-	// แปลงวันเกิด
 	dob, err := time.Parse("2006-01-02", dobStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid date format"})
 		return
 	}
 
-	// hash password
 	hashedPassword, _ := config.HashPassword(password)
 
-	// รับรูป
 	file, err := c.FormFile("licenseImage")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Missing license image"})
@@ -66,20 +74,20 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// สร้างข้อมูล
+	// บันทึก
 	user := entity.Psychologist{
 		FirstName:      firstName,
 		LastName:       lastName,
-		Gender:         gender,
 		DOB:            dob,
 		Phone:          phone,
 		MedicalLicense: medicalLicense,
 		Email:          email,
 		PasswordHash:   hashedPassword,
 		LicenseImage:   filename,
-		RoleID:         roleID, // ✅ ใช้ค่าที่แปลงแล้ว
+		RoleID:         roleID,
+		GenderID:       genderID,
 	}
-
+//
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -87,6 +95,9 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Register successful"})
 }
+
+
+
 
 func Login(c *gin.Context) {
 	var payload struct {

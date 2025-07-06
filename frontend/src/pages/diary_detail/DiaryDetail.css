@@ -1,0 +1,160 @@
+.diary-detail-container {
+    /* display: flex; */
+    width: 100%;
+}
+
+.diary-detail-content {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  max-height: calc(100vh - var(--navbar-height));
+}
+
+.diary-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--padding-left-right-patient-home-page);
+  background-color: #ffffff;
+  z-index: 2;
+
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-text-editor);
+    padding: var(--padding-text-editor);
+
+    .title {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--padding-patient-home-page);
+      font-size: var(--font-size-xl);
+
+      input {
+        width: 100%;
+        padding: calc(var(--padding-text-editor) / 2);
+        border: 0;
+        font-weight: bold;
+        font-size: var(--font-size-lg);
+      }
+
+      input:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .editor-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--padding-text-editor));
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    .ProseMirror {
+      outline: none;
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    /* 🔧 Reset default list styles */
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin: 1rem 0 0.5rem;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.5rem; /* หรือปรับให้เหมาะกับพื้นที่ */
+      margin: 0;
+    }
+
+    li {
+      margin: 0.25rem 0;
+      word-break: break-word; /* ป้องกันล้น */
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 400px;
+      height: auto;
+      width: auto;
+      display: block;
+      margin: 1rem auto;
+      object-fit: contain;
+    }
+  }
+
+  .diary-save-btn {
+    align-self: center;
+    text-align: center;
+    background-color: var(--ant-color-primary);
+    color: white;
+    padding: 4px 24px;
+    margin-left: auto;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition-fast);
+  }
+
+  .diary-save-btn:hover {
+    /* opacity: 0.5; */
+  }
+
+  .diary-save-btn:disabled {
+    background-color: var(--background-color-disable);
+    color: var(--color-disable);
+    cursor: not-allowed;
+  }
+}
+
+.diary-float-button {
+  bottom: var(--padding-patient-home-page);
+  inset-inline-end: var(--padding-patient-home-page);
+}
+
+.diary-editor.with-feedback {
+  width: calc(
+    100% - var(--diary-sidebar-width) - var(--diary-feedback-width)
+  );
+}
+
+.diary-editor.fullscreen {
+  width: 100%;
+}
+
+.diary-editor.fullscreen.with-feedback {
+  width: calc(100% - var(--diary-feedback-width));
+}
+
+
+.diary-feedback-container {
+  width: var(--diary-feedback-width);
+  transition: width 0.4s;
+  will-change: auto;
+  overflow: hidden;
+}
+
+.diary-feedback-container.hide {
+  width: 0;
+  pointer-events: none;
+}

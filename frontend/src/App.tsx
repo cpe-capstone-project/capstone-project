@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter } from "react-router-dom";
+// import Cute from "./pages/firstpage/cute";
+// import Login from "./pages/loginkub/login";
+// import Register from "./pages/register/register";
+// import Rolehealth from "./pages/rolehealth/rolehealth";
+// import Homepage from "./pages/homepage/homepage";
+// import Homedoc from "./pages/homedoc/homedoc";
+// import DiaryList from "./pages/diary_list/DiaryList";
+import { PathContextProvider } from "./contexts/PathContext";
+import { DateContextProvider } from "./contexts/DateContext";
+// import ConfigRoutes from "./routes/ConfigRoutes";
+import RouterComponent from "./routes/RouterComponent";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <PathContextProvider>
+        <DateContextProvider>
+          {/* <ConfigRoutes /> */}
+          <RouterComponent/>
+        </DateContextProvider>
+      </PathContextProvider>
+    </BrowserRouter>
+    // <Routes>
+    //   <Route path="/cute" element={<Cute />} />
+    //   <Route path="/login" element={<Login />} />
+    //   <Route path="/register" element={<Register />} />
+    //   <Route path="/rolehealth" element={<Rolehealth />} />
+    //   <Route path="/homepage" element={<Homepage />} />
+    //   <Route path="/homedoc" element={<Homedoc />} />
+    //   <Route
+    //     path="/diary"
+    //     element={
+    //       <DiaryContextProvider>
+    //         <DiaryList />
+    //       </DiaryContextProvider>
+    //     }
+    //   />
+    // </Routes>
+  );
 }
 
-export default App
+export default App;

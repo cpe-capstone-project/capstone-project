@@ -125,7 +125,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         birthday: new Date(formData.dob).toISOString(), // 👈 เพิ่มตรงนี้
         password: formData.password,
         picture: "https://i.imgur.com/default-avatar.png", // หรือให้ผู้ใช้เลือก
-        gender_id: formData.gender === "male" ? 1 : 2, // Mapping เพศ
+         gender_id:
+    formData.gender === "male"
+      ? 1
+      : formData.gender === "female"
+      ? 2
+      : 3, // 👈 รองรับ "other"
         role_id: 3, // 👈 ถ้าสมัคร Patient = 3 / Psychologist = 4
         consent: formData.consent,
         address: formData.address,

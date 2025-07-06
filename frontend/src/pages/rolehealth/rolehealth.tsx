@@ -99,7 +99,6 @@ const Rolehealth: React.FC = () => {
 
       formPayload.append("firstName", formData.firstName);
       formPayload.append("lastName", formData.lastName);
-      formPayload.append("gender", formData.gender);
       formPayload.append("dob", formData.dob);
       formPayload.append("phone", formData.phone);
       formPayload.append("medicalLicense", formData.medicalLicense);
@@ -107,6 +106,11 @@ const Rolehealth: React.FC = () => {
       formPayload.append("password", formData.password);
       // ✅ เพิ่มตรงนี้
       formPayload.append("role_id", "4");
+       // ✅ เพิ่ม gender_id แทน gender
+      let genderId = "1"; // default male
+      if (formData.gender === "female") genderId = "2";
+      else if (formData.gender === "other") genderId = "3";
+      formPayload.append("gender_id", genderId);
 
 
       if (attachedFile) {

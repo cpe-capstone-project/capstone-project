@@ -1,4 +1,3 @@
-// entity/psychologist.go
 package entity
 
 import (
@@ -9,16 +8,18 @@ import (
 
 type Psychologist struct {
 	gorm.Model
-	FirstName      string    `gorm:"size:100;not null"`       // ชื่อ
-	LastName       string    `gorm:"size:100;not null"`       // นามสกุล
-	Gender         string    `gorm:"size:10;not null"`        // เพศ (male/female/other)
-	DOB            time.Time `gorm:"not null"`                // วันเกิด
-	Phone          string    `gorm:"size:15;not null;unique"` // เบอร์โทรศัพท์
-	MedicalLicense string    `gorm:"size:21;not null;unique"` // เลขที่ใบรับรองแพทย์
-	Email          string    `gorm:"size:100;not null;unique"`// อีเมล
-	PasswordHash   string    `gorm:"size:255;not null"`       // รหัสผ่านแฮช
-	LicenseImage   string    `gorm:"size:255;not null"`       // ชื่อไฟล์หรือ path ของรูปใบรับรองแพทย์
-	
-	RoleID    uint     // FK ไปยังตาราง roles
-	Role      *Roles   // ความสัมพันธ์
+	FirstName      string
+	LastName       string
+	DOB            time.Time
+	Phone          string    `gorm:"unique"`
+	MedicalLicense string    `gorm:"unique"`
+	Email          string    `gorm:"unique"`
+	PasswordHash   string
+	LicenseImage   string
+
+	GenderID uint
+	Gender   *Genders
+
+	RoleID uint
+	Role   *Roles
 }

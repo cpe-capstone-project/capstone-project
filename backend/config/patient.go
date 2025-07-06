@@ -14,8 +14,11 @@ func SetupPatientDatabase() {
 
    	GenderMale := entity.Genders{Gender: "Male"}
    	GenderFemale := entity.Genders{Gender: "Female"}
+    GenderOther := entity.Genders{Gender: "Other"} // ✅ เพิ่มบรรทัดนี้
    	db.FirstOrCreate(&GenderMale, &entity.Genders{Gender: "Male"})
    	db.FirstOrCreate(&GenderFemale, &entity.Genders{Gender: "Female"})
+    db.FirstOrCreate(&GenderOther, &entity.Genders{Gender: "Other"}) // ✅ เพิ่มบรรทัดนี้
+    
 
     Unknown := entity.Roles{Role: "Unknown"}
     Admin := entity.Roles{Role: "Admin"}
@@ -58,4 +61,19 @@ func SetupPatientDatabase() {
        RoleID: 		4,
    	}
     db.FirstOrCreate(Psychologists, &entity.Patients{Email: "psytest@gmail.com",})
+
+    PatientOther := &entity.Patients{
+	FirstName: "Alex",
+	LastName:  "Taylor",
+	Email:     "otheruser@gmail.com",
+	Age:       28,
+	Password:  hashedPassword01,
+	BirthDay:  BirthDay01,
+	Phone:     "0988888888",
+	Image:     "https://example.com/avatar-other.jpg",
+	GenderID:  3,              // ✅ เพศ Other
+	RoleID:    3,              // Patient
+}
+    db.FirstOrCreate(PatientOther, &entity.Patients{Email: "otheruser@gmail.com"})
+
 }

@@ -1,29 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./Homedoc.css";
 import FiledecImage from "../../assets/filedec.png";
-import SymmedImage from "../../assets/symmed.png"; // ใช้ชื่อไฟล์จริงที่คุณเซฟไว้
-
-
+import SymmedImage from "../../assets/symmed.png";
 
 const Homedoc: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+  const isLogin = localStorage.getItem("isLogin");
+
+  useEffect(() => {
+    if (!isLogin || role !== "Psychologist") {
+      Swal.fire({
+        icon: "warning",
+        title: "คุณต้องเข้าสู่ระบบด้วยบัญชีนักจิตวิทยา",
+      }).then(() => {
+        navigate("/");
+      });
+    }
+  }, []);
+
   const toggleProfileMenu = () => {
     setShowMenu(!showMenu);
   };
-const prowo = () => { 
-  Swal.fire({
-    title: user.email || "No email",
-    imageUrl: "https://i.pinimg.com/736x/90/92/20/909220721b5f79574900deb68ebae5ff.jpg", // ลิงก์ตรงจาก Pinterest ไม่ได้แสดงภาพ ต้องใช้ลิงก์ภาพโดยตรง (หรือโหลดเก็บเอง)
-   // imageWidth: 400,
-    imageHeight: 200,
-    imageAlt: "Profile image",
-  });
-};
+
+  const prowo = () => {
+    Swal.fire({
+      title: email || "No email",
+      imageUrl:
+        "https://i.pinimg.com/736x/90/92/20/909220721b5f79574900deb68ebae5ff.jpg",
+      imageHeight: 200,
+      imageAlt: "Profile image",
+    });
+  };
+
   const handleLogout = () => {
+    localStorage.clear(); // เคลียร์ข้อมูลทั้งหมด
     const Toast = Swal.mixin({
       toast: true,
       position: "top-end",
@@ -42,10 +58,9 @@ const prowo = () => {
     });
 
     setTimeout(() => {
-      navigate("/cute"); // เปลี่ยน path ตามต้องการ
+      navigate("/");
     }, 500);
   };
-
   return (
     <div className="docflour-homepage">
       {/* Header */}

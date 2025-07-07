@@ -23,14 +23,13 @@ function SignInPages() {
 
       const role = res.data.role;
       let redirectPath = "/";
-      if (role === "Patient") redirectPath = "/patient";
-      else if (role === "Psychologist") redirectPath = "/psychologist";
-      else if (role === "Unknown") redirectPath = "/unknown";
-      else {
-        messageApi.error("Unknown role");
-        return;
-      }
-
+if (role === "Patient") redirectPath = "/patient/home";
+else if (role === "Psychologist") redirectPath = "/psychologist/home";
+else if (role === "Unknown") redirectPath = "/unknown";
+else {
+  messageApi.error("Unknown role");
+  return;
+}
       setTimeout(() => {
         location.href = redirectPath;
       }, 1000);

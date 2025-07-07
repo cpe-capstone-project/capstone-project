@@ -130,3 +130,16 @@
 .diary-card small {
   color: #888;
 }
+.swal2-elegant-popup {
+  border-radius: 16px !important;
+  font-family: 'Sarabun', 'Segoe UI', sans-serif !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  padding: 1rem !important;
+}
+
+
+.swal2-elegant-title {
+  font-size: 20px !important;
+  color: #222 !important;
+  margin-bottom: 20px !important;
+}

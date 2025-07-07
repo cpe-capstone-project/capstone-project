@@ -80,4 +80,21 @@ func SetupPsychologistDatabase() {
 		RoleID:         rolePsychologist.ID,
 	}
 	db.FirstOrCreate(psychologist3, entity.Psychologist{Email: "alexflow@clinic.com"})
+    // Psychologist 4 - เพิ่มใหม่
+passwordNew, _ := HashPassword("psychohealth111")
+psychologist4 := &entity.Psychologist{
+	FirstName:      "Dr.",
+	LastName:       "Medicine",
+	DOB:            dob,
+	Phone:          "0866666666",
+	MedicalLicense: "LIC-0004",
+	Email:          "medicine@depressionrec.go.th",
+	PasswordHash:   passwordNew,
+	LicenseImage:   "https://example.com/license4.jpg",
+	GenderID:       genderMale.ID, // หรือเปลี่ยนเป็น genderFemale.ID / genderOther.ID ตามต้องการ
+	RoleID:         rolePsychologist.ID,
 }
+db.FirstOrCreate(psychologist4, entity.Psychologist{Email: "medicine@depressionrec.go.th"})
+}
+
+

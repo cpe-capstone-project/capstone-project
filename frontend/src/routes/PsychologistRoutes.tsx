@@ -1,18 +1,18 @@
 import RequireRole from "./RequireRole";
 import DiaryList from "../pages/diary_list/DiaryList";
-import Homedoc from "../pages/homedoc/homedoc"; 
+import Homedoc from "../pages/homedoc/homedoc";
+import PsychoLayout from "../layout/FullLayout/PsychoLayout";
+
 const PsychologistRoutes = {
   path: "/psychologist",
   element: (
     <RequireRole allowedRoles={["Psychologist"]}>
-      <div>Psychologist Layout</div>
+      <PsychoLayout />
     </RequireRole>
   ),
   children: [
     { path: "homedoc", element: <Homedoc /> },
     { path: "diary", element: <DiaryList /> },
-    
-    // เพิ่ม route อื่นๆ ได้
   ],
 };
 

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import "./Homedoc.css";
 import FiledecImage from "../../assets/filedec.png";
 import SymmedImage from "../../assets/symmed.png";
-
 const Homedoc: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
@@ -63,35 +62,6 @@ const Homedoc: React.FC = () => {
   };
   return (
     <div className="docflour-homepage">
-      {/* Header */}
-      <header className="docflour-top-nav">
-       
-<div className="docflour-logo">
-  <img src={SymmedImage} alt="Health App Logo" className="docflour-logo-img" />
-  Depression Rec, Inc.
-</div>
-        <nav className="docflour-nav">
-          <a href="#">HOME PAGE</a>
-          <a href="#">THERAPY CASES</a>
-
-          <div className="docflour-profile-wrapper">
-            <div className="docflour-profile-icon" onClick={toggleProfileMenu}>
-              <img
-                src="https://cdn-icons-png.flaticon.com/128/1786/1786629.png"
-                alt="Profile"
-              />
-            </div>
-
-            {showMenu && (
-              <div className="docflour-profile-menu">
-                <button onClick={prowo}>Edit Profile</button>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
-          </div>
-        </nav>
-      </header>
-
       {/* Welcome Box */}
       <section className="docflour-welcome-box">
         <h1>Welcome, fellow psychologist.</h1>

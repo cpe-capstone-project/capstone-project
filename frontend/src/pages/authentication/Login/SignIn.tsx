@@ -1,18 +1,27 @@
 import { Button, Card, Form, Input, message, Flex, Row, Col } from "antd";
 import { useNavigate } from "react-router";
-import { SignIn } from "../../../services/https/Authentication";
 import type { SignInInterface } from "../../../interfaces/SignIn";
 import Swal from "sweetalert2";
 import patientImage from "../../../assets/patient.png";
 import psychologyImage from "../../../assets/psychology.png";
-
+import { SignIn, SignInPsychologist } from "../../../services/https/Authentication";
 
 function SignInPages() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const onFinish = async (values: SignInInterface) => {
-    const res = await SignIn(values);
+   const onFinish = async (values: SignInInterface) => {
+    const email = values.email?.toLowerCase().trim();
+    const cleanedValues = { ...values, email };
+
+    let res;
+
+    if (email && email.endsWith("@depressionrec.go.th")) {
+      res = await SignInPsychologist(cleanedValues);
+    } else {
+      res = await SignIn(cleanedValues);
+    }
+
     if (res.status === 200) {
       messageApi.success("Sign-in successful");
       localStorage.setItem("isLogin", "true");
@@ -20,21 +29,22 @@ function SignInPages() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("id", res.data.id);
       localStorage.setItem("role", res.data.role);
-
+      localStorage.setItem("email", res.data.email); 
       const role = res.data.role;
       let redirectPath = "/";
-if (role === "Patient") redirectPath = "/patient/home";
-else if (role === "Psychologist") redirectPath = "/psychologist/home";
-else if (role === "Unknown") redirectPath = "/unknown";
-else {
-  messageApi.error("Unknown role");
-  return;
-}
+
+      if (role === "Patient") redirectPath = "/patient/home";
+      else if (role === "Psychologist") redirectPath = "/psychologist/homedoc";
+      else {
+        messageApi.error("Unknown role");
+        return;
+      }
+
       setTimeout(() => {
         location.href = redirectPath;
       }, 1000);
     } else {
-      messageApi.error(res.data.error);
+      messageApi.error(res.data?.error || "Sign-in failed");
     }
   };
   // เพิ่มใน component ด้านบน

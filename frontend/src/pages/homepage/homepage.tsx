@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import "./HomePage.css";
-import diaryImage from "../../assets/diary.png";
-import recordImage from "../../assets/record.png";
 import { GetLatestDiaries } from "../../services/https/Diary";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 
 function HomePage() {
+  const MySwal = withReactContent(Swal);
   const navigate = useNavigate();
   const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
   const [checklist, setChecklist] = useState({
@@ -16,6 +16,9 @@ function HomePage() {
     dailySummary: false,
     cbtConfirm: false,
   });
+useEffect(() => {
+  showSuccessLog(); // <--- เพิ่มเพื่อทดสอบ
+}, []);
 
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -40,9 +43,61 @@ function HomePage() {
   }, []);
 
   const toggleCheck = (key: keyof typeof checklist) => {
-    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
+    setChecklist((prev) => {
+      const newChecklist = { ...prev, [key]: !prev[key] };
+
+      // หาก checklist "diary" และ "cbtConfirm" ถูกติ๊ก ให้แสดง Swal
+      if (
+        key === "diary" &&
+        !prev.diary &&
+        newChecklist.diary &&
+        newChecklist.cbtConfirm
+      ) {
+        showSuccessLog();
+      }
+      if (
+        key === "cbtConfirm" &&
+        !prev.cbtConfirm &&
+        newChecklist.diary &&
+        newChecklist.cbtConfirm
+      ) {
+        showSuccessLog();
+      }
+
+      return newChecklist;
+    });
   };
 
+ const showSuccessLog = () => {
+  MySwal.fire({
+    toast: true,
+    position: "top-end", // ด้านขวาบน,
+    title: "บันทึกประจำวันสำเร็จ",
+    html: `
+      <div style="text-align: left; font-size: 14px; margin-top: 6px;">
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+          <div style="background-color: black; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
+            ✔
+          </div>
+          จดบันทึกไดอารี่รายวันสำเร็จ
+        </div>
+        <div style="display: flex; align-items: center;">
+          <div style="background-color: black; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
+            ✔
+          </div>
+          อัปโหลด CBT สำเร็จ
+        </div>
+      </div>
+    `,
+    showConfirmButton: false,
+    background: "#ffffff",
+    timer: 4000,
+    timerProgressBar: true,
+    customClass: {
+      popup: "swal2-elegant-popup",
+    },
+  });
+};
   return (
     <div className="housemed-homepage">
       <main className="housemed-main-content">

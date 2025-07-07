@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func Register(c *gin.Context) {
 	dobStr := c.PostForm("dob")
 	phone := c.PostForm("phone")
 	medicalLicense := c.PostForm("medicalLicense")
-	email := c.PostForm("email")
+	email := strings.ToLower(strings.TrimSpace(c.PostForm("email"))) // ✅ ตรงนี้!
 	password := c.PostForm("password")
 	roleIDStr := c.PostForm("role_id")
 	genderIDStr := c.PostForm("gender_id") // ✅
@@ -97,8 +98,6 @@ func Register(c *gin.Context) {
 }
 
 
-
-
 func Login(c *gin.Context) {
 	var payload struct {
 		Email    string `json:"email"`
@@ -109,8 +108,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// ✅ แปลง email
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+
 	db := config.DB()
 	var user entity.Psychologist
+
+	// ✅ DEBUG
+	fmt.Println("Searching for email:", payload.Email)
+
 	if err := db.Where("email = ?", payload.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email not found"})
 		return

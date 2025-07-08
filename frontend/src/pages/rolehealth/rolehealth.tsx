@@ -217,19 +217,28 @@ const Rolehealth: React.FC = () => {
       <h2 className="wellness-heading">ลงทะเบียนนักจิตวิทยา</h2>
 
       <div className="wellness-steps-after-submit">
-        <div className={`step-box ${step === 1 ? "active" : ""}`}>
-          <div className="circle">1</div>
-          <p>ข้อมูลส่วนตัว</p>
-        </div>
-        <div className={`step-box ${step === 2 ? "active" : ""}`}>
-          <div className="circle">2</div>
-          <p>อีเมลและรหัสผ่าน</p>
-        </div>
-        <div className={`step-box ${step === 3 ? "active" : ""}`}>
-          <div className="circle">3</div>
-          <p>สำเร็จ</p>
-        </div>
-      </div>
+  {[1, 2, 3].map((i) => (
+    <div key={i} className={`step-box ${step === i ? "active" : ""}`}>
+      <img
+        className="circle-icon"
+        src={
+          step === i
+            ? "https://cdn-icons-png.flaticon.com/128/14358/14358541.png"
+            : "https://cdn-icons-png.flaticon.com/128/481/481078.png"
+        }
+        alt={`Step ${i}`}
+      />
+      <p>
+        {i === 1
+          ? "ข้อมูลส่วนตัว"
+          : i === 2
+          ? "อีเมลและรหัสผ่าน"
+          : "สำเร็จ"}
+      </p>
+    </div>
+  ))}
+</div>
+
 
       {/* Step 1: Personal Information */}
       {step === 1 && (

@@ -1,28 +1,28 @@
 .registermed {
   max-width: 700px;
   margin: 2rem auto;
-  padding: 2rem;
-  background: #f3fdff; /* ฟ้าจางสุขภาพ */
-  border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 153, 255, 0.15);
+  padding: 2.5rem 2rem;
+  background: #ffffff; /* ✅ ขาวหรู */
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); /* ✅ นุ่ม */
   font-family: "Segoe UI", "Sarabun", sans-serif;
   color: #2b6c83;
 }
 
 .registermed h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-weight: 600;
-  font-size: 1.8rem;
-  color: #226373;
+  font-size: 2rem;
+  color: #040404;
 }
 
 .registermed label {
   display: block;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   font-weight: 500;
-  font-size: 1.05rem;
-  color: #226373;
+  font-size: 1.1rem;
+  color: #2b4d59;
 }
 
 .registermed label input[type="text"],
@@ -31,10 +31,10 @@
 .registermed label input[type="date"],
 .registermed label select {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  margin-top: 0.25rem;
-  border: 1.5px solid #b3e5fc;
-  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-top: 0.3rem;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
   font-size: 1rem;
   background-color: #ffffff;
   font-family: inherit;
@@ -45,10 +45,11 @@
 .registermed label input:focus,
 .registermed label select:focus {
   outline: none;
-  border-color: #00aaff;
-  background-color: #e6faff;
-  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+  border-color: #d0d0d0;           /* ✅ ขอบเทาอ่อนนุ่ม */
+  background-color: #ffffff;       /* ✅ พื้นขาวคลีน */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);  /* ✅ เงาเบาๆ */
 }
+
 
 .registermed label input[aria-invalid="true"],
 .registermed label select[aria-invalid="true"] {
@@ -74,11 +75,7 @@
   overflow-wrap: break-word;
 }
 
-.error-message:hover {
-  background: #ffeaea;
-  box-shadow: 0 6px 16px rgba(255, 102, 102, 0.35);
-  transform: scale(1.03);
-}
+
 
 .error-message::before {
   content: "❗";
@@ -89,95 +86,111 @@
   font-size: 16px;
   color: #ff6b6b;
 }
-
+/* ✅ Consent checkbox */
 .consent-checkbox {
   display: flex;
   align-items: center;
   margin-top: 1rem;
   font-weight: 500;
   font-size: 1rem;
-  color: #226373;
+  color: #2b4d59;
 }
 
 .consent-checkbox input[type="checkbox"] {
-  margin-top: 1rem; /* เพิ่มบรรทัดเว้นด้านบน */
-  margin-right: 0.5rem;
+  appearance: none;
   width: 18px;
   height: 18px;
+  border: 2px solid #2b6c83;
+  border-radius: 4px;
+  margin-right: 0.6rem;
   cursor: pointer;
-  accent-color: #00aaff;
+  position: relative;
+  transition: all 0.2s ease;
 }
+
+.consent-checkbox input[type="checkbox"]:checked {
+  background-color: #2b6c83;
+  border-color: #2b6c83;
+}
+
+.consent-checkbox input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ✅ ปุ่ม submit: ขาวหรู ไม่ gradient */
 button[type="submit"] {
   width: 100%;
-  margin-top: 1.8rem;
-  padding: 0.75rem;
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff); /* ไล่เฉดฟ้าพาสเทล */
-  border: none;
+  margin-top: 2rem;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border: 1.5px solid #000000;
   border-radius: 12px;
   font-size: 1.1rem;
-  font-weight: bold;
-  color: #004466; /* น้ำเงินเข้มสุขภาพ */
+  font-weight: 600;
+  color: #000000;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 153, 255, 0.1);
   transition: all 0.3s ease;
 }
 
-button[type="submit"]:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff); /* อ่อนลงอีกเมื่อ hover */
-  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
-  transform: translateY(-2px);
-}
+
 
 button[type="submit"]:focus {
-  outline: 3px solid rgba(0, 153, 255, 0.3);
+  outline: 3px solid rgba(0, 153, 255, 0.2);
   outline-offset: 2px;
 }
 
+/* ✅ SweetAlert: ปุ่มหรู */
+.swal2-border-radius {
+  border-radius: 16px !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.swal2-confirm {
+  background-color: #ffffff !important;
+  color: #226373 !important;
+  font-weight: 600 !important;
+  border: 1.5px solid #aadffb !important;
+  border-radius: 12px !important;
+  padding: 0.6em 1.5em !important;
+  font-size: 1.05rem !important;
+  box-shadow: 0 4px 10px rgba(0, 153, 255, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+
+
+/* Responsive for mobile */
 @media (max-width: 480px) {
   .registermed {
     margin: 1rem;
     padding: 1.5rem;
   }
 }
-/* ตัวอย่างปรับมุมโค้งของกล่อง Alert */
-.swal2-border-radius {
-  border-radius: 16px !important;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* เปลี่ยนสีปุ่มยืนยัน */
-.swal2-confirm {
-  background-color: #4caf50 !important; /* สีเขียว */
-  color: white !important;
-  font-weight: bold;
-  border-radius: 12px !important;
-  padding: 0.6em 1.5em !important;
-  font-size: 1.1rem !important;
-  transition: background-color 0.3s ease;
-}
-
-.swal2-confirm:hover {
-  background-color: #45a049 !important;
-}
 .health-btn-swal {
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
-  border: none !important;
-  color: #004466 !important;
-  padding: 0.75rem 2rem !important;
+  background-color: #ffffff !important;
+  color: #226373 !important;
   font-size: 1rem !important;
-  font-weight: bold !important;
+  font-weight: 600 !important;
+  border: 1.5px solid #b3e5fc !important;
   border-radius: 12px !important;
+  padding: 0.75rem 2rem !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.1) !important;
   transition: all 0.3s ease !important;
-  margin: 0 auto !important; /* กึ่งกลาง */
+  margin: 0 auto !important;
+  display: block !important;
 }
 
-.health-btn-swal:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff) !important;
-  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4) !important;
-  transform: translateY(-2px) !important;
-}
+
 
 .login-link {
   text-align: center;
@@ -208,7 +221,7 @@ button[type="submit"]:focus {
   width: 100%;
   padding: 0.6rem 0.75rem;
   margin-top: 0.25rem;
-  border: 1.5px solid #b3e5fc;
+  border: 1.5px solid #000000;
   border-radius: 8px;
   font-size: 1rem;
   background-color: #ffffff;
@@ -218,11 +231,12 @@ button[type="submit"]:focus {
 }
 
 .registermed input[type="email"]:focus {
-  outline: none;
-  border-color: #00aaff;
-  background-color: #e6faff;
-  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+    outline: none;
+  border-color: #d0d0d0;           /* ✅ ขอบเทาอ่อนนุ่ม */
+  background-color: #ffffff;       /* ✅ พื้นขาวคลีน */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);  /* ✅ เงาเบาๆ */
 }
+
 
 .registermed input[type="email"][aria-invalid="true"] {
   border-color: #ff6b6b;
@@ -233,58 +247,30 @@ button[type="submit"]:focus {
   min-height: 100vh;
   padding: 2rem;
   box-sizing: border-box;
-  overflow: hidden;
-
-  /* ไล่สีพื้นหลังโทนอ่อน ละมุนกว่าเดิม */
-  background: linear-gradient(
-    270deg,
-    #d7f0fc,   /* ฟ้า very light pastel */
-    #f0f9ff,   /* ขาวอมฟ้า very pale */
-    #c0e7f9,   /* ฟ้าพาสเทลอ่อน */
-    #f0f9ff    /* ขาวอมฟ้า very pale */
-  );
-  background-size: 600% 600%;
-
-  /* animation ไล่สีพื้นหลัง */
-  animation: gradientShift 15s ease infinite;
-
-  /* ขอบโปร่งแสงแบบ glass */
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: #fdfefe; /* ✅ ขาวนวล */
   border-radius: 20px;
-
-  /* เบลอฉากหลัง */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  /* เงาเล็ก ๆ รอบขอบ */
   box-shadow:
-    0 4px 30px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-
-  /* ให้ขอบโปร่งแสงไม่ทับ background */
-  background-clip: padding-box;
+    0 6px 20px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
+
 
 .yokhealth-btn {
   width: 100%;
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
-  border: none;
-  color: #004466;
+  background-color: #ffffff;
+  border: 1.5px solid #000000;
+  color: #000000;
   padding: 0.6rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 153, 255, 0.2);
+  box-shadow: 0 3px 10px rgba(0, 153, 255, 0.1);
   transition: all 0.3s ease;
   margin-right: 1rem;
 }
 
-.yokhealth-btn:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff);
-  box-shadow: 0 5px 14px rgba(0, 153, 255, 0.35);
-  transform: translateY(-1.5px);
-}
+
 
 .yokhealth-btn:focus {
   outline: 3px solid rgba(0, 153, 255, 0.2);
@@ -296,68 +282,72 @@ button[type="submit"]:focus {
   gap: 1rem;
   margin-top: 1.5rem;
 }
-/* Step indicator */
-.yakno { 
+.yakno {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2rem 0;
+  background-color: #ffffff; /* ✅ พื้นหลังขาวสะอาด */
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* ✅ เงาเบาๆ */
   position: relative;
+  margin-bottom: 2rem;
 }
 
-.yakno::before { 
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  /* เปลี่ยนจาก background เป็น border-bottom แบบเส้นประ */
-  background: none;  /* เอา background ออก */
-  border-bottom: 3px dashed #d1f4ff;  /* เส้นประสีฟ้าอ่อน */
-  z-index: 0;
-}
-
-
+/* กล่องแต่ละ step */
 .step-box {
-  position: relative;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   flex: 1;
+  position: relative;
   z-index: 1;
 }
 
-.step-box .circle {
-  width: 40px;
-  height: 40px;
-  background: #d1f4ff;
-  color: #007baf;
-  font-weight: bold;
-  border-radius: 50%;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 6px rgba(0, 153, 255, 0.2);
-  font-size: 1.1rem;
-  z-index: 2;
+/* เส้นประเชื่อม step */
+.step-box:not(:last-child)::after,
+.step-box:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  width: 60%;
+  height: 0;
+  border-top: 2px dashed #dcdcdc; /* ✅ เส้นประเทาอ่อน */
+  z-index: 0;
+}
+.step-box:not(:last-child)::after {
+  right: -30%;
+}
+.step-box:not(:first-child)::before {
+  left: -30%;
 }
 
+/* วงกลมไอคอน */
+.circle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #dddddd; /* ✅ ขอบเทาอ่อน */
+  object-fit: contain;
+  padding: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); /* ✅ เงาอ่อน */
+  transition: border 0.3s, background 0.3s;
+}
+
+/* ข้อความใต้ไอคอน */
 .step-box p {
   margin-top: 0.5rem;
   font-size: 0.95rem;
+  color: #999;
   font-weight: 500;
-  color: #7a9ca5;
 }
-
-/* Active step */
-.step-box.active .circle {
-  background: #00bcd4;
-  color: white;
-}
-
 .step-box.active p {
-  color: #00bcd4;
+  color: #333;
 }
+
+
+
 /* SweetAlert2 input style */
 .swal2-input {
   font-family: "Segoe UI", "Sarabun", sans-serif;
@@ -390,40 +380,38 @@ button[type="submit"]:focus {
 .northmessage {
   font-size: 2rem;
   font-weight: 700;
-  color: #226373;
+  color: #000000;
   margin-bottom: 1rem;
 }
 
 .northsubtext {
   font-size: 1.2rem;
-  color: #4a7a84;
+  color: #000000;
   margin-bottom: 2rem;
 }
 .lang-switch-btn {
-  background-color: #d4f0ff;
-  color: #004466;
-  border: none;
+  background-color: #ffffff; /* ✅ ขาวสะอาด */
+  color: #444444;            /* ✅ เทาเข้มนิด อ่านง่าย */
+  border: 1px solid #dcdcdc; /* ✅ ขอบเทาอ่อนหรู */
   padding: 0.4rem 1rem;
   font-size: 0.9rem;
-  font-weight: bold;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 153, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); /* ✅ เงานุ่มๆ */
   transition: all 0.3s ease;
 }
 
-.lang-switch-btn:hover {
-  background-color: #bce7fb;
-  transform: translateY(-1px);
-}
 .privacy-topics {
-  background: #f0f9ff;
-  border: 1px solid #d0ecff;
-  border-radius: 10px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 153, 255, 0.1);
+  background: #ffffff; /* ✅ ขาวสะอาด */
+  border: 1px solid #e0e0e0; /* ✅ ขอบเทาอ่อนหรู */
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* ✅ เงาเบาๆ นุ่มๆ */
+  transition: all 0.3s ease-in-out;
 }
+
 
 .privacy-flex {
   display: flex;
@@ -440,7 +428,7 @@ button[type="submit"]:focus {
 .privacy-left h4 {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #226373;
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
@@ -475,19 +463,13 @@ button[type="submit"]:focus {
   
   padding: 2rem;
   width: 100%;
-  max-width: 150px;
+  max-width: 200px;
   margin: 0 auto;
 
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   animation: glow-pastel 4s infinite ease-in-out;
   position: relative;
   z-index: 1;
-}
-
-.eatprivacy:hover {
-  transform: scale(1.04);
-  animation: glow-pastel-fast 2s infinite ease-in-out;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18); /* เพิ่มเงาเวลา hover */
 }
 .privacy-left ul li {
   margin-bottom: 0.75rem; /* หรือ 1rem ถ้าอยากเว้นมากขึ้น */
@@ -507,7 +489,7 @@ button[type="submit"]:focus {
   width: 100%;
   padding: 0.6rem 0.75rem;
   margin-top: 0.25rem;
-  border: 1.5px solid #b3e5fc;
+  border: 1.5px solid #000000;
   border-radius: 8px;
   font-size: 1rem;
   background-color: #ffffff;
@@ -518,10 +500,10 @@ button[type="submit"]:focus {
 
 .age-gender-row input:focus,
 .age-gender-row select:focus {
-  outline: none;
-  border-color: #00aaff;
-  background-color: #e6faff;
-  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+ outline: none;
+  border-color: #d0d0d0;           /* ✅ ขอบเทาอ่อนนุ่ม */
+  background-color: #ffffff;       /* ✅ พื้นขาวคลีน */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);  /* ✅ เงาเบาๆ */
 }
 
 .age-gender-row input[aria-invalid="true"],

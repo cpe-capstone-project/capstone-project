@@ -5,7 +5,6 @@ import withReactContent from "sweetalert2-react-content";
 import "./HomePage.css";
 import { GetLatestDiaries } from "../../services/https/Diary";
 import type { DiaryInterface } from "../../interfaces/IDiary";
-
 function HomePage() {
   const MySwal = withReactContent(Swal);
   const navigate = useNavigate();

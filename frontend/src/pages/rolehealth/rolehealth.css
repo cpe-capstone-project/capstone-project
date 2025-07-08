@@ -2,12 +2,13 @@
 .wellness-register-form {
   max-width: 700px;
   margin: 2rem auto;
-  padding: 2rem;
-  background: #f3fdff;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 153, 255, 0.15);
+  padding: 2rem 2.5rem;
+  background: #ffffff; /* ✅ ขาวสะอาด */
+  border-radius: 16px;
+  border: 1px solid #eaeaea; /* ✅ ขอบบางๆ หรู */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05); /* ✅ เงาเบาๆ */
   font-family: "Segoe UI", "Sarabun", sans-serif;
-  color: #2b6c83;
+  color: #333;
 }
 
 /* Heading */
@@ -16,27 +17,28 @@
   margin-bottom: 1.5rem;
   font-weight: 600;
   font-size: 1.8rem;
-  color: #226373;
+  color: #000000; /* ✅ ฟ้าเทานุ่ม */
 }
 
-/* Labels and Inputs */
+/* Labels */
 .wellness-label {
   display: block;
   margin-bottom: 1.25rem;
   font-weight: 500;
   font-size: 1.05rem;
-  color: #226373;
+  color: #444;
 }
 
+/* Inputs & Selects */
 .wellness-input,
 .wellness-select {
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 0.65rem 0.85rem;
   margin-top: 0.25rem;
-  border: 1.5px solid #b3e5fc;
-  border-radius: 8px;
+  border: 1px solid #ccc; /* ✅ ขอบเรียบๆ */
+  border-radius: 10px;
   font-size: 1rem;
-  background-color: #ffffff;
+  background-color: #fafafa; /* ✅ พื้นหลังขาวเทานิดๆ */
   font-family: inherit;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
@@ -45,9 +47,9 @@
 .wellness-input:focus,
 .wellness-select:focus {
   outline: none;
-  border-color: #00aaff;
-  background-color: #e6faff;
-  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
+  border-color: #8ecae6;
+  background-color: #ffffff;
+  box-shadow: 0 0 6px rgba(0, 153, 255, 0.1);
 }
 
 /* Error messages */
@@ -84,68 +86,70 @@
   transform: scale(1.03);
 }
 
-/* Step indicator */
 .wellness-steps-after-submit {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2rem 0;
+  background-color: #ffffff; /* พื้นหลังขาวหรู */
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   position: relative;
+  margin-bottom: 2rem;
 }
 
-.wellness-steps-after-submit::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  /* เปลี่ยนจาก background เป็น border-bottom แบบเส้นประ */
-  background: none;  /* เอา background ออก */
-  border-bottom: 3px dashed #d1f4ff;  /* เส้นประสีฟ้าอ่อน */
-  z-index: 0;
-}
-
-
+/* กล่องของแต่ละ step */
 .step-box {
-  position: relative;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   flex: 1;
+  position: relative;
   z-index: 1;
 }
 
-.step-box .circle {
-  width: 40px;
-  height: 40px;
-  background: #d1f4ff;
-  color: #007baf;
-  font-weight: bold;
-  border-radius: 50%;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 6px rgba(0, 153, 255, 0.2);
-  font-size: 1.1rem;
-  z-index: 2;
+/* เส้นประเชื่อมระหว่าง step */
+.step-box:not(:last-child)::after,
+.step-box:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  width: 60%;
+  height: 0;
+  border-top: 2px dashed #dcdcdc;
+  z-index: 0;
+}
+.step-box:not(:last-child)::after {
+  right: -30%;
+}
+.step-box:not(:first-child)::before {
+  left: -30%;
 }
 
+/* วงกลมไอคอน */
+.circle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #dddddd;
+  object-fit: contain;
+  padding: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: border 0.3s, background 0.3s;
+}
+
+/* ข้อความใต้ไอคอน */
 .step-box p {
   margin-top: 0.5rem;
   font-size: 0.95rem;
+  color: #999;
   font-weight: 500;
-  color: #7a9ca5;
 }
-
-/* Active step */
-.step-box.active .circle {
-  background: #00bcd4;
-  color: white;
-}
-
 .step-box.active p {
-  color: #00bcd4;
+  color: #333;
 }
+
 
 /* Consent checkbox */
 .wellness-consent {
@@ -167,32 +171,19 @@
 
 /* Buttons */
 .wellness-submit-button,
-.health-btn-swal {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #004466;
+.health-btn-swal,.health-btn-upload ,button[type="submit"] {
+width: 100%;
+  background-color: #ffffff;
+  border: 1.5px solid #000000;
+  color: #000000;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  box-shadow: 0 3px 10px rgba(0, 153, 255, 0.1);
   transition: all 0.3s ease;
-}
-
-.wellness-submit-button:hover,
-.health-btn-swal:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff);
-  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-.wellness-submit-button:focus,
-.health-btn-swal:focus {
-  outline: 3px solid rgba(0, 153, 255, 0.3);
-  outline-offset: 2px;
+  margin-right: 1rem;
 }
 
 /* Link to login */
@@ -213,53 +204,43 @@
   text-decoration: underline;
 }
 
-/* SweetAlert2 input style */
+/* ✅ Input แบบขาวหรู */
 .swal2-input {
   font-family: "Segoe UI", "Sarabun", sans-serif;
   font-size: 1rem;
   padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  border: 1.5px solid #b3e5fc;
+  border-radius: 10px;
+  border: 1.5px solid #d4d4d4;
+  background-color: #ffffff;
+  color: #333333;
   transition: all 0.3s ease;
 }
 
-.swal2-input:focus {
-  border-color: #00aaff;
-  background-color: #e6faff;
-  box-shadow: 0 0 6px rgba(0, 153, 255, 0.3);
-}
 
+/* ✅ กล่อง Swal หรูหรา */
 .swal2-popup {
+  background-color: #ffffff !important;
+  color: #2b2b2b !important;
   font-family: "Segoe UI", "Sarabun", sans-serif !important;
   border-radius: 16px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+  padding: 2rem !important;
 }
 
-/* Upload button for medical license file */
-.health-btn-upload {
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #004466;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+/* ✅ ปุ่ม Confirm แบบเรียบหรู */
+.swal2-confirm {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1.5px solid #000000 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.3s ease;
-  margin-bottom: 1rem;
 }
 
-.health-btn-upload:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff);
-  box-shadow: 0 6px 18px rgba(0, 153, 255, 0.4);
-  transform: translateY(-2px);
-}
 
-.health-btn-upload:focus {
-  outline: 3px solid rgba(0, 153, 255, 0.3);
-  outline-offset: 2px;
-}
+
 
 .success-page {
   display: flex;
@@ -273,13 +254,13 @@
 .success-message {
   font-size: 2rem;
   font-weight: 700;
-  color: #226373;
+  color: #000000;
   margin-bottom: 1rem;
 }
 
 .success-subtext {
   font-size: 1.2rem;
-  color: #4a7a84;
+  color: #000000;
   margin-bottom: 2rem;
 }
 .rolehealth-background {
@@ -320,7 +301,7 @@
   overflow: hidden;
 
   /* ไล่สีพื้นหลังนุ่มๆ ฟ้า-ขาว-ฟ้า */
-  background: linear-gradient(270deg, #e0f7fa, #ffffff, #b3e5fc, #ffffff);
+  background: linear-gradient(270deg, #ffffff, #ffffff, #ffffff, #ffffff);
   background-size: 800% 800%;
 
   /* animation ไล่สี */

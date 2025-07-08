@@ -31,6 +31,6 @@ func SetupDatabase() {
     SetupPatientDatabase()
     SetupDiaryDatabase()
     SetupPsychologistDatabase() // ✅ เพิ่มตรงนี้
-    
+    SetupEmotionDatabase()
     fmt.Println("Sample data has been added to the database.")
 }

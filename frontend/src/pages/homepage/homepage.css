@@ -13,16 +13,21 @@
   justify-content: space-between;
 }
 
-/* LEFT: CHECKLIST */
 .housemed-checklist-section {
-  background-color: #ffffff;
+  background-image: url("../../assets/pamemo1.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   padding: 2rem;
   flex: 1;
   min-width: 280px;
   max-width: 320px;
+  color: #222; /* สีข้อความให้อ่านง่ายบนพื้นหลัง */
+  backdrop-filter: blur(2px); /* เพิ่มความเนียนแบบกระจก */
 }
+
 
 .main-title {
   font-size: 1.6rem;
@@ -67,13 +72,17 @@
   color: #2e8b57;
 }
 
-/* CENTER: NOTE */
 .housemed-note-center {
   flex: 1;
-  max-width: 300px;
+  max-width: 480px;
+  height: 480px; /* กำหนดความสูงตายตัวให้พอดีกับภาพ */
+  background-image: url("../../assets/pamemo.png");
+  background-size: contain;        /* เปลี่ยนจาก cover เป็น contain */
+  background-repeat: no-repeat;
+  background-position: center;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   display: flex;
   justify-content: center;
@@ -82,6 +91,7 @@
   font-size: 1.3rem;
   color: #333;
 }
+
 
 /* RIGHT: DIARY */
 .housemed-right-section {
@@ -92,44 +102,24 @@
 .latest-diary-box {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.2rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  max-height: none;           /* 💡 เอาขีดจำกัดออก */
+  min-height: 400px;          /* ✅ กำหนดความสูงขั้นต่ำ */
+  width: 700px;             /* ✅ ทำให้กว้างเต็ม container */ 
+  overflow-y: visible;
 }
 
-.section-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #004466;
-  margin-bottom: 1rem;
+
+/* Scrollbar สวย ๆ */
+.latest-diary-box::-webkit-scrollbar {
+  width: 6px;
+}
+.latest-diary-box::-webkit-scrollbar-thumb {
+  background-color: #d0e1ee;
+  border-radius: 6px;
 }
 
-.diary-preview-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.diary-card {
-  background: #f7fbfd;
-  border-radius: 12px;
-  padding: 1rem;
-  border-left: 4px solid #33a1c9;
-}
-
-.diary-card h3 {
-  font-size: 1rem;
-  margin: 0;
-  color: #006080;
-}
-
-.diary-card p {
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.diary-card small {
-  color: #888;
-}
 .swal2-elegant-popup {
   border-radius: 16px !important;
   font-family: 'Sarabun', 'Segoe UI', sans-serif !important;
@@ -143,3 +133,12 @@
   color: #222 !important;
   margin-bottom: 20px !important;
 }
+.usage-activity-box {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  width: 480px;
+}
+

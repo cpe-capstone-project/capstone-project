@@ -206,30 +206,45 @@ const handleForgotPasswordClick = () => {
                 </Form.Item>
 
                 <div
-  style={{ marginBottom: 12, textAlign: "left", color: "#5c82b8", fontSize: 14, cursor: "pointer" }}
+  style={{
+    marginBottom: 12,
+    textAlign: "left",
+    color: "rgb(0, 123, 255)",  // ✅ สีฟ้าน้ำเงินเรียบหรู
+    fontSize: 14,
+    cursor: "pointer",
+    fontWeight: 500,
+  }}
   onClick={handleForgotPasswordClick}
 >
   Forgot Password?
 </div>
 
+
                <Form.Item>
-  <Button
-    type="primary"
-    htmlType="submit"
-    style={{
-      width: "100%",
-      borderRadius: 8,
-      backgroundColor: "#1890ff",
-      color: "#ffffff",
-      fontWeight: 600,
-      fontSize: 14,
-      border: "none",
-      boxShadow: "none",         // ไม่มีเงา
-      transition: "none",        // ไม่มี animation
-    }}
-  >
-    Login
-  </Button>
+<Button
+  htmlType="submit"
+  style={{
+    width: "100%",
+    borderRadius: 10,
+    backgroundColor: "#ffffff",
+    color: "#333333",
+    fontWeight: 600,
+    fontSize: 14,
+    border: "1.5px solid #dcdcdc",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)", // เงาเบา ๆ
+    transition: "all 0.3s ease",
+  }}
+  onMouseOver={(e) => {
+    e.currentTarget.style.backgroundColor = "#f9f9f9";
+    e.currentTarget.style.borderColor = "#c0c0c0";
+  }}
+  onMouseOut={(e) => {
+    e.currentTarget.style.backgroundColor = "#ffffff";
+    e.currentTarget.style.borderColor = "#dcdcdc";
+  }}
+>
+  Login
+</Button>
 </Form.Item>
 
               </Form>
@@ -239,7 +254,7 @@ const handleForgotPasswordClick = () => {
                 <a
   onClick={handleRegisterClick}
   style={{
-    color: "#5c82b8",
+    color: "rgb(0, 123, 255)",  // ✅ สีฟ้าน้ำเงินเรียบหรู
     fontWeight: 500,
     textDecoration: "none",
     cursor: "pointer"

@@ -284,11 +284,13 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 
 
-              <p className="login-link">
+              
+          <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป
+           
+          </button>
+           <p className="login-link">
             มีบัญชีผู้ใช้แล้ว? <a href="/">เข้าสู่ระบบ</a>
           </p>
-          <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป
-          </button>
         </>
       )}
 

@@ -51,7 +51,7 @@ const out = () => {
       <a href="/patient">
         <img
           className="logo"
-          src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/97_Docker_logo_logos-512.png"
+          src="https://cdn-icons-png.flaticon.com/128/687/687529.png"
           alt=""
         />
       </a>
@@ -65,7 +65,7 @@ const out = () => {
         <div style={{ position: "relative" }}>
           <img
             className="profile"
-            src="https://static.vecteezy.com/system/resources/previews/002/275/847/original/male-avatar-profile-icon-of-smiling-caucasian-man-vector.jpg"
+            src="https://cdn-icons-png.flaticon.com/128/6798/6798805.png"
             alt=""
             onClick={() => setShowMenu(!showMenu)}
           />

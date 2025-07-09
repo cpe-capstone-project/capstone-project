@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import patientImage from "../../../assets/patient.png";
 import psychologyImage from "../../../assets/psychology.png";
 import { SignIn, SignInPsychologist } from "../../../services/https/Authentication";
-
+import MindcareImage from "../../../assets/mindcare.png";
 function SignInPages() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -92,17 +92,82 @@ const handleRegisterClick = () => {
     },
   });
 };
+const handleForgotPasswordClick = () => {
+  Swal.fire({
+    title: "เปลี่ยนรหัสผ่าน",
+    html: `
+      <input id="forgot-email" class="swal2-input" placeholder="Email" type="email" />
+      <input id="new-password" class="swal2-input" placeholder="New Password" type="password" />
+      <input id="confirm-password" class="swal2-input" placeholder="Confirm Password" type="password" />
+    `,
+    confirmButtonText: "Confirm",
+    cancelButtonText: "Cancel",
+    showCancelButton: true,
+    preConfirm: () => {
+      const email = (document.getElementById("forgot-email") as HTMLInputElement)?.value;
+      const newPassword = (document.getElementById("new-password") as HTMLInputElement)?.value;
+      const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement)?.value;
 
+      if (!email || !newPassword || !confirmPassword) {
+        Swal.showValidationMessage("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+        return false;
+      }
+
+      if (newPassword !== confirmPassword) {
+        Swal.showValidationMessage("รหัสผ่านไม่ตรงกัน");
+        return false;
+      }
+
+      return { email, newPassword };
+    },
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      // TODO: ส่งข้อมูลไปยัง API เปลี่ยนรหัสผ่าน
+      Swal.fire({
+        icon: "success",
+        title: "เปลี่ยนรหัสผ่านสำเร็จ",
+        text: "คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้แล้ว",
+        confirmButtonColor: "#3085d6"
+      });
+    }
+  });
+};
   return (
     <>
-      {contextHolder}
-      <Flex justify="center" align="center" style={{ minHeight: "100vh", background: "#f9f9f9" }}>
-        <Card style={{ width: 500, borderRadius: 16, boxShadow: "0 8px 24px rgba(0,0,0,0.05)", border: "1px solid #fff", padding: "2rem" }}>
-          <Row justify="center">
-            <Col span={24} style={{ textAlign: "center", marginBottom: 32 }}>
-              <h1 style={{ fontWeight: 700, fontSize: 26 }}>Welcome Back</h1>
-            </Col>
-            <Col span={24}>
+     {contextHolder}
+<Flex justify="center" align="center" style={{ minHeight: "100vh", background: "#f9f9f9" }}>
+  <Card
+    style={{
+      width: 500,
+      borderRadius: 16,
+      boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
+      border: "1px solid #fff",
+      padding: "2rem"
+    }}
+  >
+    <Row justify="center">
+      <Col span={24} style={{ textAlign: "center", marginBottom: 32 }}>
+        <div
+          style={{
+            display: "inline-block",
+            border: "2px solid #000",
+            borderRadius: "50%",
+            padding: "16px",
+          }}
+        >
+          <img
+            src={MindcareImage}
+            alt="MindCare Logo"
+            style={{
+              width: "180px",
+              height: "180px",
+              objectFit: "cover",
+              borderRadius: "10%",
+            }}
+          />
+        </div>
+      </Col>
+      <Col span={24}>
               <Form name="login" layout="vertical" onFinish={onFinish} autoComplete="off">
                 <Form.Item
                   label={<span style={{ fontWeight: 600 }}>Email</span>}
@@ -140,9 +205,12 @@ const handleRegisterClick = () => {
                   />
                 </Form.Item>
 
-                <div style={{ marginBottom: 12, textAlign: "left", color: "#5c82b8", fontSize: 14 }}>
-                  Forgot Password?
-                </div>
+                <div
+  style={{ marginBottom: 12, textAlign: "left", color: "#5c82b8", fontSize: 14, cursor: "pointer" }}
+  onClick={handleForgotPasswordClick}
+>
+  Forgot Password?
+</div>
 
                <Form.Item>
   <Button

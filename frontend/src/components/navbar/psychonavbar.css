@@ -11,15 +11,15 @@
   z-index: 999;
 }
 .logo {
-  height: 50px; /* เดิมอาจใช้ 100%, แนะนำระบุชัดเจนเป็น px */
+  height: 70px;
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
+
+  display: block;
+  margin-top: 1rem;
 }
 
-.logo:hover {
-  transform: scale(1.05);
-}
 
 /* Menu (right side items) */
 .menu {

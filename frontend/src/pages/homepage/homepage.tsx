@@ -9,7 +9,7 @@ import pamemoImage from "../../assets/pamemo.png";
 import pamemoI1mage from "../../assets/pamemo1.png";
 import DiarySummaryChart from "../../components/DiarySummaryChart/DiarySummaryChart";
 import UsageLineChart from "../../components/UsageLineChart/UsageLineChart";
-
+import EmotionDonutChart from "../../components/EmotionDonutChart/EmotionDonutChart";
 
 
 function HomePage() {
@@ -279,12 +279,83 @@ return (
 
       </div>
     </main>
-   <div style={{ display: "flex", justifyContent: "flex-start" }}>
+  <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "2rem",
+    flexWrap: "wrap",
+    marginTop: "2rem",
+  }}
+>
+  {/* กล่องซ้าย: การเข้าใช้งาน */}
   <div className="usage-activity-box">
     <h2 className="section-title">📈 การเข้าใช้งานล่าสุด</h2>
     <UsageLineChart data={loginStats} />
   </div>
+  {/* ✅ กล่องโฆษณาใหม่ */}
+ <div
+  className="advertisement-box"
+  style={{
+    flex: 1,
+    minWidth: "900px",
+    maxWidth: "900px",
+     height: "295px", 
+    backgroundColor: "#ffffff", // ขาวคลีน
+    border: "1px solid #eee", // เส้นขอบบางๆ สีเทาอ่อน
+    borderRadius: "16px", // มุมโค้งมนมากขึ้น
+    padding: "2rem",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)", // เงานุ่ม
+    fontSize: "0.95rem",
+    color: "#333",
+    marginTop: "2rem",
+  }}
+>
+  <h3
+    style={{
+      marginBottom: "1rem",
+      fontWeight: "bold",
+      fontSize: "1.1rem",
+      color: "#222",
+    }}
+  >
+    🎯 แนะนำสำหรับคุณ
+  </h3>
+  <ul style={{ paddingLeft: "1.2rem", marginBottom: "1.5rem", lineHeight: "1.8" }}>
+    <li>📘 อ่านบทความเทคนิคการรับมืออารมณ์</li>
+    <li>🎥 ดูวิดีโอการหายใจผ่อนคลาย</li>
+    <li>📅 นัดหมายกับนักจิตวิทยา</li>
+  </ul>
+  <div style={{ textAlign: "center" }}>
+    <button
+      style={{
+        backgroundColor: "#222", // สีดำเรียบหรู
+        border: "none",
+        borderRadius: "8px",
+        padding: "0.6rem 1.2rem",
+        cursor: "pointer",
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: "0.95rem",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+        transition: "all 0.2s ease-in-out",
+      }}
+      onClick={() => window.open("https://www.bangkokhospital.com/th/ratchasima/center-clinic/brain/mental-health-bkh/overview", "_blank")}
+      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#444")}
+      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+    >
+      ไปยังศูนย์ช่วยเหลือ
+    </button>
+  </div>
 </div>
+
+</div>
+ {/* กล่องขวา: อารมณ์ Thought Record */}
+  <div className="usage-activity-box">
+    <EmotionDonutChart />
+  </div>
+ 
 
   </div>
 );

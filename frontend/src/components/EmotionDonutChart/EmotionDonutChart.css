@@ -1,0 +1,22 @@
+.custom-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 6px 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  margin-right: 6px;
+  border-radius: 50%;
+}

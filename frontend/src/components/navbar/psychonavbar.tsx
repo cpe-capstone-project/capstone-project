@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import "./Navbar.css";
 import Swal from "sweetalert2";
-
+import healthImage from "../../assets/med5.png";
 function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,8 +51,8 @@ const out = () => {
       <a href="/patient">
         <img
           className="logo"
-          src="https://cdn-icons-png.flaticon.com/128/687/687529.png"
-          alt=""
+          src={healthImage} 
+    alt="Health Logo"
         />
       </a>
       <ul className="menu">

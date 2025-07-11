@@ -57,6 +57,9 @@ const out = () => {
 </a>
       <ul className="menu">
         <li>
+          <a onClick={() => handleNavigate("home")}>Dashboard</a>
+        </li>
+        <li>
           <a onClick={() => handleNavigate("diary")}>Diary</a>
         </li>
         <li>

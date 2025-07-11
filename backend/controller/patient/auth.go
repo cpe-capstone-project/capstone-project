@@ -166,6 +166,35 @@ func SignIn(c *gin.Context) {
 		"role":       role,
 	})
 }
+func ResetPassword(c *gin.Context) {
+	var req struct {
+		Email       string `json:"email"`
+		NewPassword string `json:"newPassword"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	db := config.DB()
+	var patient entity.Patients
+
+	if err := db.Where("email = ?", req.Email).First(&patient).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Email not found"})
+		return
+	}
+
+	hashedPassword, _ := config.HashPassword(req.NewPassword)
+	patient.Password = hashedPassword
+
+	if err := db.Save(&patient).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}
 
 // func SignIn(c *gin.Context) {
 // 	var payload Authen

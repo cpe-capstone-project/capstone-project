@@ -104,7 +104,7 @@ const handleForgotPasswordClick = () => {
     cancelButtonText: "Cancel",
     showCancelButton: true,
     preConfirm: () => {
-      const email = (document.getElementById("forgot-email") as HTMLInputElement)?.value;
+      const email = (document.getElementById("forgot-email") as HTMLInputElement)?.value.trim().toLowerCase();
       const newPassword = (document.getElementById("new-password") as HTMLInputElement)?.value;
       const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement)?.value;
 
@@ -120,18 +120,54 @@ const handleForgotPasswordClick = () => {
 
       return { email, newPassword };
     },
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed && result.value) {
-      // TODO: ส่งข้อมูลไปยัง API เปลี่ยนรหัสผ่าน
-      Swal.fire({
-        icon: "success",
-        title: "เปลี่ยนรหัสผ่านสำเร็จ",
-        text: "คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้แล้ว",
-        confirmButtonColor: "#3085d6"
-      });
+      const { email, newPassword } = result.value;
+
+      const isPsychologist = email.endsWith("@depressionrec.go.th");
+      const apiUrl = isPsychologist
+        ? "http://localhost:8000/psychologist/reset-password"
+        : "http://localhost:8000/patient/reset-password";
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, newPassword })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "เปลี่ยนรหัสผ่านสำเร็จ",
+            text: "คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้แล้ว",
+            confirmButtonColor: "#3085d6"
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: data.error || "ไม่สามารถเปลี่ยนรหัสผ่านได้",
+            confirmButtonColor: "#d33"
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "ข้อผิดพลาดเครือข่าย",
+          text: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          confirmButtonColor: "#d33"
+        });
+      }
     }
   });
 };
+
+
   return (
     <>
      {contextHolder}

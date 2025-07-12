@@ -10,6 +10,8 @@ import pamemoI1mage from "../../assets/pamemo1.png";
 import DiarySummaryChart from "../../components/DiarySummaryChart/DiarySummaryChart";
 import UsageLineChart from "../../components/UsageLineChart/UsageLineChart";
 import EmotionDonutChart from "../../components/EmotionDonutChart/EmotionDonutChart";
+import helpcenterImage from "../../assets/helpcenter.png";
+import healheartImage from "../../assets/healheart.png";
 
 
 function HomePage() {
@@ -250,20 +252,25 @@ return (
       {/* LATEST DIARY SECTION + ICON FLOAT */}
       <div style={{ position: "relative" }}>
         {/* Floating Icon */}
-        <img
-          src="https://cdn-icons-png.flaticon.com/128/3237/3237849.png"
-          alt="ดูทั้งหมด"
-          onClick={handleShowAllDiaries}
-          style={{
-            position: "absolute",
-            top: "-10px",
-            right: "-10px",
-            width: "28px",
-            height: "28px",
-            cursor: "pointer",
-            zIndex: 10,
-          }}
-        />
+       <img
+  src="https://cdn-icons-png.flaticon.com/128/3237/3237849.png"
+  alt="ดูทั้งหมด"
+  onClick={handleShowAllDiaries}
+  style={{
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
+    width: "36px",
+    height: "36px",
+    padding: "4px", // เพิ่ม padding ให้ภาพไม่ติดขอบ
+    backgroundColor: "#fff", // หรือใส่สีพื้นหลังขาวเพื่อ contrast
+    border: "2px solid #000", // ✅ ขอบสีดำ
+    borderRadius: "50%", // ✅ ทำให้เป็นวงกลม
+    cursor: "pointer",
+    zIndex: 10,
+    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)", // เงานิดๆ ให้ดู float
+  }}
+/>
 
        <div className="latest-diary-box">
   <h2 className="section-title">📊 สรุปจำนวนไดอารี่รายเดือน</h2>
@@ -286,7 +293,7 @@ return (
     alignItems: "flex-start",
     gap: "2rem",
     flexWrap: "wrap",
-    marginTop: "2rem",
+   
   }}
 >
   {/* กล่องซ้าย: การเข้าใช้งาน */}
@@ -299,63 +306,90 @@ return (
   className="advertisement-box"
   style={{
     flex: 1,
-    minWidth: "900px",
-    maxWidth: "900px",
-     height: "295px", 
-    backgroundColor: "#ffffff", // ขาวคลีน
-    border: "1px solid #eee", // เส้นขอบบางๆ สีเทาอ่อน
-    borderRadius: "16px", // มุมโค้งมนมากขึ้น
+    minWidth: "800px",
+    maxWidth: "450px",
+    height: "368px",
+    backgroundImage: `url(${healheartImage})`, // ✅ พื้นหลังรูป
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundColor: "#ffffff",
+    border: "1px solid #eee",
+    borderRadius: "16px",
     padding: "2rem",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)", // เงานุ่ม
-    fontSize: "0.95rem",
-    color: "#333",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
+    marginTop: "2rem",
+  }}
+></div>
+
+</div>
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "2rem",
+    flexWrap: "wrap",
     marginTop: "2rem",
   }}
 >
-  <h3
-    style={{
-      marginBottom: "1rem",
-      fontWeight: "bold",
-      fontSize: "1.1rem",
-      color: "#222",
-    }}
-  >
-    🎯 แนะนำสำหรับคุณ
-  </h3>
-  <ul style={{ paddingLeft: "1.2rem", marginBottom: "1.5rem", lineHeight: "1.8" }}>
-    <li>📘 อ่านบทความเทคนิคการรับมืออารมณ์</li>
-    <li>🎥 ดูวิดีโอการหายใจผ่อนคลาย</li>
-    <li>📅 นัดหมายกับนักจิตวิทยา</li>
-  </ul>
-  <div style={{ textAlign: "center" }}>
-    <button
-      style={{
-        backgroundColor: "#222", // สีดำเรียบหรู
-        border: "none",
-        borderRadius: "8px",
-        padding: "0.6rem 1.2rem",
-        cursor: "pointer",
-        color: "#fff",
-        fontWeight: "bold",
-        fontSize: "0.95rem",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        transition: "all 0.2s ease-in-out",
-      }}
-      onClick={() => window.open("https://www.bangkokhospital.com/th/ratchasima/center-clinic/brain/mental-health-bkh/overview", "_blank")}
-      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#444")}
-      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#222")}
-    >
-      ไปยังศูนย์ช่วยเหลือ
-    </button>
-  </div>
-</div>
-
-</div>
- {/* กล่องขวา: อารมณ์ Thought Record */}
-  <div className="usage-activity-box">
+  {/* กล่องซ้าย: Emotion Donut */}
+  <div className="usage-activity-box" style={{ flex: 1, minWidth: "400px" }}>
     <EmotionDonutChart />
   </div>
- 
+<div
+  className="helpcenter-banner"
+  style={{
+    width: "800px",
+    height: "450px",
+    backgroundImage: `url(${helpcenterImage})`,
+    backgroundSize: "contain",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "top",
+    backgroundColor: "#fff",
+    borderRadius: "16px",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
+    flexShrink: 0,
+    marginTop: "2rem",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end", // ดันปุ่มลงล่าง
+    alignItems: "center",
+    paddingBottom: "1rem",
+    
+  }}
+>
+  <button
+    style={{
+      backgroundColor: "#222",
+      border: "none",
+      borderRadius: "8px",
+      padding: "0.6rem 1.2rem",
+      cursor: "pointer",
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: "0.95rem",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+      transition: "all 0.2s ease-in-out",
+      marginBottom: "7.5rem", // ✅ ขยับขึ้น (เพราะมีระยะด้านล่าง)
+      
+    }}
+    onClick={() =>
+      window.open(
+        "https://www.bangkokhospital.com/th/ratchasima/center-clinic/brain/mental-health-bkh/overview",
+        "_blank"
+      )
+    }
+    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#444")}
+    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+  >
+    ไปยังศูนย์ช่วยเหลือ
+  </button>
+</div>
+
+  
+</div>
+
 
   </div>
 );

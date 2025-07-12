@@ -48,7 +48,7 @@ const out = () => {
 };
   return (
     <section className="navbar">
-      <a href="/patient">
+      <a href="/psychologist">
         <img
           className="logo"
           src={healthImage} 
@@ -57,7 +57,7 @@ const out = () => {
       </a>
       <ul className="menu">
          <li>
-          <a onClick={() => handleNavigate("home")}>Dashboard</a>
+          <a onClick={() => handleNavigate("homedoc")}>Dashboard</a>
         </li>
         <li>
           <a onClick={() => handleNavigate("diary")}>Therapy Case</a>

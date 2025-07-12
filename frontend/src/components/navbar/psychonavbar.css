@@ -11,14 +11,14 @@
   z-index: 999;
 }
 .logo {
-  height: 70px;
+  height: 60px;
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
 
   display: block;
-  margin-top: 1rem;
 }
+
 
 
 /* Menu (right side items) */

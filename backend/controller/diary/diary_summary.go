@@ -1,102 +1,86 @@
 package diary
 
 import (
-	"net/http"
-	"strings"
-	"time"
-	"fmt"
-
+	"capstone-project/ai" // ✅ import module ai
 	"capstone-project/config"
 	"capstone-project/entity"
-	"capstone-project/ai"
+	"fmt"
+	"log"
+	"net/http"
+	"regexp"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type SummaryRequest struct {
-	TherapyCaseID uint
-	StartDate     string
-	EndDate       string
-	Timeframe     string
+	TherapyCaseID uint      `json:"therapy_case_id"`
+	Timeframe     string    `json:"timeframe"`
+	StartDate     time.Time `json:"start_date"`
+	EndDate       time.Time `json:"end_date"`
 }
 
-func GenerateDiarySummary(c *gin.Context) {
+func stripHTMLTags(input string) string {
+    re := regexp.MustCompile(`<[^>]*>`)
+    return re.ReplaceAllString(input, "")
+}
+
+func SummarizeDiaries(c *gin.Context) {
 	var req SummaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 		return
 	}
 
-	var diaries []entity.Diaries
 	db := config.DB()
+	var diaries []entity.Diaries
 
-	if req.StartDate == "" || req.EndDate == "" {
-		// ไม่ใส่เวลา → ดึงทั้งหมดที่ TherapyCaseID ตรง
-		if err := db.Where("therapy_case_id = ?", req.TherapyCaseID).Find(&diaries).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-	} else {
-		// ใส่เวลามา → ดึงตามช่วงเวลาที่ระบุ
-		start, err1 := time.Parse("2006-01-02", req.StartDate)
-		end, err2 := time.Parse("2006-01-02", req.EndDate)
-		if err1 != nil || err2 != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
-			return
-		}
-
-		if err := db.Where("therapy_case_id = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, start, end).
-			Find(&diaries).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
+	if err := db.Where("therapy_case_id = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, req.StartDate, req.EndDate).
+		Order("created_at ASC").Find(&diaries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
+		return
 	}
 
 	if len(diaries) == 0 {
-		c.JSON(http.StatusOK, gin.H{"summary": "ไม่พบไดอารี่ในช่วงเวลานี้"})
+		c.JSON(http.StatusOK, gin.H{"message": "No diaries in selected timeframe"})
 		return
 	}
 
-	// รวมเนื้อหา
-	var contents []string
+	// รวมไดอารี่เป็นข้อความเดียว
+	fullText := ""
 	for _, d := range diaries {
-		contents = append(contents, d.Content)
-	}
-	combined := strings.Join(contents, "\n")
-
-	// สร้าง prompt ช่วงเวลา
-	timeframeText := "ทั้งหมด"
-	if req.StartDate != "" && req.EndDate != "" {
-		timeframeText = fmt.Sprintf("ช่วงวันที่ %s ถึง %s", req.StartDate, req.EndDate)
+		cleanContent := stripHTMLTags(d.Content)
+		fullText += "Title: " + d.Title + "\n" + "Content: " + cleanContent + "\n\n"
 	}
 
-	// เรียก AI เพื่อสรุป
-	summaryText, err := ai.GenerateSummaryLocal(combined, timeframeText)
+	// เตรียมข้อความ prompt เพื่อสรุปด้วย Gemini
+	summaryInput := fmt.Sprintf(`ด้านล่างคือบันทึกประจำวันของผู้ป่วยในการบำบัดด้วย CBT
+	กรุณาสรุปแนวโน้มทางอารมณ์ เหตุการณ์สำคัญ ความคืบหน้าของผู้ป่วย อยากให้ใช้คำทำไม่กระทบต่อจิตใจ :
+
+	%s`, fullText) // <- ใช้ข้อความที่แปลเป็นอังกฤษแล้ว
+
+	// ⛔ ยกเลิกการแปล + summarize แบบเก่า
+	// ✅ เรียก Gemini API ตรง ๆ แทน
+	summaryTH, err := ai.SummarizeWithGemini(summaryInput)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "AI summary failed: " + err.Error()})
+		log.Println("Summarization with Gemini failed:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Summarization failed"})
 		return
 	}
 
-	// บันทึกสรุปลงฐานข้อมูล (ถ้าต้องการ)
+
 	summary := entity.DiarySummary{
 		TherapyCaseID: req.TherapyCaseID,
 		Timeframe:     req.Timeframe,
-		StartDate:     time.Time{}, // เก็บเฉพาะถ้ามี
-		EndDate:       time.Time{},
-		SummaryText:   summaryText,
-	}
-
-	if req.StartDate != "" && req.EndDate != "" {
-		start, _ := time.Parse("2006-01-02", req.StartDate)
-		end, _ := time.Parse("2006-01-02", req.EndDate)
-		summary.StartDate = start
-		summary.EndDate = end
+		StartDate:     req.StartDate,
+		EndDate:       req.EndDate,
+		SummaryText:   summaryTH,
 	}
 
 	if err := db.Create(&summary).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Save failed: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save summary"})
 		return
 	}
 
-	c.JSON(http.StatusOK, summary)
+	c.JSON(http.StatusOK, gin.H{"summary": summary})
 }

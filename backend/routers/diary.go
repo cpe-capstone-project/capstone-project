@@ -7,7 +7,7 @@ import (
 
 func SetupDiaryRoutes(r *gin.RouterGroup) {
 
-	r.POST("/diary/summary", diary.GenerateDiarySummary)
+	r.POST("/diary/summary", diary.SummarizeDiaries)
 
 	r.GET("/diaries", diary.ListDiaries)
 	r.GET("/diaries/latest", diary.ListLatestDiaries)

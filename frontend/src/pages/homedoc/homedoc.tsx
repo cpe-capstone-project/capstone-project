@@ -9,7 +9,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
 import Customcalendar from "../../components/customcalendar/customcalendar";
 import folderdocImage from "../../assets/folderdoc.png";
-
+import PolarAreaChart from '../../components/PolarAreaChart/PolarAreaChart';
 const locales = {
   "en-US": enUS,
   th: th,
@@ -51,35 +51,32 @@ const Homedoc: React.FC = () => {
   }, []);
 
   const showNotification = () => {
-    Swal.fire({
-      toast: true,
-      position: "top-end",
-      title: "แจ้งเตือนระบบ",
-      html: `
-        <div style="text-align: left; font-size: 14px;">
-          <div style="display: flex; align-items: center; margin-bottom: 6px;">
-            <div style="background-color: #e63946; color: white; border-radius: 50%; width: 20px; height: 20px;
-                display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
-              ❗
-            </div>
-            คุณยังไม่ได้ให้คำแนะนำ <b>3 เคส</b>
-          </div>
-          <div style="display: flex; align-items: center;">
-            <div style="background-color: #ffb703; color: white; border-radius: 50%; width: 20px; height: 20px;
-                display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
-              ⚠
-            </div>
-            <span>พบข้อความเสี่ยงจาก <b>นภัสวรรณ</b> — ระบบประเมิน: <span style="color:red; font-weight:bold">สูง</span></span>
-          </div>
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    title: "แจ้งเตือนระบบ",
+    html: `
+      <div style="text-align: left; font-size: 14px;">
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+          <img src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png" alt="alert" 
+              style="width: 20px; height: 20px; margin-right: 8px;" />
+          คุณยังไม่ได้ให้คำแนะนำ <b>3 เคส</b>
         </div>
-      `,
-      showConfirmButton: false,
-      background: "#ffffff",
-      timer: 5000,
-      timerProgressBar: true,
-      customClass: { popup: "swal2-elegant-popup" },
-    });
-  };
+        <div style="display: flex; align-items: center;">
+          <img src="https://cdn-icons-png.flaticon.com/128/4201/4201973.png" alt="warning" 
+              style="width: 20px; height: 20px; margin-right: 8px;" />
+          <span>พบข้อความเสี่ยงจาก <b>นภัสวรรณ</b> — ระบบประเมิน: <span style="color:red; font-weight:bold">สูง</span></span>
+        </div>
+      </div>
+    `,
+    showConfirmButton: false,
+    background: "#ffffff",
+    timer: 5000,
+    timerProgressBar: true,
+    customClass: { popup: "swal2-elegant-popup" },
+  });
+};
+
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     Swal.fire({
@@ -131,12 +128,11 @@ const Homedoc: React.FC = () => {
 
       {/* Dashboard */}
       <section className="docflour-dashboard">
-        <div className="docflour-card">
-          <h3>Dashboard สรุปผลรวม</h3>
-          <p>จำนวนผู้ป่วยที่ดูแลอยู่ (active patients)</p>
-          <p>จำนวนไดอารี่ที่ยังไม่ได้ให้ feedback</p>
-          <p>🟢 60% ดีขึ้น / 🔴 10% แย่ลง / 🟡 30% คงที่</p>
-        </div>
+       <div className="docflour-card">
+  <h3>Dashboard สรุปผลรวม</h3>
+  <PolarAreaChart />
+</div>
+
 
         {/* Calendar */}
         <div className="docflour-card">
@@ -182,10 +178,6 @@ const Homedoc: React.FC = () => {
   <img src={folderdocImage} alt="folder icon" className="docflour-folder-icon" />
   <p>บทความวิจัย / เทคนิคการให้คำปรึกษา</p>
 </div>
-  <div className="docflour-mood-tracker">
-    <h4>Mood Tracker รวม</h4>
-    <p>แผนภูมิอารมณ์รวมของผู้ป่วยแต่ละวัน / เดือน<br />แบบ heatmap หรือกราฟเส้น</p>
-  </div>
 </section>
 
     </div>

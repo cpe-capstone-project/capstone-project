@@ -34,7 +34,6 @@ import Toolbar from "../../components/text-editor/Toolbar";
 // import { groupByDate } from "../../utils/GroupByDate";
 import DiarySidebar from "./DiarySidebar";
 import "./DiaryDetail.css";
-import NotFound from "../NotFound/NotFound";
 import DiaryFeedback from "./DiaryFeedback";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 
@@ -181,7 +180,7 @@ function DiaryDetail() {
   }, [transcript, editor]);
 
   // ถ้าไม่มี diary หรือ editor ให้ return null
-  if (!diary || !editor) return <NotFound />;
+  if (!diary || !editor) return ;
 
   return (
     <section className="diary-detail-container">
@@ -204,12 +203,13 @@ function DiaryDetail() {
         >
           <div className="title-container">
             <div className="title">
-              <h1>Title</h1>
+              <h1>ชื่อเรื่อง</h1>
               {/* กล่องแก้ไขชื่อเรื่อง */}
               <input
                 type="text"
                 value={diary.Title}
                 onChange={(e) => setDiary({ ...diary, Title: e.target.value })}
+                 placeholder="พิมพ์ชื่อเรื่องที่นี่"
               />
             </div>
             {/* ปุ่มบันทึก */}
@@ -224,7 +224,7 @@ function DiaryDetail() {
               Save
             </button>
           </div>
-          <hr />
+          {/* <hr /> */}
           
           {/* Toolbar สำหรับจัดการ editor และปุ่มบันทึกเสียง */}
           <Toolbar

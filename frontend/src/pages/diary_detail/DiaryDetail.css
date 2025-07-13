@@ -22,22 +22,29 @@
   .title-container {
     display: flex;
     align-items: center;
-    gap: var(--padding-text-editor);
+    gap: var(--space-xl);
     padding: var(--padding-text-editor);
 
     .title {
       display: flex;
       align-items: center;
       width: 100%;
-      gap: var(--padding-patient-home-page);
+      gap: var(--space-md);
       font-size: var(--font-size-xl);
 
+      h1 {
+        width: 100px;
+      }
       input {
         width: 100%;
         padding: calc(var(--padding-text-editor) / 2);
         border: 0;
-        font-weight: bold;
+        border-bottom: 2px solid #ddd;
         font-size: var(--font-size-lg);
+        transition: var(--transition-fast);
+      }
+      input:focus {
+        border-color: var(--ant-color-primary);
       }
 
       input:focus {

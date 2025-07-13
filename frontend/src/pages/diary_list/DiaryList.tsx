@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Link } from "react-router";
 import { useDiary } from "../../contexts/DiaryContext";
-import { useDate } from "../../contexts/DateContext";
+// import { useDate } from "../../contexts/DateContext";
 import { th } from "date-fns/locale";
 import { groupByDate } from "../../utils/GroupByDate";
 import { Button, Select } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { usePath } from "../../contexts/PathContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
-import CoverBook from "../../assets/book cover/cover1.jpg";
+// import CoverBook from "../../assets/book cover/cover1.jpg";
 import "./DiaryList.css";
 import ToggleSwitch from "../../components/togle-switch/ToggleSwitch";
 import DiaryCalendar from "../../components/diary-calendar/DiaryCalendar";
+import DiaryCard from "../../components/diary-card/DiaryCard";
+
 
 function DiaryList() {
   // ดึงข้อมูล diaries จาก context
   const { diaries, fetchDiaries } = useDiary();
   // ดึงฟังก์ชัน formatLong จาก context สำหรับแสดงวันที่
-  const { formatLong } = useDate();
+  // const { formatLong } = useDate();
   // ดึง path และฟังก์ชันจัดการ path
   const { fullPath } = usePath();
 
@@ -132,19 +133,9 @@ function DiaryList() {
               <h2>{label}</h2>
               <div className="diary-grid">
                 {items.map((item) => (
-                  <Link
-                    key={item.ID}
-                    to={`${location.pathname}/detail/${item.ID}`}
-                    className="diary-item"
-                  >
-                    <div className="diary">
-                      <img src={CoverBook} alt="Diary" />
-                      <div className="diary-info">
-                        <h1>{item.Title}</h1>
-                        <p>{formatLong(item.UpdatedAt ?? "", "th")}</p>
-                      </div>
-                    </div>
-                  </Link>
+                  <div key={item.ID} className="diary-item">
+                    <DiaryCard diary={item} sortField={sortField} />
+                  </div>
                 ))}
               </div>
             </div>

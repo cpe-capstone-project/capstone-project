@@ -70,11 +70,17 @@ func CreateDiary(c *gin.Context){
 		return
 	}
 
+	defaultColors := "#FFC107,#FF9800,#FF5722"
+	if diary.TagColors == "" {
+		diary.TagColors = defaultColors
+	}
+
 	db := config.DB()
 
 	bc := entity.Diaries{
 		Title: diary.Title,
 		Content: diary.Content,
+		TagColors: diary.TagColors,
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 
@@ -101,6 +107,11 @@ func UpdateDiaryByID(c *gin.Context){
 	if err := c.ShouldBindJSON(&diary); err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request, unable to map payload"})
 		return
+	}
+
+	defaultColors := "#FFC107,#FF9800,#FF5722"
+	if diary.TagColors == "" {
+		diary.TagColors = defaultColors
 	}
 
 	result = db.Save(&diary)

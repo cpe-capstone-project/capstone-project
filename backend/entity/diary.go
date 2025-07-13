@@ -10,6 +10,7 @@ type Diaries struct {
 	Title 			string
 	Content 		string
 	UpdatedAt		time.Time
+	TagColors     	string
 	TherapyCaseID	uint
 	// TherapyCase		*TherapyCases 	`gorm:"foreignKey:TherapyCaseID"`
 }

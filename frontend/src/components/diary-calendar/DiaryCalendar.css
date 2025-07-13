@@ -1,0 +1,88 @@
+.diary-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.diary-tooltip-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+
+  button {
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+}
+
+.diary-tooltip-btn-edit {
+  background-color: var(--ant-color-primary);
+}
+
+.diary-tooltip-btn-delete {
+  background-color: var(--color-red);
+}
+
+/* tag-color */
+.tag-color-strip {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.tag-color-dot {
+  width: 8px;
+  height: 8px;
+}
+
+/* calendar-confirm */
+.calendar-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .confirm-modal {
+    width: 400px;
+    height: 182px;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background-color: white;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+  }
+
+  .btn.delete {
+    background-color: var(--color-red);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  .btn.cancel {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+}

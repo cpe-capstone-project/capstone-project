@@ -167,9 +167,9 @@ const DiarySidebar = () => {
               title="ยืนยันการลบ"
               description="คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่ที่เลือกไว้?"
               onConfirm={handleDeleteSelected}
-              okText="Delete"
+              okText="ลบ"
               okButtonProps={{ className: "confirm-btn", danger: true }}
-              cancelText="Cancel"
+              cancelText="ยกเลิก"
               cancelButtonProps={{
                 className: "cancel-btn",
                 color: "default",

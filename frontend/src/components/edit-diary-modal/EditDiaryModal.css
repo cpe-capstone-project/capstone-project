@@ -1,0 +1,227 @@
+/* edit */
+.edit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.edit-modal {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  justify-content: center;
+  gap: var(--space-md);
+  background: white;
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  width: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  header {
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+  }
+}
+
+.edit-content {
+  display: flex;
+  gap: var(--space-lg);
+
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    width: 360px;
+  }
+}
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius-md);
+  resize: none;
+  margin: 0;
+}
+
+.edit-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+}
+
+.edit-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+
+  outline: none;
+  background-color: #333;
+  width: 100%;
+  height: auto;
+}
+
+.edit-btn.cancel {
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+  margin: 0;
+  width: 100px;
+  background-color: var(--color-grey);
+  color: #333;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.edit-btn.cancel:hover {
+  background-color: var(--color-grey-hover);
+}
+
+.edit-btn.save {
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+  margin: 0;
+  width: 100px;
+  background-color: var(--ant-color-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.color-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.color-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.color-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+}
+
+.color-circle.selected {
+  border: 3px solid #000000;
+}
+
+.clear-colors-btn {
+  background-color: var(--color-red);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.clear-colors-btn:hover {
+  background-color: var(--color-red-hover);
+}
+
+.tag-preview {
+  display: flex;
+  height: 6px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.tag-bar-preview {
+  width: 32px;
+  height: 6px;
+  border-radius: 4px;
+}
+
+/* preview-diary */
+.preview-diary-card {
+  position: relative;
+  width: 360px;
+  height: 170px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.tag-bar {
+  display: flex;
+  height: 28px;
+}
+
+.tag-segment {
+  flex: 1;
+}
+
+.edit-card-content {
+  padding: 16px;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .card-title {
+    font-size: var(--font-size-md);
+    font-weight: bold;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .card-text {
+    font-size: var(--font-size-sm);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+    opacity: 0.8;
+  }
+}

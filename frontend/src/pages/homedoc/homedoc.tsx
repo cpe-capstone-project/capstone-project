@@ -3,13 +3,12 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./Homedoc.css";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
-import Customcalendar from "../../components/customcalendar/customcalendar";
 import folderdocImage from "../../assets/folderdoc.png";
 import PolarAreaChart from '../../components/PolarAreaChart/PolarAreaChart';
+import Customcalendar from "../../components/customcalendar/customcalendar";
 const locales = {
   "en-US": enUS,
   th: th,
@@ -25,9 +24,14 @@ const localizer = dateFnsLocalizer({
 
 
 
+
+
+
+
+
+
 const Homedoc: React.FC = () => {
   const navigate = useNavigate();
-  const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
   const isLogin = localStorage.getItem("isLogin");
   const [calendarDate, setCalendarDate] = useState(new Date());
@@ -155,9 +159,11 @@ const Homedoc: React.FC = () => {
   date={calendarDate}
   onNavigate={(date) => setCalendarDate(date)}
   components={{
-    toolbar: (props) => (
-      <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
-    ),
+   toolbar: (toolbarProps) => (
+  <Customcalendar {...toolbarProps} date={calendarDate} setDate={setCalendarDate} />
+),
+
+
   }}
   selectable
   onSelectSlot={handleSelectSlot}

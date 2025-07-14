@@ -18,12 +18,6 @@ function HomePage() {
   const MySwal = withReactContent(Swal);
   const navigate = useNavigate();
   const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
-  const [checklist, setChecklist] = useState({
-    diary: false,
-    thoughtRecord: false,
-    dailySummary: false,
-    cbtConfirm: false,
-  });
 useEffect(() => {
   showSuccessLog(); // <--- เพิ่มเพื่อทดสอบ
 }, []);
@@ -90,31 +84,7 @@ const lastDate = latestDiaries.length
 const monthCount = summaryData.length;
 const avgPerMonth = monthCount > 0 ? Math.round(diaryTotal / monthCount) : 0;
 
-  const toggleCheck = (key: keyof typeof checklist) => {
-    setChecklist((prev) => {
-      const newChecklist = { ...prev, [key]: !prev[key] };
-
-      // หาก checklist "diary" และ "cbtConfirm" ถูกติ๊ก ให้แสดง Swal
-      if (
-        key === "diary" &&
-        !prev.diary &&
-        newChecklist.diary &&
-        newChecklist.cbtConfirm
-      ) {
-        showSuccessLog();
-      }
-      if (
-        key === "cbtConfirm" &&
-        !prev.cbtConfirm &&
-        newChecklist.diary &&
-        newChecklist.cbtConfirm
-      ) {
-        showSuccessLog();
-      }
-
-      return newChecklist;
-    });
-  };
+  
 const handleChecklistClick = () => {
   MySwal.fire({
     title: "<strong>CHECKLIST</strong>",

@@ -10,8 +10,11 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  type ChartOptions,
+  type ChartData,
 } from 'chart.js';
 
+// ✅ ลงทะเบียน chart types
 ChartJS.register(
   RadialLinearScale,
   ArcElement,
@@ -23,12 +26,13 @@ ChartJS.register(
   Legend
 );
 
-// 🎨 พาสเทลโทน
+// 🎨 สีพาสเทล
 const pastelBlue = '#A5D8FF';
 const pastelPink = '#FFB5E8';
 const pastelPurple = '#D5AAFF';
 
-const polarData = {
+// ✅ ข้อมูล PolarArea
+const polarData: ChartData<'polarArea'> = {
   labels: ['ดีขึ้น', 'แย่ลง', 'คงที่'],
   datasets: [
     {
@@ -41,14 +45,15 @@ const polarData = {
   ],
 };
 
-const lineData = {
+// ✅ ข้อมูล Line chart
+const lineData: ChartData<'line'> = {
   labels: ['สัปดาห์ที่ 1', 'สัปดาห์ที่ 2', 'สัปดาห์ที่ 3', 'สัปดาห์ที่ 4'],
   datasets: [
     {
       label: 'นภัสวรรณ',
       data: [2, 3, 4, 5],
       borderColor: pastelBlue,
-      backgroundColor: 'rgba(165, 216, 255, 0.3)', // ฟ้าอ่อนโปร่ง
+      backgroundColor: 'rgba(165, 216, 255, 0.3)',
       tension: 0.4,
       pointBackgroundColor: pastelBlue,
     },
@@ -71,7 +76,8 @@ const lineData = {
   ],
 };
 
-const commonOptions = {
+// ✅ Options สำหรับ Line chart
+const lineOptions: ChartOptions<'line'> = {
   plugins: {
     legend: {
       labels: {
@@ -89,6 +95,20 @@ const commonOptions = {
       ticks: { color: '#777' },
       grid: { color: '#eee' },
     },
+  },
+};
+
+// ✅ Options สำหรับ PolarArea chart
+const polarOptions: ChartOptions<'polarArea'> = {
+  plugins: {
+    legend: {
+      labels: {
+        color: '#555',
+        font: { size: 14 },
+      },
+    },
+  },
+  scales: {
     r: {
       angleLines: { color: '#eee' },
       grid: { color: '#eee' },
@@ -114,11 +134,11 @@ export default function SummaryCharts() {
     >
       <div>
         <h4 style={{ marginBottom: '12px', color: '#444' }}>แนวโน้มอารมณ์ผู้ป่วยแต่ละคน</h4>
-        <Line data={lineData} options={commonOptions} />
+        <Line data={lineData} options={lineOptions} />
       </div>
       <div>
         <h4 style={{ marginBottom: '12px', color: '#444' }}>สรุปผลรวมผู้ป่วย</h4>
-        <PolarArea data={polarData} options={commonOptions} />
+        <PolarArea data={polarData} options={polarOptions} />
       </div>
     </div>
   );

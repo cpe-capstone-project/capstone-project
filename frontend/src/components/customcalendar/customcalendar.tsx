@@ -1,3 +1,6 @@
+// =======================
+// Customcalendar.tsx
+// =======================
 import React from "react";
 import type { ToolbarProps } from "react-big-calendar";
 
@@ -6,29 +9,37 @@ const months = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-type Props = ToolbarProps & {
+// Event type definition
+export type MyEvent = {
+  title: string;
+  start: Date;
+  end: Date;
+};
+
+// Extend ToolbarProps with date/setDate manually
+type Props = ToolbarProps<MyEvent, object> & {
   date: Date;
   setDate: (date: Date) => void;
 };
 
-const CustomToolbar: React.FC<Props> = ({ date, setDate }) => {
+const Customcalendar: React.FC<Props> = ({ date, setDate }) => {
   const year = date.getFullYear();
   const monthIndex = date.getMonth();
 
   const handlePrev = () => {
-    if (monthIndex === 0) {
-      setDate(new Date(year - 1, 11, 1)); // ถอยเดือนสุดท้ายของปีก่อน
-    } else {
-      setDate(new Date(year, monthIndex - 1, 1));
-    }
+    setDate(
+      monthIndex === 0
+        ? new Date(year - 1, 11, 1)
+        : new Date(year, monthIndex - 1, 1)
+    );
   };
 
   const handleNext = () => {
-    if (monthIndex === 11) {
-      setDate(new Date(year + 1, 0, 1)); // ไปเดือนแรกของปีถัดไป
-    } else {
-      setDate(new Date(year, monthIndex + 1, 1));
-    }
+    setDate(
+      monthIndex === 11
+        ? new Date(year + 1, 0, 1)
+        : new Date(year, monthIndex + 1, 1)
+    );
   };
 
   return (
@@ -56,4 +67,4 @@ const CustomToolbar: React.FC<Props> = ({ date, setDate }) => {
   );
 };
 
-export default CustomToolbar;
+export default Customcalendar;

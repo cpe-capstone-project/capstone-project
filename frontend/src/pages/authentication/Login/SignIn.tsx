@@ -11,42 +11,56 @@ function SignInPages() {
   const [messageApi, contextHolder] = message.useMessage();
 
    const onFinish = async (values: SignInInterface) => {
-    const email = values.email?.toLowerCase().trim();
-    const cleanedValues = { ...values, email };
+  const email = values.email?.toLowerCase().trim();
+  const cleanedValues = { ...values, email };
 
-    let res;
+  let res;
 
-    if (email && email.endsWith("@depressionrec.go.th")) {
-      res = await SignInPsychologist(cleanedValues);
-    } else {
-      res = await SignIn(cleanedValues);
+  if (email && email.endsWith("@depressionrec.go.th")) {
+    res = await SignInPsychologist(cleanedValues);
+  } else {
+    res = await SignIn(cleanedValues);
+  }
+
+  if (res.status === 200) {
+    messageApi.success("Sign-in successful");
+
+    localStorage.setItem("isLogin", "true");
+    localStorage.setItem("token_type", res.data.token_type);
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("id", res.data.id.toString());
+    localStorage.setItem("role", res.data.role);
+    localStorage.setItem("email", res.data.email);
+
+    // ✅ เก็บข้อมูลโปรไฟล์เพิ่มเติม
+    const profile = res.data.profile;
+    if (profile) {
+      localStorage.setItem("first_name", profile.first_name);
+      localStorage.setItem("last_name", profile.last_name);
+      localStorage.setItem("gender", profile.gender.toString());
+      localStorage.setItem("address", profile.address);
+      localStorage.setItem("birthday", profile.birthday); // เช่น "2000-01-01"
+      localStorage.setItem("phone", profile.phone);
     }
 
-    if (res.status === 200) {
-      messageApi.success("Sign-in successful");
-      localStorage.setItem("isLogin", "true");
-      localStorage.setItem("token_type", res.data.token_type);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("id", res.data.id);
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("email", res.data.email); 
-      const role = res.data.role;
-      let redirectPath = "/";
+    const role = res.data.role;
+    let redirectPath = "/";
 
-      if (role === "Patient") redirectPath = "/patient/home";
-      else if (role === "Psychologist") redirectPath = "/psychologist/homedoc";
-      else {
-        messageApi.error("Unknown role");
-        return;
-      }
-
-      setTimeout(() => {
-        location.href = redirectPath;
-      }, 1000);
-    } else {
-      messageApi.error(res.data?.error || "Sign-in failed");
+    if (role === "Patient") redirectPath = "/patient/home";
+    else if (role === "Psychologist") redirectPath = "/psychologist/homedoc";
+    else {
+      messageApi.error("Unknown role");
+      return;
     }
-  };
+
+    setTimeout(() => {
+      location.href = redirectPath;
+    }, 1000);
+  } else {
+    messageApi.error(res.data?.error || "Sign-in failed");
+  }
+};
+
   // เพิ่มใน component ด้านบน
 const handleRegisterClick = () => {
   Swal.fire({

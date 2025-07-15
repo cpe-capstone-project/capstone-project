@@ -84,53 +84,167 @@ const lastDate = latestDiaries.length
 const monthCount = summaryData.length;
 const avgPerMonth = monthCount > 0 ? Math.round(diaryTotal / monthCount) : 0;
 
-  
-const handleChecklistClick = () => {
+  const checklistSets = [
+  [ // Day 1
+    "จดบันทึกไดอารี่ (อารมณ์ ความคิด เหตุการณ์)",
+    "ทำแบบประเมิน Thought Record",
+    "ติดตามผลสรุปรายวัน",
+    "ยืนยันการทำแบบฝึกหัด CBT ",
+  ],
+  [ // Day 2
+    "เขียนไดอารี่: บันทึกอารมณ์ที่เด่นที่สุดในวัน",
+    "ระบุปัจจัยกระตุ้นที่ทำให้รู้สึกเชิงลบ",
+    "ทำ Thought Record",
+    "ติดตามความเปลี่ยนแปลงจากเมื่อวาน",
+  ],
+  [ // Day 3
+    "เขียนไดอารี่: บันทึกความคิดที่ผุดขึ้นทันที",
+    "แยกความคิดจริง vs ความคิดอัตโนมัติ",
+    "ทำ Thought Record",
+    "สะท้อนว่า “ถ้ามองจากคนอื่น เขาจะคิดอย่างไร?”",
+  ],
+  [ // Day 4
+    "เขียนไดอารี่: วันนี้ฉันลองมองอีกมุมคือ...",
+    "ทำ Thought Record",
+    "ประเมินระดับอารมณ์หลังปรับมุมมองใหม่",
+    "สะท้อนว่าอะไรช่วยให้รู้สึกดีขึ้น",
+  ],
+  [ // Day 5
+    "เขียนไดอารี่: ฉันเลือกทำสิ่งนี้เพื่อดูแลตัวเอง...",
+    "ทดลองทำพฤติกรรมใหม่",
+    "Thought Record: วิเคราะห์ผลลัพธ์",
+    "ติดตามอารมณ์ก่อน-หลังทำ",
+  ],
+  [ // Day 6
+    "ไดอารี่: สิ่งที่ฉันภูมิใจในสัปดาห์นี้คือ...",
+    "Thought Record: เหตุการณ์ดี + วิเคราะห์",
+    "ระบุคุณค่าหรือจุดแข็งของตัวเอง",
+    "เขียนประโยคให้กำลังใจตัวเอง 1 ประโยค",
+  ],
+  [ // Day 7
+    "ไดอารี่สรุป: ฉันเรียนรู้อะไรเกี่ยวกับตัวเองบ้าง",
+    "สรุป Thought Record รายสัปดาห์",
+    "วางแผนถัดไปในการดูแลสุขภาพจิต",
+    "ยืนยันการจบ CBT รายสัปดาห์",
+  ],
+];
+
+// แสดงคำแนะนำเมื่อผู้ป่วยคลิกภาพกลาง
+const handlePatientGuideClick = () => {
   MySwal.fire({
-    title: "<strong>CHECKLIST</strong>",
+    title: "<strong>🧘‍♀️ วิธีใช้งานระบบเพื่อดูแลสุขภาพจิต</strong>",
     html: `
-      <ul id="checklist-ul" style="text-align: left; list-style: none; padding: 0; font-size: 16px; color: #333;">
-        <li style="margin-bottom: 12px; cursor: pointer;">
-          <img src="https://cdn-icons-png.flaticon.com/128/3515/3515278.png" width="20" style="margin-right: 8px;" />
-          จดบันทึกไดอารี่
-        </li>
-        <li style="margin-bottom: 12px; cursor: pointer;">
-          <img src="https://cdn-icons-png.flaticon.com/128/3515/3515278.png" width="20" style="margin-right: 8px;" />
-          ทำแบบประเมิน Thought Record
-        </li>
-        <li style="margin-bottom: 12px; cursor: pointer;">
-          <img src="https://cdn-icons-png.flaticon.com/128/3515/3515278.png" width="20" style="margin-right: 8px;" />
-          ติดตามผลสรุปรายวัน
-        </li>
-        <li style="cursor: pointer;">
-          <img src="https://cdn-icons-png.flaticon.com/128/3515/3515278.png" width="20" style="margin-right: 8px;" />
-          ยืนยันการทำแบบฝึกหัด CBT
-        </li>
-      </ul>
+      <div style="text-align: left; font-size: 16px; color: #333; padding: 4px;">
+        <p><strong>ยินดีต้อนรับเข้าสู่ระบบการดูแลสุขภาพจิตแบบ CBT (Cognitive Behavioral Therapy)</strong></p>
+        <p>ระบบนี้ออกแบบมาเพื่อให้คุณสามารถเข้าใจความคิด ความรู้สึก และพฤติกรรมของตัวเองได้ดียิ่งขึ้น ผ่านการฝึกฝนเป็นขั้นตอนรายวัน</p>
+        <hr/>
+        <ul style="padding-left: 0; list-style: none;">
+          <li style="margin-bottom: 16px;">
+            ✅ <strong>1. จดบันทึกไดอารี่ (Diary)</strong><br/>
+            ในแต่ละวันคุณสามารถบันทึกความรู้สึก ความคิด และเหตุการณ์ที่เกิดขึ้น เพื่อช่วยให้คุณระบายอารมณ์และสังเกตแนวโน้มความรู้สึกตนเอง เช่น<br/>
+            <em>"วันนี้ฉันรู้สึกไม่ดีหลังจากคุยกับหัวหน้า..."</em><br/>
+            การเขียนไดอารี่จะช่วยให้คุณเริ่มเข้าใจว่าอะไรเป็นตัวกระตุ้นอารมณ์ และช่วยสะท้อนความคิดอย่างเป็นระบบ
+          </li>
+          <li style="margin-bottom: 16px;">
+            🧠 <strong>2. ทำแบบประเมินความคิด (Thought Record)</strong><br/>
+            เป็นแบบฝึกที่ช่วยให้คุณแยกแยะ "ความคิดอัตโนมัติ" ที่เกิดขึ้นทันทีเมื่อรู้สึกแย่ เช่น "เราไม่เก่งเลย" แล้วสำรวจว่า ความคิดนั้นเป็นจริงหรือไม่<br/>
+            คุณจะได้ฝึกระบุเหตุการณ์ → ความคิด → อารมณ์ → พฤติกรรม → ผลลัพธ์<br/>
+            แบบฝึกนี้ใช้ได้กับเหตุการณ์ต่างๆ ทั้งเรื่องงาน ครอบครัว หรือความสัมพันธ์
+          </li>
+          <li style="margin-bottom: 16px;">
+            📊 <strong>3. ติดตามผลและอารมณ์รายวัน</strong><br/>
+            ระบบจะช่วยคุณติดตามแนวโน้มอารมณ์ผ่านกราฟรายวัน (เช่น ความรู้สึกเศร้า กังวล ดีใจ ฯลฯ)<br/>
+            ทำให้คุณเห็นว่าความรู้สึกเปลี่ยนแปลงอย่างไรในแต่ละวัน และช่วยเตือนสติเวลาเริ่มเข้าสู่ช่วงเสี่ยง
+          </li>
+          <li style="margin-bottom: 16px;">
+            📝 <strong>4. ทำแบบฝึกหัด CBT รายวัน (Checklist)</strong><br/>
+            ทุกวันคุณจะได้รับ Checklist แบบ 7 วัน ที่ออกแบบมาไม่ซ้ำกัน เช่น<br/>
+            - สำรวจความคิด<br/>
+            - ฝึกเปลี่ยนมุมมอง<br/>
+            - ทดลองพฤติกรรมใหม่<br/>
+            - สรุปและวางแผนต่อเนื่อง<br/>
+            เมื่อทำครบ 4 ข้อ จะถือว่าเสร็จสิ้นในแต่ละวัน และระบบจะเลื่อนไปชุดถัดไปโดยอัตโนมัติในวันถัดไป
+          </li>
+          <li style="margin-bottom: 16px;">
+            🎯 <strong>5. เป้าหมายของคุณ</strong><br/>
+            คือการฝึกความเข้าใจตนเองอย่างสม่ำเสมอ เพื่อจัดการอารมณ์ลบ ความคิดอัตโนมัติ และสร้างความยืดหยุ่นทางจิตใจ (Emotional Resilience)<br/>
+            คุณจะเห็นความเปลี่ยนแปลงของตัวเองในเวลาไม่กี่วัน หากทำอย่างสม่ำเสมอ
+          </li>
+        </ul>
+        <p><em>จำไว้ว่า… คุณไม่ได้อยู่คนเดียว และทุกความรู้สึกของคุณมีคุณค่า ❤️</em></p>
+      </div>
     `,
+    width: 680,
+    background: "#fff",
+    showCloseButton: true,
+    confirmButtonText: "เข้าใจแล้ว",
+    confirmButtonColor: "#6c63ff",
+    customClass: {
+      popup: "swal2-elegant-popup",
+    },
+  });
+};
+
+const getTodayChecklistIndex = () => {
+  const startDate = new Date(localStorage.getItem("cbtChecklistStart") || new Date().toISOString());
+  localStorage.setItem("cbtChecklistStart", startDate.toISOString());
+
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+  return Math.min(diffInDays, 6); // Day 0-6 (7 วัน)
+};
+const getChecklistStatus = (index: number) => {
+  const saved = localStorage.getItem(`cbtChecklistStatus-${index}`);
+  return saved ? JSON.parse(saved) : [false, false, false, false];
+};
+
+const saveChecklistStatus = (index: number, status: boolean[]) => {
+  localStorage.setItem(`cbtChecklistStatus-${index}`, JSON.stringify(status));
+};
+
+const handleChecklistClick = () => {
+  const todayIndex = getTodayChecklistIndex();
+  const checklist = checklistSets[todayIndex];
+  let status = getChecklistStatus(todayIndex);
+
+  const listHtml = checklist
+    .map((item, idx) => `
+      <li style="margin-bottom: 12px; cursor: pointer;" data-index="${idx}">
+        <img src="${status[idx]
+          ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
+          : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
+        }" width="20" style="margin-right: 8px;" />
+        ${item}
+      </li>
+    `)
+    .join("");
+
+  MySwal.fire({
+    title: `<strong>CHECKLIST DAY ${todayIndex + 1}</strong>`,
+    html: `<ul id="checklist-ul" style="text-align: left; list-style: none; padding: 0;">${listHtml}</ul>`,
     background: "#fff",
     showConfirmButton: false,
     showCloseButton: true,
     didOpen: () => {
-      const icons = Swal.getPopup()?.querySelectorAll("ul#checklist-ul li");
-      icons?.forEach((item) => {
+      const items = Swal.getPopup()?.querySelectorAll("ul#checklist-ul li");
+      items?.forEach((item) => {
         item.addEventListener("click", () => {
+          const idx = parseInt(item.getAttribute("data-index")!);
           const img = item.querySelector("img");
-          const checked = img?.getAttribute("src") === "https://cdn-icons-png.flaticon.com/128/8968/8968524.png";
+          status[idx] = !status[idx];
+          saveChecklistStatus(todayIndex, status);
           img?.setAttribute(
             "src",
-            checked
-              ? "https://cdn-icons-png.flaticon.com/128/3515/3515278.png" // ⭕
-              : "https://cdn-icons-png.flaticon.com/128/8968/8968524.png" // ✔️
+            status[idx]
+              ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
+              : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
           );
         });
       });
     },
-    customClass: {
-      popup: "swal2-elegant-popup"
-    },
   });
 };
+
  const showSuccessLog = () => {
   MySwal.fire({
     toast: true,
@@ -189,35 +303,39 @@ return (
     <main className="housemed-main-content">
       {/* CHECKLIST SECTION */}
       <div
-        className="housemed-checklist-section"
-        onClick={handleChecklistClick}
-        style={{
-          backgroundImage: `url(${pamemoI1mage})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          borderRadius: "16px",
-          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.06)",
-          padding: "2rem",
-          flex: 1,
-          minWidth: "280px",
-          maxWidth: "320px",
-          color: "#222",
-          backdropFilter: "blur(2px)",
-          cursor: "pointer",
-        }}
-      ></div>
+  className="housemed-checklist-section"
+  onClick={handleChecklistClick}
+  style={{
+    backgroundImage: `url(${pamemoI1mage})`,
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    borderRadius: "16px",
+    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.06)",
+    padding: "2rem",
+    flex: 1,
+    minWidth: "280px",
+    maxWidth: "320px",
+    cursor: "pointer",
+  }}
+></div>
 
-      {/* NOTE CENTER IMAGE */}
+
       <div
-        className="housemed-note-center"
-        style={{
-          backgroundImage: `url(${pamemoImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      ></div>
+  className="housemed-note-center"
+  onClick={handlePatientGuideClick}
+  style={{
+    backgroundImage: `url(${pamemoImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    borderRadius: "16px",
+    cursor: "pointer",
+    minHeight: "280px",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+  }}
+></div>
+
 
       {/* LATEST DIARY SECTION + ICON FLOAT */}
       <div style={{ position: "relative" }}>

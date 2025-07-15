@@ -204,6 +204,49 @@ func ResetPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }
+func UpdateProfile(c *gin.Context) {
+	var req struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+		GenderID  uint   `json:"gender_id"`
+		Address   string `json:"address"`
+		Birthday  string `json:"birthday"` // รับแบบ string
+		Phone     string `json:"phone"`
+		Email     string `json:"email"`
+		Image     string `json:"image"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	db := config.DB()
+	var patient entity.Patients
+	if err := db.Where("email = ?", req.Email).First(&patient).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// อัปเดตค่า
+	patient.FirstName = req.FirstName
+	patient.LastName = req.LastName
+	patient.GenderID = req.GenderID
+	patient.Address = req.Address
+	patient.Phone = req.Phone
+	patient.Image = req.Image
+
+	if t, err := time.Parse("2006-01-02", req.Birthday); err == nil {
+		patient.BirthDay = t
+	}
+
+	if err := db.Save(&patient).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}
 
 // func SignIn(c *gin.Context) {
 // 	var payload Authen

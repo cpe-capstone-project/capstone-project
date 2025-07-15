@@ -85,3 +85,28 @@ func DeletePatient(c *gin.Context) {
 
    c.JSON(http.StatusOK, gin.H{"message": "Deleted Account Successful"})
 }
+func GetProfile(c *gin.Context) {
+	emailRaw, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	email := emailRaw.(string)
+
+	var patient entity.Patients
+	if err := config.DB().Preload("Gender").Where("email = ?", email).First(&patient).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"first_name": patient.FirstName,
+		"last_name":  patient.LastName,
+		"gender":     patient.GenderID,
+		"address":    patient.Address,
+		"birthday":   patient.BirthDay.Format("2006-01-02"),
+		"phone":      patient.Phone,
+		"email":      patient.Email,
+		"image":      patient.Image,
+	})
+}

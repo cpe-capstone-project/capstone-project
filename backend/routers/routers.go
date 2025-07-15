@@ -1,8 +1,10 @@
 package routers
 
 import (
-	"net/http"
+	"capstone-project/controller/patient"
 	"capstone-project/middlewares"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +22,11 @@ func SetupRouter() *gin.Engine {
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())
 	SetupDiaryRoutes(private)
+	
+	// ✅ ย้าย route นี้มาอยู่ตรงนี้
+	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)
 
+	private.PUT("/patient/update-profile", patient.UpdateProfile)
 	// Root Route
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "API RUNNING... PORT: %s", PORT)

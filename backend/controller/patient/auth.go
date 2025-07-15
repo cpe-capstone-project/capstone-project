@@ -158,12 +158,21 @@ func SignIn(c *gin.Context) {
 		return
 	}
 
-	// ส่งผลลัพธ์กลับ
+	// ส่งผลลัพธ์กลับ (พร้อม profile)
 	c.JSON(http.StatusOK, gin.H{
 		"token_type": "Bearer",
 		"token":      signedToken,
 		"id":         patient.ID,
 		"role":       role,
+		"email":      patient.Email,
+		"profile": gin.H{
+			"first_name": patient.FirstName,
+			"last_name":  patient.LastName,
+			"gender":     patient.GenderID,
+			"address":    patient.Address,
+			"birthday":   patient.BirthDay.Format("2006-01-02"),
+			"phone":      patient.Phone,
+		},
 	})
 }
 func ResetPassword(c *gin.Context) {

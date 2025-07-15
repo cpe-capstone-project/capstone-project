@@ -143,6 +143,15 @@ func Login(c *gin.Context) {
 		"token":      token,
 		"id":         user.ID,
 		"role":       "Psychologist",
+		"email":      user.Email, // ✅ เพิ่ม email
+		"profile": gin.H{         // ✅ ส่งโปรไฟล์กลับไป
+			"first_name": user.FirstName,
+			"last_name":  user.LastName,
+			"gender":     user.GenderID,
+			"address":    "-", // ถ้าไม่มี field นี้ใน DB ให้ส่ง "-" ไปชั่วคราว
+			"birthday":   user.DOB.Format("2006-01-02"),
+			"phone":      user.Phone,
+		},
 	})
 }
 func ResetPassword(c *gin.Context) {
@@ -174,3 +183,4 @@ func ResetPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }
+

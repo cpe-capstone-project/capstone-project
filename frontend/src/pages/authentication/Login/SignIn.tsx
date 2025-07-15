@@ -41,11 +41,14 @@ function SignInPages() {
       localStorage.setItem("address", profile.address);
       localStorage.setItem("birthday", profile.birthday); // เช่น "2000-01-01"
       localStorage.setItem("phone", profile.phone);
-    }
+      
 
+    }
+    await fetchProfileAndUpdateStorage();
     const role = res.data.role;
     let redirectPath = "/";
-
+    localStorage.setItem("token_type", res.data.token_type);  // ✅ "Bearer"
+localStorage.setItem("token", res.data.token);            // ✅ JWT
     if (role === "Patient") redirectPath = "/patient/home";
     else if (role === "Psychologist") redirectPath = "/psychologist/homedoc";
     else {
@@ -58,6 +61,36 @@ function SignInPages() {
     }, 1000);
   } else {
     messageApi.error(res.data?.error || "Sign-in failed");
+  }
+};
+const fetchProfileAndUpdateStorage = async () => {
+  try {
+    const role = localStorage.getItem("role");
+    const endpoint =
+      role === "Patient"
+        ? "http://localhost:8000/patient/profile"
+        : "http://localhost:8000/psychologist/profile";
+
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem("first_name", data.first_name);
+      localStorage.setItem("last_name", data.last_name);
+      localStorage.setItem("gender", data.gender.toString());
+      localStorage.setItem("address", data.address);
+      localStorage.setItem("birthday", data.birthday);
+      localStorage.setItem("phone", data.phone);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("profile_image", data.image);
+    }
+  } catch (err) {
+    console.error("โหลดข้อมูลโปรไฟล์ล้มเหลว", err);
   }
 };
 

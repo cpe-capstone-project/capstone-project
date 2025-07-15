@@ -52,6 +52,9 @@ func Authorizes(allowedRoles ...string) gin.HandlerFunc {
 
 		// Debug Log สำหรับตรวจสอบค่า Claims
 		fmt.Printf("Debug - Email: %s, Role: %s\n", claims.Email, claims.Role)
+		fmt.Println("👉 Claims from token:", claims)
+		fmt.Printf("✅ Extracted Email: '%s'\n", claims.Email)
+
 
 		// เซ็ตข้อมูลลง Context
 		c.Set("email", claims.Email)

@@ -51,40 +51,29 @@
   background-color: #ffffff;
   box-shadow: 0 0 6px rgba(0, 153, 255, 0.1);
 }
-
-/* Error messages */
 .wellness-error {
-  position: relative;
-  color: #8b2e2e;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 6px;
-  margin-bottom: 10px;
-  padding: 10px 20px 10px 36px;
-  background: #fff0f0;
-  border: 1px solid #ffa4a4;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(255, 102, 102, 0.2);
-  text-align: left;
-  transition: all 0.3s ease;
-  overflow-wrap: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e53935; /* สีแดงแบบ Material */
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-left: 4px;
+  padding-left: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  line-height: 1.4;
 }
 
 .wellness-error::before {
   content: "❗";
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: #ff6b6b;
+  font-size: 1rem;
+  color: #e53935;
 }
 
-.wellness-error:hover {
-  background: #ffeaea;
-  box-shadow: 0 6px 16px rgba(255, 102, 102, 0.35);
-  transform: scale(1.03);
-}
+
 
 .wellness-steps-after-submit {
   display: flex;

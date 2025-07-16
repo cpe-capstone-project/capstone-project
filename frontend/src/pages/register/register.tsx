@@ -57,7 +57,10 @@ const handleChange = (
     if (!formData.gender) newErrors.gender = "กรุณาเลือกเพศ";
     if (!formData.address.trim()) newErrors.address = "กรุณากรอกที่อยู่";
     if (!formData.dob) newErrors.dob = "กรุณาเลือกวันเกิด";
-    if (!/^0\d{9}$/.test(formData.phone)) newErrors.phone = "เบอร์โทรศัพท์ไม่ถูกต้อง";
+   const rawPhone = formData.phone.replace(/-/g, ""); // เอาขีดออกก่อน
+if (!/^0\d{9}$/.test(rawPhone)) {
+  newErrors.phone = "เบอร์โทรศัพท์ไม่ถูกต้อง";
+}
     return newErrors;
   };
 
@@ -216,14 +219,16 @@ const handleSubmit = async (e: React.FormEvent) => {
           <label className="input-label">
             ชื่อ
             <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} />
+             {errors.firstName && <div className="error-message">{errors.firstName}</div>}
           </label>
-          {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+         
 
           <label className="input-label">
             นามสกุล
             <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
+             {errors.lastName && <div className="error-message">{errors.lastName}</div>}
           </label>
-          {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+         
          <div className="age-gender-row">
   <label className="input-label age-input">
   อายุ
@@ -234,10 +239,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     value={formData.age}
     onChange={handleChange}
   />
+  {errors.age && <div className="error-message">{errors.age}</div>}
   
 </label>
 </div>
-{errors.age && <div className="error-message">{errors.age}</div>}
+
           <label className="input-label">
             เพศ
             <select name="gender" value={formData.gender} onChange={handleChange}>
@@ -246,45 +252,54 @@ const handleSubmit = async (e: React.FormEvent) => {
               <option value="female">หญิง</option>
               <option value="other">อื่นๆ</option>
             </select>
+            {errors.gender && <div className="error-message">{errors.gender}</div>}
           </label>
-          {errors.gender && <div className="error-message">{errors.gender}</div>}
+          
 
           <label className="input-label">
             ที่อยู่
             <input type="text" name="address" value={formData.address} onChange={handleChange} />
+            {errors.address && <div className="error-message">{errors.address}</div>}
           </label>
-          {errors.address && <div className="error-message">{errors.address}</div>}
+          
 
           <label className="input-label">
             วันเกิด
             <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
+            {errors.dob && <div className="error-message">{errors.dob}</div>}
           </label>
-          {errors.dob && <div className="error-message">{errors.dob}</div>}
+          
 
-          <label className="input-label">
-            เบอร์โทรศัพท์
-            <input
-              type="tel"
-              name="phone"
-              maxLength={10}
-              value={formData.phone}
-              onChange={(e) => {
-                const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                setFormData({ ...formData, phone: cleaned });
-                setErrors((prev) => {
-                  const copy = { ...prev };
-                  delete copy.phone;
-                  return copy;
-                });
-              }}
-            />
-          </label>
-          {errors.phone && <div className="error-message">{errors.phone}</div>}
+         <label className="input-label">
+  เบอร์โทรศัพท์
+  <input
+    type="tel"
+    name="phone"
+    maxLength={12} // เผื่อขีด: 090-123-4567 = 12
+    value={formData.phone}
+    onChange={(e) => {
+      let raw = e.target.value.replace(/\D/g, ""); // ลบ non-digit ทั้งหมด
+      if (raw.length > 10) raw = raw.slice(0, 10); // จำกัดแค่ 10 ตัวเลข
 
+      // ใส่ขีดอัตโนมัติ
+      let formatted = raw;
+      if (raw.length > 6) {
+        formatted = `${raw.slice(0, 3)}-${raw.slice(3, 6)}-${raw.slice(6)}`;
+      } else if (raw.length > 3) {
+        formatted = `${raw.slice(0, 3)}-${raw.slice(3)}`;
+      }
 
+      setFormData({ ...formData, phone: formatted });
 
-
-              
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.phone;
+        return copy;
+      });
+    }}
+  />
+  {errors.phone && <div className="error-message">{errors.phone}</div>}
+</label>            
           <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป
            
           </button>
@@ -300,21 +315,24 @@ const handleSubmit = async (e: React.FormEvent) => {
           <label className="email-label">
             อีเมล
             <input type="email" name="email" value={formData.email} onChange={handleChange} />
+            {errors.email && <div className="error-message">{errors.email}</div>}
           </label>
-          {errors.email && <div className="error-message">{errors.email}</div>}
+          
 
           <label className="input-label">
             รหัสผ่าน
             <input type="password" name="password" value={formData.password} onChange={handleChange} />
+            {errors.password && <div className="error-message">{errors.password}</div>}
           </label>
-          {errors.password && <div className="error-message">{errors.password}</div>}
+          
 
           <label className="input-label">
             ยืนยันรหัสผ่าน
             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
-          </label>
-          {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+            {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
 
+          </label>
+          
           <div className="form-buttons">
             <button type="button" className="yokhealth-btn" onClick={() => setStep(step - 1)}>ย้อนกลับ</button>
             <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป

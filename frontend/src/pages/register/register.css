@@ -19,9 +19,9 @@
 
 .registermed label {
   display: block;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #2b4d59;
 }
 
@@ -57,35 +57,27 @@
   background-color: #fff0f0;
 }
 
-/* 🌟 พาสเทล error message */
 .error-message {
-  position: relative;
-  color: #8b2e2e;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 6px;
-  margin-bottom: 10px;
-  padding: 10px 20px 10px 36px;
-  background: #fff0f0;
-  border: 1px solid #ffa4a4;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(255, 102, 102, 0.2);
-  text-align: left;
-  transition: all 0.3s ease;
-  overflow-wrap: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e53935;
+  font-size: 1rem;
+  font-weight: 500; 
+  margin-bottom: 16px;     /* เดิม 4px → เพิ่มเป็น 6px หรือ 8px */
+  margin-left: 4px;
+  padding-left: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
-
-
 
 .error-message::before {
   content: "❗";
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: #ff6b6b;
+  font-size: 14px;
+  color: #e53935;
 }
+
 /* ✅ Consent checkbox */
 .consent-checkbox {
   display: flex;
@@ -479,7 +471,6 @@ button[type="submit"]:focus {
 .age-gender-row {
   display: flex;
   gap: 1.25rem;
-  margin-bottom: 1.25rem;
 }
 
 .age-gender-row .input-label {

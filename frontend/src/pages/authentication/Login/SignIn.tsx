@@ -309,22 +309,15 @@ const handleForgotPasswordClick = () => {
   style={{
     width: "100%",
     borderRadius: 10,
-    backgroundColor: "#ffffff",
-    color: "#333333",
+    backgroundColor: "#47a6ffff", 
+    color: "#ffffffff",
     fontWeight: 600,
     fontSize: 14,
     border: "1.5px solid #dcdcdc",
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)", // เงาเบา ๆ
     transition: "all 0.3s ease",
   }}
-  onMouseOver={(e) => {
-    e.currentTarget.style.backgroundColor = "#f9f9f9";
-    e.currentTarget.style.borderColor = "#c0c0c0";
-  }}
-  onMouseOut={(e) => {
-    e.currentTarget.style.backgroundColor = "#ffffff";
-    e.currentTarget.style.borderColor = "#dcdcdc";
-  }}
+ 
 >
   Login
 </Button>

@@ -40,16 +40,17 @@ const Rolehealth: React.FC = () => {
     if (!formData.lastName.trim()) newErrors.lastName = "กรุณากรอกนามสกุล";
     if (!formData.gender) newErrors.gender = "กรุณาเลือกเพศ";
     if (!formData.dob) newErrors.dob = "กรุณาเลือกวันเกิด";
-    if (!formData.phone.trim()) {
-      newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
-    } else if (!/^0\d{9}$/.test(formData.phone)) {
-      newErrors.phone = "เบอร์โทรศัพท์ไม่ถูกต้อง";
-    }
+   if (!formData.phone.trim()) {
+  newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
+} else if (!/^0\d{2}-\d{3}-\d{4}$/.test(formData.phone)) {
+  newErrors.phone = "เบอร์โทรศัพท์ไม่ถูกต้อง ";
+}
     if (!formData.medicalLicense.trim()) {
-      newErrors.medicalLicense = "กรุณากรอกเลขที่ใบรับรองแพทย์";
-    } else if (!/^PsychRef\d{13}$/.test(formData.medicalLicense)) {
-      newErrors.medicalLicense = "เลขที่ใบรับรองแพทย์ไม่ถูกต้อง";
-    }
+  newErrors.medicalLicense = "กรุณากรอกเลขที่ใบรับรองแพทย์";
+} else if (!/^PsychRef\d{3}-\d{3}-\d{3}-\d{4}$/.test(formData.medicalLicense)) {
+  newErrors.medicalLicense = "เลขที่ใบรับรองแพทย์ไม่ถูกต้อง ";
+}
+
     if (!attachedFile) {
       newErrors.attachedFile = "กรุณาแนบรูป";
     }
@@ -296,30 +297,65 @@ const Rolehealth: React.FC = () => {
           </label>
 
           <label className="wellness-label">
-            เบอร์โทรศัพท์
-            <input
-              className="wellness-input"
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              maxLength={10}
-              onChange={handleChange}
-            />
-            {errors.phone && <div className="wellness-error">{errors.phone}</div>}
-          </label>
+  เบอร์โทรศัพท์
+  <input
+    className="wellness-input"
+    type="tel"
+    name="phone"
+    maxLength={12} // เผื่อขีด
+    value={formData.phone}
+    onChange={(e) => {
+      let raw = e.target.value.replace(/\D/g, "").slice(0, 10); // รับแค่เลข 10 หลัก
+      let formatted = raw;
+      if (raw.length > 6) {
+        formatted = `${raw.slice(0, 3)}-${raw.slice(3, 6)}-${raw.slice(6)}`;
+      } else if (raw.length > 3) {
+        formatted = `${raw.slice(0, 3)}-${raw.slice(3)}`;
+      }
+      setFormData({ ...formData, phone: formatted });
 
-          <label className="wellness-label">
-            เลขที่ใบรับรองแพทย์
-            <input
-              className="wellness-input"
-              type="text"
-              name="medicalLicense"
-              value={formData.medicalLicense}
-              onChange={handleChange}
-              maxLength={21}
-            />
-            {errors.medicalLicense && <div className="wellness-error">{errors.medicalLicense}</div>}
-          </label>
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.phone;
+        return copy;
+      });
+    }}
+  />
+  {errors.phone && <div className="wellness-error">{errors.phone}</div>}
+</label>
+
+<label className="wellness-label">
+  เลขที่ใบรับรองแพทย์
+  <input
+    className="wellness-input"
+    type="text"
+    name="medicalLicense"
+    maxLength={24}
+    value={formData.medicalLicense}
+    onChange={(e) => {
+      let raw = e.target.value.replace(/\D/g, "").slice(0, 13); // เอาเฉพาะตัวเลขหลัง PsychRef
+      let formatted = "PsychRef";
+      if (raw.length > 9) {
+        formatted += `${raw.slice(0, 3)}-${raw.slice(3, 6)}-${raw.slice(6, 9)}-${raw.slice(9)}`;
+      } else if (raw.length > 6) {
+        formatted += `${raw.slice(0, 3)}-${raw.slice(3, 6)}-${raw.slice(6)}`;
+      } else if (raw.length > 3) {
+        formatted += `${raw.slice(0, 3)}-${raw.slice(3)}`;
+      } else {
+        formatted += raw;
+      }
+      setFormData({ ...formData, medicalLicense: formatted });
+
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.medicalLicense;
+        return copy;
+      });
+    }}
+  />
+  {errors.medicalLicense && <div className="wellness-error">{errors.medicalLicense}</div>}
+</label>
+
           <button
             type="button"
             className="health-btn-upload"

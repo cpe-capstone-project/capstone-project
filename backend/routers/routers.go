@@ -25,7 +25,7 @@ func SetupRouter() *gin.Engine {
 	
 	// ✅ ย้าย route นี้มาอยู่ตรงนี้
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)
-
+	
 	private.PUT("/patient/update-profile", patient.UpdateProfile)
 	// Root Route
 	r.GET("/", func(c *gin.Context) {

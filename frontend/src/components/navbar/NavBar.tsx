@@ -231,6 +231,16 @@ const handleEditProfile = async () => {
         <li>
           <a onClick={() => handleNavigate("thought")}>Thought Record</a>
         </li>
+        <li>
+    <img
+      src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
+      alt="Icon"
+      width="24"
+      height="24"
+      style={{ cursor: "pointer" }}
+      onClick={() => console.log("Icon clicked")}
+    />
+  </li>
         <div style={{ position: "relative" }}>
           <img
   className="profile"

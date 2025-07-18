@@ -1,144 +1,58 @@
-.housemed-homepage {
-  font-family: 'Sarabun', 'Segoe UI', sans-serif;
-  background-color: #f5f7fa;
-  padding: 2rem;
-  min-height: 100vh;
-  color: #2c3e50;
-}
-
-.housemed-main-content {
+.summary-wrapper {
   display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.housemed-checklist-section {
-  background-image: url("../../assets/pamemo1.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  justify-content: center;   /* ✅ กึ่งกลางแนวนอน */
   padding: 2rem;
-  flex: 1;
-  min-width: 280px;
-  max-width: 320px;
-  color: #222; /* สีข้อความให้อ่านง่ายบนพื้นหลัง */
-  backdrop-filter: blur(2px); /* เพิ่มความเนียนแบบกระจก */
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 1100px;         /* ✅ กำหนดความกว้างสูงสุดของ grid */
+  width: 100%;               /* ให้ปรับตามหน้าจอ */
+  align-items: stretch;
 }
 
 
-.main-title {
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
-  color: #004466;
+.summary-box {
+  background-color: #ffffff; /* ✅ พื้นหลังขาว */
+  border: 2px solid #90caf9; /* ✅ กรอบฟ้าอ่อน */
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  width: 100%;
+  min-height: 280px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03); /* เงาบางๆ */
+  font-family: 'Sarabun', sans-serif;
+  color: #000000; /* ✅ สีข้อความฟ้าน้ำเงิน */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-width: 520px;
 }
 
-.housemed-subtitle {
-  font-size: 1rem;
-  color: #5c7080;
-  margin-bottom: 2rem;
-}
 
-.checklist-title {
+.summary-title {
+  font-size: 1.3rem;
   font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
 }
 
-.checklist-item {
+.checklist-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklist-items li {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.checklist-item:hover {
-  background-color: #eef7fb;
+  margin-bottom: 0.8rem;
+  font-size: 1.05rem;
 }
 
 .check-icon {
-  font-size: 1.3rem;
-  transition: all 0.2s ease;
+  font-size: 1.2rem;
+  color: #111;
 }
-
-.check-icon.checked {
-  color: #2e8b57;
-}
-
-.housemed-note-center {
-  flex: 1;
-  max-width: 480px;
-  height: 480px; /* กำหนดความสูงตายตัวให้พอดีกับภาพ */
-  background-image: url("../../assets/pamemo.png");
-  background-size: contain;        /* เปลี่ยนจาก cover เป็น contain */
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 1.3rem;
-  color: #333;
-}
-
-
-/* RIGHT: DIARY */
-.housemed-right-section {
-  flex: 1;
-  min-width: 300px;
-}
-
-.latest-diary-box {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 1.2rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  max-height: none;           /* 💡 เอาขีดจำกัดออก */
-  min-height: 400px;          /* ✅ กำหนดความสูงขั้นต่ำ */
-  width: 700px;             /* ✅ ทำให้กว้างเต็ม container */ 
-  overflow-y: visible;
-}
-
-
-/* Scrollbar สวย ๆ */
-.latest-diary-box::-webkit-scrollbar {
-  width: 6px;
-}
-.latest-diary-box::-webkit-scrollbar-thumb {
-  background-color: #d0e1ee;
-  border-radius: 6px;
-}
-
-.swal2-elegant-popup {
-  border-radius: 16px !important;
-  font-family: 'Sarabun', 'Segoe UI', sans-serif !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-  padding: 1rem !important;
-}
-
-
-.swal2-elegant-title {
-  font-size: 20px !important;
-  color: #222 !important;
-  margin-bottom: 20px !important;
-}
-.usage-activity-box {
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  width: 616px;
-}
-

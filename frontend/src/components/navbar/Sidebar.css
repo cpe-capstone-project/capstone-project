@@ -1,0 +1,171 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 180px;
+  background-color: #ffffff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1000;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+  padding: 2rem 0.5rem;
+}
+
+.sidebar-logo {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 120px;
+  right: -14px;
+  background-color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s;
+}
+
+.sidebar-item img {
+  width: 24px;
+  height: 24px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-item span {
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-item:hover {
+  background-color: #f0f8ff;
+}
+
+.sidebar-item.active {
+  background-color: #cbe9ff;
+  color: #004466;
+}
+
+.sidebar.collapsed .sidebar-item span,
+.sidebar.collapsed .sidebar-footer span,
+.sidebar.collapsed .sidebar-profile-menu {
+  display: none;
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+  cursor: pointer;
+}
+
+.sidebar-profile {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-profile-menu {
+  position: absolute;
+  bottom: 65px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 160px;
+  z-index: 1001;
+  transition: all 0.3s ease;
+}
+
+.sidebar-profile-menu button {
+  background: linear-gradient(to right, #d4f0ff, #f0fcff);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #004466;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.sidebar-profile-menu button:hover {
+  background: linear-gradient(to right, #ffffff, #cceeff);
+}
+/* ปุ่มวงกลมสำหรับ toggle และ logout */
+.sidebar-button {
+  background-color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.sidebar-button img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.sidebar-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #000000;
+  margin: 1rem 0;
+}

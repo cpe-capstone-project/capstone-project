@@ -22,5 +22,8 @@ type Psychologist struct {
 
 	RoleID uint
 	Role   *Roles
+
+	VerifyCodeHash string // ✅ ใหม่: เก็บ PIN แบบ hash
 }
+
 //

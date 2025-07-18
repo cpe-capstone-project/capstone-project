@@ -21,6 +21,6 @@ type Patients struct {
   Gender          *Genders
   RoleID          uint
   Role            *Roles
-
-  VerifyCodeHash  string // ✅ เพิ่มฟิลด์นี้
+  PsychologistID uint
+  Psychologist   *Psychologist `gorm:"foreignKey:PsychologistID"`
 }

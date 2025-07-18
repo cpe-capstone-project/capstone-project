@@ -34,6 +34,8 @@ type (
 		RoleID    uint      `json:"role_id"`
 		Consent   bool      `json:"consent"`  // ✅ เพิ่ม
   		Address   string    `json:"address"`  // ✅ เพิ่ม
+		PsychologistID uint `json:"psychologist_id"`
+  		Psychologist   *entity.Psychologist
 	}
 )
 
@@ -96,6 +98,7 @@ func SignUp(c *gin.Context) {
 		RoleID:    payload.RoleID, // ✅ ใช้ค่าที่ส่งมาจริงนะครับ
 		Consent:   payload.Consent,  // ✅ เพิ่ม
   		Address:   payload.Address,  // ✅ เพิ่ม
+		PsychologistID: payload.PsychologistID, // ✅ เพิ่มตรงนี้
 	}
 
 	// Save the user to the database
@@ -247,6 +250,45 @@ func UpdateProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
+func VerifyPsychologistCode(c *gin.Context) {
+	var req struct {
+		Code string `json:"code"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "คำขอไม่ถูกต้อง"})
+		return
+	}
+
+	db := config.DB()
+	var psychs []entity.Psychologist
+
+	// ✅ ดึงนักจิตทุกคน
+	if err := db.Find(&psychs).Error; err != nil {
+		c.JSON(500, gin.H{"error": "ไม่สามารถเชื่อมต่อฐานข้อมูลได้"})
+		return
+	}
+
+	var matchedPsychologistID uint
+	for _, p := range psychs {
+		if bcrypt.CompareHashAndPassword([]byte(p.VerifyCodeHash), []byte(req.Code)) == nil {
+			matchedPsychologistID = p.ID
+			break
+		}
+	}
+
+	if matchedPsychologistID == 0 {
+		c.JSON(400, gin.H{"error": "PIN ไม่ถูกต้อง"})
+		return
+	}
+
+	// ✅ ตอบกลับด้วย ID ของนักจิตที่ตรงกับ PIN
+	c.JSON(200, gin.H{
+		"message":          "PIN ถูกต้อง",
+		"psychologist_id":  matchedPsychologistID,
+	})
+}
+
 
 // func SignIn(c *gin.Context) {
 // 	var payload Authen

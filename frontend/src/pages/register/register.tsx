@@ -23,6 +23,7 @@ const Register: React.FC = () => {
     password: "",
     confirmPassword: "",
     consent: false,
+    verifyCode: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 const handleChange = (
@@ -95,6 +96,16 @@ const policyItems = {
     "Consent Implied by App Usage"
   ]
 };
+const validateStep4 = () => {
+  const newErrors: { [key: string]: string } = {};
+
+  if (!/^\d{6}$/.test(formData.verifyCode)) {
+    newErrors.verifyCode = "กรุณากรอก PIN ที่ถูกต้อง";
+  }
+
+  return newErrors;
+};
+
 
 
   const handleNext = (e: React.FormEvent) => {
@@ -103,6 +114,7 @@ const policyItems = {
     if (step === 1) validationErrors = validateStep1();
     else if (step === 2) validationErrors = validateStep2();
     else if (step === 3) validationErrors = validateStep3();
+     else if (step === 4) validationErrors = validateStep4();
 
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0) setStep(step + 1);
@@ -115,32 +127,49 @@ const handleSubmit = async (e: React.FormEvent) => {
     ...validateStep1(),
     ...validateStep2(),
     ...validateStep3(),
+    ...validateStep4(),
   };
   setErrors(allErrors);
 
   if (Object.keys(allErrors).length === 0) {
     try {
-      // สร้าง body ที่ตรงกับ backend
+      // ✅ ตรวจสอบ PIN ก่อน
+      const verifyCodeRes = await fetch("http://localhost:8000/verify-psychologist-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: formData.verifyCode }),
+      });
+      const verifyResult = await verifyCodeRes.json();
+
+      if (!verifyCodeRes.ok) {
+        Swal.fire("❌ PIN ไม่ถูกต้อง", verifyResult.error || "กรุณาตรวจสอบกับนักจิตอีกครั้ง", "error");
+        return;
+      }
+      const psychologistId = verifyResult.psychologist_id; // ✅ เก็บ ID นักจิตจาก backend
+
+      // ✅ สมัครจริง
       const dataToSend = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        age: Number(formData.age),
-        birthday: new Date(formData.dob).toISOString(), // 👈 เพิ่มตรงนี้
-        password: formData.password,
-        picture: "https://i.imgur.com/default-avatar.png", // หรือให้ผู้ใช้เลือก
-         gender_id:
+  first_name: formData.firstName,
+  last_name: formData.lastName,
+  email: formData.email,
+  phone: formData.phone,
+  age: Number(formData.age),
+  birthday: new Date(formData.dob).toISOString(),
+  password: formData.password,
+  picture: "https://i.imgur.com/default-avatar.png", // หรือใส่ path จริง
+  gender_id:
     formData.gender === "male"
       ? 1
       : formData.gender === "female"
       ? 2
-      : 3, // 👈 รองรับ "other"
-        role_id: 3, // 👈 ถ้าสมัคร Patient = 3 / Psychologist = 4
-        consent: formData.consent,
-        address: formData.address,
-      };
-//
+      : 3,
+  role_id: 3, // Patient
+  consent: formData.consent,
+  address: formData.address,
+  psychologist_id: psychologistId,
+};
+
+
       const response = await fetch("http://localhost:8000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -156,28 +185,17 @@ const handleSubmit = async (e: React.FormEvent) => {
           icon: "success",
           confirmButtonText: "ตกลง",
           timer: 3000,
-          showClass: { popup: "animate__animated animate__fadeInDown" },
-          hideClass: { popup: "animate__animated animate__fadeOutUp" },
         });
-        setStep(4);
+        setStep(5);
       } else {
-        Swal.fire({
-          title: "❌ เกิดข้อผิดพลาด",
-          text: data.error || "ไม่สามารถลงทะเบียนได้",
-          icon: "error",
-          confirmButtonText: "ตกลง",
-        });
+        Swal.fire("❌ เกิดข้อผิดพลาด", data.error || "ไม่สามารถลงทะเบียนได้", "error");
       }
     } catch (error) {
-      Swal.fire({
-        title: "❌ เกิดข้อผิดพลาด",
-        text: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
-        icon: "error",
-        confirmButtonText: "ตกลง",
-      });
+      Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
     }
   }
 };
+
 
 
 
@@ -186,7 +204,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     <form className="registermed" onSubmit={handleSubmit} noValidate>
       <h2>ลงทะเบียนผู้ป่วย</h2>
    <div className="yakno">
-  {[1, 2, 3, 4].map((i) => (
+  {[1, 2, 3, 4 ,5].map((i) => (
     <div key={i} className={`step-box ${step === i ? "active" : ""}`}>
       <img
         className="circle-icon"
@@ -204,6 +222,8 @@ const handleSubmit = async (e: React.FormEvent) => {
           ? "อีเมลและรหัสผ่าน"
           : i === 3
           ? "ยืนยันข้อมูล"
+          : i === 4
+          ? "Verify Code"
           : "สำเร็จ"}
       </p>
     </div>
@@ -441,13 +461,35 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           <div className="form-buttons">
             <button type="submit" onClick={() => setStep(step - 1)}>ย้อนกลับ</button>
-            <button type="submit">ลงทะเบียน</button>
+            <button type="submit" onClick={handleNext}>ถัดไป</button>
           </div>
         </>
       )}
+{step === 4 && (
+  <>
+   <label className="input-label">
+  PIN 
+  <input
+    type="text"
+    name="verifyCode"
+    value={formData.verifyCode}
+    onChange={handleChange}
+    maxLength={6}
+    placeholder="XXXXXX"
+  />
+  {errors.verifyCode && <div className="error-message">{errors.verifyCode}</div>}
+</label>
+
+
+    <div className="form-buttons">
+      <button type="submit" onClick={() => setStep(step - 1)}>ย้อนกลับ</button>
+      <button type="submit">ลงทะเบียน</button>
+    </div>
+  </>
+)}
 
       {/* STEP 4 */}
-      {step === 4 && (
+      {step === 5 && (
         <>
           <div className="northpage"> 
   <h3 className="northmessage">🎉 การลงทะเบียนเสร็จสมบูรณ์</h3>

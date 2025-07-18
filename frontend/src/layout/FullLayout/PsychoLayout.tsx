@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import NavBar from "../../components/navbar/psychonavbar";
+import NavBar from "../../components/navbar/Sidebar";
 import "./PsychoLayout.css";
 
 function PsychoLayout() {

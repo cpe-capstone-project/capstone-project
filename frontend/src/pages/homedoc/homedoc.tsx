@@ -6,8 +6,6 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
-import folderdocImage from "../../assets/folderdoc.png";
-import PolarAreaChart from '../../components/PolarAreaChart/PolarAreaChart';
 import Customcalendar from "../../components/customcalendar/customcalendar";
 const locales = {
   "en-US": enUS,
@@ -21,15 +19,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-
-
-
-
-
-
-
-
 const Homedoc: React.FC = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
@@ -117,76 +106,66 @@ const Homedoc: React.FC = () => {
   };
 
   return (
-    <div className="docflour-homepage">
-      {/* Welcome Header */}
-      <section className="docflour-welcome-box">
-        <h1>Welcome, fellow psychologist.</h1>
-        <p>Let’s take care of others — and ourselves.</p>
-      </section>
-
-      {/* Search */}
-      <section className="docflour-search-section">
-        <input type="text" placeholder="Search by name, patient ID, or email" className="docflour-search-input" />
+<div className="docflour-homepage">
+  <section className="docflour-grid">
+    {/* กล่อง 1: Patient Case + Search */}
+    <div className="docflour-card">
+      <h3>PATIENT CASE</h3>
+      <div className="docflour-search-box">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="docflour-search-input"
+        />
         <button className="docflour-search-button">🔍</button>
-      </section>
-
-      {/* Dashboard */}
-      <section className="docflour-dashboard">
-       <div className="docflour-card">
-  <h3>Dashboard สรุปผลรวม</h3>
-  <PolarAreaChart />
-</div>
-
-
-        {/* Calendar */}
-        <div className="docflour-card">
-          <h3>Appointments / การนัดหมาย</h3>
-          <p>ตารางนัดหมาย</p>
-          <div
-            style={{
-              height: "400px",
-              background: "#ffffff",
-              borderRadius: "10px",
-              padding: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-         <Calendar
-  localizer={localizer}
-  events={events}
-  startAccessor="start"
-  endAccessor="end"
-  date={calendarDate}
-  onNavigate={(date) => setCalendarDate(date)}
-  components={{
-   toolbar: (toolbarProps) => (
-  <Customcalendar {...toolbarProps} date={calendarDate} setDate={setCalendarDate} />
-),
-
-
-  }}
-  selectable
-  onSelectSlot={handleSelectSlot}
-  onSelectEvent={handleSelectEvent}
-  style={{ height: "100%", borderRadius: "8px" }}
-/>
-
-          </div>
-        </div>
-      </section>
-      {/* Resource Sections */}
-<section className="docflour-resources">
-  <div className="docflour-folder">
-  <img src={folderdocImage} alt="folder icon" className="docflour-folder-icon" />
-  <p>แหล่งข้อมูล / Resource สำหรับนักจิต</p>
-</div>
-  <div className="docflour-folder">
-  <img src={folderdocImage} alt="folder icon" className="docflour-folder-icon" />
-  <p>บทความวิจัย / เทคนิคการให้คำปรึกษา</p>
-</div>
-</section>
-
+      </div>
     </div>
+
+    {/* กล่อง 2: ตารางนัดหมาย */}
+   {/* กล่อง 2: ตารางนัดหมาย */}
+<div className="docflour-card">
+  <h3>ตารางนัดหมาย</h3>
+  <div
+    style={{
+      height: "300px",
+      width: "100%",
+      background: "#fff",
+      borderRadius: "12px",
+      marginTop: "1rem",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+    }}
+  >
+    <Calendar
+      localizer={localizer}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      date={calendarDate}
+      onNavigate={(date) => setCalendarDate(date)}
+      components={{
+        toolbar: (props) => (
+          <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
+        ),
+      }}
+      selectable
+      onSelectSlot={handleSelectSlot}
+      onSelectEvent={handleSelectEvent}
+      style={{ height: "100%", borderRadius: "8px", padding: "8px" }}
+    />
+  </div>
+</div>
+
+    {/* กล่อง 3: Summary */}
+    <div className="docflour-cardz">
+      <h3>Summary Overview</h3>
+    </div>
+
+    {/* กล่อง 4: Feedback */}
+    <div className="docflour-cardz">
+      <h3>Feedback</h3>
+    </div>
+  </section>
+</div>
     
   );
 };

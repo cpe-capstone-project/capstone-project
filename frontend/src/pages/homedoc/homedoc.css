@@ -1,310 +1,73 @@
-/* ---------------------- Overall Layout ---------------------- */
 .docflour-homepage {
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f8fdff;
-  color: #155e75;
-  min-height: 100vh;
-}
-
-/* ---------------------- Notification ---------------------- */
-.docflour-notification {
-  max-width: 900px;
-  margin: 0 auto 1.5rem;
-  padding: 0 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.docflour-toast,
-.docflour-alert {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 1rem;
-  border-left: 6px solid #ffeeba;
-  border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(255, 204, 0, 0.1);
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.docflour-toast:hover {
-  background-color: #fff8e1;
-}
-
-.docflour-alert {
-  background-color: #f8d7da;
-  color: #721c24;
-  border-left: 6px solid #f5c6cb;
-}
-
-/* ---------------------- Dashboard ---------------------- */
-.docflour-dashboard {
   display: flex;
   justify-content: center;
+  padding: 2rem;
+}
+
+.docflour-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  flex-wrap: wrap;
-  max-width: 1500px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 1100px;
+  width: 100%;
 }
 
 .docflour-card {
-  flex: 1;
-  min-width: 300px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  text-align: center;
-}
-
-.docflour-card h3 {
-  font-size: 1.5rem;
-  color: #145374;
-  margin-bottom: 1rem;
-}
-
-.docflour-card p {
-  margin: 0.5rem 0;
-  color: #3a6c7c;
-  font-weight: 500;
-}
-
-/* ---------------------- ปุ่ม ---------------------- */
-.docflour-start-button {
-  background: linear-gradient(to right, #f6f6f6, #d4f0ff);
-  border: none;
-  padding: 0.9rem 2.4rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #004466;
-  border-radius: 16px;
-  box-shadow: 0 6px 14px rgba(0, 153, 255, 0.25);
-  transition: 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-}
-
-.docflour-start-button:hover {
-  background: linear-gradient(to right, #ffffff, #dff9ff);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 153, 255, 0.35);
-}
-
-/* ---------------------- Responsive ---------------------- */
-@media (max-width: 768px) {
-  .docflour-therapy-section,
-  .docflour-dashboard {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .docflour-case-content {
-    padding: 1rem 0;
-  }
-
-  .docflour-welcome-box h1 {
-    font-size: 2rem;
-  }
-
-  .docflour-notification {
-    padding: 0 1rem;
-  }
-}
-/* ---------------------- Welcome Section ---------------------- */
-.docflour-welcome-box {
-  text-align: center;
-  padding: 3rem 2rem 1rem;
-}
-
-.docflour-welcome-box h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #145374;
-}
-
-.docflour-welcome-box p {
-  font-size: 1.25rem;
-  color: #3a6c7c;
-}
-
-/* ---------------------- Responsive ---------------------- */
-@media (max-width: 768px) {
-  .docflour-therapy-section {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .docflour-nav {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .docflour-case-content {
-    padding: 1rem 0;
-  }
-
-  .docflour-welcome-box h1 {
-    font-size: 2rem;
-  }
-}
-.swal2-elegant-popup {
-  border-radius: 14px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-  font-family: "Segoe UI", sans-serif !important;
-}
-.docflour-search-section {
+  background-color: #ffffff;           /* พื้นหลังขาว */
+  border: 2px solid #90caf9;           /* กรอบฟ้าอ่อน */
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  min-height: 200px;
+  font-family: 'Sarabun', sans-serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);  /* เงาบางๆ */
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  color: #000000;                     /* สีข้อความดำ */
+  max-width: 520px;                   /* ไม่เกินขนาดกล่อง */
+}
+.docflour-cardz {
+  background-color: #ffffff;           /* พื้นหลังขาว */
+  border: 2px solid #90caf9;           /* กรอบฟ้าอ่อน */
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  min-height: 250px;
+  font-family: 'Sarabun', sans-serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);  /* เงาบางๆ */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  color: #000000;                     /* สีข้อความดำ */
+  max-width: 520px;                   /* ไม่เกินขนาดกล่อง */
+}
+.docflour-search-box {
   margin-top: 1rem;
-  margin-bottom: 2rem;
-  gap: 0.75rem;
+  display: flex;
+  border: 2px solid #90caf9;          /* กรอบฟ้าอ่อน */
+  border-radius: 20px;
+  padding: 4px 10px;
+  align-items: center;
+  background-color: #f9f9f9;          /* สีพื้น input เบาๆ */
 }
 
 .docflour-search-input {
-  padding: 0.75rem 1rem;
-  width: 340px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 999px;
-  font-size: 1rem;
-  background-color: #ffffff;
-  color: #1f2937;
+  border: none;
   outline: none;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-}
-
-.docflour-search-input:focus {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.3);
+  background: transparent;
+  font-size: 0.9rem;
+  width: 180px;
+  font-family: 'Sarabun', sans-serif;
 }
 
 .docflour-search-button {
-  padding: 0.75rem 1rem;
-  background: linear-gradient(to right, #dbeafe, #c7d2fe);
+  background: none;
   border: none;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  color: #1e3a8a;
+  font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-}
-
-.docflour-search-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(to right, #e0f2fe, #e0e7ff);
-}
-.rbc-calendar {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-}
-
-.rbc-toolbar {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.rbc-toolbar button {
-  background: transparent;
-  border: none;
-  font-weight: bold;
-  color: #333;
-  padding: 8px 12px;
-  transition: 0.2s ease;
-  border-radius: 6px;
-}
-
-.rbc-toolbar button:hover {
-  background-color: #f0f0f0;
-}
-
-.rbc-event {
-  background-color: #6c5ce7;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9em;
-}
-
-.rbc-today {
-  background-color: #fdf6e3;
-}
-
-.rbc-off-range {
-  color: #ccc;
-}
-.custom-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  font-size: 20px;
-  margin-bottom: 16px;
-}
-
-.custom-toolbar button {
-  background-color: black;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-.custom-toolbar button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.docflour-resources {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 2rem;
-  margin: 3rem auto;
-  max-width: 1000px;
-  padding: 0 1rem;
-}
-
-.docflour-mood-tracker {
-  flex: 1;
-  min-width: 280px;
-  background-color: #f6f6f6;
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.docflour-mood-tracker h4 {
-  font-size: 1.25rem;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.docflour-mood-tracker p {
-  color: #374151;
-  line-height: 1.4;
-}
-.docflour-folder-icon {
-  width: 100%;
-  height: auto;
-  max-height: 140px;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-left: 6px;
+  color: #1976d2;                    /* ปุ่มค้นหาสีฟ้าเข้ม */
 }

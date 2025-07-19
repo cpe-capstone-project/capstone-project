@@ -6,8 +6,6 @@ import SignInPages from "../pages/authentication/Login/SignIn";
 import Register from "../pages/register/register";
 import RoleHealth from "../pages/rolehealth/rolehealth";
 
-
-
 const RoleRoutes = [
   { path: "/", element: <SignInPages /> },
   { path: "/signup", element: <Register /> },
@@ -15,7 +13,7 @@ const RoleRoutes = [
   { path: "/rolehealth", element: <RoleHealth /> },
   PatientRoutes,
   PsychologistRoutes,
-  ...AdminRoutes, // ✅ ตอนนี้กระจายได้เลย
+  ...AdminRoutes,
   { path: "*", element: <Unknown /> },
 ];
 

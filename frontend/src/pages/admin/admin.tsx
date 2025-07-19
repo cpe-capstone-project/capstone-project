@@ -14,7 +14,7 @@ interface User {
   certificateFile?: string;
   role: "Patient" | "Psychologist";
 }
-
+console.log("✅ Admin Dashboard Loaded");
 const dummyUsers: User[] = [
   {
     id: 1,

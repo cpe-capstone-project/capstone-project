@@ -46,9 +46,13 @@ func AdminSignIn(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token":      token,
+		"token_type": "Bearer",
+		"id":         admin.ID,
 		"email":      admin.Email,
-		"first_name": admin.FirstName,
-		"last_name":  admin.LastName,
 		"role":       "Admin",
+		"profile": gin.H{
+			"first_name": admin.FirstName,
+			"last_name":  admin.LastName,
+		},
 	})
 }

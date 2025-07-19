@@ -1,15 +1,16 @@
 import RequireRole from "./RequireRole";
+import AdminLayout from "../layout/FullLayout/AdminLayout";
+import AdminDashboard from "../pages/admin/admin";
 
 const AdminRoutes = {
   path: "/admin",
   element: (
     <RequireRole allowedRoles={["Admin"]}>
-      <div>Admin Layout</div>
+      <AdminLayout />
     </RequireRole>
   ),
   children: [
-    { path: "dashboard", element: <div>Admin Dashboard</div> },
-    // เพิ่ม route อื่นๆ ได้
+    { path: "dashboard", element: <AdminDashboard /> },
   ],
 };
 

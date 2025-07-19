@@ -1,0 +1,16 @@
+/* src/layout/FullLayout/AdminLayout.css */
+.admin-layout {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}

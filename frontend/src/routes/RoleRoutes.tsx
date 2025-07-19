@@ -4,7 +4,8 @@ import AdminRoutes from "./AdminRoutes";
 import Unknown from "../pages/unknown/Unknown";
 import SignInPages from "../pages/authentication/Login/SignIn";
 import Register from "../pages/register/register";
-import RoleHealth from "../pages/rolehealth/rolehealth"; // ✅ เพิ่มตรงนี้
+import RoleHealth from "../pages/rolehealth/rolehealth";
+
 
 const RoleRoutes = [
   {

@@ -11,17 +11,23 @@ function SignInPages() {
   const [messageApi, contextHolder] = message.useMessage();
 
    const onFinish = async (values: SignInInterface) => {
-  const email = values.email?.toLowerCase().trim();
+  const email = (values.email ?? "").toLowerCase().trim(); 
   const cleanedValues = { ...values, email };
 
   let res;
-
-  if (email && email.endsWith("@depressionrec.go.th")) {
+  if (email && (email === "spec@gmail.com" || email === "aqua@gmail.com")) {
+    // call admin sign-in
+    res = await fetch("http://localhost:8000/admin/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cleanedValues),
+    }).then((r) => r.json().then((data) => ({ status: r.status, data })));
+  } 
+  else if (email.endsWith("@depressionrec.go.th")) {
     res = await SignInPsychologist(cleanedValues);
   } else {
     res = await SignIn(cleanedValues);
   }
-
   if (res.status === 200) {
     messageApi.success("Sign-in successful");
 
@@ -51,6 +57,7 @@ function SignInPages() {
 localStorage.setItem("token", res.data.token);            // ✅ JWT
     if (role === "Patient") redirectPath = "/patient/home";
     else if (role === "Psychologist") redirectPath = "/psychologist/homedoc";
+    else if (role === "Admin") redirectPath = "/admin/dashboard";
     else {
       messageApi.error("Unknown role");
       return;

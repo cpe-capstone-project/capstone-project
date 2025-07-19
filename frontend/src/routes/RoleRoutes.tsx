@@ -7,30 +7,18 @@ import Register from "../pages/register/register";
 import RoleHealth from "../pages/rolehealth/rolehealth";
 
 
+
 const RoleRoutes = [
-  {
-    path: "/",
-    element: <SignInPages />,
-  },
-  {
-    path: "/signup",
-    element: <Register />,
-  },
-  {
-    path: "/register", // ✅ สำหรับลงทะเบียนผู้ป่วย
-    element: <Register />,
-  },
-  {
-    path: "/rolehealth", // ✅ สำหรับนักจิตวิทยา
-    element: <RoleHealth />,
-  },
+  { path: "/", element: <SignInPages /> },
+  { path: "/signup", element: <Register /> },
+  { path: "/register", element: <Register /> },
+  { path: "/rolehealth", element: <RoleHealth /> },
   PatientRoutes,
   PsychologistRoutes,
-  AdminRoutes,
-  {
-    path: "*",
-    element: <Unknown />,
-  },
+  ...AdminRoutes, // ✅ ตอนนี้กระจายได้เลย
+  { path: "*", element: <Unknown /> },
 ];
+
+
 
 export default RoleRoutes;

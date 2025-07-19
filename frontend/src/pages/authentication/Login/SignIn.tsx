@@ -1,10 +1,10 @@
 import { Button, Card, Form, Input, message, Flex, Row, Col } from "antd";
 import { useNavigate } from "react-router";
 import type { SignInInterface } from "../../../interfaces/SignIn";
+import { SignIn, SignInPsychologist, SignInAdmin } from "../../../services/https/Authentication";
 import Swal from "sweetalert2";
 import patientImage from "../../../assets/patient.png";
 import psychologyImage from "../../../assets/psychology.png";
-import { SignIn, SignInPsychologist } from "../../../services/https/Authentication";
 import MindcareImage from "../../../assets/mindcare.png";
 function SignInPages() {
   const navigate = useNavigate();
@@ -15,15 +15,9 @@ function SignInPages() {
   const cleanedValues = { ...values, email };
 
   let res;
-  if (email && (email === "spec@gmail.com" || email === "aqua@gmail.com")) {
-    // call admin sign-in
-    res = await fetch("http://localhost:8000/admin/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cleanedValues),
-    }).then((r) => r.json().then((data) => ({ status: r.status, data })));
-  } 
-  else if (email.endsWith("@depressionrec.go.th")) {
+  if (email === "spec@gmail.com" || email === "aqua@gmail.com") {
+    res = await SignInAdmin(cleanedValues);
+  } else if (email.endsWith("@depressionrec.go.th")) {
     res = await SignInPsychologist(cleanedValues);
   } else {
     res = await SignIn(cleanedValues);
@@ -62,7 +56,7 @@ localStorage.setItem("token", res.data.token);            // ✅ JWT
       messageApi.error("Unknown role");
       return;
     }
-
+  console.log("redirecting to:", redirectPath);
     setTimeout(() => {
       location.href = redirectPath;
     }, 1000);

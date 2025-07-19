@@ -25,8 +25,15 @@ async function SignInPsychologist(data: SignInInterface) {
     .then((res) => res)
     .catch((e) => e.response);
 }
+async function SignInAdmin(data: SignInInterface) {
+  return await axios
+    .post(`${apiUrl}/admin/signin`, data, { headers: getAuthHeaders()} )
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
 export {
   SignIn,
   SignInPsychologist,
+  SignInAdmin, 
 };

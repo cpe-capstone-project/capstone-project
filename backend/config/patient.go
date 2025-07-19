@@ -10,6 +10,7 @@ func SetupPatientDatabase() {
        &entity.Patients{},
        &entity.Genders{},
        &entity.Roles{},
+	   &entity.Admin{},
    	)
 
    	GenderMale := entity.Genders{Gender: "Male"}

@@ -1,6 +1,6 @@
 // src/components/navbar/AdminSidebar.tsx
 import { Link } from "react-router-dom";
-import "./bunny.css";
+import "./AdminSidebar.css";
 
 const AdminSidebar = () => {
   return (

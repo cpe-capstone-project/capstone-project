@@ -288,6 +288,30 @@ func VerifyPsychologistCode(c *gin.Context) {
 		"psychologist_id":  matchedPsychologistID,
 	})
 }
+func GetAllPatients(c *gin.Context) {
+	db := config.DB()
+	var patients []entity.Patients
+
+	if err := db.Preload("Gender").Find(&patients).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve patients"})
+		return
+	}
+
+	var results []gin.H
+	for _, p := range patients {
+		results = append(results, gin.H{
+			"id":        p.ID,
+			"first_name": p.FirstName,
+			"last_name":  p.LastName,
+			"email":      p.Email,
+			"age":        p.Age,
+			"gender": p.Gender.Gender,
+			"birthday":   p.BirthDay.Format("2006-01-02"),
+		})
+	}
+
+	c.JSON(http.StatusOK, results)
+}
 
 
 // func SignIn(c *gin.Context) {

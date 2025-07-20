@@ -22,10 +22,10 @@ func Register(c *gin.Context) {
 	dobStr := c.PostForm("dob")
 	phone := c.PostForm("phone")
 	medicalLicense := c.PostForm("medicalLicense")
-	email := strings.ToLower(strings.TrimSpace(c.PostForm("email"))) // ✅ ตรงนี้!
+	email := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
 	password := c.PostForm("password")
 	roleIDStr := c.PostForm("role_id")
-	genderIDStr := c.PostForm("gender_id") // ✅
+	genderIDStr := c.PostForm("gender_id")
 
 	// แปลง role_id และ gender_id
 	roleIDUint64, err := strconv.ParseUint(roleIDStr, 10, 64)
@@ -62,33 +62,42 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, _ := config.HashPassword(password)
-
-	file, err := c.FormFile("licenseImage")
+	// ✅ แปลงและ validate อายุ
+	ageStr := c.PostForm("age")
+	ageInt, err := strconv.Atoi(ageStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Missing license image"})
-		return
-	}
-	filename := fmt.Sprintf("uploads/licenses/%d_%s", time.Now().Unix(), filepath.Base(file.Filename))
-	if err := c.SaveUploadedFile(file, filename); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save file"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid age"})
 		return
 	}
 
-	// บันทึก
-	user := entity.Psychologist{
-		FirstName:      firstName,
-		LastName:       lastName,
-		DOB:            dob,
-		Phone:          phone,
-		MedicalLicense: medicalLicense,
-		Email:          email,
-		PasswordHash:   hashedPassword,
-		LicenseImage:   filename,
-		RoleID:         roleID,
-		GenderID:       genderID,
-	}
-//
+	hashedPassword, _ := config.HashPassword(password)
+file, err := c.FormFile("licenseImage")
+if err != nil {
+	c.JSON(http.StatusBadRequest, gin.H{"message": "Missing license image"})
+	return
+}
+filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(file.Filename)) // ชื่อไฟล์อย่างเดียว
+filepathToSave := "uploads/licenses/" + filename                                   // path เต็มไว้บันทึก
+if err := c.SaveUploadedFile(file, filepathToSave); err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save file"})
+	return
+}
+
+user := entity.Psychologist{
+	FirstName:      firstName,
+	LastName:       lastName,
+	DOB:            dob,
+	Age:            ageInt,
+	Phone:          phone,
+	MedicalLicense: medicalLicense,
+	Email:          email,
+	PasswordHash:   hashedPassword,
+	LicenseImage:   "licenses/" + filename, // ✅ เก็บ path ย่อย
+	RoleID:         roleID,
+	GenderID:       genderID,
+}
+
+
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -96,6 +105,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Register successful"})
 }
+
 
 
 func Login(c *gin.Context) {
@@ -226,3 +236,31 @@ func UpdateProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
+func GetAllPsychologists(c *gin.Context) {
+	db := config.DB()
+
+	var psychologists []entity.Psychologist
+
+	// ดึงข้อมูล พร้อมเพศ (Genders)
+	if err := db.Preload("Gender").Find(&psychologists).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve psychologists"})
+		return
+	}
+
+	var results []gin.H
+	for _, p := range psychologists {
+		results = append(results, gin.H{
+			"id":                 p.ID,
+			"first_name":         p.FirstName,
+			"last_name":          p.LastName,
+			"email":              p.Email,
+			"age":                p.Age,               // ✅ ใช้ field ที่เก็บไว้
+			"gender":             p.Gender.Gender,     // ✅ ชื่อเพศ
+			"certificate_number": p.MedicalLicense,
+			"certificate_file":   p.LicenseImage,
+		})
+	}
+
+	c.JSON(http.StatusOK, results)
+}
+

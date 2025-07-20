@@ -5,50 +5,111 @@
 
 .adminxx-cards {
   display: flex;
-  gap: 20px;
+  gap: 60px;
   margin-bottom: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .adminxx-card {
-  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 250px;
+  height:130px;
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 18px;
   color: white;
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  font-family: "Kanit", sans-serif;
+  position: relative;
 }
 
-.adminxx-card span {
-  display: block;
-  margin-top: 10px;
-  font-size: 24px;
+.adminxx-card img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  margin: 0;
 }
+
+.card-icon-wrapper {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card-left p {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+
+
+.card-right h3 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: bold;
+  margin-top: 14px; /* ✅ เพิ่มบรรทัดนี้ */
+}
+
+.card-right span {
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 0; /* ✅ เอา margin-top ออก */
+  align-self: flex-end; /* ✅ จัดชิดขวา */
+}
+
 
 .turquoise {
-  background: linear-gradient(to right, #2ed8b6, #59e0c5);
+  background: linear-gradient(135deg, #2ed8b6, #59e0c5);
 }
+
 .blue {
-  background: linear-gradient(to right, #4099ff, #73b4ff);
+  background: linear-gradient(135deg, #4099ff, #73b4ff);
 }
+
 .pink {
-  background: linear-gradient(to right, #ff5370, #ff869a);
+  background: linear-gradient(135deg, #ff5370, #ff869a);
 }
+
 .purple {
-  background: linear-gradient(to right, #a890f0, #c9b6fc);
+  background: linear-gradient(135deg, #a890f0, #c9b6fc);
 }
 
 .adminxx-title {
   font-size: 28px;
   font-weight: bold;
-  text-align: center;
   margin-bottom: 20px;
+  color: #000000; /* ฟ้าเข้ม */
 }
 
 .adminxx-tabs {
   display: flex;
-  justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -56,38 +117,45 @@
 .adminxx-tabs button {
   padding: 8px 20px;
   font-weight: bold;
-  border: none;
+  border: 2px solid #90caf9;
   border-radius: 8px;
-  background-color: #eee;
+  color: #1565c0;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: all 0.3s ease;
 }
 
+
 .adminxx-tabs button.active {
-  background-color: #ccc;
+  background-color: #42a5f5;
+  color: white;
+  border-color: #42a5f5;
 }
 
 .adminxx-table table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 8px rgba(66, 165, 245, 0.2);
 }
 
-.adminxx-table th, .adminxx-table td {
+.adminxx-table th,
+.adminxx-table td {
   padding: 14px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #bbdefb;
+  color: #000000; /* ฟ้าเข้มกว่า */
 }
 
 .adminxx-table th {
-  background-color: #f4f4f4;
+  background-color: #bbdefb;
   font-weight: bold;
+  color: #000000;
 }
 
 .delete-btn {
-  background-color: #ccc;
+  background-color: #42a5f5;
   border: none;
   border-radius: 8px;
   padding: 6px 12px;
@@ -98,5 +166,20 @@
 }
 
 .delete-btn:hover {
-  background-color: #ff4d4f;
+  background-color: #1e88e5; /* ฟ้าเข้มเมื่อ hover */
 }
+
+.adminxx-img {
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid #90caf9;
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+}
+
+.adminxx-img:hover {
+  transform: scale(1.8);
+  z-index: 999;
+}
+

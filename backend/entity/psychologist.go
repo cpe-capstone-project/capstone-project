@@ -11,6 +11,7 @@ type Psychologist struct {
 	FirstName      string
 	LastName       string
 	DOB            time.Time
+	Age            int
 	Phone          string    `gorm:"unique"`
 	MedicalLicense string    `gorm:"unique"`
 	Email          string    `gorm:"unique"`

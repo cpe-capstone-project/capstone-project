@@ -10,6 +10,7 @@ const Rolehealth: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    age: "",
     gender: "",
     dob: "",
     phone: "",
@@ -38,6 +39,9 @@ const Rolehealth: React.FC = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.firstName.trim()) newErrors.firstName = "กรุณากรอกชื่อ";
     if (!formData.lastName.trim()) newErrors.lastName = "กรุณากรอกนามสกุล";
+    if (!formData.age || isNaN(Number(formData.age)) || Number(formData.age) < 1) {
+  newErrors.age = "กรุณากรอกอายุ";
+}
     if (!formData.gender) newErrors.gender = "กรุณาเลือกเพศ";
     if (!formData.dob) newErrors.dob = "กรุณาเลือกวันเกิด";
    if (!formData.phone.trim()) {
@@ -100,6 +104,7 @@ const Rolehealth: React.FC = () => {
 
       formPayload.append("firstName", formData.firstName);
       formPayload.append("lastName", formData.lastName);
+      formPayload.append("age", formData.age); 
       formPayload.append("dob", formData.dob);
       formPayload.append("phone", formData.phone);
       formPayload.append("medicalLicense", formData.medicalLicense);
@@ -140,6 +145,7 @@ const Rolehealth: React.FC = () => {
   setFormData({
     firstName: "",
     lastName: "",
+    age: "",
     gender: "",
     dob: "",
     phone: "",
@@ -267,7 +273,18 @@ const Rolehealth: React.FC = () => {
             />
             {errors.lastName && <div className="wellness-error">{errors.lastName}</div>}
           </label>
-
+          <label className="wellness-label">
+  อายุ
+  <input
+    className="wellness-input"
+    type="number"
+    name="age"
+    min="1"
+    value={formData.age}
+    onChange={handleChange}
+  />
+  {errors.age && <div className="wellness-error">{errors.age}</div>}
+</label>
           <label className="wellness-label">
             เพศ
             <select

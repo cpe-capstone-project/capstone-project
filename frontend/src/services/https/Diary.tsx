@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { DiaryInterface } from "../../interfaces/IDiary";
+import type { DiarySummaryInterface } from "../../interfaces/IDiarySummary";
 
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -31,8 +31,14 @@ async function GetDiaryById(id: number) {
     .catch((e) => e.response);
 }
 
+async function GetLatestDiaries(limit = 5) {
+  return await axios
+    .get(`${apiUrl}/diaries/latest?limit=${limit}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
-async function UpdateDiaryById(id: number, data: DiaryInterface) {
+async function UpdateDiaryById(id: number, data: DiarySummaryInterface) {
   return await axios
     .patch(`${apiUrl}/diary/${id}`, data, requestOptions)
     .then((res) => res)
@@ -48,23 +54,34 @@ async function DeleteDiaryById(id: number) {
 }
 
 
-async function CreateDiary(data: DiaryInterface) {
+async function CreateDiary(data: DiarySummaryInterface) {
   return await axios
     .post(`${apiUrl}/diary`, data, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }
-async function GetLatestDiaries(limit = 5) {
+
+async function CreateDiarySummary(data: DiarySummaryInterface) {
   return await axios
-    .get(`${apiUrl}/diaries/latest?limit=${limit}`, requestOptions)
+    .post(`${apiUrl}/diary-summary`, data, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }
+
+async function GetDiarySummaryById(id: number) {
+  return await axios
+    .get(`${apiUrl}/diary-summary/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 export {
   GetDiary,
   GetDiaryById,
+  GetLatestDiaries,
   UpdateDiaryById,
   DeleteDiaryById,
   CreateDiary,
-  GetLatestDiaries,
+  CreateDiarySummary,
+  GetDiarySummaryById,
 };

@@ -83,27 +83,26 @@ if err := c.SaveUploadedFile(file, filepathToSave); err != nil {
 	return
 }
 
-user := entity.Psychologist{
-	FirstName:      firstName,
-	LastName:       lastName,
-	DOB:            dob,
-	Age:            ageInt,
-	Phone:          phone,
-	MedicalLicense: medicalLicense,
-	Email:          email,
-	PasswordHash:   hashedPassword,
-	LicenseImage:   "licenses/" + filename, // ✅ เก็บ path ย่อย
-	RoleID:         roleID,
-	GenderID:       genderID,
+pending := entity.PendingPsychologist{
+    FirstName:      firstName,
+    LastName:       lastName,
+    DOB:            dob,
+    Age:            ageInt,
+    Phone:          phone,
+    MedicalLicense: medicalLicense,
+    Email:          email,
+    PasswordHash:   hashedPassword,
+    LicenseImage:   "licenses/" + filename,
+    RoleID:         roleID,
+    GenderID:       genderID,
 }
 
+if err := db.Create(&pending).Error; err != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+    return
+}
 
-	if err := db.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "Register successful"})
+c.JSON(http.StatusCreated, gin.H{"message": "Register submitted for approval"})
 }
 
 
@@ -239,28 +238,50 @@ func UpdateProfile(c *gin.Context) {
 func GetAllPsychologists(c *gin.Context) {
 	db := config.DB()
 
-	var psychologists []entity.Psychologist
+	var approved []entity.Psychologist
+	var pending []entity.PendingPsychologist
 
-	// ดึงข้อมูล พร้อมเพศ (Genders)
-	if err := db.Preload("Gender").Find(&psychologists).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve psychologists"})
+	if err := db.Preload("Gender").Find(&approved).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve approved psychologists"})
 		return
 	}
 
-	var results []gin.H
-	for _, p := range psychologists {
-		results = append(results, gin.H{
+	if err := db.Preload("Gender").Find(&pending).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve pending psychologists"})
+		return
+	}
+
+	var result []gin.H
+
+	// ✅ แปลง approved psychologists
+	for _, p := range approved {
+		result = append(result, gin.H{
 			"id":                 p.ID,
 			"first_name":         p.FirstName,
 			"last_name":          p.LastName,
 			"email":              p.Email,
-			"age":                p.Age,               // ✅ ใช้ field ที่เก็บไว้
-			"gender":             p.Gender.Gender,     // ✅ ชื่อเพศ
+			"age":                p.Age,
+			"gender":             p.Gender.Gender,
 			"certificate_number": p.MedicalLicense,
 			"certificate_file":   p.LicenseImage,
+			"status":             "approved",
 		})
 	}
 
-	c.JSON(http.StatusOK, results)
-}
+	// ✅ แปลง pending psychologists
+	for _, p := range pending {
+		result = append(result, gin.H{
+			"id":                 p.ID,
+			"first_name":         p.FirstName,
+			"last_name":          p.LastName,
+			"email":              p.Email,
+			"age":                p.Age,
+			"gender":             p.Gender.Gender,
+			"certificate_number": p.MedicalLicense,
+			"certificate_file":   p.LicenseImage,
+			"status":             "pending",
+		})
+	}
 
+	c.JSON(http.StatusOK, result)
+}

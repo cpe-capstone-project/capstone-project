@@ -4,6 +4,7 @@ import (
 	"capstone-project/config"
 	"capstone-project/entity"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -93,4 +94,36 @@ func GetAdminProfile(c *gin.Context) {
 		"email":      admin.Email,
 		"role":       admin.Role.Role,
 	})
+}
+// ✅ ลบ user ตาม ID โดยเช็คทั้งตาราง Patient, Psychologist, PendingPsychologist
+func DeleteUserByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	db := config.DB()
+
+	// ลองลบจาก Patients
+	if err := db.Delete(&entity.Patients{}, id).Error; err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "ลบผู้ป่วยเรียบร้อยแล้ว"})
+		return
+	}
+
+	// ลองลบจาก Psychologists
+	if err := db.Delete(&entity.Psychologist{}, id).Error; err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "ลบนักจิตวิทยาที่อนุมัติแล้วเรียบร้อย"})
+		return
+	}
+
+	// ลองลบจาก PendingPsychologists
+	if err := db.Delete(&entity.PendingPsychologist{}, id).Error; err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "ลบนักจิตวิทยาที่ยังไม่อนุมัติเรียบร้อย"})
+		return
+	}
+
+	// ถ้าไม่พบเลย
+	c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบผู้ใช้นี้ในระบบ"})
 }

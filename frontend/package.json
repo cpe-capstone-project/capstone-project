@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.14.3",
+    "@lottiefiles/react-lottie-player": "^3.6.0",
     "@tiptap/extension-font-family": "^2.14.0",
     "@tiptap/extension-highlight": "^2.14.0",
     "@tiptap/extension-image": "^2.14.0",
@@ -25,6 +27,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-big-calendar": "^1.19.4",

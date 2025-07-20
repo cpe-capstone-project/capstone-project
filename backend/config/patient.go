@@ -11,6 +11,7 @@ func SetupPatientDatabase() {
        &entity.Genders{},
        &entity.Roles{},
 	   &entity.Admin{},
+	   &entity.PendingPsychologist{},
    	)
 
    	GenderMale := entity.Genders{Gender: "Male"}

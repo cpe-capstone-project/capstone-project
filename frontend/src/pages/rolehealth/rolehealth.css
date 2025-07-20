@@ -344,3 +344,69 @@ width: 100%;
     0 0 50px rgba(255, 255, 255, 0.3),
     0 0 70px rgba(34, 99, 115, 0.25);
 }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.approve-waiting {
+  font-size: 1.3rem;
+  color: #226373;
+  margin-top: 1rem;
+  animation: blink 1.5s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.approve-waiting img {
+  width: 32px;
+  height: 32px;
+  margin-right: 0.5rem;
+}
+.spinner-rotate {
+  width: 32px;
+  height: 32px;
+  margin-right: 0.5rem;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.approve-waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #226373;
+  margin-top: 1rem;
+}
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.loading-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 0.8rem;
+  font-family: "Kanit", sans-serif;
+}
+
+.animated-spinner {
+  width: 100px;
+  height: 100px;
+  animation: spin 1.2s linear infinite;
+}
+
+/* หมุนแบบนุ่มนวล */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

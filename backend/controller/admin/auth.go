@@ -56,3 +56,30 @@ func AdminSignIn(c *gin.Context) {
 		},
 	})
 }
+func GetPendingPsychologists(c *gin.Context) {
+    var list []entity.PendingPsychologist
+    db := config.DB()
+
+    if err := db.Preload("Gender").Find(&list).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get pending list"})
+        return
+    }
+
+    var result []gin.H
+    for _, p := range list {
+        result = append(result, gin.H{
+            "id": p.ID,
+            "first_name": p.FirstName,
+            "last_name": p.LastName,
+            "email": p.Email,
+            "age": p.Age,
+            "gender_id": p.GenderID,
+            "dob": p.DOB.Format("2006-01-02"),
+            "phone": p.Phone,
+            "medical_license": p.MedicalLicense,
+            "license_image": p.LicenseImage,
+        })
+    }
+
+    c.JSON(http.StatusOK, result)
+}

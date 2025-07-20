@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./rolehealth.css";
-
-
+import { useEffect } from "react";
 const Rolehealth: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -156,6 +155,7 @@ const Rolehealth: React.FC = () => {
   });
   setAttachedFile(null);
   setErrors({});
+  setRegisteredEmail(formData.email);
   setStep(3); // แสดงหน้า success
 }
         // หรือ navigate("/login");
@@ -213,6 +213,60 @@ const Rolehealth: React.FC = () => {
       });
     }
   };
+const [registeredEmail, setRegisteredEmail] = useState("");
+
+useEffect(() => {
+  if (step === 3 && registeredEmail) {
+    const ws = new WebSocket("ws://localhost:8000/ws/approval");
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ email: registeredEmail }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.status === "approved") {
+       Swal.fire({
+  title: "✅ ได้รับการอนุมัติแล้ว",
+  html: `
+    <div style="font-size: 1rem; margin-bottom: 1rem;">
+      บัญชีของคุณได้รับการอนุมัติเรียบร้อยแล้ว
+    </div>
+    <div style="font-weight: bold; font-size: 1rem; margin-bottom: 0.5rem;">
+      Your Verify Code (PIN):
+    </div>
+    <div style="
+      font-size: 2rem;
+      font-weight: 600;
+      background: #f2f2f2;
+      padding: 0.1rem 1.5rem;
+      border-radius: 10px;
+      display: inline-block;
+      letter-spacing: 2px;
+      color: #333;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    ">
+      ${data.verify_code}
+    </div>
+  `,
+  icon: "success",
+  confirmButtonText: "เข้าสู่ระบบ",
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  preConfirm: () => {
+    navigate("/"); // ⬅️ ปลอดภัยและแน่นอน
+  },
+});
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }
+}, [step, registeredEmail, navigate]);
+
+
 
   return (
     <div className="rolehealth-background">
@@ -452,19 +506,18 @@ const Rolehealth: React.FC = () => {
         </>
       )}
 
-      {/* Step 3: Success */}
-      {step === 3 && (
-        <div className="success-page">
-          <h3 className="success-message">🎉 การลงทะเบียนเสร็จสมบูรณ์</h3>
-          <p className="success-subtext">ขอบคุณที่ลงทะเบียนกับเรา</p>
-          <button
-            className="wellness-submit-button"
-            onClick={() => navigate("/")}
-          >
-            ไปหน้าหลัก
-          </button>
-        </div>
-      )}
+     
+{step === 3 && (
+  <div className="success-page">
+    <h3 className="success-message">📩 รอการอนุมัติจากแอดมิน</h3>
+    <p className="success-subtext">
+      ขอบคุณสำหรับการลงทะเบียน กรุณารอสักครู่ ระบบจะนำคุณไปยังหน้าหลักหลังได้รับการอนุมัติ
+    </p>
+  </div>
+)}
+
+
+
     </form>
     </div>
   );

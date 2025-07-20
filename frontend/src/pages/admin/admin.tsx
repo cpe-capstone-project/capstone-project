@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios"; // ต้องติดตั้ง axios: npm install axios
+import axios from "axios";
 import "./admin.css";
 import Swal from "sweetalert2";
 
@@ -14,69 +14,118 @@ interface User {
   certificateNumber?: string;
   certificateFile?: string;
   role: "Patient" | "Psychologist";
+  status?: "pending" | "approved";
 }
-const handleImageClick = (imgUrl: string) => {
-  Swal.fire({
-    title: "ไฟล์ใบรับรองแพทย์",
-    imageUrl: imgUrl,
-    imageWidth: 400,
-    imageAlt: "Certificate Image",
-    showCloseButton: true,
-    showConfirmButton: false, // ❌ เอาปุ่ม "ปิด" ออก
-    background: "#fff",
-  });
-};
-
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState<"Patient" | "Psychologist">("Patient");
 
+  // ✅ ดึงข้อมูล
+  const fetchUsers = async () => {
+    try {
+      const [patientsRes, psychologistsRes] = await Promise.all([
+        axios.get("http://localhost:8000/admin/patients"),
+        axios.get("http://localhost:8000/admin/psychologists"),
+      ]);
+
+      const patients: User[] = patientsRes.data.map((p: any) => ({
+        id: p.id,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        email: p.email,
+        age: p.age,
+        gender: p.gender,
+        birthday: p.birthday,
+        role: "Patient",
+      }));
+
+      const psychologists: User[] = psychologistsRes.data.map((p: any) => ({
+        id: p.id,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        email: p.email,
+        age: p.age,
+        gender: p.gender,
+        certificateNumber: p.certificate_number,
+        certificateFile: p.certificate_file,
+        role: "Psychologist",
+        status: p.status || "pending",
+      }));
+
+      setUsers([...patients, ...psychologists]);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const [patientsRes, psychologistsRes] = await Promise.all([
-         axios.get("http://localhost:8000/admin/patients"),
-         axios.get("http://localhost:8000/admin/psychologists"),
-        ]);
-
-        const patients: User[] = patientsRes.data.map((p: any) => ({
-          id: p.id,
-          firstName: p.first_name,
-          lastName: p.last_name,
-          email: p.email,
-          age: p.age,
-          gender: p.gender,
-          birthday: p.birthday,
-          role: "Patient",
-        }));
-
-        const psychologists: User[] = psychologistsRes.data.map((p: any) => ({
-          id: p.id,
-          firstName: p.first_name,
-          lastName: p.last_name,
-          email: p.email,
-          age: p.age,
-          gender: p.gender,
-          certificateNumber: p.certificate_number,
-          certificateFile: p.certificate_file,
-          role: "Psychologist",
-        }));
-
-        setUsers([...patients, ...psychologists]);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
     fetchUsers();
   }, []);
 
+  // ✅ อนุมัติ
+  const handleApprove = async (id: number) => {
+    try {
+      await axios.post(`http://localhost:8000/admin/approve-psychologist/${id}`);
+      Swal.fire("สำเร็จ!", "อนุมัติเรียบร้อยแล้ว", "success");
+      fetchUsers(); // รีโหลดข้อมูลใหม่
+    } catch (error) {
+      Swal.fire("ผิดพลาด", "ไม่สามารถอนุมัติได้", "error");
+    }
+  };
+
+  // ✅ แสดงภาพ
+  const handleImageClick = (imgUrl: string) => {
+    Swal.fire({
+      title: "ไฟล์ใบรับรองแพทย์",
+      imageUrl: imgUrl,
+      imageWidth: 400,
+      imageAlt: "Certificate Image",
+      showCloseButton: true,
+      showConfirmButton: false,
+      background: "#fff",
+    });
+  };
+
+  // ✅ สถิติ
   const totalUsers = users.length;
   const patientCount = users.filter((u) => u.role === "Patient").length;
   const psychologistCount = users.filter((u) => u.role === "Psychologist").length;
   const filteredUsers = users.filter((u) => u.role === activeTab);
+const handleDelete = async (id: number) => {
+  const result = await Swal.fire({
+    title: "ยืนยันการลบ?",
+    text: "คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "ลบ",
+    cancelButtonText: "ยกเลิก",
+  });
 
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`http://localhost:8000/admin/delete-user/${id}`);
+      Swal.fire("ลบเรียบร้อยแล้ว", "", "success");
+      fetchUsers(); // อัปเดตข้อมูลใหม่
+    } catch (error) {
+      Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบได้", "error");
+    }
+  }
+};
+useEffect(() => {
+  const ws = new WebSocket("ws://localhost:8000/ws/approve");
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.status === "approved") {
+      fetchUsers();
+    }
+  };
+
+  return () => {
+    ws.close();
+  };
+}, []);
   return (
     <div className="adminxx-wrapper">
       <div className="adminxx-cards">
@@ -161,52 +210,70 @@ const AdminDashboard = () => {
               {activeTab === "Patient" ? <th>วันเกิด</th> : <>
                 <th>เลขที่ใบรับรอง</th>
                 <th>ไฟล์ใบรับรอง</th>
+                <th>สถานะ</th>
               </>}
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
-                <td>{user.email}</td>
-                <td>{user.age}</td>
-                <td>{user.gender}</td>
-                {activeTab === "Patient" ? (
-  <td>{user.birthday}</td>
-) : (
-  <>
-    <td>{user.certificateNumber}</td>
-  <td>
-  <img
-    src={
-      user.certificateFile?.startsWith("http")
-        ? user.certificateFile
-        : `http://localhost:8000/uploads/${user.certificateFile}`
-    }
-    alt="cert"
-    className="adminxx-img"
-    onClick={() =>
-      handleImageClick(
-        user.certificateFile?.startsWith("http")
-          ? user.certificateFile
-          : `http://localhost:8000/uploads/${user.certificateFile}`
-      )
-    }
-    style={{ cursor: "pointer" }}
-  />
+  {filteredUsers.map((user) => (
+    <tr key={user.id}>
+      <td>{user.firstName}</td>
+      <td>{user.lastName}</td>
+      <td>{user.email}</td>
+      <td>{user.age}</td>
+      <td>{user.gender}</td>
+
+      {activeTab === "Patient" ? (
+        <td>{user.birthday}</td>
+      ) : (
+        <>
+          <td>{user.certificateNumber}</td>
+          <td>
+            <img
+              src={
+                user.certificateFile?.startsWith("http")
+                  ? user.certificateFile
+                  : `http://localhost:8000/uploads/${user.certificateFile}`
+              }
+              alt="cert"
+              className="adminxx-img"
+              onClick={() =>
+                handleImageClick(
+                  user.certificateFile?.startsWith("http")
+                    ? user.certificateFile
+                    : `http://localhost:8000/uploads/${user.certificateFile}`
+                )
+              }
+              style={{ cursor: "pointer" }}
+            />
+          </td>
+          <td>
+            {user.status === "approved" ? (
+              <span className="badge approved">อนุมัติแล้ว</span>
+            ) : (
+              <span className="badge pending">รออนุมัติ</span>
+            )}
+          </td>
+        </>
+      )}
+<td>
+  <div className="adminxx-btn-group">
+    {user.role === "Psychologist" && user.status !== "approved" && (
+      <button className="ava-btn ava-approve-btn" onClick={() => handleApprove(user.id)}>
+        อนุมัติ
+      </button>
+    )}
+   <button className="ava-btn ava-delete-btn" onClick={() => handleDelete(user.id)}>
+  Delete Account
+</button>
+
+  </div>
 </td>
 
-
-  </>
-)}
-                <td>
-                  <button className="delete-btn">Delete Account</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

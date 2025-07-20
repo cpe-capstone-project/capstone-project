@@ -5,6 +5,6 @@ export interface DiaryInterface {
   Title?: string;
   Content?: string;
   UpdatedAt?: string;
-  TagColors?: string; // Array of color strings
+  TagColors?: string;
   TherapyCaseID?: number;
 }

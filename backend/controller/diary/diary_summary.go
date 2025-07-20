@@ -14,15 +14,33 @@ import (
 )
 
 type SummaryRequest struct {
-	TherapyCaseID uint      `json:"therapy_case_id"`
-	Timeframe     string    `json:"timeframe"`
-	StartDate     time.Time `json:"start_date"`
-	EndDate       time.Time `json:"end_date"`
+	TherapyCaseID uint
+	Timeframe     string
+	StartDate     time.Time
+	EndDate       time.Time
 }
 
 func stripHTMLTags(input string) string {
     re := regexp.MustCompile(`<[^>]*>`)
     return re.ReplaceAllString(input, "")
+}
+
+// GET /diary-summary/:id
+func GetDiarySummaryByID(c *gin.Context){
+	ID := c.Param("id")
+	var diary_summary entity.DiarySummary
+
+	db := config.DB()
+	results := db.First(&diary_summary, ID)
+	if results.Error != nil{
+		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
+		return
+	}
+	if diary_summary.ID == 0{
+		c.JSON(http.StatusNoContent, gin.H{"error": results.Error.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, diary_summary)
 }
 
 func SummarizeDiaries(c *gin.Context) {

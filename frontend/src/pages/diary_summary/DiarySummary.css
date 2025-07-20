@@ -68,42 +68,40 @@
     flex-direction: column;
     gap: var(--space-md);
 
-    h1 {
-        font-size: var(--font-size-lg);
-    }
-}
-
-.summary-card {
-  position: relative;
-  border-radius: var(--radius-lg); /* rounded-xl */
-  padding-top: 132px;
+  }
+  
+  .summary-card {
+    position: relative;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
   overflow: hidden; /* กัน blur ล้นขอบ */
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-   overflow: hidden;
-   margin-bottom: var(--space-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
 }
 
 .summary-card-content {
   position: relative;
   z-index: 1; /* ให้เนื้อหาอยู่บน background เบลอ */
   display: flex;
+  flex-direction: column;
   width: 100%;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   padding: var(--space-md);
+  color: white;
+
+  h1 {
+      font-size: var(--font-size-lg);
+  }
+
+  p {
+    /* font-weight: bold; */
+    font-size: var(--font-size-md); 
+  } 
 }
 
-.summary-text {
-color: white;
-  font-weight: bold;
-  font-size: 1.5rem; /* Tailwind: text-2xl */
-  line-height: 1.25; /* Tailwind: leading-tight */
-  flex: 1;
-  letter-spacing: -0.015em; /* Tailwind: tracking-light */
-} 
 
 @keyframes moveBackground {
   0% {
@@ -140,4 +138,58 @@ color: white;
   font-weight: 500; /* font-medium */
   line-height: 1.25rem; /* leading-normal */
   margin: 0;
+}
+
+.custom-date-container {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.date-picker-group input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.summary-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
+
+.summary-button {
+    width: 50%;
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.summary-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #ffe6e6;
+  border-radius: 4px;
+  border: 1px solid #ffcccc;
 }

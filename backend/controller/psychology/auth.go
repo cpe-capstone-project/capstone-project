@@ -71,31 +71,32 @@ func Register(c *gin.Context) {
 	}
 
 	hashedPassword, _ := config.HashPassword(password)
+file, err := c.FormFile("licenseImage")
+if err != nil {
+	c.JSON(http.StatusBadRequest, gin.H{"message": "Missing license image"})
+	return
+}
+filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(file.Filename)) // ชื่อไฟล์อย่างเดียว
+filepathToSave := "uploads/licenses/" + filename                                   // path เต็มไว้บันทึก
+if err := c.SaveUploadedFile(file, filepathToSave); err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save file"})
+	return
+}
 
-	file, err := c.FormFile("licenseImage")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Missing license image"})
-		return
-	}
-	filename := fmt.Sprintf("uploads/licenses/%d_%s", time.Now().Unix(), filepath.Base(file.Filename))
-	if err := c.SaveUploadedFile(file, filename); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save file"})
-		return
-	}
+user := entity.Psychologist{
+	FirstName:      firstName,
+	LastName:       lastName,
+	DOB:            dob,
+	Age:            ageInt,
+	Phone:          phone,
+	MedicalLicense: medicalLicense,
+	Email:          email,
+	PasswordHash:   hashedPassword,
+	LicenseImage:   "licenses/" + filename, // ✅ เก็บ path ย่อย
+	RoleID:         roleID,
+	GenderID:       genderID,
+}
 
-	user := entity.Psychologist{
-		FirstName:      firstName,
-		LastName:       lastName,
-		DOB:            dob,
-		Age:            ageInt,
-		Phone:          phone,
-		MedicalLicense: medicalLicense,
-		Email:          email,
-		PasswordHash:   hashedPassword,
-		LicenseImage:   filename,
-		RoleID:         roleID,
-		GenderID:       genderID,
-	}
 
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

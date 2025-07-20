@@ -14,7 +14,7 @@ const PORT = "8000"
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CORSMiddleware())
-
+	r.Static("/uploads", "./uploads")
 	// Public Routes
 	SetupAuthenticationRoutes(r)
 	SetupPsychologistRoutes(r)

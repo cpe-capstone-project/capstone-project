@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios"; // ต้องติดตั้ง axios: npm install axios
 import "./admin.css";
+import Swal from "sweetalert2";
 
 interface User {
   id: number;
@@ -14,6 +15,18 @@ interface User {
   certificateFile?: string;
   role: "Patient" | "Psychologist";
 }
+const handleImageClick = (imgUrl: string) => {
+  Swal.fire({
+    title: "ไฟล์ใบรับรองแพทย์",
+    imageUrl: imgUrl,
+    imageWidth: 400,
+    imageAlt: "Certificate Image",
+    showCloseButton: true,
+    showConfirmButton: false, // ❌ เอาปุ่ม "ปิด" ออก
+    background: "#fff",
+  });
+};
+
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -161,13 +174,33 @@ const AdminDashboard = () => {
                 <td>{user.age}</td>
                 <td>{user.gender}</td>
                 {activeTab === "Patient" ? (
-                  <td>{user.birthday}</td>
-                ) : (
-                  <>
-                    <td>{user.certificateNumber}</td>
-                    <td><img src={user.certificateFile} alt="cert" className="adminxx-img" /></td>
-                  </>
-                )}
+  <td>{user.birthday}</td>
+) : (
+  <>
+    <td>{user.certificateNumber}</td>
+  <td>
+  <img
+    src={
+      user.certificateFile?.startsWith("http")
+        ? user.certificateFile
+        : `http://localhost:8000/uploads/${user.certificateFile}`
+    }
+    alt="cert"
+    className="adminxx-img"
+    onClick={() =>
+      handleImageClick(
+        user.certificateFile?.startsWith("http")
+          ? user.certificateFile
+          : `http://localhost:8000/uploads/${user.certificateFile}`
+      )
+    }
+    style={{ cursor: "pointer" }}
+  />
+</td>
+
+
+  </>
+)}
                 <td>
                   <button className="delete-btn">Delete Account</button>
                 </td>

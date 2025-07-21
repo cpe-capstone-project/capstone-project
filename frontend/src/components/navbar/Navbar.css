@@ -274,3 +274,34 @@
   width: 110px;
   box-sizing: border-box;
 }
+/* 🔷 Sidebar */
+.xbn-profile-sidebar,
+.xbn-profile-sidebar-edit {
+  background-color: #e7f3fc; /* ฟ้าอ่อน */
+  box-shadow: 0 0 10px rgba(0, 136, 204, 0.08);
+}
+
+.xbn-profile-sidebar li,
+.xbn-profile-sidebar-edit li {
+  background-color: #ffffff;
+}
+
+
+/* 🔷 โปรไฟล์ตรงกลาง */
+.xbn-profile-img {
+  background-color: #d9efff;
+  border: 3px solid #7ecfff;
+}
+
+/* 🔷 ช่องข้อมูลโปรไฟล์ */
+.xbn-profile-row {
+  border-bottom: 1px solid #cbe8f7;
+}
+
+
+.xbn-profile-info-form .swal2-input {
+  background-color: #f0faff;
+  border: 1px solid #b3e0f7;
+  border-radius: 8px;
+}
+

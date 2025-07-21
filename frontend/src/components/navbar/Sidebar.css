@@ -169,3 +169,185 @@
   background-color: #000000;
   margin: 1rem 0;
 }
+/* wrapper ของ popup ทั้งหมด */
+.psymeddc-popup {
+  display: flex;
+  gap: 5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* sidebar เมนูด้านซ้าย */
+.psymeddc-profile-sidebar {
+  background-color: #e7f3fc;
+  box-shadow: 0 0 10px rgba(0, 136, 204, 0.08);
+  padding: 1.5rem 1rem;
+  border-radius: 1rem;
+  width: 160px;
+  font-size: 15px;
+  font-family: 'Prompt', sans-serif;
+}
+
+.psymeddc-profile-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.psymeddc-profile-sidebar li {
+  padding: 10px 5px;
+  color: #333;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.3s ease;
+  background-color: #ffffff;
+}
+
+.psymeddc-profile-sidebar li:hover {
+  background-color: #cce9fb;
+  font-weight: 500;
+}
+
+/* รูปโปรไฟล์ตรงกลาง */
+.psymeddc-profile-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.psymeddc-profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #d9efff;
+  border: 3px solid #7ecfff;
+}
+
+.psymeddc-profile-row:first-child {
+  margin-top: 20px;
+}
+
+.psymeddc-profile-info {
+  flex: 1;
+  font-family: 'Prompt', sans-serif;
+  font-size: 15px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.psymeddc-profile-row {
+  display: flex;
+  justify-content: left;
+  gap: 20px;
+  border-bottom: 1px solid #cbe8f7;
+  padding-bottom: 4px;
+}
+
+.psymeddc-profile-row span:first-child {
+  font-weight: bold;
+  min-width: 100px;
+}
+
+/* แบบฟอร์มแก้ไขด้านขวา */
+.psymeddc-profile-info-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1.2rem;
+  max-width: 450px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 15px;
+  margin-top: 5px;
+  margin-left: 0;
+}
+
+.psymeddc-profile-info-form label {
+  display: flex;
+  flex-direction: column;
+  color: #000000;
+  gap: 4px;
+}
+
+.psymeddc-profile-info-form span {
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.psymeddc-profile-info-form .swal2-input {
+  font-size: 14px;
+  padding: 6px 10px;
+  width: 110px;
+  box-sizing: border-box;
+  background-color: #f0faff;
+  border: 1px solid #b3e0f7;
+  border-radius: 8px;
+}
+
+.psymeddc-profile-info-form .swal2-input:focus {
+  border-color: #50bdf7;
+  box-shadow: 0 0 0 2px rgba(80, 189, 247, 0.2);
+}
+
+/* ครอบทั้งหมด: จัด 3 ส่วนในแถวเดียว */
+.psymeddc-popup {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+/* Sidebar แก้ไข */
+.psymeddc-profile-sidebar-edit {
+  background-color: #e7f3fc;
+  box-shadow: 0 0 10px rgba(0, 136, 204, 0.08);
+  padding: 1.5rem 1rem;
+  border-radius: 1rem;
+  width: 150px;
+  margin-left: 0;
+  font-size: 15px;
+  font-family: 'Prompt', sans-serif;
+}
+
+.psymeddc-profile-sidebar-edit ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.psymeddc-profile-sidebar-edit li {
+  padding: 10px 5px;
+  color: #000000;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.3s ease;
+  background-color: #ffffff;
+}
+
+.psymeddc-profile-sidebar-edit li:hover {
+  background-color: #cce9fb;
+  font-weight: 500;
+}
+
+.psymeddc-dfg {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-left: 20px;
+}
+
+.psymeddc-tigerd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+  margin-right: -80px;
+}

@@ -251,8 +251,22 @@ width: "850px",
 };
 
   const out = () => {
-    localStorage.clear();
+     // ✅ เก็บค่า loginHistory และ currentLoginUser ไว้
+  const historyKeys = Object.keys(localStorage).filter(key =>
+    key.startsWith("loginHistory-") || key === "currentLoginUser"
+  );
+  const historyData: Record<string, string> = {};
+  for (const key of historyKeys) {
+    historyData[key] = localStorage.getItem(key)!;
+  }
 
+  // 🔥 ลบทุกค่า
+  localStorage.clear();
+
+  // ✅ คืนค่าประวัติ login กลับไป
+  for (const key in historyData) {
+    localStorage.setItem(key, historyData[key]);
+  }
     const Toast = Swal.mixin({
       toast: true,
       position: "top-end",

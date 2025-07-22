@@ -5,6 +5,7 @@ import withReactContent from "sweetalert2-react-content";
 import "./HomePage.css";
 //import { GetLatestDiaries } from "../../services/https/Diary";
 //import type { DiaryInterface } from "../../interfaces/IDiary";
+//import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 
 
 function HomePage() {
@@ -180,108 +181,111 @@ const toggleChecklistItem = (idx: number) => {
 };
 
 return (
-  <div className="potatopsy-cards">
-  {/* จำนวนเข้าใช้ระบบ */}
-  <div className="potatopsy-card turquoise">
-    <div className="potatopsy-card-left">
-      <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/2198/2198366.png" alt="login" />
-      </div>
-      <p>จำนวนเข้าใช้ระบบ</p>
-    </div>
-    <div className="potatopsy-card-right">
-     <h3>{loginCount} ครั้ง</h3>
-<span>
-  {percentChange >= 0 ? "+" : ""}
-  {percentChange.toFixed(1)}% จากเมื่อวาน
-</span>
-    </div>
-  </div>
-
-  {/* เวลา */}
-  <div className="potatopsy-card blue">
-    <div className="potatopsy-card-left">
-      <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/992/992700.png" alt="time" />
-      </div>
-      <p>เวลา</p>
-    </div>
-    <div className="potatopsy-card-right">
-      <h3>{formattedTime}</h3>
-      <span>อัปเดตล่าสุด</span>
-    </div>
-  </div>
-
-  {/* วันที่ */}
-  <div className="potatopsy-card pink">
-    <div className="potatopsy-card-left">
-      <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/12887/12887924.png" alt="calendar" />
-      </div>
-      <p>วันที่</p>
-    </div>
-    <div className="potatopsy-card-right">
-      <h3>{formattedDate}</h3>
-      <span>ปัจจุบัน</span>
-    </div>
-  </div>
-
-  {/* จำนวนข้อความ */}
-  <div className="potatopsy-card green">
-    <div className="potatopsy-card-left">
-      <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/542/542638.png" alt="message" />
-      </div>
-      <p>จำนวนข้อความ</p>
-    </div>
-    <div className="potatopsy-card-right">
-      <h3>{messageCount} ข้อความ</h3>
-      <span>+8.3% สัปดาห์นี้</span>
-    </div>
-    </div>
-
-  <div className="summary-wrapper">
-  <div className="summary-columns">
-    {/* ฝั่งซ้าย */}
-    <div className="summary-column">
-      <div className="summary-box">
-        <h3 className="summary-title">CHECKLIST</h3>
-        <ul className="checklist-items">
-          {checklist.map((item, idx) => (
-            <li key={idx} onClick={() => toggleChecklistItem(idx)} style={{ cursor: "pointer" }}>
-              <img
-                src={
-                  status[idx]
-                    ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
-                    : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
-                }
-                width={20}
-                style={{ marginRight: "8px" }}
-              />
-              {item}
-            </li>
-          ))}
-        </ul>
+  <>
+    {/* ส่วนบน: การ์ด potatopsy */}
+    <div className="potatopsy-cards">
+      {/* จำนวนเข้าใช้ระบบ */}
+      <div className="potatopsy-card turquoise">
+        <div className="potatopsy-card-left">
+          <div className="potatopsy-card-icon-wrapper">
+            <img src="https://cdn-icons-png.flaticon.com/128/2198/2198366.png" alt="login" />
+          </div>
+          <p>จำนวนเข้าใช้ระบบ</p>
+        </div>
+        <div className="potatopsy-card-right">
+          <h3>{loginCount} ครั้ง</h3>
+          <span>
+            {percentChange >= 0 ? "+" : ""}
+            {percentChange.toFixed(1)}% จากเมื่อวาน
+          </span>
+        </div>
       </div>
 
-      <div className="summary-box">
-        <h3 className="summary-title">Feedback</h3>
+      {/* เวลา */}
+      <div className="potatopsy-card blue">
+        <div className="potatopsy-card-left">
+          <div className="potatopsy-card-icon-wrapper">
+            <img src="https://cdn-icons-png.flaticon.com/128/992/992700.png" alt="time" />
+          </div>
+          <p>เวลา</p>
+        </div>
+        <div className="potatopsy-card-right">
+          <h3>{formattedTime}</h3>
+          <span>อัปเดตล่าสุด</span>
+        </div>
+      </div>
+
+      {/* วันที่ */}
+      <div className="potatopsy-card pink">
+        <div className="potatopsy-card-left">
+          <div className="potatopsy-card-icon-wrapper">
+            <img src="https://cdn-icons-png.flaticon.com/128/12887/12887924.png" alt="calendar" />
+          </div>
+          <p>วันที่</p>
+        </div>
+        <div className="potatopsy-card-right">
+          <h3>{formattedDate}</h3>
+          <span>ปัจจุบัน</span>
+        </div>
+      </div>
+
+      {/* จำนวนข้อความ */}
+      <div className="potatopsy-card green">
+        <div className="potatopsy-card-left">
+          <div className="potatopsy-card-icon-wrapper">
+            <img src="https://cdn-icons-png.flaticon.com/128/542/542638.png" alt="message" />
+          </div>
+          <p>จำนวนข้อความ</p>
+        </div>
+        <div className="potatopsy-card-right">
+          <h3>{messageCount} ข้อความ</h3>
+          <span>+8.3% สัปดาห์นี้</span>
+        </div>
       </div>
     </div>
 
-    {/* ฝั่งขวา */}
-    <div className="summary-column">
-      <div className="summary-box">
-        <h3 className="summary-title">สรุป Summary Text(Diary)</h3>
-      </div>
-
-      <div className="summary-box">
-        <h3 className="summary-title">สรุปอารมณ์ Thought Record</h3>
-      </div>
-    </div>
-  </div>
+    {/* ส่วนล่าง: Billyboy Dashboard */}
+    <div className="billyboy-grid">
+      <div className="billyboy-row">
+       <div className="billyboy-card billyboy-big">
+  <h3>CHECKLIST</h3>
+  <ul style={{ listStyle: "none", padding: 0, marginTop: "1rem" }}>
+    {checklist.map((item, idx) => (
+      <li
+        key={idx}
+        onClick={() => toggleChecklistItem(idx)}
+        style={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <img
+          src={
+            status[idx]
+              ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
+              : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
+          }
+          width={20}
+          style={{ marginRight: "8px" }}
+          alt={status[idx] ? "checked" : "unchecked"}
+        />
+        {item}
+      </li>
+    ))}
+  </ul>
 </div>
-</div>
+        <div className="billyboy-card">Feedback</div>
+        <div className="billyboy-card">สรุป Summary Text(Diary)</div>
+      </div>
+
+      <div className="billyboy-row">
+        <div className="billyboy-card billyboy-wide">Overview</div>
+        <div className="billyboy-card">สรุปอารมณ์ Thought Record</div>
+      </div>
+    </div>
+  </>
 );
 }
 export default HomePage;

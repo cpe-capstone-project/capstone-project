@@ -89,12 +89,38 @@ const getTodayChecklistIndex = () => {
 
   return diffInDays;
 };
+const loginHistory = JSON.parse(localStorage.getItem("loginHistory") || "{}");
+const today = new Date();
+const todayStr = today.toLocaleDateString("th-TH");
+
+// คำนวณวันที่เมื่อวาน
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate() - 1);
+const yesterdayStr = yesterday.toLocaleDateString("th-TH");
+
+// จำนวนเข้าใช้วันนี้และเมื่อวาน
+const todayCount = loginHistory[todayStr] || 0;
+const yesterdayCount = loginHistory[yesterdayStr] || 0;
+
+// % การเปลี่ยนแปลง
+let percentChange = 0;
+if (yesterdayCount > 0) {
+  percentChange = ((todayCount - yesterdayCount) / yesterdayCount) * 100;
+}
+
+const loginCount = todayCount; // ใช้แสดงในหน้า
 
 const getChecklistStatus = (index: number) => {
   const saved = localStorage.getItem(`cbtChecklistStatus-${index}`);
   return saved ? JSON.parse(saved) : [false, false, false, false];
 };
-
+const currentDate = new Date();
+const formattedTime = currentDate.toLocaleTimeString("th-TH", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+const formattedDate = currentDate.toLocaleDateString("th-TH");
+const messageCount = 723; // สมมุติ
 const saveChecklistStatus = (index: number, status: boolean[]) => {
   localStorage.setItem(`cbtChecklistStatus-${index}`, JSON.stringify(status));
 };
@@ -144,7 +170,66 @@ const toggleChecklistItem = (idx: number) => {
 };
 
 return (
+  <div className="potatopsy-cards">
+  {/* จำนวนเข้าใช้ระบบ */}
+  <div className="potatopsy-card turquoise">
+    <div className="potatopsy-card-left">
+      <div className="potatopsy-card-icon-wrapper">
+        <img src="https://cdn-icons-png.flaticon.com/128/694/694642.png" alt="login" />
+      </div>
+      <p>จำนวนเข้าใช้ระบบ</p>
+    </div>
+    <div className="potatopsy-card-right">
+      <h3>{loginCount} ครั้ง</h3>
+      <span>{percentChange >= 0 ? "+" : ""}{percentChange.toFixed(1)}% จากเมื่อวาน</span>
+    </div>
+  </div>
+
+  {/* เวลา */}
+  <div className="potatopsy-card blue">
+    <div className="potatopsy-card-left">
+      <div className="potatopsy-card-icon-wrapper">
+        <img src="https://cdn-icons-png.flaticon.com/128/1827/1827515.png" alt="time" />
+      </div>
+      <p>เวลา</p>
+    </div>
+    <div className="potatopsy-card-right">
+      <h3>{formattedTime}</h3>
+      <span>อัปเดตล่าสุด</span>
+    </div>
+  </div>
+
+  {/* วันที่ */}
+  <div className="potatopsy-card pink">
+    <div className="potatopsy-card-left">
+      <div className="potatopsy-card-icon-wrapper">
+        <img src="https://cdn-icons-png.flaticon.com/128/747/747310.png" alt="calendar" />
+      </div>
+      <p>วันที่</p>
+    </div>
+    <div className="potatopsy-card-right">
+      <h3>{formattedDate}</h3>
+      <span>ปัจจุบัน</span>
+    </div>
+  </div>
+
+  {/* จำนวนข้อความ */}
+  <div className="potatopsy-card green">
+    <div className="potatopsy-card-left">
+      <div className="potatopsy-card-icon-wrapper">
+        <img src="https://cdn-icons-png.flaticon.com/128/2462/2462719.png" alt="message" />
+      </div>
+      <p>จำนวนข้อความ</p>
+    </div>
+    <div className="potatopsy-card-right">
+      <h3>{messageCount} ข้อความ</h3>
+      <span>+8.3% สัปดาห์นี้</span>
+    </div>
+    </div>
+
   <div className="summary-wrapper">
+    
+
 <div className="summary-grid">
  <div className="summary-box">
   <h3 className="summary-title">CHECKLIST</h3>
@@ -182,6 +267,7 @@ return (
 
   </div>
 
+  </div>
 );
 }
 export default HomePage;

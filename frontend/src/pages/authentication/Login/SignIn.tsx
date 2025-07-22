@@ -60,7 +60,25 @@ if (res.status === 200) {
     messageApi.error("Unknown role");
     return;
   }
+// วันที่วันนี้
+const today = new Date().toLocaleDateString("th-TH");
 
+// อ่านข้อมูลย้อนหลัง (object แบบ key = วันที่, value = count)
+const loginHistoryRaw = localStorage.getItem("loginHistory") || "{}";
+const loginHistory = JSON.parse(loginHistoryRaw);
+
+// อัปเดต count วันนี้
+loginHistory[today] = (loginHistory[today] || 0) + 1;
+
+// บันทึกใหม่
+localStorage.setItem("loginHistory", JSON.stringify(loginHistory));
+
+// optional: อัปเดต loginCount ล่าสุด
+localStorage.setItem("loginCount", loginHistory[today].toString());
+
+  // ✅ เพิ่ม login count +1
+  const loginCount = parseInt(localStorage.getItem("loginCount") || "0", 10);
+  localStorage.setItem("loginCount", (loginCount + 1).toString());
   // ✅ เรียก fetchProfile แค่ถ้าไม่ใช่ Admin
   if (role !== "Admin") {
     await fetchProfileAndUpdateStorage();

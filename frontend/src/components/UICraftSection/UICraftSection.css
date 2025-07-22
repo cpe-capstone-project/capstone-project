@@ -1,0 +1,130 @@
+/* === UICraftSection.css === */
+
+/* ตัวอักษรและโครงสร้างเบื้องต้น */
+.ui-craft-section {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.ui-craft-section h1.fluid {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.ui-craft-section > p {
+  font-family: monospace;
+  max-width: 70ch;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* Layout Grid */
+.ui-craft-section ul {
+  display: grid;
+  grid-template-columns: 10fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 820px;
+  height: clamp(300px, 40dvh, 474px);
+  --article-width: 300;
+  transition: grid-template-columns 0.6s ease;
+}
+
+/* List item */
+.ui-craft-section li {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: clamp(2rem, 8vw, 80px);
+  position: relative;
+  transition: all 0.6s ease;
+}
+
+/* ภาพในแต่ละการ์ด */
+.ui-craft-section li img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  filter: grayscale(1) brightness(1.5);
+  scale: 1.1;
+  transition: filter 0.6s ease, scale 0.6s ease;
+  mask: radial-gradient(100% 100% at 100% 0, #fff, #0000);
+}
+
+/* เมื่อ active */
+.ui-craft-section li[data-active="true"] img {
+  filter: grayscale(0) brightness(1);
+  scale: 1;
+}
+
+.ui-craft-section article {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem;
+  font-family: monospace;
+}
+
+/* ชื่อหัวข้อหมุนแนวตั้ง */
+.ui-craft-section h3 {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  transform-origin: 0 50%;
+  transform: rotate(90deg);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  opacity: 0.6;
+  transition: opacity 0.6s ease;
+  white-space: nowrap;
+}
+
+/* รายละเอียดเนื้อหา */
+.ui-craft-section li article p {
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* ปุ่ม Watch now */
+.ui-craft-section li article a {
+  color: #000;
+  font-weight: bold;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+.ui-craft-section li article a span:hover {
+  text-decoration: underline;
+}
+
+/* icon svg */
+.ui-craft-section li article svg {
+  width: 20px;
+  height: 20px;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* แสดงเมื่อ active */
+.ui-craft-section li[data-active="true"] article p,
+.ui-craft-section li[data-active="true"] article a,
+.ui-craft-section li[data-active="true"] article svg {
+  opacity: 1;
+  transition-delay: 0.2s;
+}

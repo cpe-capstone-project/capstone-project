@@ -241,46 +241,47 @@ return (
     </div>
 
   <div className="summary-wrapper">
-    
+  <div className="summary-columns">
+    {/* ฝั่งซ้าย */}
+    <div className="summary-column">
+      <div className="summary-box">
+        <h3 className="summary-title">CHECKLIST</h3>
+        <ul className="checklist-items">
+          {checklist.map((item, idx) => (
+            <li key={idx} onClick={() => toggleChecklistItem(idx)} style={{ cursor: "pointer" }}>
+              <img
+                src={
+                  status[idx]
+                    ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
+                    : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
+                }
+                width={20}
+                style={{ marginRight: "8px" }}
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-<div className="summary-grid">
- <div className="summary-box">
-  <h3 className="summary-title">CHECKLIST</h3>
-  <ul className="checklist-items">
-    {checklist.map((item, idx) => (
-      <li key={idx} onClick={() => toggleChecklistItem(idx)} style={{ cursor: "pointer" }}>
-        <img
-          src={
-            status[idx]
-              ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
-              : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
-          }
-          width={20}
-          style={{ marginRight: "8px" }}
-        />
-        {item}
-      </li>
-    ))}
-  </ul>
+      <div className="summary-box">
+        <h3 className="summary-title">Feedback</h3>
+      </div>
+    </div>
+
+    {/* ฝั่งขวา */}
+    <div className="summary-column">
+      <div className="summary-box">
+        <h3 className="summary-title">สรุป Summary Text(Diary)</h3>
+      </div>
+
+      <div className="summary-box">
+        <h3 className="summary-title">สรุปอารมณ์ Thought Record</h3>
+      </div>
+    </div>
+  </div>
 </div>
-
-  <div className="summary-box">
-    <h3 className="summary-title">Feedback</h3>
-  </div>
-
-  <div className="summary-box">
-    <h3 className="summary-title">สรุป Summary Text(Diary)</h3>
-  </div>
-
-  <div className="summary-box">
-    <h3 className="summary-title">สรุปอารมณ์ Thought Record</h3>
-  </div>
 </div>
-
-
-  </div>
-
-  </div>
 );
 }
 export default HomePage;

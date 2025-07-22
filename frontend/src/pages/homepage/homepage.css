@@ -1,35 +1,37 @@
 .summary-wrapper {
   display: flex;
-  justify-content: center;   /* ✅ กึ่งกลางแนวนอน */
+  justify-content: center;
   padding: 2rem;
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  max-width: 1100px;         /* ✅ กำหนดความกว้างสูงสุดของ grid */
-  width: 100%;               /* ให้ปรับตามหน้าจอ */
-  align-items: stretch;
+.summary-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem; /* ระยะห่างตรงกลาง */
+  width: 100%;
+  max-width: 1100px;
 }
 
+.summary-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  flex: 1;
+}
 
 .summary-box {
-  background-color: #ffffff; /* ✅ พื้นหลังขาว */
-  border: 2px solid #90caf9; /* ✅ กรอบฟ้าอ่อน */
+  background-color: #ffffff;
+  border: 2px solid #90caf9;
   border-radius: 24px;
   padding: 2rem 2.5rem;
-  width: 100%;
   min-height: 280px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03); /* เงาบางๆ */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
   font-family: 'Sarabun', sans-serif;
-  color: #000000; /* ✅ สีข้อความฟ้าน้ำเงิน */
+  color: #000000;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  max-width: 520px;
 }
-
 
 .summary-title {
   font-size: 1.3rem;
@@ -51,6 +53,7 @@
   margin-bottom: 0.8rem;
   font-size: 1.05rem;
 }
+
 
 .check-icon {
   font-size: 1.2rem;

@@ -56,3 +56,104 @@
   font-size: 1.2rem;
   color: #111;
 }
+.potatopsy-cards {
+  display: flex;
+  gap: 60px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.potatopsy-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 250px;
+  height: 130px;
+  padding: 20px;
+  border-radius: 18px;
+  color: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  font-family: "Kanit", sans-serif;
+  position: relative;
+}
+
+.potatopsy-card img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  margin: 0;
+}
+
+.potatopsy-card-icon-wrapper {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.potatopsy-card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.potatopsy-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.potatopsy-card-left p {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.potatopsy-card-right h3 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: bold;
+  margin-top: 14px;
+}
+
+.potatopsy-card-right span {
+  font-size: 11px;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 0;
+  align-self: flex-end;
+}
+
+/* สีต่าง ๆ */
+.turquoise {
+  background: linear-gradient(135deg, #2ed8b6, #59e0c5);
+}
+
+.blue {
+  background: linear-gradient(135deg, #4099ff, #73b4ff);
+}
+
+.pink {
+  background: linear-gradient(135deg, #ff5370, #ff869a);
+}
+
+.purple {
+  background: linear-gradient(135deg, #a890f0, #c9b6fc);
+}
+
+.green {
+  background: linear-gradient(135deg, #66d27e, #91e49c);
+}

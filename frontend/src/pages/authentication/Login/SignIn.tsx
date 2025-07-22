@@ -60,25 +60,30 @@ if (res.status === 200) {
     messageApi.error("Unknown role");
     return;
   }
-// วันที่วันนี้
+// ✅ หลัง login สำเร็จ
+const email = res.data.email;
 const today = new Date().toLocaleDateString("th-TH");
-
-// อ่านข้อมูลย้อนหลัง (object แบบ key = วันที่, value = count)
-const loginHistoryRaw = localStorage.getItem("loginHistory") || "{}";
+const loginHistoryKey = `loginHistory-${email}`;
+const loginHistoryRaw = localStorage.getItem(loginHistoryKey) || "{}";
 const loginHistory = JSON.parse(loginHistoryRaw);
 
-// อัปเดต count วันนี้
+// เพิ่ม count วันนี้
 loginHistory[today] = (loginHistory[today] || 0) + 1;
 
-// บันทึกใหม่
-localStorage.setItem("loginHistory", JSON.stringify(loginHistory));
+// ถ้ายังไม่มีข้อมูลเมื่อวาน → ตั้งค่าเริ่มต้นให้เป็น 1 หรือ 0 เพื่อให้คำนวณ % ได้
+const yesterday = new Date();
+yesterday.setDate(new Date().getDate() - 1);
+const yesterdayStr = yesterday.toLocaleDateString("th-TH");
+if (loginHistory[yesterdayStr] === undefined) {
+  loginHistory[yesterdayStr] = 1; // หรือ 0 ถ้าอยากให้เริ่มนับเปล่า
+}
 
-// optional: อัปเดต loginCount ล่าสุด
-localStorage.setItem("loginCount", loginHistory[today].toString());
+// เก็บกลับ
+localStorage.setItem(loginHistoryKey, JSON.stringify(loginHistory));
+localStorage.setItem("currentLoginUser", email);
 
-  // ✅ เพิ่ม login count +1
-  const loginCount = parseInt(localStorage.getItem("loginCount") || "0", 10);
-  localStorage.setItem("loginCount", (loginCount + 1).toString());
+
+
   // ✅ เรียก fetchProfile แค่ถ้าไม่ใช่ Admin
   if (role !== "Admin") {
     await fetchProfileAndUpdateStorage();

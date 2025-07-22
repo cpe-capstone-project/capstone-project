@@ -89,26 +89,36 @@ const getTodayChecklistIndex = () => {
 
   return diffInDays;
 };
-const loginHistory = JSON.parse(localStorage.getItem("loginHistory") || "{}");
-const today = new Date();
-const todayStr = today.toLocaleDateString("th-TH");
+const [loginCount, setLoginCount] = useState(0);
+const [percentChange, setPercentChange] = useState(0);
 
-// คำนวณวันที่เมื่อวาน
-const yesterday = new Date(today);
-yesterday.setDate(today.getDate() - 1);
-const yesterdayStr = yesterday.toLocaleDateString("th-TH");
+useEffect(() => {
+  const email = localStorage.getItem("currentLoginUser") || "";
+  const loginHistoryKey = `loginHistory-${email}`;
+  const loginHistory = JSON.parse(localStorage.getItem(loginHistoryKey) || "{}");
+  
+  const today = new Date();
+  const todayStr = today.toLocaleDateString("th-TH");
 
-// จำนวนเข้าใช้วันนี้และเมื่อวาน
-const todayCount = loginHistory[todayStr] || 0;
-const yesterdayCount = loginHistory[yesterdayStr] || 0;
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const yesterdayStr = yesterday.toLocaleDateString("th-TH");
 
-// % การเปลี่ยนแปลง
-let percentChange = 0;
-if (yesterdayCount > 0) {
-  percentChange = ((todayCount - yesterdayCount) / yesterdayCount) * 100;
-}
+  const todayCount = loginHistory[todayStr] || 0;
+  const yesterdayCount = loginHistory[yesterdayStr] || 0;
 
-const loginCount = todayCount; // ใช้แสดงในหน้า
+  const percent =
+  yesterdayCount > 0
+    ? ((todayCount - yesterdayCount) / yesterdayCount) * 100
+    : todayCount > 0
+      ? 100  // ถ้าวันนี้มี แต่เมื่อวานไม่มีเลย → ถือเป็น +100%
+      : 0;   // ถ้าวันนี้ก็ไม่มี → แสดง 0%
+
+
+  setLoginCount(todayCount);
+  setPercentChange(percent);
+}, []);
+
 
 const getChecklistStatus = (index: number) => {
   const saved = localStorage.getItem(`cbtChecklistStatus-${index}`);
@@ -175,13 +185,16 @@ return (
   <div className="potatopsy-card turquoise">
     <div className="potatopsy-card-left">
       <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/694/694642.png" alt="login" />
+        <img src="https://cdn-icons-png.flaticon.com/128/2198/2198366.png" alt="login" />
       </div>
       <p>จำนวนเข้าใช้ระบบ</p>
     </div>
     <div className="potatopsy-card-right">
-      <h3>{loginCount} ครั้ง</h3>
-      <span>{percentChange >= 0 ? "+" : ""}{percentChange.toFixed(1)}% จากเมื่อวาน</span>
+     <h3>{loginCount} ครั้ง</h3>
+<span>
+  {percentChange >= 0 ? "+" : ""}
+  {percentChange.toFixed(1)}% จากเมื่อวาน
+</span>
     </div>
   </div>
 
@@ -189,7 +202,7 @@ return (
   <div className="potatopsy-card blue">
     <div className="potatopsy-card-left">
       <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/1827/1827515.png" alt="time" />
+        <img src="https://cdn-icons-png.flaticon.com/128/992/992700.png" alt="time" />
       </div>
       <p>เวลา</p>
     </div>
@@ -203,7 +216,7 @@ return (
   <div className="potatopsy-card pink">
     <div className="potatopsy-card-left">
       <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/747/747310.png" alt="calendar" />
+        <img src="https://cdn-icons-png.flaticon.com/128/12887/12887924.png" alt="calendar" />
       </div>
       <p>วันที่</p>
     </div>
@@ -217,7 +230,7 @@ return (
   <div className="potatopsy-card green">
     <div className="potatopsy-card-left">
       <div className="potatopsy-card-icon-wrapper">
-        <img src="https://cdn-icons-png.flaticon.com/128/2462/2462719.png" alt="message" />
+        <img src="https://cdn-icons-png.flaticon.com/128/542/542638.png" alt="message" />
       </div>
       <p>จำนวนข้อความ</p>
     </div>
@@ -271,3 +284,5 @@ return (
 );
 }
 export default HomePage;
+
+

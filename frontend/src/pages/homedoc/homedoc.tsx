@@ -23,6 +23,7 @@ const Homedoc: React.FC = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const isLogin = localStorage.getItem("isLogin");
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [events, setEvents] = useState([
     {
@@ -31,6 +32,42 @@ const Homedoc: React.FC = () => {
       end: new Date(new Date().getTime() + 30 * 60000),
     },
   ]);
+const [searchTerm, setSearchTerm] = useState("");
+
+const filteredPatients = patients.filter((p) => {
+  const fullText = `${p.first_name} ${p.last_name} ${p.gender} ${p.age} ${p.birthday}`.toLowerCase();
+
+  return fullText.includes(searchTerm.toLowerCase());
+});
+
+interface Patient {
+  first_name: string;
+  last_name: string;
+  age: number;
+  gender: string;
+  birthday: string;
+}
+
+useEffect(() => {
+  const id = localStorage.getItem("id");
+  console.log("psychologist_id =", id); // ✅ เพิ่ม debug
+
+  if (id) {
+    fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("ไม่พบข้อมูล");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("patients", data); // ✅ debug
+        setPatients(data);
+      })
+      .catch((err) => {
+        console.error("โหลดผู้ป่วยล้มเหลว", err);
+        Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถโหลดรายชื่อผู้ป่วยได้", "error");
+      });
+  }
+}, []);
 
   useEffect(() => {
     if (!isLogin || role !== "Psychologist") {
@@ -42,7 +79,6 @@ const Homedoc: React.FC = () => {
       showNotification();
     }
   }, []);
-
   const showNotification = () => {
   Swal.fire({
     toast: true,
@@ -110,15 +146,45 @@ const Homedoc: React.FC = () => {
   <section className="docflour-grid">
     {/* กล่อง 1: Patient Case + Search */}
     <div className="docflour-card">
+   
       <h3>PATIENT CASE</h3>
       <div className="docflour-search-box">
         <input
-          type="text"
+          value={searchTerm}
+onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search..."
           className="docflour-search-input"
         />
         <button className="docflour-search-button">🔍</button>
       </div>
+      <table className="docflour-patient-table">
+  <thead>
+    <tr>
+      <th>ชื่อ</th>
+      <th>นามสกุล</th>
+      <th>อายุ</th>
+      <th>เพศ</th>
+      <th>วันเกิด</th>
+       <th>Status</th> 
+
+      
+    </tr>
+  </thead>
+  <tbody>
+    {filteredPatients.map((p, idx) => ( 
+      <tr key={idx}>
+        <td>{p.first_name}</td>
+        <td>{p.last_name}</td>
+        <td>{p.age}</td>
+        <td>{p.gender}</td>
+        <td>{new Date(p.birthday).toLocaleDateString("th-TH")}</td>
+         <td>
+        <span className="status-tag active">Active</span>
+      </td> 
+      </tr>
+    ))}
+  </tbody>
+</table>
     </div>
 
     {/* กล่อง 2: ตารางนัดหมาย */}

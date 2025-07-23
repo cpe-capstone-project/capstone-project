@@ -71,3 +71,46 @@
   margin-left: 6px;
   color: #1976d2;                    /* ปุ่มค้นหาสีฟ้าเข้ม */
 }
+.docflour-patient-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  font-family: 'Sarabun', sans-serif;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.85rem; /* 👈 ขนาดตัวอักษรเล็กลง */
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1); /* เงาฟ้าอ่อน */
+}
+
+.docflour-patient-table th,
+.docflour-patient-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e0f0ff; /* ฟ้าอ่อน */
+}
+
+.docflour-patient-table th {
+  background-color: #e3f2fd; /* ฟ้าอ่อนนุ่ม */
+  color: #1565c0; /* ฟ้าเข้มอ่านง่าย */
+  font-weight: 600;
+}
+
+.docflour-patient-table tbody tr:hover {
+  background-color: #f1f9ff; /* แถว hover */
+}
+
+/* Status Tag */
+.status-tag {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  display: inline-block;
+  text-align: center;
+}
+
+.status-tag.active {
+  background-color: #2196f3; /* ฟ้าสด */
+}

@@ -11,6 +11,8 @@ func SetupAuthenticationRoutes(r *gin.Engine) {
 	r.POST("/signup", patient.SignUp)
 	r.POST("/patient/reset-password", patient.ResetPassword)
 	r.POST("/verify-psychologist-code", patient.VerifyPsychologistCode)
+	r.GET("/patients-by-psych", patient.GetPatientsByPsychologist)
+
 	// r.POST("/signupEm", patient.SignUpEmployee)
   r.POST("/psychologists/signin", psychologist.Login)
   r.POST("/psychologists/signup", psychologist.Register)

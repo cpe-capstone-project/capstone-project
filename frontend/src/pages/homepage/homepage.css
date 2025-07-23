@@ -64,6 +64,8 @@
   border-radius: 20px;
   padding: 1.5rem;
   display: flex;
+  width:300px;
+  height:120px;
   justify-content: space-between;
   align-items: center;
   transition: transform 0.2s ease;

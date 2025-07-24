@@ -23,6 +23,9 @@ const Homedoc: React.FC = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const isLogin = localStorage.getItem("isLogin");
+  const id = localStorage.getItem("id");
+  const [loading, setLoading] = useState(true); // ✅ โหลดสถานะ
+
   const [patients, setPatients] = useState<Patient[]>([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [events, setEvents] = useState([
@@ -43,14 +46,13 @@ const filteredPatients = patients.filter((p) => {
 interface Patient {
   first_name: string;
   last_name: string;
-  age: number;
+  age: number | string;
   gender: string;
   birthday: string;
 }
 
 useEffect(() => {
-  const id = localStorage.getItem("id");
-  console.log("psychologist_id =", id); // ✅ เพิ่ม debug
+  console.log("psychologist_id =", id); // ✅ debug
 
   if (id) {
     fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${id}`)
@@ -59,52 +61,37 @@ useEffect(() => {
         return res.json();
       })
       .then((data) => {
-        console.log("patients", data); // ✅ debug
+        if (!Array.isArray(data)) throw new Error("ข้อมูลผิดรูปแบบ"); // ✅ ป้องกัน crash
         setPatients(data);
+        setLoading(false); // ✅ ปิด loading
       })
       .catch((err) => {
         console.error("โหลดผู้ป่วยล้มเหลว", err);
-        Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถโหลดรายชื่อผู้ป่วยได้", "error");
+
+        // ✅ mock ข้อมูลไว้แสดง
+        setPatients([
+          {
+            first_name: "-",
+            last_name: "-",
+            age: "-",
+            gender: "-",
+            birthday: "-",
+          },
+        ]);
+        setLoading(false);
       });
   }
-}, []);
+}, [id]);
 
-  useEffect(() => {
-    if (!isLogin || role !== "Psychologist") {
-      Swal.fire({
-        icon: "warning",
-        title: "คุณต้องเข้าสู่ระบบด้วยบัญชีนักจิตวิทยา",
-      }).then(() => navigate("/"));
-    } else {
-      showNotification();
-    }
-  }, []);
-  const showNotification = () => {
-  Swal.fire({
-    toast: true,
-    position: "top-end",
-    title: "แจ้งเตือนระบบ",
-    html: `
-      <div style="text-align: left; font-size: 14px;">
-        <div style="display: flex; align-items: center; margin-bottom: 6px;">
-          <img src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png" alt="alert" 
-              style="width: 20px; height: 20px; margin-right: 8px;" />
-          คุณยังไม่ได้ให้คำแนะนำ <b>3 เคส</b>
-        </div>
-        <div style="display: flex; align-items: center;">
-          <img src="https://cdn-icons-png.flaticon.com/128/4201/4201973.png" alt="warning" 
-              style="width: 20px; height: 20px; margin-right: 8px;" />
-          <span>พบข้อความเสี่ยงจาก <b>นภัสวรรณ</b> — ระบบประเมิน: <span style="color:red; font-weight:bold">สูง</span></span>
-        </div>
-      </div>
-    `,
-    showConfirmButton: false,
-    background: "#ffffff",
-    timer: 5000,
-    timerProgressBar: true,
-    customClass: { popup: "swal2-elegant-popup" },
-  });
-};
+useEffect(() => {
+  if (!id || !isLogin || role !== "Psychologist") {
+    Swal.fire({
+      icon: "warning",
+      title: "กรุณาเข้าสู่ระบบด้วยบัญชีนักจิตวิทยา",
+    }).then(() => navigate("/"));
+    return;
+  }
+}, [id, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
 
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
@@ -157,34 +144,47 @@ onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button className="docflour-search-button">🔍</button>
       </div>
-      <table className="docflour-patient-table">
-  <thead>
-    <tr>
-      <th>ชื่อ</th>
-      <th>นามสกุล</th>
-      <th>อายุ</th>
-      <th>เพศ</th>
-      <th>วันเกิด</th>
-       <th>Status</th> 
-
-      
-    </tr>
-  </thead>
-  <tbody>
-    {filteredPatients.map((p, idx) => ( 
-      <tr key={idx}>
-        <td>{p.first_name}</td>
-        <td>{p.last_name}</td>
-        <td>{p.age}</td>
-        <td>{p.gender}</td>
-        <td>{new Date(p.birthday).toLocaleDateString("th-TH")}</td>
-         <td>
-        <span className="status-tag active">Active</span>
-      </td> 
+      {loading ? (
+  <p style={{ textAlign: "center", marginTop: "1rem" }}>กำลังโหลดข้อมูล...</p>
+) : (
+  <table className="docflour-patient-table">
+    <thead>
+      <tr>
+        <th>ลำดับ</th>
+        <th>ชื่อ</th>
+        <th>นามสกุล</th>
+        <th>อายุ</th>
+        <th>เพศ</th>
+        <th>วันเกิด</th>
+        <th>Status</th>
       </tr>
-    ))}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {filteredPatients.length > 0 ? (
+        filteredPatients.map((p, idx) => (
+          <tr key={idx}>
+            <td>{idx + 1}</td>
+            <td>{p.first_name}</td>
+            <td>{p.last_name}</td>
+            <td>{p.age}</td>
+            <td>{p.gender}</td>
+            <td>{new Date(p.birthday).toLocaleDateString("th-TH")}</td>
+            <td>
+              <span className="status-tag active">Active</span>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>
+            ไม่พบข้อมูลผู้ป่วย
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+)}
+
     </div>
 
     {/* กล่อง 2: ตารางนัดหมาย */}

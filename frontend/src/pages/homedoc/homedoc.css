@@ -26,7 +26,7 @@
   align-items: center;
   text-align: center;
   color: #000000;                     /* สีข้อความดำ */
-  max-width: 520px;                   /* ไม่เกินขนาดกล่อง */
+  max-width: 540px;                   /* ไม่เกินขนาดกล่อง */
 }
 .docflour-cardz {
   background-color: #ffffff;           /* พื้นหลังขาว */
@@ -42,7 +42,7 @@
   align-items: center;
   text-align: center;
   color: #000000;                     /* สีข้อความดำ */
-  max-width: 520px;                   /* ไม่เกินขนาดกล่อง */
+  max-width: 540px;                   /* ไม่เกินขนาดกล่อง */
 }
 .docflour-search-box {
   margin-top: 1rem;

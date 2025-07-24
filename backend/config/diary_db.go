@@ -10,6 +10,7 @@ func SetupDiaryDatabase() {
 	db.AutoMigrate(
 		&entity.Diaries{},
 		&entity.DiarySummary{},
+		&entity.DiarySummaryEntry{},
 	)
 
 	diaries := []entity.Diaries{

@@ -31,7 +31,7 @@ func GetDiarySummaryByID(c *gin.Context){
 	var diary_summary entity.DiarySummary
 
 	db := config.DB()
-	results := db.First(&diary_summary, ID)
+	results := db.Preload("TherapyCase").Preload("Diaries").First(&diary_summary, ID)
 	if results.Error != nil{
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
@@ -43,6 +43,7 @@ func GetDiarySummaryByID(c *gin.Context){
 	c.JSON(http.StatusOK, diary_summary)
 }
 
+// POST /diary-summary
 func SummarizeDiaries(c *gin.Context) {
 	var req SummaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -93,6 +94,7 @@ func SummarizeDiaries(c *gin.Context) {
 		StartDate:     req.StartDate,
 		EndDate:       req.EndDate,
 		SummaryText:   summaryTH,
+		Diaries:       diaries,
 	}
 
 	if err := db.Create(&summary).Error; err != nil {

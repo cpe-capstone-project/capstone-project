@@ -29,67 +29,6 @@ useEffect(() => {
       });
     }
   }, [navigate]);
-
-  const checklistSets = [
-  [ // Day 1
-    "จดบันทึกไดอารี่ (อารมณ์ ความคิด เหตุการณ์)",
-    "ทำแบบประเมิน Thought Record",
-    "ติดตามผลสรุปรายวัน",
-    "ยืนยันการทำแบบฝึกหัด CBT ",
-  ],
-  [ // Day 2
-    "เขียนไดอารี่: บันทึกอารมณ์ที่เด่นที่สุดในวัน",
-    "ระบุปัจจัยกระตุ้นที่ทำให้รู้สึกเชิงลบ",
-    "ทำ Thought Record",
-    "ติดตามความเปลี่ยนแปลงจากเมื่อวาน",
-  ],
-  [ // Day 3
-    "เขียนไดอารี่: บันทึกความคิดที่ผุดขึ้นทันที",
-    "แยกความคิดจริง vs ความคิดอัตโนมัติ",
-    "ทำ Thought Record",
-    "สะท้อนว่า “ถ้ามองจากคนอื่น เขาจะคิดอย่างไร?”",
-  ],
-  [ // Day 4
-    "เขียนไดอารี่: วันนี้ฉันลองมองอีกมุมคือ...",
-    "ทำ Thought Record",
-    "ประเมินระดับอารมณ์หลังปรับมุมมองใหม่",
-    "สะท้อนว่าอะไรช่วยให้รู้สึกดีขึ้น",
-  ],
-  [ // Day 5
-    "เขียนไดอารี่: ฉันเลือกทำสิ่งนี้เพื่อดูแลตัวเอง...",
-    "ทดลองทำพฤติกรรมใหม่",
-    "Thought Record: วิเคราะห์ผลลัพธ์",
-    "ติดตามอารมณ์ก่อน-หลังทำ",
-  ],
-  [ // Day 6
-    "ไดอารี่: สิ่งที่ฉันภูมิใจในสัปดาห์นี้คือ...",
-    "Thought Record: เหตุการณ์ดี + วิเคราะห์",
-    "ระบุคุณค่าหรือจุดแข็งของตัวเอง",
-    "เขียนประโยคให้กำลังใจตัวเอง 1 ประโยค",
-  ],
-  [ // Day 7
-    "ไดอารี่สรุป: ฉันเรียนรู้อะไรเกี่ยวกับตัวเองบ้าง",
-    "สรุป Thought Record รายสัปดาห์",
-    "วางแผนถัดไปในการดูแลสุขภาพจิต",
-    "ยืนยันการจบ CBT รายสัปดาห์",
-  ],
-];
-
-
-
-const getTodayChecklistIndex = () => {
-  let startDate = new Date(localStorage.getItem("cbtChecklistStart") || new Date().toISOString());
-  const now = new Date();
-  const diffInDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffInDays > 6) {
-    startDate = now;
-    localStorage.setItem("cbtChecklistStart", startDate.toISOString());
-    return 0;
-  }
-
-  return diffInDays;
-};
 const [loginCount, setLoginCount] = useState(0);
 const [percentChange, setPercentChange] = useState(0);
 
@@ -121,10 +60,7 @@ useEffect(() => {
 }, []);
 
 
-const getChecklistStatus = (index: number) => {
-  const saved = localStorage.getItem(`cbtChecklistStatus-${index}`);
-  return saved ? JSON.parse(saved) : [false, false, false, false];
-};
+
 const currentDate = new Date();
 const formattedTime = currentDate.toLocaleTimeString("th-TH", {
   hour: "2-digit",
@@ -132,9 +68,6 @@ const formattedTime = currentDate.toLocaleTimeString("th-TH", {
 });
 const formattedDate = currentDate.toLocaleDateString("th-TH");
 const messageCount = 723; // สมมุติ
-const saveChecklistStatus = (index: number, status: boolean[]) => {
-  localStorage.setItem(`cbtChecklistStatus-${index}`, JSON.stringify(status));
-};
  const showSuccessLog = () => {
   MySwal.fire({
     toast: true,
@@ -164,20 +97,6 @@ const saveChecklistStatus = (index: number, status: boolean[]) => {
       popup: "swal2-elegant-popup",
     },
   });
-};
-const todayIndex = getTodayChecklistIndex();
-const checklist = checklistSets[todayIndex];
-const [status, setStatus] = useState([false, false, false, false]);
-useEffect(() => {
-  const todayIndex = getTodayChecklistIndex();
-  setStatus(getChecklistStatus(todayIndex));
-}, []);
-const toggleChecklistItem = (idx: number) => {
-  const todayIndex = getTodayChecklistIndex();
-  const newStatus = [...status];
-  newStatus[idx] = !newStatus[idx];
-  setStatus(newStatus);
-  saveChecklistStatus(todayIndex, newStatus);
 };
 
 return (
@@ -244,47 +163,32 @@ return (
       </div>
     </div>
 
-    {/* ส่วนล่าง: Billyboy Dashboard */}
     <div className="billyboy-grid">
-      <div className="billyboy-row">
-       <div className="billyboy-card billyboy-big">
-  <h3>CHECKLIST</h3>
-  <ul style={{ listStyle: "none", padding: 0, marginTop: "1rem" }}>
-    {checklist.map((item, idx) => (
-      <li
-        key={idx}
-        onClick={() => toggleChecklistItem(idx)}
-        style={{
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "0.5rem",
-        }}
-      >
-        <img
-          src={
-            status[idx]
-              ? "https://cdn-icons-png.flaticon.com/128/8968/8968524.png"
-              : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
-          }
-          width={20}
-          style={{ marginRight: "8px" }}
-          alt={status[idx] ? "checked" : "unchecked"}
-        />
-        {item}
-      </li>
-    ))}
-  </ul>
-</div>
-        <div className="billyboy-card">Feedback</div>
-        <div className="billyboy-card">สรุป Summary Text(Diary)</div>
-      </div>
-
-      <div className="billyboy-row">
-        <div className="billyboy-card billyboy-wide">Overview</div>
-        <div className="billyboy-card">สรุปอารมณ์ Thought Record</div>
-      </div>
+  {/* แถวบน: 2 ช่อง */}
+  <div className="billyboy-row billyboy-two-cols">
+    <div className="billyboy-card billyboy-big">
+      <h3>Feedback (Diary)</h3>
     </div>
+    <div className="billyboy-card billyboy-big">
+      <h3>Feedback (Thought Record)</h3>
+    </div>
+  </div>
+
+  {/* แถวกลาง: 1 ช่องเต็ม */}
+  <div className="billyboy-row">
+    <div className="billyboy-card billyboy-wide">
+      <h3>สรุป Summary Text (Diary)</h3>
+    </div>
+  </div>
+
+  {/* แถวล่าง: 1 ช่องเต็ม */}
+  <div className="billyboy-row">
+    <div className="billyboy-card billyboy-wide">
+      <h3>สรุปอารมณ์ (Thought Record)</h3>
+    </div>
+  </div>
+</div>
+
   </>
 );
 }

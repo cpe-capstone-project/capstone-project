@@ -1,54 +1,46 @@
 .billyboy-grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 2rem;
-  color: #fff;
-  min-height: 100vh;
+  gap: 2.5rem;
+  padding: 2rem 6rem 2rem 4rem; /* top right bottom left */
+  color: #000;
+  max-width: 2900px; 
+  margin: 0 auto;
 }
 
+
+
+/* สำหรับแถว 2 ช่อง */
+.billyboy-row.billyboy-two-cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem; /* ปรับลดระยะห่างระหว่าง card */
+}
+
+/* สำหรับแถว 1 ช่อง */
 .billyboy-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: 1fr;
 }
 
+/* Card สไตล์ */
 .billyboy-card {
-  border-radius: 20px;
-  padding: 2rem;
-  border: 2px solid #3b82f6; /* ขอบสีฟ้า */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #000000;
+  border-radius: 16px;               /* ลดความโค้ง */
+  padding: 1.5rem 1.2rem;            /* ✅ ลด padding ภายใน */
+  text-align: center;
+  font-weight: 500;
+  border: 2px solid #3b82f6;
 }
 
-/* พิเศษ */
-.billyboy-card.billyboy-big {
-  grid-column: span 1;
-  height: 280px;
-  color: rgb(0, 0, 0);
+/* ขนาดสูงแบบในภาพ */
+.billyboy-big {
+  height: 300px; /* ลดความสูงลงเล็กน้อย */
 }
 
-.billyboy-card.billyboy-wide {
-  grid-column: span 2;
+.billyboy-wide {
   height: 300px;
 }
 
-/* ข้อความใน card */
-.billyboy-card h3 {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  color: #000000;
-}
-
-.billyboy-card p {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  
-}
 /* Layout หลักสำหรับ dashboard */
 .potatopsy-cards {
   display: grid;

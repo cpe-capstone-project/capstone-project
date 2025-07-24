@@ -28,6 +28,8 @@ function DiarySummary() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
+  console.log("summaryData", summaryData);
+
   const tags = [
     "Happy",
     "Sad",
@@ -96,8 +98,8 @@ function DiarySummary() {
 
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
-      console.log("Selected Timeframe:", selectedTimeframe);
-      console.log("Start Date:", startDate);
+      // console.log("Selected Timeframe:", selectedTimeframe);
+      // console.log("Start Date:", startDate);
 
       const response = await CreateDiarySummary({
         TherapyCaseID: 1,

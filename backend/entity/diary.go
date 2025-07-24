@@ -11,6 +11,9 @@ type Diaries struct {
 	Content 		string
 	UpdatedAt		time.Time
 	TagColors     	string
+
 	TherapyCaseID	uint
-	// TherapyCase		*TherapyCases 	`gorm:"foreignKey:TherapyCaseID"`
+	TherapyCase		*TherapyCase 	`gorm:"foreignKey:TherapyCaseID"`
+
+	Summaries 		[]DiarySummary `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
 }

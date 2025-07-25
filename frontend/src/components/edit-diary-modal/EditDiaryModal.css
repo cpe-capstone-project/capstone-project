@@ -134,20 +134,45 @@
   border: 3px solid #000000;
 }
 
-.clear-colors-btn {
-  background-color: var(--color-red);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: background-color 0.2s ease-in-out;
+
+.color-picker-actions {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: var(--space-xs);
+
+  .reset-colors-btn {
+    background-color: var(--color-surface);
+    color: black;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .reset-colors-btn:hover {
+    background-color: var(--color-grey-hover);
+  }
+  
+  .clear-colors-btn {
+    background-color: var(--color-red);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .clear-colors-btn:hover {
+    background-color: var(--color-red-hover);
+  }
 }
 
-.clear-colors-btn:hover {
-  background-color: var(--color-red-hover);
-}
+
 
 .tag-preview {
   display: flex;

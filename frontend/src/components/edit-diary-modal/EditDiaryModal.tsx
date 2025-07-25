@@ -1,47 +1,14 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import "./EditDiaryModal.css";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import { useDiary } from "../../contexts/DiaryContext";
+import { colorOptions } from "../../constants/colors";
 
 interface EditDiaryModalProps {
   diary: DiaryInterface;
   onCancel: () => void;
   onSave?: () => void;
 }
-
-const allColors = [
-  "#4CAF50",
-  "#81C784",
-  "#A5D6A7",
-  "#9E9E9E",
-  "#607D8B",
-  "#546E7A",
-  "#8BC34A",
-  "#CDDC39",
-  "#FFEB3B",
-  "#2196F3",
-  "#03A9F4",
-  "#00BCD4",
-  "#FFEB3B",
-  "#FFC107",
-  "#FF9800",
-  "#795548",
-  "#6D4C41",
-  "#3E2723",
-  "#03A9F4",
-  "#00BCD4",
-  "#009688",
-  "#E91E63",
-  "#9C27B0",
-  "#673AB7",
-  "#4CAF50",
-  "#8BC34A",
-  "#CDDC39",
-  "#FFC107",
-  "#FF9800",
-  "#FF5722",
-];
-const colorOptions = Array.from(new Set(allColors));
 
 const EditDiaryModal: React.FC<EditDiaryModalProps> = ({
   diary,
@@ -52,6 +19,10 @@ const EditDiaryModal: React.FC<EditDiaryModalProps> = ({
   const [editTitle, setEditTitle] = useState(diary.Title || "");
   const [editContent, setEditContent] = useState(diary.Content || "");
   const [editTagColors, setEditTagColors] = useState<string[]>(
+    diary.TagColors?.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) || []
+  );
+
+  const initialTagColors = useRef<string[]>(
     diary.TagColors?.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) || []
   );
 
@@ -133,13 +104,25 @@ const EditDiaryModal: React.FC<EditDiaryModalProps> = ({
             <div className="color-picker">
               <div className="color-picker-header">
                 <p>เลือกสีแท็ก:</p>
-                <button
-                  type="button"
-                  className="clear-colors-btn"
-                  onClick={() => setEditTagColors([])}
-                >
-                  ล้างสีทั้งหมด
-                </button>
+
+                <div className="color-picker-actions">
+                  
+                  <button
+                    type="button"
+                    className="reset-colors-btn"
+                    onClick={() => setEditTagColors(initialTagColors.current)}
+                  >
+                    คืนค่าสีเริ่มต้น
+                  </button>
+
+                  <button
+                    type="button"
+                    className="clear-colors-btn"
+                    onClick={() => setEditTagColors([])}
+                  >
+                    ล้างสีทั้งหมด
+                  </button>
+                </div>
               </div>
               <div className="color-options">
                 {colorOptions.map((color) => (
@@ -153,7 +136,9 @@ const EditDiaryModal: React.FC<EditDiaryModalProps> = ({
                       setEditTagColors((prev) =>
                         prev.includes(color)
                           ? prev.filter((c) => c !== color)
-                          : [...prev, color]
+                          : prev.length < 3
+                          ? [...prev, color]
+                          : prev
                       );
                     }}
                   />
@@ -169,7 +154,9 @@ const EditDiaryModal: React.FC<EditDiaryModalProps> = ({
                 ))}
               </div>
             </div>
-            <p style={{fontSize:"var(--font-size-xs)", opacity:"0.6"}}>ถ้ายังไม่ได้เลือกสี ระบบจะเติมสีพื้นฐานให้เองโดยอัตโนมัติ</p>
+            <p style={{ fontSize: "var(--font-size-xs)", opacity: "0.6" }}>
+              ถ้ายังไม่ได้เลือกสี ระบบจะเติมสีพื้นฐานให้เองโดยอัตโนมัติ
+            </p>
 
             <div className="edit-buttons">
               <button className="edit-btn cancel" onClick={onCancel}>

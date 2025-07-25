@@ -5,6 +5,8 @@ import { useDiary } from "../../contexts/DiaryContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import { usePath } from "../../contexts/PathContext";
 // import { useDate } from "../../contexts/DateContext";
+import { colorOptions } from "../../constants/colors";
+
 import { FloatButton } from "antd";
 import {
   CloseOutlined,
@@ -35,6 +37,7 @@ import Toolbar from "../../components/text-editor/Toolbar";
 import DiarySidebar from "./DiarySidebar";
 import "./DiaryDetail.css";
 import DiaryFeedback from "./DiaryFeedback";
+import ColorPickerTooltip from "../../components/color-picker-tooltip/ColorPickerTooltip";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 
 function DiaryDetail() {
@@ -52,6 +55,10 @@ function DiaryDetail() {
 
   const [fullscreen, setFullscreen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+
+  const [tagColors, setTagColors] = useState<string[]>(
+    diary?.TagColors?.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) || []
+  );
 
   const navigate = useNavigate();
 
@@ -97,6 +104,7 @@ function DiaryDetail() {
     const updatedDiary = {
       ...diary,
       Content: editor.getHTML(),
+      TagColors: tagColors.join(", "),
     };
 
     const success = await updateDiary(diary.ID, updatedDiary);
@@ -126,12 +134,25 @@ function DiaryDetail() {
   // ตรวจสอบการเปลี่ยนแปลงของเนื้อหาและชื่อเรื่อง
   const checkChanges = useCallback(() => {
     if (!editor || !originalDiary || !diary) return;
+
     const currentContent = normalizeHTML(editor.getHTML());
     const originalContent = normalizeHTML(originalDiary.Content ?? "");
     const contentChanged = currentContent !== originalContent;
+
     const titleChanged = diary.Title !== originalDiary.Title;
-    setIsModified(contentChanged || titleChanged);
-  }, [editor, diary, originalDiary]);
+
+    // แปลง originalDiary.TagColors เป็น array
+    const originalColors = originalDiary.TagColors
+      ? originalDiary.TagColors.split(",").map((c) => c.trim())
+      : [];
+
+    // เปรียบเทียบ tagColors กับ originalColors
+    const colorsChanged =
+      tagColors.length !== originalColors.length ||
+      tagColors.some((color) => !originalColors.includes(color));
+
+    setIsModified(contentChanged || titleChanged || colorsChanged);
+  }, [editor, diary, originalDiary, tagColors]);
 
   // โหลด diary ตาม id ที่เลือก
   useEffect(() => {
@@ -179,8 +200,21 @@ function DiaryDetail() {
     }
   }, [transcript, editor]);
 
+useEffect(() => {
+  if (diary?.TagColors) {
+    setTagColors(
+      diary.TagColors
+        .split(",")
+        .map((c) => c.trim().replace(/^"|"$/g, "")) // ลบ " ซ้อน
+    );
+  } else {
+    setTagColors([]);
+  }
+}, [diary]);
+
+
   // ถ้าไม่มี diary หรือ editor ให้ return null
-  if (!diary || !editor) return ;
+  if (!diary || !editor) return;
 
   return (
     <section className="diary-detail-container">
@@ -209,9 +243,26 @@ function DiaryDetail() {
                 type="text"
                 value={diary.Title}
                 onChange={(e) => setDiary({ ...diary, Title: e.target.value })}
-                 placeholder="พิมพ์ชื่อเรื่องที่นี่"
+                placeholder="พิมพ์ชื่อเรื่องที่นี่"
               />
             </div>
+            <ColorPickerTooltip
+  colorOptions={colorOptions}
+  selectedColors={tagColors}
+  onChange={setTagColors}
+  onReset={() => {
+    if (originalDiary?.TagColors) {
+      const original = originalDiary.TagColors
+        .split(",")
+        .map((c) => c.trim().replace(/^"|"$/g, ""));
+      setTagColors(original);
+    } else {
+      setTagColors([]);
+    }
+  }}
+/>
+
+
             {/* ปุ่มบันทึก */}
             <button
               onClick={handleSave}
@@ -225,7 +276,7 @@ function DiaryDetail() {
             </button>
           </div>
           {/* <hr /> */}
-          
+
           {/* Toolbar สำหรับจัดการ editor และปุ่มบันทึกเสียง */}
           <Toolbar
             editor={editor}

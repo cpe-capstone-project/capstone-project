@@ -19,6 +19,7 @@ func SetupRouter() *gin.Engine {
 	SetupAuthenticationRoutes(r)
 	SetupPsychologistRoutes(r)
 	SetupAdminRoutes(r)
+	SetupAppointmentRoutes(r)
 	// Private Routes (Require Authorization)
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())

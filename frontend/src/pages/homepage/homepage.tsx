@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import "./HomePage.css";
 import DiarySummary from "../diary_summary/DiarySummary";
 //import { GetLatestDiaries } from "../../services/https/Diary";
@@ -9,11 +8,11 @@ import DiarySummary from "../diary_summary/DiarySummary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 
 function HomePage() {
-  const MySwal = withReactContent(Swal);
+
   const navigate = useNavigate();
   // const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
   useEffect(() => {
-    showSuccessLog(); // <--- เพิ่มเพื่อทดสอบ
+    //showSuccessLog(); // <--- เพิ่มเพื่อทดสอบ
   }, []);
 
   useEffect(() => {
@@ -67,36 +66,8 @@ function HomePage() {
   });
   const formattedDate = currentDate.toLocaleDateString("th-TH");
   const messageCount = 723; // สมมุติ
-  const showSuccessLog = () => {
-    MySwal.fire({
-      toast: true,
-      position: "top-end", // ด้านขวาบน,
-      title: "บันทึกประจำวันสำเร็จ",
-      html: `
-      <div style="text-align: left; font-size: 14px; margin-top: 6px;">
-        <div style="display: flex; align-items: center; margin-bottom: 6px;">
-          <div style="background-color: black; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
-            ✔
-          </div>
-          จดบันทึกไดอารี่รายวันสำเร็จ
-        </div>
-        <div style="display: flex; align-items: center;">
-          <div style="background-color: black; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
-            ✔
-          </div>
-          อัปโหลด CBT สำเร็จ
-        </div>
-      </div>
-    `,
-      showConfirmButton: false,
-      background: "#ffffff",
-      timer: 4000,
-      timerProgressBar: true,
-      customClass: {
-        popup: "swal2-elegant-popup",
-      },
-    });
-  };
+  
+
 
   return (
     <>

@@ -105,6 +105,8 @@ useEffect(() => {
 }));
 
 setEvents(loadedEvents);
+      localStorage.setItem("calendar_events", JSON.stringify(loadedEvents));
+
     })
     .catch((err) => {
       console.error("โหลดนัดหมายล้มเหลว", err);
@@ -120,6 +122,23 @@ useEffect(() => {
     return;
   }
 }, [id, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
+// ✅ โหลดนัดหมายจาก localStorage ถ้ามี
+useEffect(() => {
+  const savedEvents = localStorage.getItem("calendar_events");
+  if (savedEvents) {
+    try {
+      const parsed = JSON.parse(savedEvents);
+      const eventsFromStorage = parsed.map((e: any) => ({
+        ...e,
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+      setEvents(eventsFromStorage);
+    } catch (err) {
+      console.error("โหลด events จาก localStorage ผิดพลาด", err);
+    }
+  }
+}, []);
 
 
 const handleSelectSlot = async ({ start, end }: { start: Date; end: Date }) => {
@@ -234,6 +253,7 @@ const handleSelectSlot = async ({ start, end }: { start: Date; end: Date }) => {
 if (formValues) {
   const selectedPatient = patients[Number(formValues.selectedPatientIndex)];
   const newEvent: CalendarEvent = {
+  id: 0,
   title: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
   start: formValues.startTime,
   end: formValues.endTime,
@@ -251,6 +271,7 @@ if (formValues) {
         Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`, // ✅ ใส่ token
       },
       body: JSON.stringify({
+        title: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
         patient_id: selectedPatient.id,
         psychologist_id: Number(id), 
         start: formValues.startTime.toISOString(),
@@ -269,7 +290,11 @@ const createdEvent: CalendarEvent = {
   id: resData.id, // ✅ เพิ่ม id ที่ backend ส่งกลับมา
 };
     
-setEvents((prev) => [...prev, createdEvent]); // ✅ เพิ่มนัดใหม่พร้อม id
+setEvents((prev) => {
+    const updated = [...prev, createdEvent];
+    localStorage.setItem("calendar_events", JSON.stringify(updated));
+    return updated;
+  });// ✅ เพิ่มนัดใหม่พร้อม id
 Swal.fire("สร้างนัดหมายสำเร็จ", "", "success");
   } catch (err) {
     console.error(err);
@@ -307,7 +332,12 @@ const handleSelectEvent = (event: {
 
   if (!res.ok) throw new Error("ลบนัดหมายไม่สำเร็จ");
 
-  setEvents((prev) => prev.filter((e) => e.id !== event.id));
+  setEvents((prev) => {
+  const updated = prev.filter((e) => e.id !== event.id);
+  localStorage.setItem("calendar_events", JSON.stringify(updated));
+  return updated;
+});
+
   Swal.fire("ลบนัดหมายแล้ว", "", "success");
 } catch (err) {
   console.error("ลบล้มเหลว", err);
@@ -414,11 +444,13 @@ const handleSelectEvent = (event: {
 
     if (!res.ok) throw new Error("อัปเดตเวลานัดหมายล้มเหลว");
 
-  setEvents((prev) =>
-  prev.map((e) =>
+  setEvents((prev) => {
+  const updated = prev.map((e) =>
     e.id === event.id ? { ...e, start: newTimes.newStart, end: newTimes.newEnd } : e
-  )
-);
+  );
+  localStorage.setItem("calendar_events", JSON.stringify(updated));
+  return updated;
+});
 
     Swal.fire("เลื่อนนัดหมายเรียบร้อย", "", "success");
   } catch (err) {
@@ -513,10 +545,10 @@ onChange={(e) => setSearchTerm(e.target.value)}
   date={calendarDate}
   onNavigate={(date) => setCalendarDate(date)}
   components={{
-    toolbar: (props) => (
-      <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
-    ),
-  }}
+  toolbar: (props: any) => (
+    <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
+  ),
+}}
   selectable
   onSelectSlot={handleSelectSlot}
   onSelectEvent={handleSelectEvent}

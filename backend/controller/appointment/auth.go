@@ -2,7 +2,10 @@ package appointment
 
 import (
 	"capstone-project/config"
+	"capstone-project/controller/ws"
 	"capstone-project/entity"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -42,6 +45,16 @@ func CreateAppointment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create appointment"})
 		return
 	}
+	log.Println("📤 Sending WebSocket to:", appointment.PatientID)
+	// ส่ง WebSocket แจ้งเตือนไปยังผู้ป่วย
+	ws.GlobalHub.SendToUser(fmt.Sprint(appointment.PatientID), map[string]interface{}{
+    "type": "appointment_created",
+    "title": appointment.Title,
+    "detail": appointment.Detail,
+   	"start_time": appointment.StartTime.Format(time.RFC3339), // ✅ format ที่ JS เข้าใจ
+	"end_time":   appointment.EndTime.Format(time.RFC3339),   // ✅ เช่น "2025-07-29T13:00:00Z"
+})
+
 	c.JSON(http.StatusCreated, gin.H{"id": appointment.ID})
 }
 

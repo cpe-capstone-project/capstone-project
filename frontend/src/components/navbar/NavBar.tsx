@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Navbar.css";
 import Swal from "sweetalert2";
 import healthImage from "../../assets/med5.png";
@@ -8,6 +8,81 @@ function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
+
+const [, setNoticeList] = useState(() => {
+  const stored = localStorage.getItem("patient_notifications");
+  return stored ? JSON.parse(stored) : [];
+});
+useEffect(() => {
+  const interval = setInterval(() => {
+    const isNew = localStorage.getItem("has_new_notice") === "true";
+    setHasNotice(isNew);
+  }, 1000); // ตรวจทุก 1 วินาที
+
+  return () => clearInterval(interval);
+}, []);
+
+const [hasNotice, setHasNotice] = useState(localStorage.getItem("has_new_notice") === "true");
+useEffect(() => {
+  const id = localStorage.getItem("id");
+  if (!id) return;
+
+  console.log("📡 Connecting to ws://localhost:8000/ws/" + id);
+
+  const socket = new WebSocket(`ws://localhost:8000/ws/${id}`);
+
+  socket.onopen = () => console.log("✅ WebSocket opened");
+
+  socket.onerror = (err) => console.error("❌ WebSocket error", err);
+
+  socket.onmessage = (event) => {
+    console.log("📨 Received from WS:", event.data);
+    const data = JSON.parse(event.data);
+
+    console.log("✅ Type:", data.type);
+
+    if (data.type === "appointment_created") {
+      console.log("🔥 Match appointment_created");
+
+      // ✅ อัปเดต localStorage และ state
+      const existing = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+      const updated = [...existing, {
+        start_time: data.start_time,
+        end_time: data.end_time,
+        detail: data.detail,
+      }];
+
+      localStorage.setItem("patient_notifications", JSON.stringify(updated));
+      localStorage.setItem("has_new_notice", "true");
+      setNoticeList(updated);
+      setHasNotice(true);
+
+      // ✅ แสดง Swal เฉพาะนัดใหม่ล่าสุด
+      const htmlContent = `
+        <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
+          <h3 style="margin-bottom: 15px; text-align: center;">
+            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+            แจ้งเตือนนัดหมาย
+          </h3>
+          <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px;">
+            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
+            ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
+            <div><b>รายละเอียด:</b> ${data.detail}</div>
+          </div>
+        </div>
+      `;
+
+      Swal.fire({
+        html: htmlContent,
+        width: 600,
+        showCloseButton: true,
+      });
+    }
+  };
+
+  return () => socket.close();
+}, []);
+
 
   const handleNavigate = (path: string) => {
     const basePath = location.pathname.split("/")[1];
@@ -253,8 +328,9 @@ width: "850px",
   const out = () => {
      // ✅ เก็บค่า loginHistory และ currentLoginUser ไว้
   const historyKeys = Object.keys(localStorage).filter(key =>
-    key.startsWith("loginHistory-") || key === "currentLoginUser"
-  );
+     key.startsWith("loginHistory-") || key === "currentLoginUser" ||
+  key === "patient_notifications" || key === "has_new_notice"
+);
   const historyData: Record<string, string> = {};
   for (const key of historyKeys) {
     historyData[key] = localStorage.getItem(key)!;
@@ -304,16 +380,77 @@ width: "850px",
         <li>
           <a onClick={() => handleNavigate("thought")}>Thought Record</a>
         </li>
-        <li>
-    <img
-      src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
-      alt="Icon"
-      width="24"
-      height="24"
-      style={{ cursor: "pointer" }}
-      onClick={() => console.log("Icon clicked")}
+   <li style={{ position: "relative" }}>
+  <img
+    src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
+    alt="แจ้งเตือน"
+    width="24"
+    height="24"
+    style={{ cursor: "pointer" }}
+    onClick={() => {
+      const notices = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+
+      // กรองเฉพาะรายการใน 2 วัน
+      const filtered = notices.filter((item: any) => {
+        const start = new Date(item.start_time);
+        const now = new Date();
+        return (start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 2;
+      });
+
+      if (!filtered.length) {
+        Swal.fire({
+          title: "การแจ้งเตือน",
+          text: "ไม่มีการแจ้งเตือน",
+          icon: "info",
+        });
+        return;
+      }
+
+     const htmlContent = `
+  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
+          <h3 style="margin-bottom: 15px; text-align: center;">
+            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+            แจ้งเตือนนัดหมาย
+          </h3>
+    ${filtered.slice(-99).map((item: any) => `
+      <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
+        <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(item.start_time).toLocaleDateString()} 
+        ${new Date(item.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(item.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
+        <div><b>รายละเอียด:</b> ${item.detail}</div>
+      </div>
+    `).join("")}
+  </div>
+`;
+
+
+      Swal.fire({
+        html: htmlContent,
+        width: 600,
+        showCloseButton: true,
+        showConfirmButton: false,
+      });
+
+      localStorage.setItem("has_new_notice", "false");
+      setHasNotice(false);
+    }}
+  />
+  {hasNotice && (
+    <span
+      style={{
+        position: "absolute",
+        top: 2,
+        right: 2,
+        backgroundColor: "red",
+        color: "white",
+        borderRadius: "50%",
+        width: 10,
+        height: 10,
+      }}
     />
-  </li>
+  )}
+</li>
+
+
         <div style={{ position: "relative" }}>
           <img
   className="profile"

@@ -16,6 +16,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(middlewares.CORSMiddleware())
 	r.Static("/uploads", "./uploads")
 	// Public Routes
+	SetupWebSocketRoute(r)
 	SetupAuthenticationRoutes(r)
 	SetupPsychologistRoutes(r)
 	SetupAdminRoutes(r)

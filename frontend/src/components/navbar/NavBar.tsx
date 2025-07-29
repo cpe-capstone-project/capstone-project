@@ -59,24 +59,60 @@ useEffect(() => {
 
       // ✅ แสดง Swal เฉพาะนัดใหม่ล่าสุด
       const htmlContent = `
-        <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
-          <h3 style="margin-bottom: 15px; text-align: center;">
-            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-            แจ้งเตือนนัดหมาย
-          </h3>
-          <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px;">
-            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
-            ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
-            <div><b>รายละเอียด:</b> ${data.detail}</div>
-          </div>
-        </div>
+      <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px; text-align: left;">
+  <h3 style="margin-bottom: 15px; text-align: center;">
+    <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+    แจ้งเตือนนัดหมาย
+  </h3>
+
+  <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; align-items: flex-start; font-size: 0.9rem;">
+    <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
+      ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+    </div>
+    <div><b>รายละเอียด:</b> ${data.detail}</div>
+  </div>
+</div>
       `;
 
-      Swal.fire({
-        html: htmlContent,
-        width: 600,
-        showCloseButton: true,
+    Swal.fire({
+  html: htmlContent,
+  width: 600,
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: "ยืนยันการนัด",
+  denyButtonText: "ปฏิเสธการนัด",
+  cancelButtonText: "ปิด",
+}).then(async (result) => {
+  if (result.isConfirmed || result.isDenied) {
+    const status = result.isConfirmed ? "accepted" : "rejected";
+
+    try {
+      const res = await fetch("http://localhost:8000/appointments/update-status", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          appointment_id: data.appointment_id, // <-- สำคัญ! ต้องมีใน WebSocket จาก backend
+          status: status,
+        }),
       });
+
+      if (!res.ok) throw new Error("อัปเดตสถานะล้มเหลว");
+
+      Swal.fire("สำเร็จ", `สถานะการนัดถูกอัปเดตเป็น "${status}"`, "success");
+
+      // ✅ อัปเดตใน localStorage (กรณีมีปฏิทินฝั่งผู้ป่วย)
+      const updated = (JSON.parse(localStorage.getItem("calendar_events") || "[]") as any[]).map(ev =>
+        ev.id === data.appointment_id ? { ...ev, status } : ev
+      );
+      localStorage.setItem("calendar_events", JSON.stringify(updated));
+    } catch (err) {
+      Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถอัปเดตสถานะได้", "error");
+    }
+  }
+});
     }
   };
 
@@ -417,6 +453,10 @@ width: "850px",
         <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(item.start_time).toLocaleDateString()} 
         ${new Date(item.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(item.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
         <div><b>รายละเอียด:</b> ${item.detail}</div>
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+            <button onclick="window.confirmAppointment('${item.id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
+            <button onclick="window.confirmAppointment('${item.id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
+          </div>
       </div>
     `).join("")}
   </div>

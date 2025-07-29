@@ -576,12 +576,12 @@ onChange={(e) => setSearchTerm(e.target.value)}
 
     {/* กล่อง 3: Summary */}
     <div className="docflour-cardz">
-      <h3>Summary Overview</h3>
+      <h3>Feedback(Diary)</h3>
     </div>
 
     {/* กล่อง 4: Feedback */}
     <div className="docflour-cardz">
-      <h3>Feedback</h3>
+      <h3>Feedback(Though Record)</h3>
     </div>
   </section>
 </div>

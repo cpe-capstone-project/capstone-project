@@ -47,13 +47,15 @@ func CreateAppointment(c *gin.Context) {
 	}
 	log.Println("📤 Sending WebSocket to:", appointment.PatientID)
 	// ส่ง WebSocket แจ้งเตือนไปยังผู้ป่วย
-	ws.GlobalHub.SendToUser(fmt.Sprint(appointment.PatientID), map[string]interface{}{
+ws.GlobalHub.SendToUser(fmt.Sprint(appointment.PatientID), map[string]interface{}{
     "type": "appointment_created",
     "title": appointment.Title,
     "detail": appointment.Detail,
-   	"start_time": appointment.StartTime.Format(time.RFC3339), // ✅ format ที่ JS เข้าใจ
-	"end_time":   appointment.EndTime.Format(time.RFC3339),   // ✅ เช่น "2025-07-29T13:00:00Z"
+    "start_time": appointment.StartTime.Format(time.RFC3339),
+    "end_time":   appointment.EndTime.Format(time.RFC3339),
+    "appointment_id": appointment.ID, 
 })
+
 
 	c.JSON(http.StatusCreated, gin.H{"id": appointment.ID})
 }

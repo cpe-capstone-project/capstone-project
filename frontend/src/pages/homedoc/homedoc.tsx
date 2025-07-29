@@ -124,21 +124,34 @@ useEffect(() => {
 }, [id, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
 // ✅ โหลดนัดหมายจาก localStorage ถ้ามี
 useEffect(() => {
-  const savedEvents = localStorage.getItem("calendar_events");
-  if (savedEvents) {
-    try {
-      const parsed = JSON.parse(savedEvents);
-      const eventsFromStorage = parsed.map((e: any) => ({
-        ...e,
-        start: new Date(e.start),
-        end: new Date(e.end),
-      }));
-      setEvents(eventsFromStorage);
-    } catch (err) {
-      console.error("โหลด events จาก localStorage ผิดพลาด", err);
+  const loadEventsFromStorage = () => {
+    const savedEvents = localStorage.getItem("calendar_events");
+    if (savedEvents) {
+      try {
+        const parsed = JSON.parse(savedEvents);
+        const eventsFromStorage = parsed.map((e: any) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        }));
+        setEvents(eventsFromStorage); // ✅ โหลดใหม่เมื่อ localStorage เปลี่ยน
+      } catch (err) {
+        console.error("โหลด events จาก localStorage ผิดพลาด", err);
+      }
     }
-  }
+  };
+
+  // ✅ โหลดครั้งแรก
+  loadEventsFromStorage();
+
+  // ✅ โหลดใหม่เมื่อ WebSocket ส่ง Event
+  window.addEventListener("calendarEventsUpdated", loadEventsFromStorage);
+
+  return () => {
+    window.removeEventListener("calendarEventsUpdated", loadEventsFromStorage);
+  };
 }, []);
+
 
 
 const handleSelectSlot = async ({ start, end }: { start: Date; end: Date }) => {

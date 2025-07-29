@@ -41,13 +41,13 @@
   height: 300px;
 }
 
-/* Layout หลักสำหรับ dashboard */
 .potatopsy-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 2rem;
-
+  gap: 12.5rem 10.6rem;
+  padding: 2rem 6rem 2rem 4rem; /* top right bottom left = เท่ากับ .billyboy-grid */
+  max-width: 3200px;
+  margin: 0 auto;
   color: #fff;
 }
 
@@ -56,7 +56,7 @@
   border-radius: 20px;
   padding: 1.5rem;
   display: flex;
-  width:300px;
+  width:340px;
   height:120px;
   justify-content: space-between;
   align-items: center;
@@ -104,14 +104,15 @@
   height: 36px;
 }
 
-/* ด้านขวาของการ์ด */
 .potatopsy-card-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
   height: 100%;
+  text-align: right; /* ✅ เพิ่มบรรทัดนี้ */
 }
+
 
 
 .potatopsy-card-right h3 {
@@ -127,4 +128,13 @@
   display: inline-block;
   margin: 0;
   align-self: flex-end;
+}
+.clickable-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }

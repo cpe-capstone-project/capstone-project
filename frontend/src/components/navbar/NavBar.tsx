@@ -427,57 +427,7 @@ width: "850px",
     alt="แจ้งเตือน"
     width="24"
     height="24"
-    style={{ cursor: "pointer" }}
-    onClick={() => {
-      const notices = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
-
-      // กรองเฉพาะรายการใน 2 วัน
-      const filtered = notices.filter((item: any) => {
-        const start = new Date(item.start_time);
-        const now = new Date();
-        return (start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 2;
-      });
-
-      if (!filtered.length) {
-        Swal.fire({
-          title: "การแจ้งเตือน",
-          text: "ไม่มีการแจ้งเตือน",
-          icon: "info",
-        });
-        return;
-      }
-
-     const htmlContent = `
-  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
-          <h3 style="margin-bottom: 15px; text-align: center;">
-            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-            แจ้งเตือนนัดหมาย
-          </h3>
-    ${filtered.slice(-99).map((item: any) => `
-      <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
-        <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(item.start_time).toLocaleDateString()} 
-        ${new Date(item.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(item.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
-        <div><b>รายละเอียด:</b> ${item.detail}</div>
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
-            <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')"style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
-            <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
-          </div>
-      </div>
-    `).join("")}
-  </div>
-`;
-
-
-      Swal.fire({
-        html: htmlContent,
-        width: 600,
-        showCloseButton: true,
-        showConfirmButton: false,
-      });
-
-      localStorage.setItem("has_new_notice", "false");
-      setHasNotice(false);
-    }}
+    style={{ cursor: "default" }} // เปลี่ยนจาก pointer → default เพื่อให้รู้ว่าไม่ได้คลิก
   />
   {hasNotice && (
     <span
@@ -494,6 +444,7 @@ width: "850px",
     />
   )}
 </li>
+
 
 
         <div style={{ position: "relative" }}>

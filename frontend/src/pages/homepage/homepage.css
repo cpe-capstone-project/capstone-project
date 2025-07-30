@@ -50,43 +50,27 @@
   margin: 0 auto;
   color: #fff;
 }
-
 /* Card เดี่ยวแต่ละอัน */
 .potatopsy-card {
+  background: linear-gradient(135deg, #60aefb, #88d6ff); /* โทนฟ้าเดียวกัน */
+  color: #ffffff;
   border-radius: 20px;
   padding: 1.5rem;
   display: flex;
-  width:340px;
-  height:120px;
+  width: 340px;
+  height: 120px;
   justify-content: space-between;
   align-items: center;
   transition: transform 0.2s ease;
 }
 
-
-
-.potatopsy-card.turquoise {
-   background: linear-gradient(135deg, #b28af8, #d6b0ff); /* ม่วงพาสเทลหรูหรา */
-  color: #ffffff;
-}
-
-.potatopsy-card.blue {
-    background: linear-gradient(135deg, #42e695, #3bb2b8); /* เขียวมินต์สดใส */
-  color: #ffffff;
-}
-
-.potatopsy-card.pink {
-  background: linear-gradient(135deg, #ff5370, #ff869a);
-  color: #ffffff;
-}
-
-.potatopsy-card.purple {
-  background: linear-gradient(135deg, #a890f0, #c9b6fc);
-  color: #ffffff;
-}
-
+/* คลาสสีทั้งหมดใช้โทนเดียวกัน */
+.potatopsy-card.turquoise,
+.potatopsy-card.blue,
+.potatopsy-card.pink,
+.potatopsy-card.purple,
 .potatopsy-card.green {
-  background: linear-gradient(135deg, #60aefb, #88d6ff); /* โทนฟ้าอ่อนสดใส */
+  background: linear-gradient(135deg, #60aefb, #88d6ff); /* ฟ้าสดใส */
   color: #ffffff;
 }
 

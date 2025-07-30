@@ -239,14 +239,14 @@ const handleSubmit = async (e: React.FormEvent) => {
           <label className="input-label">
             ชื่อ
             <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} />
-             {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+             {errors.firstName && <div className="bananarb">{errors.firstName}</div>}
           </label>
          
 
           <label className="input-label">
             นามสกุล
             <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
-             {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+             {errors.lastName && <div className="bananarb">{errors.lastName}</div>}
           </label>
          
          <div className="age-gender-row">
@@ -259,7 +259,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     value={formData.age}
     onChange={handleChange}
   />
-  {errors.age && <div className="error-message">{errors.age}</div>}
+  {errors.age && <div className="bananarb">{errors.age}</div>}
   
 </label>
 </div>
@@ -272,21 +272,21 @@ const handleSubmit = async (e: React.FormEvent) => {
               <option value="female">หญิง</option>
               <option value="other">อื่นๆ</option>
             </select>
-            {errors.gender && <div className="error-message">{errors.gender}</div>}
+            {errors.gender && <div className="bananarb">{errors.gender}</div>}
           </label>
           
 
           <label className="input-label">
             ที่อยู่
             <input type="text" name="address" value={formData.address} onChange={handleChange} />
-            {errors.address && <div className="error-message">{errors.address}</div>}
+            {errors.address && <div className="bananarb">{errors.address}</div>}
           </label>
           
 
           <label className="input-label">
             วันเกิด
             <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
-            {errors.dob && <div className="error-message">{errors.dob}</div>}
+            {errors.dob && <div className="bananarb">{errors.dob}</div>}
           </label>
           
 
@@ -318,7 +318,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
     }}
   />
-  {errors.phone && <div className="error-message">{errors.phone}</div>}
+  {errors.phone && <div className="bananarb">{errors.phone}</div>}
 </label>            
           <button type="button" className="yokhealth-btn" onClick={handleNext}>ถัดไป
            
@@ -335,21 +335,21 @@ const handleSubmit = async (e: React.FormEvent) => {
           <label className="email-label">
             อีเมล
             <input type="email" name="email" value={formData.email} onChange={handleChange} />
-            {errors.email && <div className="error-message">{errors.email}</div>}
+            {errors.email && <div className="bananarb">{errors.email}</div>}
           </label>
           
 
           <label className="input-label">
             รหัสผ่าน
             <input type="password" name="password" value={formData.password} onChange={handleChange} />
-            {errors.password && <div className="error-message">{errors.password}</div>}
+            {errors.password && <div className="bananarb">{errors.password}</div>}
           </label>
           
 
           <label className="input-label">
             ยืนยันรหัสผ่าน
             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
-            {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+            {errors.confirmPassword && <div className="bananarb">{errors.confirmPassword}</div>}
 
           </label>
           
@@ -455,7 +455,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     ยอมรับนโยบายความเป็นส่วนตัว
   </span>
           </label>
-          {errors.consent && <div className="error-message">{errors.consent}</div>}
+          {errors.consent && <div className="bananarb">{errors.consent}</div>}
 
 
 
@@ -477,7 +477,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     maxLength={6}
     placeholder="XXXXXX"
   />
-  {errors.verifyCode && <div className="error-message">{errors.verifyCode}</div>}
+  {errors.verifyCode && <div className="bananarb">{errors.verifyCode}</div>}
 </label>
 
 

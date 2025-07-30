@@ -296,12 +296,19 @@ width: "850px",
 
   <div className="sidebar-menu">
     <div
-      className={`sidebar-item ${location.pathname.includes("homedoc") ? "active" : ""}`}
-      onClick={() => handleNavigate("homedoc")}
+      className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
+      onClick={() => handleNavigate("fill")}
     >
       <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" alt="dashboard" />
       {!isCollapsed && <span>Dashboard</span>}
     </div>
+    <div
+  className={`sidebar-item ${location.pathname.includes("homedoc") ? "active" : ""}`}
+  onClick={() => handleNavigate("homedoc")}
+>
+  <img src="https://cdn-icons-png.flaticon.com/128/7521/7521598.png" alt="Management" />
+  {!isCollapsed && <span>Management</span>}
+</div>
 
     <div
       className={`sidebar-item ${location.pathname.includes("diary") ? "active" : ""}`}
@@ -333,14 +340,14 @@ width: "850px",
       </div>
     )}
   </div>
-<div className="sidebar-divider" />
-
-<div className="sidebar-item" onClick={out}>
-  <img src="https://cdn-icons-png.flaticon.com/128/2529/2529508.png" alt="logout" />
-  {!isCollapsed && <span>Log out</span>}
+<div style={{ marginTop: "auto" , paddingBottom: "2rem"}}>
+    <div className="sidebar-divider" />
+    <div className="sidebar-item" onClick={out}>
+      <img src="https://cdn-icons-png.flaticon.com/128/2529/2529508.png" alt="logout" />
+      {!isCollapsed && <span>Log out</span>}
+    </div>
+  </div>
 </div>
-</div>
-
 
   );
 }

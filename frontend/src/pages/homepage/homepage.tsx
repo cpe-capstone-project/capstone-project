@@ -8,6 +8,96 @@ import DiarySummary from "../diary_summary/DiarySummary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 
 function HomePage() {
+type ChecklistType = {
+  diary: boolean;
+  thoughtRecord: boolean;
+};
+
+const defaultChecklist: ChecklistType = { diary: false, thoughtRecord: false };
+const TOTAL_DAYS = 7;
+
+const [checklist, setChecklist] = useState<ChecklistType>(defaultChecklist);
+const [currentDayIndex, setCurrentDayIndex] = useState<number>(0);
+
+// โหลดจาก localStorage หรือเซ็ตค่าเริ่มต้น
+useEffect(() => {
+  const id = localStorage.getItem("id");
+  if (!id) return;
+
+  const today = new Date().toLocaleDateString("th-TH");
+
+  const checklistKey = `checklist-${id}-${today}`;
+  const checklistDayIndexKey = `checklistDayIndex-${id}`;
+  const checklistDateKey = `checklistDate-${id}`;
+
+  const storedChecklist = localStorage.getItem(checklistKey);
+  const storedDate = localStorage.getItem(checklistDateKey);
+  const storedDayIndex = localStorage.getItem(checklistDayIndexKey);
+
+  if (!storedDayIndex || !storedDate) {
+    localStorage.setItem(checklistDayIndexKey, "0");
+    localStorage.setItem(checklistDateKey, today);
+    localStorage.setItem(checklistKey, JSON.stringify(defaultChecklist));
+    setChecklist(defaultChecklist);
+    setCurrentDayIndex(0);
+  } else if (storedDate !== today) {
+    const lastIndex = Number(storedDayIndex);
+    const nextIndex = (lastIndex + 1) % TOTAL_DAYS;
+
+    localStorage.setItem(checklistDayIndexKey, nextIndex.toString());
+    localStorage.setItem(checklistDateKey, today);
+    localStorage.setItem(checklistKey, JSON.stringify(defaultChecklist));
+    setChecklist(defaultChecklist);
+    setCurrentDayIndex(nextIndex);
+  } else if (storedChecklist) {
+    setChecklist(JSON.parse(storedChecklist));
+    setCurrentDayIndex(Number(storedDayIndex));
+  }
+}, []);
+
+
+
+
+const toggleCheck = (key: keyof ChecklistType) => {
+  const id = localStorage.getItem("id");
+  const today = new Date().toLocaleDateString("th-TH");
+  const checklistKey = `checklist-${id}-${today}`;
+
+  const updated = { ...checklist, [key]: true };
+  setChecklist(updated);
+  localStorage.setItem(checklistKey, JSON.stringify(updated));
+};
+
+const DAILY_TASKS: { diary: string; thoughtRecord: string }[] = [
+  {
+    diary: "จดบันทึก DIARY",
+    thoughtRecord: "ทำ THOUGHT RECORD",
+  },
+  {
+    diary: "บันทึกอารมณ์ประจำวัน",
+    thoughtRecord: "สะท้อนความคิดวันนี้",
+  },
+  {
+    diary: "เล่าเหตุการณ์สำคัญ",
+    thoughtRecord: "จับความคิดเชิงลบ",
+  },
+  {
+    diary: "วันนี้เจออะไรบ้าง?",
+    thoughtRecord: "วิเคราะห์อารมณ์",
+  },
+  {
+    diary: "บันทึกสิ่งดี ๆ ที่เกิดขึ้น",
+    thoughtRecord: "เทคนิคที่ช่วยได้",
+  },
+  {
+    diary: "มุมมองใหม่ในวันนี้",
+    thoughtRecord: "วิเคราะห์พฤติกรรม",
+  },
+  {
+    diary: "สรุปภาพรวมทั้งสัปดาห์",
+    thoughtRecord: "สรุปการเปลี่ยนแปลงในตัวเอง",
+  },
+];
 
   const navigate = useNavigate();
   // const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
@@ -28,36 +118,36 @@ function HomePage() {
       });
     }
   }, [navigate]);
-  const [loginCount, setLoginCount] = useState(0);
-  const [percentChange, setPercentChange] = useState(0);
+  //const [loginCount, setLoginCount] = useState(0);
+  //const [percentChange, setPercentChange] = useState(0);
 
-  useEffect(() => {
-    const email = localStorage.getItem("currentLoginUser") || "";
-    const loginHistoryKey = `loginHistory-${email}`;
-    const loginHistory = JSON.parse(
-      localStorage.getItem(loginHistoryKey) || "{}"
-    );
+  //useEffect(() => {
+   // const email = localStorage.getItem("currentLoginUser") || "";
+    //const loginHistoryKey = `loginHistory-${email}`;
+    //const loginHistory = JSON.parse(
+    //  localStorage.getItem(loginHistoryKey) || "{}"
+   // );
 
     const today = new Date();
-    const todayStr = today.toLocaleDateString("th-TH");
+    //const todayStr = today.toLocaleDateString("th-TH");
 
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    const yesterdayStr = yesterday.toLocaleDateString("th-TH");
+    //const yesterdayStr = yesterday.toLocaleDateString("th-TH");
 
-    const todayCount = loginHistory[todayStr] || 0;
-    const yesterdayCount = loginHistory[yesterdayStr] || 0;
+    //const todayCount = loginHistory[todayStr] || 0;
+   // const yesterdayCount = loginHistory[yesterdayStr] || 0;
 
-    const percent =
-      yesterdayCount > 0
-        ? ((todayCount - yesterdayCount) / yesterdayCount) * 100
-        : todayCount > 0
-        ? 100 // ถ้าวันนี้มี แต่เมื่อวานไม่มีเลย → ถือเป็น +100%
-        : 0; // ถ้าวันนี้ก็ไม่มี → แสดง 0%
+    //const percent =
+      //yesterdayCount > 0
+       // ? ((todayCount - yesterdayCount) / yesterdayCount) * 100
+        //: todayCount > 0
+       // ? 100 // ถ้าวันนี้มี แต่เมื่อวานไม่มีเลย → ถือเป็น +100%
+       // : 0; // ถ้าวันนี้ก็ไม่มี → แสดง 0%
 
-    setLoginCount(todayCount);
-    setPercentChange(percent);
-  }, []);
+    //setLoginCount(todayCount);
+    //setPercentChange(percent);
+  //}, []);
 
  // const formattedDate = currentDate.toLocaleDateString("th-TH");
 
@@ -219,24 +309,48 @@ const handleShowAppointments = () => {
       {/* ส่วนบน: การ์ด potatopsy */}
       <div className="potatopsy-cards">
         {/* จำนวนเข้าใช้ระบบ */}
-        <div className="potatopsy-card turquoise">
-          <div className="potatopsy-card-left">
-            <div className="potatopsy-card-icon-wrapper">
-              <img
-                src="https://cdn-icons-png.flaticon.com/128/2198/2198366.png"
-                alt="login"
-              />
-            </div>
-            <p>จำนวนเข้าใช้ระบบ</p>
-          </div>
-          <div className="potatopsy-card-right">
-            <h3>{loginCount} ครั้ง</h3>
-            <span>
-              {percentChange >= 0 ? "+" : ""}
-              {percentChange.toFixed(1)}% จากเมื่อวาน
-            </span>
-          </div>
-        </div>
+      {/* Checklist Card */}
+  <div className="potatopsy-card turquoise">
+  <div className="checklist-card">
+    <h3 className="checklist-title">
+      Checklist
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/2666/2666505.png"
+        alt="checklist"
+        className="checklist-icon"
+      />
+    </h3>
+    <div className="checklist-items">
+      <div className="checklist-item" onClick={() => toggleCheck("diary")}>
+  <img
+    src={
+      checklist.diary
+        ? "https://cdn-icons-png.flaticon.com/128/9249/9249233.png"
+        : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
+    }
+    alt="checkbox"
+    className="check-icon"
+  />
+  <span>{DAILY_TASKS[currentDayIndex].diary}</span>
+</div>
+
+<div className="checklist-item" onClick={() => toggleCheck("thoughtRecord")}>
+  <img
+    src={
+      checklist.thoughtRecord
+        ? "https://cdn-icons-png.flaticon.com/128/9249/9249233.png"
+        : "https://cdn-icons-png.flaticon.com/128/3515/3515278.png"
+    }
+    alt="checkbox"
+    className="check-icon"
+  />
+  <span>{DAILY_TASKS[currentDayIndex].thoughtRecord}</span>
+</div>
+
+    </div>
+  </div>
+</div>
+
 
         {/* เวลา */}
        <div
@@ -244,7 +358,16 @@ const handleShowAppointments = () => {
   onClick={handleShowAppointments}
 >
   <div style={{ width: "100%", textAlign: "center" }}>
-    <h3 style={{ fontSize: "1.5rem", margin: 0 }}>นัดหมาย</h3>
+    <h3 style={{ fontSize: "1.5rem", margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+  <img
+    src="https://cdn-icons-png.flaticon.com/128/16950/16950690.png"
+    alt="appointment"
+    width="28"
+    style={{ verticalAlign: "middle" }}
+  />
+  ข้อมูลนัดหมาย
+</h3>
+
   </div>
 </div>
 

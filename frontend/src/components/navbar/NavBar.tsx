@@ -30,38 +30,47 @@ function NavBar() {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ ฟังก์ชันให้เรียกใช้จากปุ่มอื่น ๆ ภายหลัง
-  useEffect(() => {
-    window.confirmAppointment = async (id: string, status: string) => {
-      try {
-        const res = await fetch("http://localhost:8000/appointments/status", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            id: Number(id),
-            status,
-          }),
-        });
+useEffect(() => {
+  window.confirmAppointment = async (id: string, status: string) => {
+    try {
+      // 🔹 อัปเดต API
+      const res = await fetch("http://localhost:8000/appointments/status", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          id: Number(id),
+          status,
+        }),
+      });
 
-        if (!res.ok) throw new Error("อัปเดตสถานะล้มเหลว");
+      if (!res.ok) throw new Error("อัปเดตสถานะล้มเหลว");
 
-        Swal.fire("สำเร็จ", status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว", "success");
+      Swal.fire("สำเร็จ", status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว", "success");
 
-        // ✅ อัปเดตสถานะในปฏิทิน (ถ้ามี)
-        const calendar = JSON.parse(localStorage.getItem("calendar_events") || "[]");
-        const updated = calendar.map((ev: any) =>
-          ev.id === Number(id) ? { ...ev, status } : ev
-        );
-        localStorage.setItem("calendar_events", JSON.stringify(updated));
-        window.dispatchEvent(new Event("calendarEventsUpdated"));
-      } catch (err: any) {
-        Swal.fire("ผิดพลาด", err.message || "ไม่สามารถอัปเดตสถานะได้", "error");
-      }
-    };
-  }, []);
+      // 🔹 อัปเดต calendar_events
+      const calendar = JSON.parse(localStorage.getItem("calendar_events") || "[]");
+      const updatedCalendar = calendar.map((ev: any) =>
+        ev.id === Number(id) ? { ...ev, status } : ev
+      );
+      localStorage.setItem("calendar_events", JSON.stringify(updatedCalendar));
+
+      // 🔹 อัปเดต patient_notifications
+      const noticeList = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+      const updatedNoticeList = noticeList.map((notice: any) =>
+        notice.appointment_id === Number(id) ? { ...notice, status } : notice
+      );
+      localStorage.setItem("patient_notifications", JSON.stringify(updatedNoticeList));
+
+      window.dispatchEvent(new Event("calendarEventsUpdated"));
+    } catch (err: any) {
+      Swal.fire("ผิดพลาด", err.message || "ไม่สามารถอัปเดตสถานะได้", "error");
+    }
+  };
+}, []);
+
 useEffect(() => {
   const id = localStorage.getItem("id");
   if (!id) return;

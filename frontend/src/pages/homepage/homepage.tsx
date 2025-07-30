@@ -99,13 +99,13 @@ function HomePage() {
         </div>
       `;
 
-     Swal.fire({
+ Swal.fire({
   html: htmlContent,
   width: 600,
-  showDenyButton: true,
+  showDenyButton: true, // ✅ เพิ่ม
   showCancelButton: true,
   confirmButtonText: "✅ ยืนยันการนัด",
-  denyButtonText: "❌ ปฏิเสธการนัด",
+  denyButtonText: "❌ ปฏิเสธการนัด", // ✅ แยกปุ่ม deny ออกต่างหาก
   cancelButtonText: "ยกเลิก",
   showCloseButton: true,
 }).then((result) => {
@@ -114,9 +114,10 @@ function HomePage() {
   } else if (result.isDenied) {
     window.confirmAppointment(data.appointment_id, "rejected");
   } else if (result.dismiss === Swal.DismissReason.cancel) {
-    console.log("❎ ยกเลิกการตอบกลับ"); // ไม่ทำอะไร
+    console.log("❎ ยกเลิกการตอบกลับ");
   }
 });
+
 
     }
   };
@@ -171,17 +172,34 @@ const handleShowAppointments = () => {
         <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
         แจ้งเตือนนัดหมาย
       </h3>
-      ${filtered.slice(-99).map((item: any) => `
-        <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
-          <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(item.start_time).toLocaleDateString()} 
-          ${new Date(item.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(item.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.</div>
-          <div><b>รายละเอียด:</b> ${item.detail}</div>
-          <div style="margin-top: 10px; display: flex; gap: 10px;">
-            <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
-            <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
-          </div>
-        </div>
-      `).join("")}
+      ${filtered.slice(-99).map((item: any) => {
+  const startTime = new Date(item.start_time);
+  const endTime = new Date(item.end_time);
+  const isConfirmed = item.status === "accepted" || item.status === "rejected";
+  const statusText = item.status === "accepted" ? "✅ ยืนยันแล้ว" :
+                     item.status === "rejected" ? "❌ ปฏิเสธแล้ว" : "";
+
+  return `
+    <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
+      <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${startTime.toLocaleDateString()} 
+        ${startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+      </div>
+      <div><b>รายละเอียด:</b> ${item.detail}</div>
+      <div style="margin-top: 10px;">
+        ${
+          isConfirmed
+            ? `<div style="color: #666; font-weight: 500;">${statusText} • ดำเนินการเรียบร้อยแล้ว</div>`
+            : `
+              <div style="display: flex; gap: 10px;">
+                <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
+                <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
+              </div>
+            `
+        }
+      </div>
+    </div>
+  `;
+}).join("")}
     </div>
   `;
 

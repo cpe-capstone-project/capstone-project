@@ -290,41 +290,72 @@ const handleForgotPasswordClick = () => {
       </Col>
       <Col span={24}>
               <Form name="login" layout="vertical" onFinish={onFinish} autoComplete="off">
-                <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Email</span>}
-                  name="email"
-                  rules={[{ required: true, message: "Please enter your email" }]}
-                >
-                  <Input
-                    size="large"
-                    style={{
-                      borderRadius: 8,
-                      height:40,
-                      backgroundColor: "#f5faff",
-                      border: "1px solid #dbe9f9",
-                      padding: "0 18px"
-                    }}
-                    placeholder="Enter your email"
-                  />
-                </Form.Item>
+<Form.Item
+  label={<span style={{ fontWeight: 600 }}>Email</span>}
+  name="email"
+  rules={[{ required: true, message: "Please enter your email" }]}
+>
+  <Input
+    size="large"
+    style={{
+      borderRadius: 10,
+      height: 40,
+      backgroundColor: "#ffffff",
+      border: "1.5px solid #d0d0d0", // ✅ ขอบเทาอ่อนเริ่มต้น
+      padding: "0 18px",
+      fontSize: "1rem",
+      fontFamily: "Segoe UI, Sarabun, sans-serif",
+      transition: "all 0.3s ease",
+    }}
+    placeholder="Enter your email"
+    onFocus={(e) => {
+      e.target.style.border = "1.5px solid  #aadffb "; // ✅ ขอบฟ้าเมื่อคลิก
+      e.target.style.boxShadow = "0 0 6px rgba(0, 153, 255, 0.15)";
+    }}
+    onBlur={(e) => {
+      e.target.style.border = "1.5px solid #d0d0d0"; // ✅ กลับเป็นขอบเทาอ่อน
+      e.target.style.boxShadow = "none";
+    }}
+  />
+</Form.Item>
 
-                <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Password</span>}
-                  name="password"
-                  rules={[{ required: true, message: "Please enter your password" }]}
-                >
-                  <Input.Password
-                    size="large"
-                    style={{
-                      borderRadius: 8,
-                      height:40,
-                      backgroundColor: "#f5faff",
-                      border: "1px solid #dbe9f9",
-                      padding: "0 18px"
-                    }}
-                    placeholder="Enter your password"
-                  />
-                </Form.Item>
+<Form.Item
+  label={<span style={{ fontWeight: 600 }}>Password</span>}
+  name="password"
+  rules={[{ required: true, message: "Please enter your password" }]}
+>
+  <Input.Password
+    size="large"
+    style={{
+      borderRadius: 10,
+      height: 40,
+      backgroundColor: "#ffffff",
+      border: "1.5px solid #d0d0d0",
+      padding: "0 18px",
+      fontSize: "1rem",
+      fontFamily: "Segoe UI, Sarabun, sans-serif",
+      transition: "all 0.3s ease",
+    }}
+    placeholder="Enter your password"
+    onFocus={(e) => {
+      const input = e.currentTarget.querySelector("input");
+      if (input) {
+        input.style.border = "1.5px solid #aadffb ";
+        input.style.boxShadow = "0 0 6px rgba(0, 153, 255, 0.15)";
+      }
+    }}
+    onBlur={(e) => {
+      const input = e.currentTarget.querySelector("input");
+      if (input) {
+        input.style.border = "1.5px solid #d0d0d0";
+        input.style.boxShadow = "none";
+      }
+    }}
+  />
+</Form.Item>
+
+
+
 
                 <div
   style={{

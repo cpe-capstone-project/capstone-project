@@ -6,5 +6,6 @@ export interface DiaryInterface {
   Content?: string;
   UpdatedAt?: string;
   TagColors?: string;
+  Confirmed?: boolean;
   TherapyCaseID?: number;
 }

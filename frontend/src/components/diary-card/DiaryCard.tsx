@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import { useDate } from "../../contexts/DateContext";
 import { useDiary } from "../../contexts/DiaryContext";
-import { AiFillEdit } from "react-icons/ai";
-import { FaTrash } from "react-icons/fa6";
+// import { AiFillEdit } from "react-icons/ai";
+// import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import EditDiaryModal from "../edit-diary-modal/EditDiaryModal";
 import "./DiaryCard.css";
@@ -16,7 +16,7 @@ interface DiaryCardProps {
 const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
   const { formatShort } = useDate();
   const { deleteDiary } = useDiary();
-  const [menuOpen, setMenuOpen] = useState(false);
+  // const [menuOpen, setMenuOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const navigate = useNavigate();
@@ -36,8 +36,8 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
     <>
       <div
         className="diary-card"
-        onMouseEnter={() => setMenuOpen(true)}
-        onMouseLeave={() => setMenuOpen(false)}
+        // onMouseEnter={() => setMenuOpen(true)}
+        // onMouseLeave={() => setMenuOpen(false)}
         onClick={() => {
           if (!showConfirm) {
             navigate(`/patient/diary/detail/${diary.ID}`);
@@ -45,6 +45,7 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
         }}
         style={{ cursor: "pointer" }}
       >
+        
         <div className="tag-bar">
           {tagColors.map((color, index) => (
             <div
@@ -74,8 +75,8 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
 
           <p className="card-text">{stripHtml(diary.Content || "")}</p>
 
-          {menuOpen && (
-             <section className="options-overlay">
+          {/* {menuOpen && (
+             
 
             <div className="options-menu">
               <button
@@ -101,7 +102,7 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
               </button>
             </div>
              </section>
-          )}
+          )} */}
         </div>
         {showConfirm && (
           <div className="confirm-overlay">

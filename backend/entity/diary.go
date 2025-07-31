@@ -11,6 +11,7 @@ type Diaries struct {
 	Content 		string
 	UpdatedAt		time.Time
 	TagColors     	string
+	Confirmed 		bool
 
 	TherapyCaseID	uint
 	TherapyCase		*TherapyCase 	`gorm:"foreignKey:TherapyCaseID"`

@@ -5,4 +5,5 @@ export interface DiarySummaryInterface {
   StartDate?: string;
   EndDate?: string;
   SummaryText?: string;
+  Keyword?: string;
 }

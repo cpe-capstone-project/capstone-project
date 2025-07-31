@@ -75,9 +75,9 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
                       )}
                     </span>
                     <br />
-                    <span>{stripHtml(diary.Content || "")}</span>
+                    <span className="tooltip-content-preview">{stripHtml(diary.Content || "")}</span>
                   </div>
-                  <div className="diary-tooltip-actions">
+                  {/* <div className="diary-tooltip-actions">
                     <button
                       className="diary-tooltip-btn-edit"
                       onClick={() => setEditingDiary(diary)}
@@ -90,7 +90,7 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
                     >
                       ลบ
                     </button>
-                  </div>
+                  </div> */}
                 </section>
               }
               placement="topLeft"
@@ -143,39 +143,38 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
           onSave={() => setEditingDiary(null)}
         />
       )}
-{deletingDiary && (
-  <div
-    className="calendar-confirm-overlay"
-    onClick={() => setDeletingDiary(null)} // ✅ ปิด modal ถ้าคลิก overlay
-  >
-    <div
-      className="confirm-modal"
-      onClick={(e) => e.stopPropagation()} // ✅ ไม่ให้ modal ปิดถ้าคลิกในกล่อง
-    >
-      <h3>ยืนยันการลบ</h3>
-      <p>คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่นี้?</p>
-      <div className="confirm-buttons">
-        <button
-          className="btn cancel"
-          onClick={() => setDeletingDiary(null)}
+      {deletingDiary && (
+        <div
+          className="calendar-confirm-overlay"
+          onClick={() => setDeletingDiary(null)} // ✅ ปิด modal ถ้าคลิก overlay
         >
-          ยกเลิก
-        </button>
-        <button
-          className="btn delete"
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteDiary(deletingDiary.ID || 0);
-            setDeletingDiary(null);
-          }}
-        >
-          ลบ
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+          <div
+            className="confirm-modal"
+            onClick={(e) => e.stopPropagation()} // ✅ ไม่ให้ modal ปิดถ้าคลิกในกล่อง
+          >
+            <h3>ยืนยันการลบ</h3>
+            <p>คุณแน่ใจหรือไม่ว่าต้องการลบไดอารี่นี้?</p>
+            <div className="confirm-buttons">
+              <button
+                className="btn cancel"
+                onClick={() => setDeletingDiary(null)}
+              >
+                ยกเลิก
+              </button>
+              <button
+                className="btn delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteDiary(deletingDiary.ID || 0);
+                  setDeletingDiary(null);
+                }}
+              >
+                ลบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

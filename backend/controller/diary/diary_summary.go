@@ -21,22 +21,22 @@ type SummaryRequest struct {
 }
 
 func stripHTMLTags(input string) string {
-    re := regexp.MustCompile(`<[^>]*>`)
-    return re.ReplaceAllString(input, "")
+	re := regexp.MustCompile(`<[^>]*>`)
+	return re.ReplaceAllString(input, "")
 }
 
 // GET /diary-summary/:id
-func GetDiarySummaryByID(c *gin.Context){
+func GetDiarySummaryByID(c *gin.Context) {
 	ID := c.Param("id")
 	var diary_summary entity.DiarySummary
 
 	db := config.DB()
 	results := db.Preload("TherapyCase").Preload("Diaries").First(&diary_summary, ID)
-	if results.Error != nil{
+	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
-	if diary_summary.ID == 0{
+	if diary_summary.ID == 0 {
 		c.JSON(http.StatusNoContent, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -54,10 +54,11 @@ func SummarizeDiaries(c *gin.Context) {
 	db := config.DB()
 	var diaries []entity.Diaries
 
-	if err := db.Where("therapy_case_id = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, req.StartDate, req.EndDate).
+	if err := db.Where("therapy_case_id = ? AND confirmed = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, true, req.StartDate, req.EndDate).
 		Order("created_at ASC").Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
 		return
+
 	}
 
 	if len(diaries) == 0 {
@@ -72,11 +73,20 @@ func SummarizeDiaries(c *gin.Context) {
 		fullText += "Title: " + d.Title + "\n" + "Content: " + cleanContent + "\n\n"
 	}
 
+	fmt.Println("Full diary text for summarization:", fullText)
+
 	// เตรียมข้อความ prompt เพื่อสรุปด้วย Gemini
 	summaryInput := fmt.Sprintf(`ด้านล่างคือบันทึกประจำวันของผู้ป่วยในการบำบัดด้วย CBT
-	กรุณาสรุปแนวโน้มทางอารมณ์ เหตุการณ์สำคัญ ความคืบหน้าของผู้ป่วย อยากให้ใช้คำทำไม่กระทบต่อจิตใจ :
+	กรุณาสรุปเนื้อหาด้านล่างนี้เป็นภาษาไทยอย่างสั้น กระชับ และชัดเจน โดยต้องแสดง:
+	1. สรุป: สรุปเนื้อหาไดอารี่ในรูปแบบที่เข้าใจง่าย
+	2. Keyword: แสดงคำสำคัญที่สะท้อนอารมณ์หรือประเด็นหลักที่ปรากฏในไดอารี่ (คั่นด้วยเครื่องหมายจุลภาค)
 
-	%s`, fullText) // <- ใช้ข้อความที่แปลเป็นอังกฤษแล้ว
+	กรุณาแสดงผลลัพธ์ในรูปแบบดังนี้:
+	สรุป: [ข้อความสรุป]  
+	Keyword: [คำสำคัญ, คำสำคัญ, ...]
+
+	ข้อมูลไดอารี่:
+	%s`, fullText)
 
 	// ⛔ ยกเลิกการแปล + summarize แบบเก่า
 	// ✅ เรียก Gemini API ตรง ๆ แทน
@@ -87,13 +97,26 @@ func SummarizeDiaries(c *gin.Context) {
 		return
 	}
 
+	summaryText := ""
+	keywords := ""
+
+	summaryPattern := regexp.MustCompile(`(?m)^สรุป:\s*(.+)`)
+	keywordPattern := regexp.MustCompile(`(?m)^Keyword:\s*(.+)`)
+
+	if match := summaryPattern.FindStringSubmatch(summaryTH); len(match) > 1 {
+		summaryText = match[1]
+	}
+	if match := keywordPattern.FindStringSubmatch(summaryTH); len(match) > 1 {
+		keywords = match[1]
+	}
 
 	summary := entity.DiarySummary{
 		TherapyCaseID: req.TherapyCaseID,
 		Timeframe:     req.Timeframe,
 		StartDate:     req.StartDate,
 		EndDate:       req.EndDate,
-		SummaryText:   summaryTH,
+		SummaryText:   summaryText,
+		Keyword:       keywords,
 		Diaries:       diaries,
 	}
 

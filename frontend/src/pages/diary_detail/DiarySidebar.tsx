@@ -200,12 +200,17 @@ const DiarySidebar = () => {
                 Number(id) === item.ID ? " active" : ""
               }`}
             >
+              {!item.Confirmed && (
+                <div className="unconfirmed-badge">ยังไม่บันทึก</div>
+              )}
               <button
                 className={`circle-select-btn${
-                  selectedIds.includes(item.ID!) ? " selected" : ""
-                }`}
+                  item.Confirmed ? " confirmed" : ""
+                }${selectedIds.includes(item.ID!) ? " selected" : ""}`}
                 onClick={() => handleAddDeleteList(item.ID!)}
+                disabled={item.Confirmed}
               />
+
               <Link
                 // id={`diary-${item.ID}`}
                 key={item.ID}

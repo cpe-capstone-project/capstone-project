@@ -11,6 +11,7 @@ type DiarySummary struct {
 	StartDate     	time.Time
 	EndDate       	time.Time
 	SummaryText   	string
+	Keyword   		string
 	
 	TherapyCaseID 	uint
 	TherapyCase 	*TherapyCase `gorm:"foreignKey:TherapyCaseID"`

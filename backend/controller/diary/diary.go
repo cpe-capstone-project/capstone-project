@@ -81,6 +81,7 @@ func CreateDiary(c *gin.Context){
 		Title: diary.Title,
 		Content: diary.Content,
 		TagColors: diary.TagColors,
+		Confirmed: false,
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 
@@ -112,6 +113,10 @@ func UpdateDiaryByID(c *gin.Context){
 	defaultColors := "#FFC107,#FF9800,#FF5722"
 	if diary.TagColors == "" {
 		diary.TagColors = defaultColors
+	}
+
+	if diary.Confirmed == false {
+		diary.Confirmed = true
 	}
 
 	result = db.Save(&diary)

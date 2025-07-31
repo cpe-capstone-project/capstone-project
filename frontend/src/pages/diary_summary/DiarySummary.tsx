@@ -28,8 +28,6 @@ function DiarySummary() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-  console.log("summaryData", summaryData);
-
   const tags = [
     "Happy",
     "Sad",
@@ -186,6 +184,8 @@ function DiarySummary() {
               <p>{summaryData.SummaryText}</p>
             </div>
           </div>
+
+          <h1>Keyword: {summaryData.Keyword}</h1>
 
           <h1>อารมณ์โดยรวม</h1>
           <div className="tags-container">

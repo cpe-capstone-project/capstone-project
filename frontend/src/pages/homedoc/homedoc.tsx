@@ -505,7 +505,6 @@ onChange={(e) => setSearchTerm(e.target.value)}
         <th>อายุ</th>
         <th>เพศ</th>
         <th>วันเกิด</th>
-        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -518,9 +517,6 @@ onChange={(e) => setSearchTerm(e.target.value)}
             <td>{p.age}</td>
             <td>{p.gender}</td>
             <td>{new Date(p.birthday).toLocaleDateString("th-TH")}</td>
-            <td>
-              <span className="status-tag active">Active</span>
-            </td>
           </tr>
         ))
       ) : (

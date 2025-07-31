@@ -192,7 +192,7 @@ button[type="submit"]:focus {
 }
 
 .login-link a {
-  color: rgb(0, 123, 255); 
+  color: rgb(71, 166, 255); 
   text-decoration: none;
   font-weight: 500;
 }
@@ -250,7 +250,7 @@ button[type="submit"]:focus {
 
 .yokhealth-btn {
   width: 100%;
-  background-color: rgb(0, 123, 255);
+  background-color: rgb(71, 166, 255);
   border: 1.5px solid #ffffff;
   color: #ffffff;
   padding: 0.6rem 1.5rem;

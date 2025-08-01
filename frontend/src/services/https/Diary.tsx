@@ -61,7 +61,7 @@ async function CreateDiary(data: DiarySummaryInterface) {
     .catch((e) => e.response);
 }
 
-async function CreateDiarySummary(data: DiarySummaryInterface) {
+async function CreateDiarySummary(data: unknown) {
   return await axios
     .post(`${apiUrl}/diary-summary`, data, requestOptions)
     .then((res) => res)

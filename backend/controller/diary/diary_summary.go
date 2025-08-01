@@ -18,6 +18,7 @@ type SummaryRequest struct {
 	Timeframe     string
 	StartDate     time.Time
 	EndDate       time.Time
+	Timezone      string
 }
 
 func stripHTMLTags(input string) string {
@@ -51,14 +52,21 @@ func SummarizeDiaries(c *gin.Context) {
 		return
 	}
 
+	// ✅ แปลงเวลาให้ตรง timezone ที่ผู้ใช้ส่งมา
+	loc, err := time.LoadLocation(req.Timezone)
+	if err != nil {
+		loc = time.UTC // fallback ถ้า timezone ไม่ถูกต้อง
+	}
+	start := req.StartDate.In(loc)
+	end := req.EndDate.In(loc)
+
 	db := config.DB()
 	var diaries []entity.Diaries
 
-	if err := db.Where("therapy_case_id = ? AND confirmed = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, true, req.StartDate, req.EndDate).
+	if err := db.Where("therapy_case_id = ? AND confirmed = ? AND created_at BETWEEN ? AND ?", req.TherapyCaseID, true, start, end).
 		Order("created_at ASC").Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
 		return
-
 	}
 
 	if len(diaries) == 0 {

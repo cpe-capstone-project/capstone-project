@@ -7,7 +7,7 @@ import { usePath } from "../../contexts/PathContext";
 // import { useDate } from "../../contexts/DateContext";
 import { colorOptions } from "../../constants/colors";
 
-import { FloatButton } from "antd";
+import { FloatButton, Modal } from "antd";
 import {
   CloseOutlined,
   CommentOutlined,
@@ -35,10 +35,10 @@ import Toolbar from "../../components/text-editor/Toolbar";
 // import { SlOptions } from "react-icons/sl";
 // import { groupByDate } from "../../utils/GroupByDate";
 import DiarySidebar from "./DiarySidebar";
-import "./DiaryDetail.css";
 import DiaryFeedback from "./DiaryFeedback";
 import ColorPickerTooltip from "../../components/color-picker-tooltip/ColorPickerTooltip";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
+import "./DiaryDetail.css";
 
 function DiaryDetail() {
   // ดึง id จาก URL
@@ -57,8 +57,10 @@ function DiaryDetail() {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const [tagColors, setTagColors] = useState<string[]>(
-    diary?.TagColors?.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) || []
+    diary?.TagColors?.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) ||
+      []
   );
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -86,10 +88,11 @@ function DiaryDetail() {
       TiptapLink.configure({ openOnClick: false }),
       TextAlign.configure({
         types: ["heading", "paragraph"],
-        defaultAlignment: "left", // <<< อันนี้คือค่า default
+        defaultAlignment: "left",
       }),
     ],
     content: '<p style="text-align: left;"></p>',
+    editable: diary ? !diary.Confirmed : true,
   });
 
   // ฟังก์ชันบันทึกข้อมูล diary
@@ -150,7 +153,7 @@ function DiaryDetail() {
     const colorsChanged =
       tagColors.length !== originalColors.length ||
       tagColors.some((color) => !originalColors.includes(color));
-
+    editor.setEditable(!diary.Confirmed);
     setIsModified(contentChanged || titleChanged || colorsChanged);
   }, [editor, diary, originalDiary, tagColors]);
 
@@ -200,18 +203,15 @@ function DiaryDetail() {
     }
   }, [transcript, editor]);
 
-useEffect(() => {
-  if (diary?.TagColors) {
-    setTagColors(
-      diary.TagColors
-        .split(",")
-        .map((c) => c.trim().replace(/^"|"$/g, "")) // ลบ " ซ้อน
-    );
-  } else {
-    setTagColors([]);
-  }
-}, [diary]);
-
+  useEffect(() => {
+    if (diary?.TagColors) {
+      setTagColors(
+        diary.TagColors.split(",").map((c) => c.trim().replace(/^"|"$/g, "")) // ลบ " ซ้อน
+      );
+    } else {
+      setTagColors([]);
+    }
+  }, [diary]);
 
   // ถ้าไม่มี diary หรือ editor ให้ return null
   if (!diary || !editor) return;
@@ -244,36 +244,54 @@ useEffect(() => {
                 value={diary.Title}
                 onChange={(e) => setDiary({ ...diary, Title: e.target.value })}
                 placeholder="พิมพ์ชื่อเรื่องที่นี่"
+                disabled={diary.Confirmed}
               />
             </div>
             <ColorPickerTooltip
-  colorOptions={colorOptions}
-  selectedColors={tagColors}
-  onChange={setTagColors}
-  onReset={() => {
-    if (originalDiary?.TagColors) {
-      const original = originalDiary.TagColors
-        .split(",")
-        .map((c) => c.trim().replace(/^"|"$/g, ""));
-      setTagColors(original);
-    } else {
-      setTagColors([]);
-    }
-  }}
-/>
-
+              colorOptions={colorOptions}
+              selectedColors={tagColors}
+              onChange={setTagColors}
+              onReset={() => {
+                if (originalDiary?.TagColors) {
+                  const original = originalDiary.TagColors.split(",").map((c) =>
+                    c.trim().replace(/^"|"$/g, "")
+                  );
+                  setTagColors(original);
+                } else {
+                  setTagColors([]);
+                }
+              }}
+            />
 
             {/* ปุ่มบันทึก */}
             <button
-              onClick={handleSave}
+              onClick={() => setIsConfirmModalVisible(true)}
               title="Save"
               className="diary-save-btn"
               disabled={
-                !isModified || !diary?.Title?.trim() || !editor.getText().trim()
+                diary.Confirmed ||
+                !isModified ||
+                !diary?.Title?.trim() ||
+                !editor.getText().trim()
               }
             >
-              Save
+              {diary.Confirmed ? "confirmed" : "save"}
             </button>
+            <Modal
+              title="ยืนยันการบันทึก"
+              open={isConfirmModalVisible}
+              centered
+              onOk={() => {
+                handleSave();
+                setIsConfirmModalVisible(false);
+              }}
+              onCancel={() => setIsConfirmModalVisible(false)}
+              okText="ยืนยัน"
+              cancelText="ยกเลิก"
+            >
+              <p>หลังจากบันทึกเสร็จสิ้นเรียบร้อยจะไม่สามารถกลับมาแก้ไขหรือลบไดอารี่ได้อีก</p>
+              <p>คุณต้องการบันทึกไดอารี่นี้หรือไม่?</p>
+            </Modal>
           </div>
           {/* <hr /> */}
 
@@ -303,6 +321,7 @@ useEffect(() => {
             }
             isRecording={listening}
             browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
+            confirmSave={diary.Confirmed}
           />
           {/* พื้นที่แสดง editor */}
           <EditorContent editor={editor} className="editor-content" />

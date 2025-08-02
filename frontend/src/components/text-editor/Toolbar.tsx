@@ -32,6 +32,7 @@ type ToolbarProps = {
   fullscreen?: boolean;
   onToggleFullscreen?: () => void;
   browserSupportsSpeechRecognition?: boolean;
+  confirmSave?: boolean;
 };
 
 function Toolbar({
@@ -42,6 +43,7 @@ function Toolbar({
   fullscreen,
   onToggleFullscreen,
   browserSupportsSpeechRecognition,
+  confirmSave,
 }: ToolbarProps) {
   const canUndo = editor.can().undo();
   const canRedo = editor.can().redo();
@@ -77,7 +79,7 @@ function Toolbar({
           <Tooltip title="Undo">
             <button
               onClick={() => editor.chain().focus().undo().run()}
-              disabled={!canUndo}
+              disabled={!canUndo || confirmSave}
               className={!canUndo ? "disabled" : ""}
             >
               <RiArrowGoBackLine />
@@ -86,7 +88,7 @@ function Toolbar({
           <Tooltip title="Redo">
             <button
               onClick={() => editor.chain().focus().redo().run()}
-              disabled={!canRedo}
+              disabled={!canRedo || confirmSave}
               className={!canRedo ? "disabled" : ""}
             >
               <RiArrowGoForwardLine />
@@ -99,6 +101,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={editor.isActive("bold") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiBold />
             </button>
@@ -107,6 +110,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleItalic().run()}
               className={editor.isActive("italic") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiItalic />
             </button>
@@ -115,6 +119,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleStrike().run()}
               className={editor.isActive("strike") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiStrikethrough />
             </button>
@@ -123,6 +128,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               className={editor.isActive("underline") ? "active" : ""}
+              disabled={confirmSave}
             >
               <AiOutlineUnderline />
             </button>
@@ -135,6 +141,7 @@ function Toolbar({
                   ? "active highlight-btn"
                   : "highlight-btn"
               }
+              disabled={confirmSave}
             >
               <BiHighlight />
             </button>
@@ -161,6 +168,7 @@ function Toolbar({
                 ? "3"
                 : ""
             }
+            disabled={confirmSave}
           >
             <option value="">Paragraph</option>
             <option value="1">Heading 1</option>
@@ -174,6 +182,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               className={editor.isActive("orderedList") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiListOrdered />
             </button>
@@ -182,6 +191,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={editor.isActive("bulletList") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiListUnordered />
             </button>
@@ -193,6 +203,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().setTextAlign("left").run()}
               className={isAlign("left") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiAlignLeft />
             </button>
@@ -203,6 +214,7 @@ function Toolbar({
                 editor.chain().focus().setTextAlign("center").run()
               }
               className={isAlign("center") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiAlignCenter />
             </button>
@@ -211,6 +223,7 @@ function Toolbar({
             <button
               onClick={() => editor.chain().focus().setTextAlign("right").run()}
               className={isAlign("right") ? "active" : ""}
+              disabled={confirmSave}
             >
               <RiAlignRight />
             </button>
@@ -220,6 +233,7 @@ function Toolbar({
         <Tooltip title="Horizontal Rule">
           <button
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            disabled={confirmSave}
           >
             <RiSeparator />
           </button>
@@ -242,6 +256,7 @@ function Toolbar({
               }}
               className={isRecording ? "recording" : ""}
               style={isRecording ? { color: "red" } : {}}
+              disabled={confirmSave}
             >
               <RiMic2Line
                 className={isRecording ? "mic-animate" : ""}
@@ -265,6 +280,7 @@ function Toolbar({
               if (onReset) onReset();
             }}
             className="reset-btn"
+            disabled={confirmSave}
           >
             <RiResetRightFill />
           </button>

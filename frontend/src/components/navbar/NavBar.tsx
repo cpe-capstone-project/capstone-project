@@ -1,13 +1,138 @@
 import { useNavigate, useLocation } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Navbar.css";
 import Swal from "sweetalert2";
 import healthImage from "../../assets/med5.png";
+
+// ✅ เพิ่ม global function
+declare global {
+  interface Window {
+    confirmAppointment: (id: string, status: string) => void;
+  }
+}
 
 function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
+  const [hasNotice, setHasNotice] = useState(localStorage.getItem("has_new_notice") === "true");
+  const [, setNoticeList] = useState(() => {
+    const stored = localStorage.getItem("patient_notifications");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  // ✅ อัปเดตทุกวินาทีเพื่อตรวจ flag ใหม่
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const isNew = localStorage.getItem("has_new_notice") === "true";
+      setHasNotice(isNew);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+useEffect(() => {
+  window.confirmAppointment = async (id: string, status: string) => {
+    try {
+      // 🔹 อัปเดต API
+      const res = await fetch("http://localhost:8000/appointments/status", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          id: Number(id),
+          status,
+        }),
+      });
+
+      if (!res.ok) throw new Error("อัปเดตสถานะล้มเหลว");
+
+      Swal.fire("สำเร็จ", status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว", "success");
+
+      // 🔹 อัปเดต calendar_events
+      const calendar = JSON.parse(localStorage.getItem("calendar_events") || "[]");
+      const updatedCalendar = calendar.map((ev: any) =>
+        ev.id === Number(id) ? { ...ev, status } : ev
+      );
+      localStorage.setItem("calendar_events", JSON.stringify(updatedCalendar));
+
+      // 🔹 อัปเดต patient_notifications
+      const noticeList = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+      const updatedNoticeList = noticeList.map((notice: any) =>
+        notice.appointment_id === Number(id) ? { ...notice, status } : notice
+      );
+      localStorage.setItem("patient_notifications", JSON.stringify(updatedNoticeList));
+
+      window.dispatchEvent(new Event("calendarEventsUpdated"));
+    } catch (err: any) {
+      Swal.fire("ผิดพลาด", err.message || "ไม่สามารถอัปเดตสถานะได้", "error");
+    }
+  };
+}, []);
+
+useEffect(() => {
+  const id = localStorage.getItem("id");
+  if (!id) return;
+
+  const socket = new WebSocket(`ws://localhost:8000/ws/${id}`);
+  socket.onopen = () => console.log("✅ WebSocket opened");
+  socket.onerror = (err) => console.error("❌ WebSocket error", err);
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === "appointment_created") {
+      console.log("🔥 ได้รับนัดหมายใหม่");
+
+      const existing = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+      const updated = [...existing, {
+        start_time: data.start_time,
+        end_time: data.end_time,
+        detail: data.detail,
+        appointment_id: data.appointment_id,
+      }];
+      localStorage.setItem("patient_notifications", JSON.stringify(updated));
+      localStorage.setItem("has_new_notice", "true");
+      setNoticeList(updated);
+      setHasNotice(true);
+
+      // ✅ แสดง Swal แจ้งเตือนแบบตอบกลับได้
+      const htmlContent = `
+        <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px; text-align: left;">
+          <h3 style="margin-bottom: 15px; text-align: center;">
+            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+            แจ้งเตือนนัดหมาย
+          </h3>
+
+          <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9rem;">
+            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
+              ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+            </div>
+            <div><b>รายละเอียด:</b> ${data.detail}</div>
+          </div>
+        </div>
+      `;
+
+      Swal.fire({
+        html: htmlContent,
+        width: 600,
+        showCancelButton: true,
+        confirmButtonText: "ยืนยันการนัด",
+        cancelButtonText: "ปฏิเสธการนัด",
+        showCloseButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.confirmAppointment(data.appointment_id, "accepted");
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          window.confirmAppointment(data.appointment_id, "rejected");
+        }
+      });
+    }
+  };
+
+  return () => socket.close();
+}, []);
+
 
   const handleNavigate = (path: string) => {
     const basePath = location.pathname.split("/")[1];
@@ -253,8 +378,9 @@ width: "850px",
   const out = () => {
      // ✅ เก็บค่า loginHistory และ currentLoginUser ไว้
   const historyKeys = Object.keys(localStorage).filter(key =>
-    key.startsWith("loginHistory-") || key === "currentLoginUser"
-  );
+     key.startsWith("loginHistory-") || key === "currentLoginUser" ||
+  key === "patient_notifications" || key === "has_new_notice"
+);
   const historyData: Record<string, string> = {};
   for (const key of historyKeys) {
     historyData[key] = localStorage.getItem(key)!;
@@ -296,7 +422,10 @@ width: "850px",
       </a>
       <ul className="menu">
         <li>
-          <a onClick={() => handleNavigate("home")}>Dashboard</a>
+          <a onClick={() => handleNavigate("")}>Dashboard</a>
+        </li>
+        <li>
+          <a onClick={() => handleNavigate("home")}>Management</a>
         </li>
         <li>
           <a onClick={() => handleNavigate("diary")}>Diary</a>
@@ -304,16 +433,32 @@ width: "850px",
         <li>
           <a onClick={() => handleNavigate("thought")}>Thought Record</a>
         </li>
-        <li>
-    <img
-      src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
-      alt="Icon"
-      width="24"
-      height="24"
-      style={{ cursor: "pointer" }}
-      onClick={() => console.log("Icon clicked")}
+   <li style={{ position: "relative" }}>
+  <img
+    src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
+    alt="แจ้งเตือน"
+    width="24"
+    height="24"
+    style={{ cursor: "default" }} // เปลี่ยนจาก pointer → default เพื่อให้รู้ว่าไม่ได้คลิก
+  />
+  {hasNotice && (
+    <span
+      style={{
+        position: "absolute",
+        top: 2,
+        right: 2,
+        backgroundColor: "red",
+        color: "white",
+        borderRadius: "50%",
+        width: 10,
+        height: 10,
+      }}
     />
-  </li>
+  )}
+</li>
+
+
+
         <div style={{ position: "relative" }}>
           <img
   className="profile"

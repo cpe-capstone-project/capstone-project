@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import BlurredCirclesBackground from "../../components/background-blur/BlurredCirclesBackground";
+import Lottie from "lottie-react";
 import {
   CreateDiarySummary,
   GetDiarySummaryById,
 } from "../../services/https/Diary";
 import type { DiarySummaryInterface } from "../../interfaces/IDiarySummary";
+// import AILoading from "../../assets/loading/Ai loading model.gif"
+import loadingAnimation from "../../assets/loading/Material wave loading.json";
 import "./DiarySummary.css";
 
 // ✅ เพิ่ม Ant Design และ Dayjs
@@ -27,8 +30,6 @@ function DiarySummary() {
   const [customRange, setCustomRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(null);
-
-  console.log("summaryData", summaryData);
 
   const tags = [
     "Happy",
@@ -81,7 +82,7 @@ function DiarySummary() {
     localStorage.removeItem("diary_summary_id");
     setIsLoading(true);
     setError("");
-    setSummaryData(null)
+    setSummaryData(null);
 
     if (selectedTimeframe === "กำหนดเอง") {
       if (!customRange || !customRange[0] || !customRange[1]) {
@@ -95,17 +96,20 @@ function DiarySummary() {
         return;
       }
     }
+    console.log("selectedTimeframe:", selectedTimeframe);
 
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
-      // console.log("Selected Timeframe:", selectedTimeframe);
-      // console.log("Start Date:", startDate);
+      console.log("Start Date:", startDate.toISOString());
+      console.log("End Date:", endDate.toISOString());
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const response = await CreateDiarySummary({
         TherapyCaseID: 1,
         Timeframe: selectedTimeframe,
         StartDate: startDate.toISOString(),
         EndDate: endDate.toISOString(),
+        Timezone: timezone,
       });
 
       if (response.status === 200 && response.data?.summary) {
@@ -174,8 +178,17 @@ function DiarySummary() {
           </div>
         )}
         {error && <div className="error-message">{error}</div>}
-        
       </div>
+
+      {isLoading && (
+        <div className="loading-overlay">
+          <Lottie
+            className="loading-animation"
+            animationData={loadingAnimation}
+            loop={true}
+          />
+        </div>
+      )}
 
       {summaryData && (
         <div className="diary-summary-content">
@@ -186,6 +199,8 @@ function DiarySummary() {
               <p>{summaryData.SummaryText}</p>
             </div>
           </div>
+
+          <h1>Keyword: {summaryData.Keyword}</h1>
 
           <h1>อารมณ์โดยรวม</h1>
           <div className="tags-container">
@@ -199,14 +214,14 @@ function DiarySummary() {
       )}
 
       <div className="summary-button-container">
-          <button
-            onClick={handleCreateSummary}
-            disabled={isLoading}
-            className="summary-button"
-          >
-            {isLoading ? "กำลังสร้าง Summary..." : "เริ่มสรุปไดอารี่"}
-          </button>
-        </div>
+        <button
+          onClick={handleCreateSummary}
+          disabled={isLoading}
+          className="summary-button"
+        >
+          {isLoading ? "กำลังสรุปข้อมูลโปรดรอสักครู่" : "เริ่มสรุปไดอารี่"}
+        </button>
+      </div>
     </section>
   );
 }

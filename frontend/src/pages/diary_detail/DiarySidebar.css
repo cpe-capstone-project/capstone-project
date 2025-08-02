@@ -37,7 +37,7 @@ scrollbar-color: #0000004d transparent;
   padding: var(--padding-text-editor) var(--padding-patient-home-page) 0
     var(--padding-patient-home-page);
   background-color: var(--color-grey);
-  z-index: 1;
+  z-index: 2;
 
   /* Control Bar */
   .control {
@@ -76,6 +76,7 @@ scrollbar-color: #0000004d transparent;
 
 /* Diary List Item */
 .diary-list-item {
+  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
@@ -146,6 +147,23 @@ scrollbar-color: #0000004d transparent;
   }
 }
 
+/* Badge */
+.unconfirmed-badge {
+  position: absolute;
+  top: -5%;
+  right: -5%;
+  padding: var(--space-xxs) var(--space-sm);
+  background-color: var(--color-yellow-alert);   /* สีแดงแจ้งเตือน */
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  text-align: center;
+  line-height: 20px;
+  font-weight: bold;
+  z-index: 1;
+}
+
+
 /* Circle Select Button */
 .circle-select-btn {
   display: flex;
@@ -165,6 +183,14 @@ scrollbar-color: #0000004d transparent;
   border: 2px solid var(--ant-color-primary);
   background-color: var(--ant-color-primary);
 }
+
+.circle-select-btn.confirmed {
+ background-color: #ccc;     /* สีจาง */
+  cursor: not-allowed;        /* เม้าส์เป็นสัญลักษณ์ห้าม */
+  opacity: 0.6;               /* ทำให้จางลง */
+  pointer-events: none;       /* กันไม่ให้คลิกได้ */
+}
+
 
 .menu-item {
   display: flex;

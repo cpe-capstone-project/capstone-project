@@ -5,10 +5,13 @@
   height: 100%;
   border: 2px solid #ddd;
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   background-color: #fff;
   font-family: Arial, sans-serif;
+  transition: var(--transition-fast);
+}
+.diary-card:hover {
+  background-color: var(--color-grey-hover);
 }
 
 .tag-bar {
@@ -61,7 +64,6 @@
     opacity: 0.8;
   }
 }
-
 
 /* options */
 .options-overlay {

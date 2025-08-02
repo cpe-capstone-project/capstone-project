@@ -41,52 +41,36 @@
   height: 300px;
 }
 
-/* Layout หลักสำหรับ dashboard */
 .potatopsy-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 2rem;
-
+  gap: 12.5rem 10.6rem;
+  padding: 2rem 6rem 2rem 4rem; /* top right bottom left = เท่ากับ .billyboy-grid */
+  max-width: 3200px;
+  margin: 0 auto;
   color: #fff;
 }
-
 /* Card เดี่ยวแต่ละอัน */
 .potatopsy-card {
+  background: linear-gradient(135deg, #60aefb, #88d6ff); /* โทนฟ้าเดียวกัน */
+  color: #ffffff;
   border-radius: 20px;
   padding: 1.5rem;
   display: flex;
-  width:300px;
-  height:120px;
+  width: 340px;
+  height: 120px;
   justify-content: space-between;
   align-items: center;
   transition: transform 0.2s ease;
 }
 
-
-
-.potatopsy-card.turquoise {
-  background: linear-gradient(135deg, #2ed8b6, #59e0c5);
-  color: #ffffff;
-}
-
-.potatopsy-card.blue {
-  background: linear-gradient(135deg, #4099ff, #73b4ff);
-  color: #ffffff;
-}
-
-.potatopsy-card.pink {
-  background: linear-gradient(135deg, #ff5370, #ff869a);
-  color: #ffffff;
-}
-
-.potatopsy-card.purple {
-  background: linear-gradient(135deg, #a890f0, #c9b6fc);
-  color: #ffffff;
-}
-
+/* คลาสสีทั้งหมดใช้โทนเดียวกัน */
+.potatopsy-card.turquoise,
+.potatopsy-card.blue,
+.potatopsy-card.pink,
+.potatopsy-card.purple,
 .potatopsy-card.green {
-  background: linear-gradient(135deg, #66d27e, #91e49c);
+  background: linear-gradient(135deg, #60aefb, #88d6ff); /* ฟ้าสดใส */
   color: #ffffff;
 }
 
@@ -104,14 +88,15 @@
   height: 36px;
 }
 
-/* ด้านขวาของการ์ด */
 .potatopsy-card-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
   height: 100%;
+  text-align: right; /* ✅ เพิ่มบรรทัดนี้ */
 }
+
 
 
 .potatopsy-card-right h3 {
@@ -127,4 +112,49 @@
   display: inline-block;
   margin: 0;
   align-self: flex-end;
+}
+.clickable-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.checklist-card {
+  width: 100%;
+  text-align: center;
+}
+
+.checklist-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.checklist-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.checklist-items {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-left: 1rem;
+}
+
+.checklist-item {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #3b82f6;
+  cursor: pointer;
 }

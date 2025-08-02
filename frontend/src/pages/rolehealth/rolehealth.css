@@ -58,7 +58,6 @@
   color: #e53935; /* สีแดงแบบ Material */
   font-size: 0.95rem;
   font-weight: 500;
-  margin-top: 4px;
   margin-left: 4px;
   padding-left: 0;
   background: transparent;
@@ -162,9 +161,9 @@
 .wellness-submit-button,
 .health-btn-swal,.health-btn-upload ,button[type="submit"] {
 width: 100%;
-  background-color: #ffffff;
-  border: 1.5px solid #000000;
-  color: #000000;
+  background-color:rgb(71, 166, 255);
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
   padding: 0.6rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;

@@ -34,5 +34,6 @@ func SetupDatabase() {
     SetupEmotionDatabase()
     SetupInitialData()
     SetupNotifications()
+    SetupThoughtRecordDatabase()
     fmt.Println("Sample data has been added to the database.")
 }

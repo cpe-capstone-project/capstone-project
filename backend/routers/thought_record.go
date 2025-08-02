@@ -1,0 +1,19 @@
+package routers
+
+import (
+	"capstone-project/controller/thought_record"
+	"github.com/gin-gonic/gin"
+)
+
+func SetupThoughtRecordRoutes(r *gin.RouterGroup) {
+
+	// Routes for ThoughtRecord
+	r.GET("/thought_records", thought_record.ListThoughtRecord)
+	r.GET("/thought_record/:id", thought_record.GetThoughtRecordByID)
+	r.POST("/thought_record", thought_record.CreateThoughtRecord)
+	r.PATCH("/thought_record/:id", thought_record.UpdateThoughtRecordByID)
+	r.DELETE("/thought_record/:id", thought_record.DeleteThoughtRecord)
+
+	// Optional: ถ้ายังต้องการดึง Diaries ล่าสุดที่ใช้ใน Dashboard
+	// r.GET("/diaries/latest", thought_record.ListLatestDiaries)
+}

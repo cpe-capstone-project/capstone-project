@@ -17,4 +17,7 @@ type Feedback struct {
 
 	FeedbackTypeID uint
 	FeedbackType   *FeedbackType `gorm:"foreignKey:FeedbackTypeID"`
+
+	ThoughtRecordID uint
+	ThoughtRecord   *ThoughtRecord `gorm:"foreignKey:ThoughtRecordID"`
 }

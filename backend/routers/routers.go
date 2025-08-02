@@ -23,6 +23,7 @@ func SetupRouter() *gin.Engine {
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())
 	SetupDiaryRoutes(private)
+	SetupThoughtRecordRoutes(private)
 	
 	// ✅ ย้าย route นี้มาอยู่ตรงนี้
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)

@@ -1,0 +1,74 @@
+/* Diorr Dashboard Container */
+.diorr-dashboard-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  justify-content: space-between; /* Adjust card spacing */
+  margin-top: 30px; /* Add space from the top */
+}
+
+/* Diorr Card Styling */
+.diorr-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1 1 230px; /* Flex to ensure cards are responsive */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-width: 280px; /* Minimum width to ensure proper card sizing */
+}
+
+/* Diorr Card Header */
+.diorr-card-header h3 {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Diorr Progress Bar */
+.diorr-progress-bar {
+  background-color: #e0e0e0;
+  height: 8px;
+  border-radius: 50px;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.diorr-progress {
+  background-color: #4caf50;
+  height: 100%;
+  width: 0%;
+  border-radius: 50px;
+}
+
+/* Diorr Text Inside Card */
+.diorr-stat-text {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.diorr-stat-subtext {
+  font-size: 0.9em;
+  color: #888;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .diorr-dashboard-container {
+    justify-content: center; /* Center content on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .diorr-dashboard-container {
+    flex-direction: column; /* Stack cards vertically on very small screens */
+    align-items: center;
+  }
+}

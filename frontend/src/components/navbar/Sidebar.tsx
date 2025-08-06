@@ -297,19 +297,11 @@ width: "850px",
   <div className="sidebar-menu">
     <div
       className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
-      onClick={() => handleNavigate("fill")}
+      onClick={() => handleNavigate("homedoc")}
     >
       <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" alt="dashboard" />
       {!isCollapsed && <span>Dashboard</span>}
     </div>
-    <div
-  className={`sidebar-item ${location.pathname.includes("homedoc") ? "active" : ""}`}
-  onClick={() => handleNavigate("homedoc")}
->
-  <img src="https://cdn-icons-png.flaticon.com/128/7521/7521598.png" alt="Management" />
-  {!isCollapsed && <span>Management</span>}
-</div>
-
     <div
       className={`sidebar-item ${location.pathname.includes("diary") ? "active" : ""}`}
       onClick={() => handleNavigate("diary")}

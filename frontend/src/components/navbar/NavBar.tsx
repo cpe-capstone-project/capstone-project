@@ -422,10 +422,7 @@ width: "850px",
       </a>
       <ul className="menu">
         <li>
-          <a onClick={() => handleNavigate("")}>Dashboard</a>
-        </li>
-        <li>
-          <a onClick={() => handleNavigate("home")}>Management</a>
+          <a onClick={() => handleNavigate("home")}>Dashboard</a>
         </li>
         <li>
           <a onClick={() => handleNavigate("diary")}>Diary</a>

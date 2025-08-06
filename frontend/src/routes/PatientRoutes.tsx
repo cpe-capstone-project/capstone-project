@@ -1,16 +1,20 @@
 import { DiaryContextProvider } from "../contexts/DiaryContext";
+import { ThoughtRecordProvider } from "../contexts/ThoughtRecordContext";
 import PatientLayout from "../layout/FullLayout/PatientLayout";
 import DiaryList from "../pages/diary_list/DiaryList";
 import DiaryDetail from "../pages/diary_detail/DiaryDetail";
 import RequireRole from "./RequireRole";
 import DiarySummary from "../pages/diary_summary/DiarySummary";
-import Homepage from "../pages/homepage/homepage"; 
+import Homepage from "../pages/homepage/homepage";
+import ThoughtRecordList from "../pages/thought_record_list/ThoughtRecordList";
 const PatientRoutes = {
   path: "/patient",
   element: (
     <RequireRole allowedRoles={["Patient"]}>
       <DiaryContextProvider>
-        <PatientLayout />
+        <ThoughtRecordProvider>
+          <PatientLayout />
+        </ThoughtRecordProvider>
       </DiaryContextProvider>
     </RequireRole>
   ),
@@ -19,6 +23,7 @@ const PatientRoutes = {
     { path: "diary", element: <DiaryList /> },
     { path: "diary/detail/:id", element: <DiaryDetail /> },
     { path: "diary-summary", element: <DiarySummary /> },
+    { path: "thought_record", element: <ThoughtRecordList /> },
   ],
 };
 

@@ -431,7 +431,7 @@ width: "850px",
           <a onClick={() => handleNavigate("diary")}>Diary</a>
         </li>
         <li>
-          <a onClick={() => handleNavigate("thought")}>Thought Record</a>
+          <a onClick={() => handleNavigate("thought_record")}>Thought Record</a>
         </li>
    <li style={{ position: "relative" }}>
   <img

@@ -1,0 +1,79 @@
+.card-hover-wrapper {
+  position: relative;
+}
+
+.card-hover-wrapper .ant-card {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* เมื่อ hover จะเบลอเนื้อหาใน card และลดความทึบ */
+.card-hover-wrapper:hover .ant-card {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* เบลอเนื้อหาใน card body แต่ไม่รวมปุ่ม view-more */
+.card-hover-wrapper:hover .ant-card .ant-card-body > *:not(.view-more-button) {
+  filter: blur(2px);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+/* เบลอ card title */
+.card-hover-wrapper:hover .ant-card .ant-card-head {
+  filter: blur(1px);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+/* ปุ่ม View More */
+.view-more-button {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
+  scale: 0.7;
+  filter: none !important;
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.view-more-button:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #69c0ff 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(24, 144, 255, 0.6), 0 0 0 8px rgba(24, 144, 255, 0.1);
+}
+
+.card-hover-wrapper:hover .view-more-button {
+  opacity: 1;
+  scale: 1;
+  filter: none !important;
+}
+
+/* เอฟเฟกต์ pulse สำหรับปุ่ม - ใช้เฉพาะกับ icon */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.view-more-button:hover .anticon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* เพิ่มเอฟเฟกต์เงาเมื่อ hover */
+.card-hover-wrapper:hover .ant-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}

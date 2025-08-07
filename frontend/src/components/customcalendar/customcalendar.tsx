@@ -61,7 +61,7 @@ const Customcalendar: React.FC<Props> = ({ date, setDate }) => {
         <button onClick={handleNext} style={{ marginLeft: "8px" }}>▶</button>
       </span>
       <span style={{ width: "35%", textAlign: "right", fontSize: "14px", color: "#666" }}>
-        Depressionrec.co.th
+        Mindcare.co.th
       </span>
     </div>
   );

@@ -6,6 +6,9 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
+
+
+
 import Customcalendar from "../../components/customcalendar/customcalendar";
 const locales = {
   "en-US": enUS,
@@ -44,7 +47,26 @@ const filteredPatients = patients.filter((p) => {
 
   return fullText.includes(searchTerm.toLowerCase());
 });
-
+const stats = [
+  {
+    title: "Total Patients",
+    value: "2,350",
+    subtitle: "+20.1% from last month",
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747376.png", // 👥 icon
+  },
+  {
+    title: "Upcoming Sessions",
+    value: "12",
+    subtitle: "5 this week",
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747310.png", // 🗓️ icon
+  },
+  {
+    title: "Recent Activities",
+    value: "34",
+    subtitle: "New notes added today",
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png", // 📈 icon
+  },
+];
 interface Patient {
   id: number; // ✅ เพิ่มบรรทัดนี้
   first_name: string;
@@ -53,7 +75,6 @@ interface Patient {
   gender: string;
   birthday: string;
 }
-
 useEffect(() => {
   console.log("psychologist_id =", id); // ✅ debug
 
@@ -478,124 +499,178 @@ const handleSelectEvent = (event: {
 
 
   return (
-<div className="docflour-homepage">
-  <section className="docflour-grid">
-    {/* กล่อง 1: Patient Case + Search */}
-    <div className="docflour-card">
-   
-      <h3>PATIENT CASE</h3>
-      <div className="docflour-search-box">
-        <input
-          value={searchTerm}
-onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search..."
-          className="docflour-search-input"
-        />
-        <button className="docflour-search-button">🔍</button>
-      </div>
-      {loading ? (
-  <p style={{ textAlign: "center", marginTop: "1rem" }}>กำลังโหลดข้อมูล...</p>
-) : (
-  <table className="docflour-patient-table">
-    <thead>
-      <tr>
-        <th>ลำดับ</th>
-        <th>ชื่อ</th>
-        <th>นามสกุล</th>
-        <th>อายุ</th>
-        <th>เพศ</th>
-        <th>วันเกิด</th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredPatients.length > 0 ? (
-        filteredPatients.map((p, idx) => (
-          <tr key={idx}>
-            <td>{idx + 1}</td>
-            <td>{p.first_name}</td>
-            <td>{p.last_name}</td>
-            <td>{p.age}</td>
-            <td>{p.gender}</td>
-            <td>{new Date(p.birthday).toLocaleDateString("th-TH")}</td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>
-            ไม่พบข้อมูลผู้ป่วย
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-)}
+  <div className="qewty-stats-container">
+      {stats.map((stat, index) => (
+        <div key={index} className="qewty-stat-card">
+          <div className="qewty-stat-header">
+            <h4>{stat.title}</h4>
+            <img src={stat.icon} alt="icon" className="qewty-stat-icon" />
+          </div>
+          <div className="qewty-stat-main">
+            <span className="qewty-stat-value">{stat.value}</span>
+            <p className="qewty-stat-sub">{stat.subtitle}</p>
+          </div>
+        </div>
+      ))}
+   {/* Left Chart Section */}
+<div className="qewty-chart-section">
+  <h3 className="qewty-chart-title">Patient Overview</h3>
+  <p className="qewty-chart-subtitle">Quick insights into your patient base.</p>
 
+  <div className="qewty-barchart-holder">[Bar Placeholder]
+
+
+    {/* Overlay Box */}
+    <div className="qewty-status-overlay">
+      <h4 className="qewty-status-title">
+        Patient Status <span className="qewty-status-right">จำนวน</span>
+      </h4>
+      <ul className="qewty-status-list">
+  <li>
+    <span className="qewty-status-left">ผู้ป่วยบำบัดเรียบร้อยแล้ว :</span>
+    <span className="qewty-status-right"><strong>20 คน</strong></span>
+  </li>
+  <li>
+    <span className="qewty-status-left">ผู้ป่วยที่รักษาอยู่ :</span>
+    <span className="qewty-status-right"><strong>10 คน</strong></span>
+  </li>
+  <li>
+    <span className="qewty-status-left">ผู้ป่วยใหม่ :</span>
+    <span className="qewty-status-right"><strong>10 คน</strong></span>
+  </li>
+</ul>
+
+      <button className="qewty-overlay-btn">View More Information</button>
     </div>
-
-    {/* กล่อง 2: ตารางนัดหมาย */}
-   {/* กล่อง 2: ตารางนัดหมาย */}
-<div className="docflour-card">
-  <h3>ตารางนัดหมาย</h3>
-  <div
-    style={{
-      height: "300px",
-      width: "100%",
-      background: "#fff",
-      borderRadius: "12px",
-      marginTop: "1rem",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
-    }}
-  >
-   <Calendar
-  localizer={localizer}
-  events={events}
-  startAccessor="start"
-  endAccessor="end"
-  date={calendarDate}
-  onNavigate={(date) => setCalendarDate(date)}
-  components={{
-  toolbar: (props: any) => (
-    <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
-  ),
-}}
-  selectable
-  onSelectSlot={handleSelectSlot}
-  onSelectEvent={handleSelectEvent}
-  style={{ height: "100%", borderRadius: "8px", padding: "8px" }}
-  eventPropGetter={(event: CalendarEvent) => {
-    const status = event.status ?? "pending";
-    let backgroundColor = "#facc15";
-    if (status === "accepted") backgroundColor = "#10b981";
-    if (status === "rejected") backgroundColor = "#ef4444";
-
-    return {
-      style: {
-        backgroundColor,
-        borderRadius: "6px",
-        color: "#fff",
-        padding: "4px 8px",
-        fontSize: "0.75rem",
-      },
-    };
-  }}
-/>
-
   </div>
 </div>
 
-    {/* กล่อง 3: Summary */}
-    <div className="docflour-cardz">
-      <h3>Feedback(Diary)</h3>
-    </div>
 
-    {/* กล่อง 4: Feedback */}
-    <div className="docflour-cardz">
-      <h3>Feedback(Though Record)</h3>
-    </div>
-  </section>
+    {/* Right Feedback Section */}
+<div className="qewty-feedback-section">
+  <div className="qewty-feedback-card">
+    <h4>Feedback Thought Record</h4>
+    <p className="qewty-subtext">Recent feedback on thought records.</p>
+    <p>
+      <strong>Patient I - Feedback (2025-08-02)</strong><br />
+      "Identifying automatic thoughts has been a game-changer for me."
+    </p>
+    <p>
+      <strong>Patient J - Feedback (2025-08-01)</strong><br />
+      "The alternative thoughts section helps me reframe negative thinking."
+    </p>
+    <button className="qewty-feedback-btn">View More</button>
+  </div>
+
+  <div className="qewty-feedback-card">
+    <h4>Feedback Diary</h4>
+    <p className="qewty-subtext">Recent feedback from patient diary entries.</p>
+    <p>
+      <strong>Patient G - Feedback (2025-08-04)</strong><br />
+      "The journaling prompts were very helpful in processing my emotions."
+    </p>
+    <p>
+      <strong>Patient H - Feedback (2025-08-03)</strong><br />
+      "I appreciate the space to reflect on my day without judgment."
+    </p>
+    <button className="qewty-feedback-btn">View More</button>
+  </div>
 </div>
-    
+{/* Emotion Distribution Section */}
+<div className="qewty-emotion-distribution">
+  <div className="qewty-emotion-header">
+    <h4>🕒 Emotion Distribution from Thought Records</h4>
+    <div className="qewty-emotion-filters">
+      <select>
+        <option>Last 7 Days</option>
+        <option>Last 30 Days</option>
+      </select>
+      <select>
+        <option>All Patients</option>
+        <option>Patient A</option>
+        <option>Patient B</option>
+      </select>
+    </div>
+  </div>
+
+  <p className="qewty-emotion-subtext">
+    Breakdown of emotions identified in patient thought record entries, filtered by time and patient.
+  </p>
+
+  {/* Pie Chart Placeholder */}
+  <div className="qewty-piechart-holder">
+    [Pie Chart Placeholder]
+  </div>
+
+  {/* Legend */}
+  <div className="qewty-emotion-legend">
+    <span className="legend-item anxiety">🔴 Anxiety</span>
+    <span className="legend-item sadness">🌸 Sadness</span>
+    <span className="legend-item anger">🟧 Anger</span>
+    <span className="legend-item joy">🟩 Joy</span>
+    <span className="legend-item neutral">🟨 Neutral</span>
+  </div>
+</div>
+<div className="qewty-appointment-resources">
+ <div className="docflour-card">
+  <h3>ตารางนัดหมาย</h3>
+  <div className="docflour-calendar-container">
+    <Calendar
+      localizer={localizer}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      date={calendarDate}
+      onNavigate={(date) => setCalendarDate(date)}
+      components={{
+        toolbar: (props: any) => (
+          <Customcalendar {...props} date={calendarDate} setDate={setCalendarDate} />
+        ),
+      }}
+      selectable
+      onSelectSlot={handleSelectSlot}
+      onSelectEvent={handleSelectEvent}
+      style={{ height: "100%", borderRadius: "8px", padding: "8px" }}
+      eventPropGetter={(event: CalendarEvent) => {
+        const status = event.status ?? "pending";
+        let backgroundColor = "#facc15";
+        if (status === "accepted") backgroundColor = "#10b981";
+        if (status === "rejected") backgroundColor = "#ef4444";
+
+        return {
+          style: {
+            backgroundColor,
+            borderRadius: "6px",
+            color: "#fff",
+            padding: "4px 8px",
+            fontSize: "0.75rem",
+          },
+        };
+      }}
+    />
+  </div>
+</div>
+
+
+  {/* Right: Resource */}
+  <div className="qewty-resource-card">
+    <h4 className="qewty-resource-title">Resource Recommendations</h4>
+    <div className="qewty-resource-item">
+      <strong>Book: "Feeling Good" by David D. Burns</strong>
+      <p className="qewty-subtext">Recommended for Patient N (CBT focus)</p>
+    </div>
+    <div className="qewty-resource-item">
+      <strong>Meditation App: Calm</strong>
+      <p className="qewty-subtext">Suggested for Patient O (Stress management)</p>
+    </div>
+  </div>
+</div>
+
+
+
+    </div>
   );
 };
+
 
 export default Homedoc;

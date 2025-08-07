@@ -17,7 +17,6 @@ const ColorPickerTooltip: React.FC<ColorPickerTooltipProps> = ({
 }) => {
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
-  console.log("selectedColors", selectedColors);
 
   const toggleColor = (color: string) => {
     if (selectedColors.includes(color)) {
@@ -79,15 +78,15 @@ const ColorPickerTooltip: React.FC<ColorPickerTooltipProps> = ({
             ))}
           </div>
           <div className="color-picker-actions">
-              {onReset && (
-                <button
-                  type="button"
-                  onClick={onReset}
-                  className="reset-colors-btn"
-                >
-                  คืนค่าสีเดิม
-                </button>
-              )}
+            {onReset && (
+              <button
+                type="button"
+                onClick={onReset}
+                className="reset-colors-btn"
+              >
+                คืนค่าสีเดิม
+              </button>
+            )}
             <button
               type="button"
               onClick={() => onChange([])}

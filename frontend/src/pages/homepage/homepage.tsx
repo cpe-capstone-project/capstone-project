@@ -305,41 +305,408 @@ const handleShowAppointments = () => {
 
 
    return (
-      <div className="diorr-dashboard-container">
-      <div className="diorr-card">
-        <div className="diorr-card-header">
-          <h3>Daily Progress</h3>
-          <div className="diorr-progress-bar">
-            <div className="diorr-progress" style={{ width: '37.5%' }}></div>
-          </div>
-          <span className="diorr-progress-text">3/8</span>
-        </div>
+   <div className="diorr-dashboard-container">
+  <div className="diorr-card">
+    <div className="diorr-card-header">
+      <div className="diorr-card-title">
+        <h3>Daily Progress</h3>
+        <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Daily Progress Icon" className="diorr-icon" />
       </div>
-
-      <div className="diorr-card">
-        <div className="diorr-card-header">
-          <h3>Diary Entries</h3>
-          <span className="diorr-stat-text">12</span>
-          <span className="diorr-stat-subtext">This month</span>
-        </div>
-      </div>
-
-      <div className="diorr-card">
-        <div className="diorr-card-header">
-          <h3>Thought Records</h3>
-          <span className="diorr-stat-text">8</span>
-          <span className="diorr-stat-subtext">This week</span>
-        </div>
-      </div>
-
-      <div className="diorr-card">
-        <div className="diorr-card-header">
-          <h3>Next Appointment</h3>
-          <span className="diorr-stat-text">2</span>
-          <span className="diorr-stat-subtext">Days away</span>
-        </div>
+      <span className="diorr-stat-text">3/8</span>
+      <div className="diorr-progress-bar">
+        <div className="diorr-progress" style={{ width: '37.5%' }}></div>
       </div>
     </div>
+  </div>
+
+  <div className="diorr-card">
+    <div className="diorr-card-header">
+      <div className="diorr-card-title">
+        <h3>Diary Entries</h3>
+        <img src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png" alt="Diary Entries Icon" className="diorr-icon" />
+      </div>
+      <span className="diorr-stat-text">12</span>
+      <span className="diorr-stat-subtext">This month</span>
+    </div>
+  </div>
+
+  <div className="diorr-card">
+    <div className="diorr-card-header">
+      <div className="diorr-card-title">
+        <h3>Thought Records</h3>
+        <img src="https://cdn-icons-png.flaticon.com/128/109/109827.png" alt="Thought Records Icon" className="diorr-icon" />
+      </div>
+      <span className="diorr-stat-text">8</span>
+      <span className="diorr-stat-subtext">This week</span>
+    </div>
+  </div>
+
+  <div className="diorr-card">
+    <div className="diorr-card-header">
+      <div className="diorr-card-title">
+        <h3>Next Appointment</h3>
+        <img src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png" alt="Next Appointment Icon" className="diorr-icon" />
+      </div>
+      <span className="diorr-stat-text">2</span>
+      <span className="diorr-stat-subtext">Days away</span>
+    </div>
+  </div>
+ {/* Lower Section */}
+<div className="deer-tiger-dashboard-container">
+
+  {/* Daily Checklist */}
+  <div className="deer-tiger-card">
+     <div className="hior-title">
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png"
+        alt="Checklist Icon"
+        className="frio-icon"
+      />
+      <h3>Daily Checklist</h3>
+    </div>
+    <p className="deer-tiger-subtext">Track your daily wellness activities</p>
+    <ul className="deer-tiger-checklist">
+      <li>Morning meditation <span className="deer-tiger-status completed">Completed</span></li>
+      <li>Mood check-in <span className="deer-tiger-status completed">Completed</span></li>
+      <li>Exercise <span className="deer-tiger-status pending">Pending</span></li>
+      <li>Gratitude journal <span className="deer-tiger-status pending">Pending</span></li>
+    </ul>
+    <button className="deer-tiger-btn">View More</button>
+  </div>
+
+  {/* Diary */}
+  <div className="deer-tiger-card">
+     <div className="hior-title">
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png"
+        alt="Diary Icon"
+        className="frio-icon"
+      />
+      <h3>Diary</h3>
+      
+    </div>
+      <p className="deer-tiger-subtext">Your personal thoughts and reflections</p>
+      <p className="deer-tiger-diary-entry">
+  <span className="diary-entry-header">
+    <strong>Today’s Entry</strong>
+    <span className="diary-entry-time">2 hours ago</span>
+  </span>
+  <span className="diary-entry-content">
+    "Had a productive day at work. Feeling grateful for..."
+  </span>
+</p>
+<p className="deer-tiger-diary-entry">
+  <span className="diary-entry-header">
+    <strong>Yesterday</strong>
+    <span className="diary-entry-time">1 day ago</span>
+  </span>
+  <span className="diary-entry-content">
+    "Challenging day but managed to stay positive..."
+  </span>
+</p>
+
+    <button className="deer-tiger-btn">View More</button>
+  </div>
+
+  {/* Thought Record */}
+  <div className="deer-tiger-card">
+     <div className="hior-title">
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/109/109827.png"
+        alt="Thought Record Icon"
+        className="frio-icon"
+      />
+      <h3>Thought Record</h3>
+    </div>
+      <p className="deer-tiger-subtext">Cognitive behavioral therapy tracking</p>
+  <div className="deer-tiger-thought-entry">
+  <div className="deer-tiger-thought-header">
+    <strong>Work Anxiety</strong>
+    <span className="deer-tiger-tag high">High</span>
+  </div>
+  <p className="deer-tiger-thought-sub">Situation: Big presentation tomorrow</p>
+</div>
+
+<div className="deer-tiger-thought-entry">
+  <div className="deer-tiger-thought-header">
+    <strong>Social Worry</strong>
+    <span className="deer-tiger-tag medium">Medium</span>
+  </div>
+  <p className="deer-tiger-thought-sub">Situation: Meeting new people at event</p>
+</div>
+
+
+    <button className="deer-tiger-btn">View More</button>
+  </div>
+
+ <div className="deer-tiger-card">
+  <div className="hior-title">
+    <img
+      src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png"
+      alt="Appointments Icon"
+      className="frio-icon"
+    />
+    <h3>Appointments</h3>
+  </div>
+  <p className="deer-tiger-subtext">Upcoming therapy sessions</p>
+
+  {/* Appointment Entry */}
+  <div className="appointment-entry">
+    <div className="appointment-header">
+      <strong>Dr. Sarah Johnson</strong>
+      <span className="appointment-date">Dec 15</span>
+    </div>
+    <p className="appointment-detail">Cognitive Behavioral Therapy</p>
+    <p className="appointment-time">2:00 PM</p>
+  </div>
+
+  <div className="appointment-entry">
+    <div className="appointment-header">
+      <strong>Dr. Michael Chen</strong>
+      <span className="appointment-date">Dec 22</span>
+    </div>
+    <p className="appointment-detail">Psychiatrist</p>
+    <p className="appointment-time">10:30 AM</p>
+  </div>
+
+  <button className="deer-tiger-btn">View More</button>
+</div>
+<div className="aertr-overall-container">
+{/* Emotion Summary Section (Combined Card) */}
+<div className="aertr-summary-card">
+  {/* Left: Chart & Emotion Legend */}
+  <div className="aertr-summary-left">
+    <h3 className="aertr-summary-title">Summary Diary Text</h3>
+    <div className="aertr-chart-placeholder">[Chart Placeholder]</div>
+     <p className="aertr-emotion-label">Current Emotion</p>
+    <div className="aertr-emotion-legend">
+      <span className="aertr-emotion happy">😊 Happy</span>
+      <span className="aertr-emotion sad">😢 Sad</span>
+      <span className="aertr-emotion neutral">😐 Neutral</span>
+      <span className="aertr-emotion angry">😠 Angry</span>
+      <span className="aertr-emotion excited">🤩 Excited</span>
+      <span className="aertr-emotion anxious">😰 Anxious</span>
+      <span className="aertr-emotion grateful">💖 Grateful</span>
+    </div>
+  </div>
+
+  {/* Right: Tabs + Feedback + Previous */}
+  <div className="aertr-summary-right">
+    {/* Tabs + Weekly Stats */}
+    <div className="aertr-trend-box">
+      <div className="aertr-tab-buttons">
+        <button className="aertr-tab active">Daily</button>
+        <button className="aertr-tab">Weekly</button>
+        <button className="aertr-tab">Monthly</button>
+      </div>
+     <div className="aertr-trend-content">
+  <h4>This Week</h4>
+  <p className="aertr-row">
+    <span className="aertr-label">Most Common</span>
+    <span className="aertr-value">
+      <span className="aertr-badge">😊 Happy</span>
+    </span>
+  </p>
+  <p className="aertr-row">
+    <span className="aertr-label">Entries</span>
+    <span className="aertr-value">7 this week</span>
+  </p>
+  <p className="aertr-row">
+    <span className="aertr-label">Streak</span>
+    <span className="aertr-value">3 days</span>
+  </p>
+</div>
+
+    </div>
+    </div>
+     <div className="aertr-side-panel">
+    {/* AI Feedback */}
+    <div className="aertr-feedback-card">
+      <h4 className="aertr-feedback-title">
+    <img
+      src="https://cdn-icons-png.flaticon.com/128/11213/11213138.png"
+      alt="Feedback Icon"
+      className="aertr-feedback-icon"
+    />
+    Diary Feedback
+  </h4>
+      <p className="aertr-feedback-positive">
+        <strong>Positive Trend Detected</strong><br />
+        Your entries show increased gratitude mentions this week
+      </p>
+      <p className="aertr-feedback-suggestion">
+        <strong>Suggestion</strong><br />
+        Consider exploring stress management techniques
+      </p>
+      <button className="aertr-feedback-btn">View More</button>
+    </div>
+         
+    {/* Previous Entries */}
+    <div className="aertr-previous-card">
+      <h4>Previous Entries</h4>
+      <div className="aertr-previous-entry">
+        <p className="aertr-entry-date">July 31, 2024</p>
+        <p className="aertr-entry-text">
+          Today was a busy day at work. Had several meetings, and then spent the afternoon debugging a tricky issue in the new feature...
+        </p>
+ </div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</div>
+</div>
+<div className="qewty-summary-container">
+  {/* Left Section: Pie Chart and Emotions */}
+  <div className="qewty-summary-left">
+  <h3 className="qewty-summary-title">Summary Thought Record (Emotional)</h3>
+
+  {/* Pie Chart + Legend side-by-side */}
+  <div className="qewty-chart-legend-row">
+    <div className="qewty-pie-chart">[Pie Chart Placeholder]</div>
+
+    <div className="qewty-legend">
+      <div className="qewty-legend-label">
+        <div className="label"><span className="dot happy"></span> Happy</div>
+        <div className="percent">22.5%</div>
+      </div>
+      <div className="qewty-legend-label">
+        <div className="label"><span className="dot sad"></span> Sad</div>
+        <div className="percent">8.1%</div>
+      </div>
+      <div className="qewty-legend-label">
+        <div className="label"><span className="dot other"></span> Other</div>
+        <div className="percent">30.8%</div>
+      </div>
+    </div>
+  </div>
+
+  {/* Chips below */}
+  <div className="qewty-emotions">
+    <span className="qewty-chip happy">😊 Happy</span>
+    <span className="qewty-chip sad">😢 Sad</span>
+    <span className="qewty-chip neutral">😐 Neutral</span>
+    <span className="qewty-chip angry">😠 Angry</span>
+    <span className="qewty-chip excited">🤩 Excited</span>
+    <span className="qewty-chip anxious">😰 Anxious</span>
+    <span className="qewty-chip grateful">💖 Grateful</span>
+  </div>
+
+
+
+ <div className="qewty-recent-entries">
+  <h4>Recent Entries</h4>
+  <p className="qewty-subtext">Your emotional journey</p>
+
+  <div className="qewty-entry-list">
+    <div className="qewty-entry-card">
+      <div className="qewty-entry-header">
+        <div className="qewty-entry-label">
+        <img src="https://cdn-icons-png.flaticon.com/128/1581/1581730.png" alt="Happy Icon" className="qewty-entry-icon" />
+        <strong>Happy</strong>
+        </div>
+        <span className="qewty-entry-date">Jan 15</span>
+      </div>
+      <p className="qewty-entry-text">Had a great day at work today. The project presentation went really well...</p>
+    </div>
+
+    <div className="qewty-entry-card">
+      <div className="qewty-entry-header">
+         <div className="qewty-entry-label">
+        <img src="https://cdn-icons-png.flaticon.com/128/4691/4691328.png" alt="Anxious Icon" className="qewty-entry-icon" />
+        <strong>Anxious</strong>
+        </div>
+        <span className="qewty-entry-date">Jan 14</span>
+      </div>
+      <p className="qewty-entry-text">Feeling nervous about tomorrow's presentation. Need to practice more...</p>
+    </div>
+
+    <div className="qewty-entry-card">
+      <div className="qewty-entry-header">
+          <div className="qewty-entry-label">
+        <img src="https://cdn-icons-png.flaticon.com/128/17813/17813344.png" alt="Grateful Icon" className="qewty-entry-icon" />
+        <strong>Grateful</strong>
+        </div>
+        <span className="qewty-entry-date">Jan 13</span>
+      </div>
+      <p className="qewty-entry-text">Spent time with family today. Really appreciate these moments...</p>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+
+ <div className="qewty-summary-right">
+  
+
+  {/* ✅ ห่อกล่อง Stats & Feedback ด้วย div นี้ */}
+  <div className="qewty-right-row">
+
+    <div className="qewty-stats-box">
+      <div className="qewty-tabs">
+    <button className="active">Daily</button>
+    <button>Weekly</button>
+    <button>Monthly</button>
+  </div>
+     <div className="qewty-stats-content">
+    <div className="qewty-stats-title">This Week</div>
+    <div className="qewty-stats-subtitle">Emotional patterns</div>
+
+    <div className="qewty-stats-row">
+      <span className="qewty-stats-label">Most Common</span>
+      <span className="qewty-chip happy">😊 Happy</span>
+    </div>
+
+    <div className="qewty-stats-row">
+      <span className="qewty-stats-label">Entries</span>
+      <span className="qewty-stats-value">7 this week</span>
+    </div>
+
+    <div className="qewty-stats-row">
+      <span className="qewty-stats-label">Streak</span>
+      <span className="qewty-stats-value">3 days</span>
+    </div>
+  </div>
+  </div>
+  </div>
+  
+   
+</div>
+ <div className="qewty-feedback-card">
+      <h4 className="qewty-feedback-title">
+        <img
+          src="https://cdn-icons-png.flaticon.com/128/11213/11213138.png"
+          alt="Feedback Icon"
+          className="qewty-feedback-icon"
+        />
+        Thought Record Feedback
+      </h4>
+      <p className="qewty-feedback-subtitle">CBT progress and insights</p>
+
+      <div className="qewty-feedback-box qewty-green-box">
+        <p className="qewty-feedback-box-title">Progress Made</p>
+        <p className="qewty-feedback-box-text">
+          You’re identifying cognitive distortions more effectively
+        </p>
+      </div>
+
+      <div className="qewty-feedback-box qewty-purple-box">
+        <p className="qewty-feedback-box-title">Pattern Identified</p>
+        <p className="qewty-feedback-box-text">
+          Catastrophizing appears in 60% of your records
+        </p>
+      </div>
+
+      <button className="qewty-feedback-btn">View More</button>
+    </div>
+</div>
+
+
+
+</div>
   );
 };
  

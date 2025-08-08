@@ -74,6 +74,16 @@ async function GetDiarySummaryById(id: number) {
     .then((res) => res)
     .catch((e) => e.response);
 }
+async function GetDiaryCountThisMonth(year?: number, month?: number) {
+  const now = new Date();
+  const y = year ?? now.getFullYear();
+  const m = month ?? (now.getMonth() + 1); // 1-12
+
+  return await axios
+    .get(`${apiUrl}/diaries/count?year=${y}&month=${m}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
 export {
   GetDiary,
@@ -84,4 +94,5 @@ export {
   CreateDiary,
   CreateDiarySummary,
   GetDiarySummaryById,
+   GetDiaryCountThisMonth,
 };

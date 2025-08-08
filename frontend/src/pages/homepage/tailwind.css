@@ -967,3 +967,22 @@
     align-items: center;
   }
 }
+
+/* ไอคอน checkbox */
+.deer-check-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+/* ป้ายชื่อรายการ */
+.deer-item-label {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+/* กลุ่มไอคอน+ข้อความทางซ้าย */
+.deer-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

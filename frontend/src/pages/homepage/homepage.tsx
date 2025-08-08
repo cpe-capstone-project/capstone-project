@@ -3,101 +3,263 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./tailwind.css";
 import DiarySummary from "../diary_summary/DiarySummary";
+import { GetDiaryCountThisMonth } from "../../services/https/Diary";
 //import { GetLatestDiaries } from "../../services/https/Diary";
 //import type { DiaryInterface } from "../../interfaces/IDiary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 
 function HomePage() {
-type ChecklistType = {
-  diary: boolean;
-  thoughtRecord: boolean;
+
+// ---- Task types ----
+type TaskId =
+  | "write_diary"
+  | "thought_record"
+  | "analyze_diary_daily"
+  | "analyze_tr_daily"
+  | "exercise"
+  | "review_prev_day"
+  | "gratitude"
+  | "goal_review"
+  | "mood_trend_check"
+  | "analyze_diary_monthly"
+  | "analyze_tr_monthly";
+
+type Task = { id: TaskId; label: string };
+
+type ChecklistState = {
+  date: string;                     // YYYY-MM-DD
+  tasks: Task[];                    // รายการงานของวันนั้น
+  done: Record<TaskId, boolean>;    // สถานะของแต่ละงาน
 };
 
-const defaultChecklist: ChecklistType = { diary: false, thoughtRecord: false };
-const TOTAL_DAYS = 7;
-
-const [checklist, setChecklist] = useState<ChecklistType>(defaultChecklist);
-const [currentDayIndex, setCurrentDayIndex] = useState<number>(0);
-
-// โหลดจาก localStorage หรือเซ็ตค่าเริ่มต้น
-useEffect(() => {
-  const id = localStorage.getItem("id");
-  if (!id) return;
-
-  const today = new Date().toLocaleDateString("th-TH");
-
-  const checklistKey = `checklist-${id}-${today}`;
-  const checklistDayIndexKey = `checklistDayIndex-${id}`;
-  const checklistDateKey = `checklistDate-${id}`;
-
-  const storedChecklist = localStorage.getItem(checklistKey);
-  const storedDate = localStorage.getItem(checklistDateKey);
-  const storedDayIndex = localStorage.getItem(checklistDayIndexKey);
-
-  if (!storedDayIndex || !storedDate) {
-    localStorage.setItem(checklistDayIndexKey, "0");
-    localStorage.setItem(checklistDateKey, today);
-    localStorage.setItem(checklistKey, JSON.stringify(defaultChecklist));
-    setChecklist(defaultChecklist);
-    setCurrentDayIndex(0);
-  } else if (storedDate !== today) {
-    const lastIndex = Number(storedDayIndex);
-    const nextIndex = (lastIndex + 1) % TOTAL_DAYS;
-
-    localStorage.setItem(checklistDayIndexKey, nextIndex.toString());
-    localStorage.setItem(checklistDateKey, today);
-    localStorage.setItem(checklistKey, JSON.stringify(defaultChecklist));
-    setChecklist(defaultChecklist);
-    setCurrentDayIndex(nextIndex);
-  } else if (storedChecklist) {
-    setChecklist(JSON.parse(storedChecklist));
-    setCurrentDayIndex(Number(storedDayIndex));
-  }
-}, []);
-
-
-
-
-const toggleCheck = (key: keyof ChecklistType) => {
-  const id = localStorage.getItem("id");
-  const today = new Date().toLocaleDateString("th-TH");
-  const checklistKey = `checklist-${id}-${today}`;
-
-  const updated = { ...checklist, [key]: true };
-  setChecklist(updated);
-  localStorage.setItem(checklistKey, JSON.stringify(updated));
-};
-
-const DAILY_TASKS: { diary: string; thoughtRecord: string }[] = [
-  {
-    diary: "จดบันทึก DIARY",
-    thoughtRecord: "ทำ THOUGHT RECORD",
-  },
-  {
-    diary: "บันทึกอารมณ์ประจำวัน",
-    thoughtRecord: "สะท้อนความคิดวันนี้",
-  },
-  {
-    diary: "เล่าเหตุการณ์สำคัญ",
-    thoughtRecord: "จับความคิดเชิงลบ",
-  },
-  {
-    diary: "วันนี้เจออะไรบ้าง?",
-    thoughtRecord: "วิเคราะห์อารมณ์",
-  },
-  {
-    diary: "บันทึกสิ่งดี ๆ ที่เกิดขึ้น",
-    thoughtRecord: "เทคนิคที่ช่วยได้",
-  },
-  {
-    diary: "มุมมองใหม่ในวันนี้",
-    thoughtRecord: "วิเคราะห์พฤติกรรม",
-  },
-  {
-    diary: "สรุปภาพรวมทั้งสัปดาห์",
-    thoughtRecord: "สรุปการเปลี่ยนแปลงในตัวเอง",
-  },
+// ---- 7 วัน: เซ็ตงานไม่ซ้ำกัน ----
+const TASK_SETS: Task[][] = [
+  // Day 1
+  [
+    { id: "write_diary", label: "เขียนไดอารี่(Diary)" },
+    { id: "thought_record", label: "ทำ Though Record" },
+    { id: "analyze_diary_daily", label: "วิเคราะห์ผล Diary(รายวัน)" },
+    { id: "analyze_tr_daily", label: "วิเคราะห์อารมณ์จาก Though Record (รายวัน)" },
+  ],
+  // Day 2
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำบันทึกความคิด" },
+    { id: "exercise", label: "ทำ Though Record" },
+    { id: "analyze_tr_daily", label: "วิเคราะห์อารมณ์จาก Though Record (รายวัน)" },
+  ],
+  // Day 3
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำ Though Record" },
+    { id: "review_prev_day", label: "ทบทวนอารมณ์เมื่อวาน" },
+    { id: "analyze_diary_daily", label: "วิเคราะห์ไดอารี่ (รายวัน)" },
+  ],
+  // Day 4
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำ Though Record" },
+    { id: "gratitude", label: "ดู Feedback" },
+    { id: "analyze_tr_daily", label: "วิเคราะห์อารมณ์จาก Though Record (รายวัน)" },
+  ],
+  // Day 5
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำบันทึกความคิด" },
+    { id: "goal_review", label: "ทบทวนเป้าหมายประจำสัปดาห์" },
+    { id: "analyze_diary_daily", label: "วิเคราะห์ไดอารี่ (รายวัน)" },
+  ],
+  // Day 6
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำบันทึกความคิด" },
+    { id: "mood_trend_check", label: "ตรวจสอบแนวโน้มอารมณ์" },
+    { id: "analyze_tr_daily", label: "วิเคราะห์อารมณ์จาก Though Record (รายวัน)" },
+  ],
+  // Day 7 (เพิ่มสรุปรายเดือน)
+  [
+    { id: "write_diary", label: "เขียนไดอารี่" },
+    { id: "thought_record", label: "ทำบันทึกความคิด" },
+    { id: "analyze_diary_daily", label: "วิเคราะห์ไดอารี่ (รายวัน)" },
+    { id: "analyze_tr_daily", label: "วิเคราะห์อารมณ์จาก Though Record (รายวัน)" },
+    { id: "analyze_diary_monthly", label: "วิเคราะห์ไดอารี่ (รายเดือน)" },
+    { id: "analyze_tr_monthly", label: "วิเคราะห์อารมณ์จาก Though Record (รายเดือน)" },
+  ],
 ];
+
+
+// ---- utils ----
+const STORAGE_KEY = "daily-checklist-v2"; // เปลี่ยน key กันชนกับของเก่า
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const dayIndex = (d = new Date()) => d.getDay(); // 0=Sun ... 6=Sat
+const FORCE_DAY_INDEX: number | null = 0; // 0=Day1, 1=Day2,...; ใส่ null ถ้าอยาก auto ตามวันอาทิตย์ถึงเสาร์
+const tasksForToday = () => TASK_SETS[(FORCE_DAY_INDEX ?? dayIndex())];
+const ICON_UNCHECKED = "https://cdn-icons-png.flaticon.com/128/2217/2217292.png";
+const ICON_CHECKED   = "https://cdn-icons-png.flaticon.com/128/2951/2951459.png";
+
+const emptyDoneMap = (tasks: Task[]): Record<TaskId, boolean> =>
+  tasks.reduce((acc, t) => ((acc[t.id] = false), acc), {} as Record<TaskId, boolean>);
+ const [monthCount, setMonthCount] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    GetDiaryCountThisMonth()
+      .then((res) => {
+        if (isMounted && res?.status === 200) {
+          setMonthCount(res.data.count ?? 0);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setMonthCount(0);
+      });
+    return () => { isMounted = false; };
+  }, []);
+const newDayState = (): ChecklistState => {
+  const tasks = tasksForToday();
+  return {
+    date: todayKey(),
+    tasks,
+    done: emptyDoneMap(tasks),
+  };
+};
+// === per-date storage สำหรับ modal ===
+const STORAGE_KEY_BYDATE = "daily-checklist-bydate-v2";
+const dateKey = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
+const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+// เอาเซ็ตงานของ "วันที่นั้น" (อิง day-of-week จริง ไม่ใช่ FORCE_DAY_INDEX)
+function getTasksForDate(d: Date): Task[] {
+  return TASK_SETS[d.getDay()];
+}
+
+type ChecklistStateByDate = {
+  date: string;                 // YYYY-MM-DD
+  tasks: Task[];
+  done: Record<TaskId, boolean>;
+};
+
+function loadStore(): Record<string, ChecklistStateByDate> {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_BYDATE) || "{}");
+  } catch {
+    return {};
+  }
+}
+function saveStore(store: Record<string, ChecklistStateByDate>) {
+  localStorage.setItem(STORAGE_KEY_BYDATE, JSON.stringify(store));
+}
+
+function loadDay(d: Date): ChecklistStateByDate {
+  const key = dateKey(d);
+  const store = loadStore();
+  const existed = store[key];
+  const todayTasks = getTasksForDate(d);
+
+  if (!existed) {
+    const fresh: ChecklistStateByDate = {
+      date: key,
+      tasks: todayTasks,
+      done: emptyDoneMap(todayTasks),
+    };
+    store[key] = fresh;
+    saveStore(store);
+    return fresh;
+  }
+
+  // ถ้าเซ็ตงานเปลี่ยน (เช่นต่างวัน/ต่างดัชนี) → rebuild แต่พยายามคงสถานะ id เดิม
+  const same =
+    existed.tasks.length === todayTasks.length &&
+    existed.tasks.every((t, i) => t.id === todayTasks[i].id);
+
+  if (!same) {
+    const rebuilt: ChecklistStateByDate = {
+      date: key,
+      tasks: todayTasks,
+      done: (() => {
+        const next = emptyDoneMap(todayTasks);
+        Object.keys(next).forEach((id) => {
+          if (existed.done[id as TaskId] !== undefined) {
+            next[id as TaskId] = existed.done[id as TaskId];
+          }
+        });
+        return next;
+      })(),
+    };
+    store[key] = rebuilt;
+    saveStore(store);
+    return rebuilt;
+  }
+
+  return existed;
+}
+
+function saveDay(state: ChecklistStateByDate) {
+  const store = loadStore();
+  store[state.date] = state;
+  saveStore(store);
+}
+
+function loadChecklist(): ChecklistState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return newDayState();
+    const parsed: ChecklistState = JSON.parse(raw);
+
+    // ถ้าวันเปลี่ยน หรือเซ็ตงานของวันนี้ต่างจากที่เก็บไว้ → รีบิวด์ใหม่
+    const today = todayKey();
+    const todayTasks = tasksForToday();
+    const sameDate = parsed.date === today;
+    const sameTaskSet =
+      parsed.tasks.length === todayTasks.length &&
+      parsed.tasks.every((t, i) => t.id === todayTasks[i].id);
+
+    if (!sameDate || !sameTaskSet) return newDayState();
+    return parsed;
+  } catch {
+    return newDayState();
+  }
+}
+
+function saveChecklist(s: ChecklistState) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+}
+
+// ตั้ง reset ที่เที่ยงคืน (เวลาท้องถิ่น)
+function scheduleMidnightReset(cb: () => void) {
+  const now = new Date();
+  const midnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0, 0, 0, 0
+  );
+  const ms = midnight.getTime() - now.getTime();
+  const t = setTimeout(() => {
+    cb();
+    scheduleMidnightReset(cb);
+  }, ms);
+  return () => clearTimeout(t);
+}
+
+// ---- state & effects ----
+const [checklist, setChecklist] = useState<ChecklistState>(() => loadChecklist());
+
+useEffect(() => { saveChecklist(checklist); }, [checklist]);
+
+useEffect(() => scheduleMidnightReset(() => setChecklist(newDayState())), []);
+
+// ---- actions ----
+const toggleTask = (id: TaskId) =>
+  setChecklist((s) => ({
+    ...s,
+    done: { ...s.done, [id]: !s.done[id] },
+  }));
+
+// ---- progress ----
+const total = checklist.tasks.length;
+const completed = Object.values(checklist.done).filter(Boolean).length;
+const progressPct = total ? (completed / total) * 100 : 0;
+
 
   const navigate = useNavigate();
   // const [latestDiaries, setLatestDiaries] = useState<DiaryInterface[]>([]);
@@ -123,7 +285,7 @@ const DAILY_TASKS: { diary: string; thoughtRecord: string }[] = [
 
   //useEffect(() => {
    // const email = localStorage.getItem("currentLoginUser") || "";
-    //const loginHistoryKey = `loginHistory-${email}`;
+    //const loginHistoryKey = loginHistory-${email};
     //const loginHistory = JSON.parse(
     //  localStorage.getItem(loginHistoryKey) || "{}"
    // );
@@ -174,20 +336,21 @@ const DAILY_TASKS: { diary: string; thoughtRecord: string }[] = [
       localStorage.setItem("patient_notifications", JSON.stringify(updated));
       localStorage.setItem("has_new_notice", "true");
 
-      const htmlContent = `
-        <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px; text-align: left;">
-          <h3 style="margin-bottom: 15px; text-align: center;">
-            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-            แจ้งเตือนนัดหมาย
-          </h3>
-          <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9rem;">
-            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
-              ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
-            </div>
-            <div><b>รายละเอียด:</b> ${data.detail}</div>
-          </div>
-        </div>
-      `;
+    const htmlContent = `
+  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px; text-align: left;">
+    <h3 style="margin-bottom: 15px; text-align: center;">
+      <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+      แจ้งเตือนนัดหมาย
+    </h3>
+    <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9rem;">
+      <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
+        ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+      </div>
+      <div><b>รายละเอียด:</b> ${data.detail}</div>
+    </div>
+  </div>
+`;
+
 
  Swal.fire({
   html: htmlContent,
@@ -235,9 +398,87 @@ useEffect(() => {
     const startDate = next.start.toLocaleDateString("th-TH");
     const startTime = next.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const endTime = next.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    setNextAppointmentText(`${startDate} ${startTime}–${endTime} น.`);
+    setNextAppointmentText( `${startDate} ${startTime}–${endTime} น. `);
   }
 }, []);
+function openChecklistModal(startDate?: Date) {
+  let current = startDate ? new Date(startDate) : new Date();
+
+  const render = () => {
+    const state = loadDay(current);
+    const progress = (() => {
+      const total = state.tasks.length;
+      const done = Object.values(state.done).filter(Boolean).length;
+      return total ? Math.round((done / total) * 100) : 0;
+    })();
+
+    // HTML ภายใน Swal
+    const html =  `
+      <div style="text-align:left">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
+          <button id="prevDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">◀ Yesterday</button>
+          <div style="font-weight:700">${current.toLocaleDateString()}</div>
+          <button id="nextDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">Tomorrow ▶</button>
+        </div>
+
+        <div style="margin:8px 0 14px;font-size:0.95rem;color:#555">
+          Progress: <b>${progress}%</b>
+          <div style="height:8px;background:#eee;border-radius:9999px;margin-top:6px;overflow:hidden">
+            <div style="height:100%;width:${progress}%;background:#3b82f6"></div>
+          </div>
+        </div>
+
+        <ul id="checklistUl" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+          ${state.tasks.map((t) => {
+            const checked = state.done[t.id] ? "checked" : "";
+            return  `
+              <li style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#f9fafb">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1">
+                  <input type="checkbox" data-task="${t.id}" ${checked} />
+                  <span>${t.label}</span>
+                </label>
+                <span style="min-width:100px;text-align:right;color:${state.done[t.id] ? "#059669" : "#b40909ff"};font-weight:600">
+                  ${state.done[t.id] ? "Completed" : "Incomplete"}
+                </span>
+              </li>
+             `;
+          }).join("")}
+        </ul>
+      </div>
+     `;
+
+    Swal.fire({
+      title: "Checklist วันนี้",
+      html,
+      width: 620,
+      showConfirmButton: false,
+      showCloseButton: true,
+      didOpen: () => {
+        // ปุ่มเปลี่ยนวัน
+        const prev = document.getElementById("prevDay");
+        const next = document.getElementById("nextDay");
+        prev?.addEventListener("click", () => { current = addDays(current, -1); render(); });
+        next?.addEventListener("click", () => { current = addDays(current, 1); render(); });
+
+        // เช็คบ็อกซ์
+        document.querySelectorAll<HTMLInputElement>("#checklistUl input[type=checkbox]")
+          .forEach((cb) => {
+            cb.addEventListener("change", () => {
+              const id = cb.getAttribute("data-task") as TaskId;
+              const st = loadDay(current);
+              st.done[id] = cb.checked;
+              saveDay(st);
+              // re-render เพื่ออัปเดตสถานะ/แถบ progress
+              render();
+            });
+          });
+      }
+    });
+  };
+
+  render();
+}
+
 const handleShowAppointments = () => {
   const notices = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
 
@@ -256,42 +497,42 @@ const handleShowAppointments = () => {
     return;
   }
 
-  const htmlContent = `
-    <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
-      <h3 style="margin-bottom: 15px; text-align: center;">
-        <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-        แจ้งเตือนนัดหมาย
-      </h3>
-      ${filtered.slice(-99).map((item: any) => {
-  const startTime = new Date(item.start_time);
-  const endTime = new Date(item.end_time);
-  const isConfirmed = item.status === "accepted" || item.status === "rejected";
-  const statusText = item.status === "accepted" ? "✅ ยืนยันแล้ว" :
-                     item.status === "rejected" ? "❌ ปฏิเสธแล้ว" : "";
+const htmlContent = `
+  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
+    <h3 style="margin-bottom: 15px; text-align: center;">
+      <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
+      แจ้งเตือนนัดหมาย
+    </h3>
+    ${filtered.slice(-99).map((item: any) => {
+      const startTime = new Date(item.start_time);
+      const endTime = new Date(item.end_time);
+      const isConfirmed = item.status === "accepted" || item.status === "rejected";
+      const statusText = item.status === "accepted" ? "✅ ยืนยันแล้ว" :
+                         item.status === "rejected" ? "❌ ปฏิเสธแล้ว" : "";
+      return `
+        <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
+          <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${startTime.toLocaleDateString()} 
+            ${startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+          </div>
+          <div><b>รายละเอียด:</b> ${item.detail}</div>
+          <div style="margin-top: 10px;">
+            ${
+              isConfirmed
+                ? `<div style="color: #666; font-weight: 500;">${statusText} • ดำเนินการเรียบร้อยแล้ว</div>`
+                : `
+                  <div style="display: flex; gap: 10px;">
+                    <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
+                    <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
+                  </div>
+                `
+            }
+          </div>
+        </div>
+      `;
+    }).join("")}
+  </div>
+`;
 
-  return `
-    <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
-      <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${startTime.toLocaleDateString()} 
-        ${startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
-      </div>
-      <div><b>รายละเอียด:</b> ${item.detail}</div>
-      <div style="margin-top: 10px;">
-        ${
-          isConfirmed
-            ? `<div style="color: #666; font-weight: 500;">${statusText} • ดำเนินการเรียบร้อยแล้ว</div>`
-            : `
-              <div style="display: flex; gap: 10px;">
-                <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
-                <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
-              </div>
-            `
-        }
-      </div>
-    </div>
-  `;
-}).join("")}
-    </div>
-  `;
 
   Swal.fire({
     html: htmlContent,
@@ -302,22 +543,21 @@ const handleShowAppointments = () => {
 
   localStorage.setItem("has_new_notice", "false");
 };
-
-
    return (
    <div className="diorr-dashboard-container">
-  <div className="diorr-card">
-    <div className="diorr-card-header">
-      <div className="diorr-card-title">
-        <h3>Daily Progress</h3>
-        <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Daily Progress Icon" className="diorr-icon" />
-      </div>
-      <span className="diorr-stat-text">3/8</span>
-      <div className="diorr-progress-bar">
-        <div className="diorr-progress" style={{ width: '37.5%' }}></div>
-      </div>
+ <div className="diorr-card">
+  <div className="diorr-card-header">
+    <div className="diorr-card-title">
+      <h3>Daily Progress</h3>
+      <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Daily Progress Icon" className="diorr-icon" />
+    </div>
+    <span className="diorr-stat-text">{completed}/{total}</span>
+    <div className="diorr-progress-bar">
+      <div className="diorr-progress" style={{ width: `${progressPct}%` }} />
     </div>
   </div>
+</div>
+
 
   <div className="diorr-card">
     <div className="diorr-card-header">
@@ -325,7 +565,7 @@ const handleShowAppointments = () => {
         <h3>Diary Entries</h3>
         <img src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png" alt="Diary Entries Icon" className="diorr-icon" />
       </div>
-      <span className="diorr-stat-text">12</span>
+      <span className="diorr-stat-text">{monthCount}</span>
       <span className="diorr-stat-subtext">This month</span>
     </div>
   </div>
@@ -356,23 +596,41 @@ const handleShowAppointments = () => {
 
   {/* Daily Checklist */}
   <div className="deer-tiger-card">
-     <div className="hior-title">
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png"
-        alt="Checklist Icon"
-        className="frio-icon"
-      />
-      <h3>Daily Checklist</h3>
-    </div>
-    <p className="deer-tiger-subtext">Track your daily wellness activities</p>
-    <ul className="deer-tiger-checklist">
-      <li>Morning meditation <span className="deer-tiger-status completed">Completed</span></li>
-      <li>Mood check-in <span className="deer-tiger-status completed">Completed</span></li>
-      <li>Exercise <span className="deer-tiger-status pending">Pending</span></li>
-      <li>Gratitude journal <span className="deer-tiger-status pending">Pending</span></li>
-    </ul>
-    <button className="deer-tiger-btn">View More</button>
+  <div className="hior-title">
+    <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Checklist Icon" className="frio-icon" />
+    <h3>Daily Checklist</h3>
   </div>
+  <p className="deer-tiger-subtext">Track your daily wellness activities</p>
+
+  <ul className="deer-tiger-checklist">
+  {checklist.tasks.map(({ id, label }) => {
+    const done = checklist.done[id];
+    const iconSrc = done ? ICON_CHECKED : ICON_UNCHECKED;
+
+    return (
+      <li key={id} onClick={() => toggleTask(id)} className="deer-tiger-item">
+        <div className="deer-item-left">
+          <img src={iconSrc} alt={done ? "Done" : "Todo"} className="deer-check-icon" />
+          <span className="deer-item-label">{label}</span>
+        </div>
+        <span className={`deer-tiger-status ${done ? "completed" : "pending"}`}>
+          {done ? "Completed" : "Incomplete"}
+        </span>
+      </li>
+    );
+  })}
+</ul>
+
+
+  <button
+  className="deer-tiger-btn"
+  onClick={() => openChecklistModal()}
+>
+  View More
+</button>
+
+</div>
+
 
   {/* Diary */}
   <div className="deer-tiger-card">
@@ -405,7 +663,12 @@ const handleShowAppointments = () => {
   </span>
 </p>
 
-    <button className="deer-tiger-btn">View More</button>
+     <button
+      className="deer-tiger-btn"
+      onClick={() => navigate("/patient/diary")}
+    >
+      View More
+    </button>
   </div>
 
   {/* Thought Record */}

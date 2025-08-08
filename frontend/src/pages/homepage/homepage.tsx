@@ -3,13 +3,36 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./tailwind.css";
 import DiarySummary from "../diary_summary/DiarySummary";
-import { GetDiaryCountThisMonth } from "../../services/https/Diary";
+import { GetDiaryCountThisMonth, GetHomeDiaries } from "../../services/https/Diary";
+import { formatDistanceToNow } from "date-fns";
+import { th } from "date-fns/locale";
+import type { DiaryInterface } from "../../interfaces/IDiary";
 //import { GetLatestDiaries } from "../../services/https/Diary";
 //import type { DiaryInterface } from "../../interfaces/IDiary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 
 function HomePage() {
+  const [today, setToday] = useState<DiaryInterface | null>(null);
+  const [week, setWeek] = useState<DiaryInterface | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await GetHomeDiaries("Asia/Bangkok");
+        // ใหม่
+if (res?.status === 200) {
+  setToday(res.data.today ?? null);
+  setWeek(res.data.week ?? null);
+}
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const relTime = (iso?: string) =>
+    iso ? formatDistanceToNow(new Date(iso), { addSuffix: true, locale: th }) : "";
 // ---- Task types ----
 type TaskId =
   | "write_diary"
@@ -290,11 +313,11 @@ const progressPct = total ? (completed / total) * 100 : 0;
     //  localStorage.getItem(loginHistoryKey) || "{}"
    // );
 
-    const today = new Date();
+    //const today = new Date();
     //const todayStr = today.toLocaleDateString("th-TH");
 
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+    //const yesterday = new Date(today);
+   // yesterday.setDate(today.getDate() - 1);
     //const yesterdayStr = yesterday.toLocaleDateString("th-TH");
 
     //const todayCount = loginHistory[todayStr] || 0;
@@ -632,44 +655,92 @@ const htmlContent = `
 </div>
 
 
-  {/* Diary */}
-  <div className="deer-tiger-card">
-     <div className="hior-title">
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png"
-        alt="Diary Icon"
-        className="frio-icon"
-      />
-      <h3>Diary</h3>
-      
-    </div>
-      <p className="deer-tiger-subtext">Your personal thoughts and reflections</p>
-      <p className="deer-tiger-diary-entry">
-  <span className="diary-entry-header">
-    <strong>Today’s Entry</strong>
-    <span className="diary-entry-time">2 hours ago</span>
-  </span>
-  <span className="diary-entry-content">
-    "Had a productive day at work. Feeling grateful for..."
-  </span>
-</p>
-<p className="deer-tiger-diary-entry">
-  <span className="diary-entry-header">
-    <strong>Yesterday</strong>
-    <span className="diary-entry-time">1 day ago</span>
-  </span>
-  <span className="diary-entry-content">
-    "Challenging day but managed to stay positive..."
-  </span>
-</p>
-
-     <button
-      className="deer-tiger-btn"
-      onClick={() => navigate("/patient/diary")}
-    >
-      View More
-    </button>
+ {/* Diary */}
+<div className="deer-tiger-card">
+  <div className="hior-title">
+    <img
+      src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png"
+      alt="Diary Icon"
+      className="frio-icon"
+    />
+    <h3>Diary</h3>
   </div>
+
+  <p className="deer-tiger-subtext">Your personal thoughts and reflections</p>
+
+  {loading ? (
+    // --- แสดงโหลดเฉพาะส่วนนี้ (ไม่บล็อกทั้งหน้า) ---
+    <>
+      <p className="deer-tiger-diary-entry">
+        <span className="diary-entry-header">
+          <strong>Today’s Entry</strong>
+          <span className="diary-entry-time">กำลังโหลด…</span>
+        </span>
+        <span className="diary-entry-content"> </span>
+      </p>
+      <p className="deer-tiger-diary-entry">
+        <span className="diary-entry-header">
+          <strong>Yesterday</strong>
+          <span className="diary-entry-time">กำลังโหลด…</span>
+        </span>
+        <span className="diary-entry-content"> </span>
+      </p>
+    </>
+  ) : (
+    <>
+      <p className="deer-tiger-diary-entry">
+        <span className="diary-entry-header">
+          <strong>Today’s Entry</strong>
+          <span className="diary-entry-time">
+            {today?.UpdatedAt ? relTime(today.UpdatedAt) : "—"}
+          </span>
+        </span>
+        <span className="diary-entry-content">
+          {
+            today
+              ? (
+                  (today.Content ? today.Content.replace(/<[^>]*>?/gm, "") : "")
+                    .slice(0, 120) ||
+                  today.Title ||
+                  "ยังไม่มีบันทึกวันนี้"
+                )
+              : "ยังไม่มีบันทึกวันนี้"
+          }
+        </span>
+      </p>
+
+       <p className="deer-tiger-diary-entry">
+      <span className="diary-entry-header">
+        <strong>Last Week</strong>
+        <span className="diary-entry-time">
+          {week?.UpdatedAt ? relTime(week.UpdatedAt) : "—"}
+        </span>
+      </span>
+      <span className="diary-entry-content">
+        {
+          week
+            ? (
+                (week.Content ? week.Content.replace(/<[^>]*>?/gm, "") : "")
+                  .slice(0, 120) ||
+                week.Title ||
+                "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา"
+              )
+            : "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา"
+        }
+      </span>
+    </p>
+    </>
+  )}
+
+  <button
+    className="deer-tiger-btn"
+    onClick={() => navigate("/patient/diary")}
+    disabled={loading}
+  >
+    View More
+  </button>
+</div>
+
 
   {/* Thought Record */}
   <div className="deer-tiger-card">

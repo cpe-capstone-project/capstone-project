@@ -5,6 +5,7 @@ import (
 	"capstone-project/entity"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -156,4 +157,45 @@ func ListLatestDiaries(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, diaries)
+}
+
+// GET /diaries/count?year=2025&month=8
+func CountDiariesByMonth(c *gin.Context) {
+	db := config.DB()
+
+	yearStr := c.DefaultQuery("year", "")
+	monthStr := c.DefaultQuery("month", "")
+
+	// ใช้เวลาปัจจุบันเป็นค่า default
+	now := time.Now().UTC()
+	year, month := now.Year(), now.Month()
+
+	if yearStr != "" {
+		if y, err := strconv.Atoi(yearStr); err == nil {
+			year = y
+		}
+	}
+	if monthStr != "" {
+		if m, err := strconv.Atoi(monthStr); err == nil && m >= 1 && m <= 12 {
+			month = time.Month(m)
+		}
+	}
+
+	// คำนวณช่วงเริ่มต้น–สิ้นสุดของเดือน (UTC)
+	start := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0) // ต้นเดือนถัดไป
+
+	var count int64
+	if err := db.Model(&entity.Diaries{}).
+		Where("updated_at >= ? AND updated_at < ?", start, end).
+		Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"count": count,
+		"year":  year,
+		"month": int(month),
+	})
 }

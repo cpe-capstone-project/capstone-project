@@ -84,6 +84,12 @@ async function GetDiaryCountThisMonth(year?: number, month?: number) {
     .then((res) => res)
     .catch((e) => e.response);
 }
+async function GetHomeDiaries(tz = "Asia/Bangkok") {
+  return await axios
+    .get(`${apiUrl}/diaries/home?tz=${encodeURIComponent(tz)}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
 export {
   GetDiary,
@@ -95,4 +101,5 @@ export {
   CreateDiarySummary,
   GetDiarySummaryById,
    GetDiaryCountThisMonth,
+    GetHomeDiaries,
 };

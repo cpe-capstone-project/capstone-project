@@ -17,4 +17,6 @@ func SetupDiaryRoutes(r *gin.RouterGroup) {
 	r.PATCH("/diary/:id", diary.UpdateDiaryByID)
 	r.DELETE("/diary/:id", diary.DeleteDiary)
 	r.GET("/diaries/count", diary.CountDiariesByMonth)
+	r.GET("/diaries/home", diary.GetHomeDiaries)
+
 }

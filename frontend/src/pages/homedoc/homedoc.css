@@ -1,116 +1,359 @@
-.docflour-homepage {
+.qewty-stats-container {
+  display: flex;
+  justify-content: center; /* จัดให้อยู่กลางแนวนอน */
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 30px auto;
+  padding: 0 20px; /* สำหรับ mobile */
+  max-width: 1050px;
+}
+
+.qewty-stat-card {
+  flex: 1 1 300px; /* ✅ ขยายขนาดการ์ดเริ่มต้น */
+  min-width: 280px;
+  max-width: 360px;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.qewty-stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.qewty-stat-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.qewty-stat-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.qewty-stat-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qewty-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.qewty-stat-sub {
+  font-size: 0.9rem;
+  color: #777;
+}
+/* Wrapper that holds the whole lower dashboard */
+.qewty-stats-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  gap: 20px;
+}
+
+/* Chart Section (Left) */
+.qewty-chart-section {
+  flex: 2;
+  min-width: 500px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+/* Chart Title/Sub */
+.qewty-chart-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #222;
+}
+
+.qewty-chart-subtitle {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Bar Chart holder */
+.qewty-barchart-holder {
+  position: relative;
+}
+
+/* Overlay Box (status) */
+.qewty-status-overlay {
+  position: absolute;
+  /*top: 70px;*/
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  padding: 16px 20px;
+  z-index: 5;
+  width: 250px;
+}
+
+.qewty-status-title {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.qewty-status-list {
+  list-style: none;        /* เอา bullet ออก */
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.qewty-status-list li {
+  display: flex;           /* แบ่งซ้าย-ขวา */
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.qewty-status-left {
+  flex: 1;
+  text-align: left;
+}
+
+.qewty-status-right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+
+.qewty-overlay-btn {
+  width: 100%;
+  padding: 8px 0;
+  border: 2px solid #007bff;
+  background: white;
+  color: #007bff;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+
+/* Feedback Section (Right) */
+.qewty-feedback-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.qewty-feedback-card {
+  background: #fff;
+  padding: 18px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.qewty-feedback-card h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.qewty-subtext {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+.qewty-feedback-card p {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.qewty-feedback-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: 2px solid #007bff;
+  background: white;
+  color: #007bff;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+
+.qewty-emotion-distribution {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  max-width: 100%;           /* ✅ ให้แสดงเต็มแถว */
+  margin: 30px auto;         /* ✅ มี margin บน-ล่าง และชิดกลางแนวนอน */
+  width: 100%;               /* ✅ เต็มความกว้างของ container */
+}
+
+
+.qewty-emotion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.qewty-emotion-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.qewty-emotion-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.qewty-emotion-filters select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.qewty-emotion-subtext {
+  font-size: 0.88rem;
+  color: #666;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.qewty-piechart-holder {
+  text-align: center;
+  height: 280px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qewty-emotion-legend {
   display: flex;
   justify-content: center;
-  padding: 2rem;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.docflour-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  max-width: 1100px;
-  width: 100%;
-}
-
-.docflour-card {
-  background-color: #ffffff;           /* พื้นหลังขาว */
-  border: 2px solid #90caf9;           /* กรอบฟ้าอ่อน */
-  border-radius: 24px;
-  padding: 2rem 2.5rem;
-  min-height: 200px;
-  font-family: 'Sarabun', sans-serif;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);  /* เงาบางๆ */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center;
-  color: #000000;                     /* สีข้อความดำ */
-  max-width: 540px;                   /* ไม่เกินขนาดกล่อง */
-}
-.docflour-cardz {
-  background-color: #ffffff;           /* พื้นหลังขาว */
-  border: 2px solid #90caf9;           /* กรอบฟ้าอ่อน */
-  border-radius: 24px;
-  padding: 2rem 2.5rem;
-  min-height: 250px;
-  font-family: 'Sarabun', sans-serif;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);  /* เงาบางๆ */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center;
-  color: #000000;                     /* สีข้อความดำ */
-  max-width: 540px;                   /* ไม่เกินขนาดกล่อง */
-}
-.docflour-search-box {
-  margin-top: 1rem;
-  display: flex;
-  border: 2px solid #90caf9;          /* กรอบฟ้าอ่อน */
-  border-radius: 20px;
-  padding: 4px 10px;
-  align-items: center;
-  background-color: #f9f9f9;          /* สีพื้น input เบาๆ */
-}
-
-.docflour-search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 0.9rem;
-  width: 180px;
-  font-family: 'Sarabun', sans-serif;
-}
-
-.docflour-search-button {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-left: 6px;
-  color: #1976d2;                    /* ปุ่มค้นหาสีฟ้าเข้ม */
-}
-.docflour-patient-table {
-  width: 100%;
-  margin-top: 1rem;
-  border-collapse: collapse;
-  font-family: 'Sarabun', sans-serif;
-  background-color: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  font-size: 0.85rem; /* 👈 ขนาดตัวอักษรเล็กลง */
-  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1); /* เงาฟ้าอ่อน */
-}
-
-.docflour-patient-table th,
-.docflour-patient-table td {
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid #e0f0ff; /* ฟ้าอ่อน */
-}
-
-.docflour-patient-table th {
-  background-color: #e3f2fd; /* ฟ้าอ่อนนุ่ม */
-  color: #1565c0; /* ฟ้าเข้มอ่านง่าย */
-  font-weight: 600;
-}
-
-.docflour-patient-table tbody tr:hover {
-  background-color: #f1f9ff; /* แถว hover */
-}
-
-/* Status Tag */
-.status-tag {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+.legend-item {
+  font-size: 0.88rem;
   font-weight: 500;
-  color: white;
-  display: inline-block;
-  text-align: center;
 }
 
-.status-tag.active {
-  background-color: #2196f3; /* ฟ้าสด */
+.legend-item.anxiety { color: #f44336; }
+.legend-item.sadness { color: #e91e63; }
+.legend-item.anger { color: #ff9800; }
+.legend-item.joy { color: #4caf50; }
+.legend-item.neutral { color: #ffeb3b; }
+.qewty-appointment-resources {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 30px auto;
+  padding: 0 20px;
+  max-width: 2000px;
+  margin-top: -15px;
+}
+
+/* ===== LEFT: Calendar Card (.docflour-card) ===== */
+.docflour-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  width: 500px;
+}
+
+.docflour-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.docflour-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.docflour-calendar-domain {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.docflour-calendar-container {
+  height: 300px;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  padding: 8px;
+  margin-top: 1rem;
+}
+
+/* ===== RIGHT: Resource Card ===== */
+.qewty-resource-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  width: 490px;
+}
+
+.qewty-resource-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+.qewty-resource-item {
+  margin-bottom: 18px;
+}
+
+.qewty-resource-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+  color: #000;
+}
+
+.qewty-subtext {
+  font-size: 0.85rem;
+  color: #666;
 }

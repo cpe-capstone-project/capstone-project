@@ -153,9 +153,15 @@ function DiaryDetail() {
     const colorsChanged =
       tagColors.length !== originalColors.length ||
       tagColors.some((color) => !originalColors.includes(color));
-    editor.setEditable(!diary.Confirmed);
+    // editor.setEditable(!diary.Confirmed);
     setIsModified(contentChanged || titleChanged || colorsChanged);
   }, [editor, diary, originalDiary, tagColors]);
+
+  useEffect(() => {
+    if (editor && diary) {
+      editor.setEditable(!diary.Confirmed);
+    }
+  }, [editor, diary?.Confirmed]);
 
   // โหลด diary ตาม id ที่เลือก
   useEffect(() => {
@@ -289,7 +295,9 @@ function DiaryDetail() {
               okText="ยืนยัน"
               cancelText="ยกเลิก"
             >
-              <p>หลังจากบันทึกเสร็จสิ้นเรียบร้อยจะไม่สามารถกลับมาแก้ไขหรือลบไดอารี่ได้อีก</p>
+              <p>
+                หลังจากบันทึกเสร็จสิ้นเรียบร้อยจะไม่สามารถกลับมาแก้ไขหรือลบไดอารี่ได้อีก
+              </p>
               <p>คุณต้องการบันทึกไดอารี่นี้หรือไม่?</p>
             </Modal>
           </div>

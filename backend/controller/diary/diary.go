@@ -5,6 +5,7 @@ import (
 	"capstone-project/entity"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -156,4 +157,117 @@ func ListLatestDiaries(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, diaries)
+}
+
+// GET /diaries/count?year=2025&month=8
+func CountDiariesByMonth(c *gin.Context) {
+	db := config.DB()
+
+	yearStr := c.DefaultQuery("year", "")
+	monthStr := c.DefaultQuery("month", "")
+
+	// ใช้เวลาปัจจุบันเป็นค่า default
+	now := time.Now().UTC()
+	year, month := now.Year(), now.Month()
+
+	if yearStr != "" {
+		if y, err := strconv.Atoi(yearStr); err == nil {
+			year = y
+		}
+	}
+	if monthStr != "" {
+		if m, err := strconv.Atoi(monthStr); err == nil && m >= 1 && m <= 12 {
+			month = time.Month(m)
+		}
+	}
+
+	// คำนวณช่วงเริ่มต้น–สิ้นสุดของเดือน (UTC)
+	start := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0) // ต้นเดือนถัดไป
+
+	var count int64
+	if err := db.Model(&entity.Diaries{}).
+		Where("updated_at >= ? AND updated_at < ?", start, end).
+		Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"count": count,
+		"year":  year,
+		"month": int(month),
+	})
+}
+// GET /diaries/home?tz=Asia/Bangkok
+func GetHomeDiaries(c *gin.Context) {
+    db := config.DB()
+
+    tz := c.DefaultQuery("tz", "Asia/Bangkok")
+    loc, err := time.LoadLocation(tz)
+    if err != nil {
+        loc, _ = time.LoadLocation("Asia/Bangkok")
+    }
+
+    now := time.Now().In(loc)
+
+    // ====== วันนี้ ======
+    startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+    endToday := startToday.AddDate(0, 0, 1)
+
+    // ====== สัปดาห์ที่ผ่านมา (จันทร์–อาทิตย์ของสัปดาห์ก่อน) ======
+    weekday := int(now.Weekday())
+    if weekday == 0 { // Sunday=0 -> ใช้ 7
+        weekday = 7
+    }
+    // วันจันทร์ของ "สัปดาห์นี้"
+    startThisWeek := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
+    // ช่วงของ "สัปดาห์ที่ผ่านมา"
+    startPrevWeek := startThisWeek.AddDate(0, 0, -7) // จันทร์ที่แล้ว
+    endPrevWeek := startThisWeek                     // ก่อนจันทร์นี้ (ไม่รวม)
+
+    var todayDiary entity.Diaries
+    var weekDiary entity.Diaries
+    var todayList []entity.Diaries
+    var weekList []entity.Diaries
+
+    // ล่าสุดของ "วันนี้"
+    _ = db.
+        Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
+        Order("updated_at DESC").
+        First(&todayDiary).Error
+
+    // ทั้งหมดของ "วันนี้"
+    _ = db.
+        Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
+        Order("updated_at DESC").
+        Find(&todayList).Error
+
+    // ล่าสุดของ "สัปดาห์ที่ผ่านมา"
+    _ = db.
+        Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
+        Order("updated_at DESC").
+        First(&weekDiary).Error
+
+    // ทั้งหมดของ "สัปดาห์ที่ผ่านมา"
+    _ = db.
+        Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
+        Order("updated_at DESC").
+        Find(&weekList).Error
+
+    c.JSON(http.StatusOK, gin.H{
+        "today":      nullIfZeroDiary(todayDiary),
+        "week":       nullIfZeroDiary(weekDiary), // ใช้ key เดิม 'week' ให้ frontend เดิมใช้ได้
+        "today_list": todayList,
+        "week_list":  weekList,
+    })
+}
+
+
+// helper: คืน nil ถ้า diary.ID == 0 จะได้ส่ง null ไปหน้าเว็บ
+func nullIfZeroDiary(d entity.Diaries) interface{} {
+	if d.ID == 0 {
+		return nil
+	}
+	return d
 }

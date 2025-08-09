@@ -2,25 +2,27 @@
 .diorr-dashboard-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  column-gap: 72px;   /* gap เฉพาะด้านข้าง */
+  row-gap: 15px;         /* เอา gap ด้านบนล่างออก */
   padding: 20px;
   background-color: #ffffff;
-  justify-content: space-between; /* Adjust card spacing */
+  justify-content: center;
   margin-top: 30px; /* Add space from the top */
 }
+
 
 /* Diorr Card Styling */
 .diorr-card {
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  flex: 1 1 230px; /* Flex to ensure cards are responsive */
+  padding: 15px;             /* ลด padding */
+  flex: 1 1 130px;           /* ลด flex basis */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  min-width: 280px; /* Minimum width to ensure proper card sizing */
+  min-width: 190px;          /* ลดขนาดขั้นต่ำ */
+  max-width: 300px;          /* จำกัดขนาดสูงสุดให้สมดุล */
 }
 
 /* Diorr Card Header */
@@ -43,7 +45,7 @@
 .diorr-progress {
   background-color: #4caf50;
   height: 100%;
-  width: 0%;
+  width: 37.5%; /* Example progress value, adjust dynamically */
   border-radius: 50px;
 }
 
@@ -52,11 +54,19 @@
   font-size: 2em;
   font-weight: bold;
   color: #333;
+  margin-top: -20px;
+  margin-bottom: 5px;
 }
 
 .diorr-stat-subtext {
   font-size: 0.9em;
   color: #888;
+  display: block;
+}
+
+.deer-tiger-subtext {
+  font-size: 0.95rem;
+  color: #6b7280; /* เทาอ่อนตาม UI สมัยใหม่ */
 }
 
 /* Mobile Responsiveness */
@@ -68,7 +78,911 @@
 
 @media (max-width: 480px) {
   .diorr-dashboard-container {
-    flex-direction: column; /* Stack cards vertically on very small screens */
+    flex-direction: column;
     align-items: center;
   }
+}
+
+/* Diorr Card Title */
+.diorr-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.diorr-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.6;
+  position: relative;
+  top: -6px; /* ขยับขึ้น 2px */
+}
+
+.hior-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.frio-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.6;
+  position: relative;
+  top: -1px;
+}
+/* Deer-Tiger Dashboard Container */
+.deer-tiger-dashboard-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px;
+  padding: 20px;
+  background-color: #ffffff;
+  justify-content: flex-start; /* ชิดซ้าย */
+  margin-bottom: 70px;
+}
+
+
+/* Deer-Tiger Card Styling */
+.deer-tiger-card {
+ background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1 1 180px; /* Adjusted width */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 290px; /* Increased minimum width */
+}
+
+/* Checklist list */
+.deer-tiger-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.deer-tiger-checklist li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95em;
+  margin-bottom: 14px; /* ✅ เพิ่มระยะห่างแนวตั้ง */
+}
+
+/* Status badges */
+.deer-tiger-status.completed {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.deer-tiger-status.pending {
+  background-color: #e0e0e0;
+  color: #555;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.deer-tiger-diary-entry {
+  font-size: 0.92em;
+  color: #333;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.diary-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.diary-entry-time {
+  font-size: 0.8em;
+  color: #888; /* เทาอ่อนเหมือนในภาพ */
+  font-weight: normal;
+}
+.deer-tiger-thought-entry {
+  margin-bottom: 12px;
+}
+
+.deer-tiger-thought-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deer-tiger-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
+.deer-tiger-tag.high {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.deer-tiger-tag.medium {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.deer-tiger-thought-sub {
+  color: #777;
+  font-size: 0.85em;
+  margin-top: 2px;
+}
+
+
+
+/* ===== ปรับปุ่ม View More ตามดีไซน์ในรูป ===== */
+.deer-tiger-btn, .diorr-btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #007bff;      /* ขอบน้ำเงิน */
+  background: #ffffff;              /* พื้นหลังขาว */
+  color: #007bff;                   /* ตัวหนังสือน้ำเงิน */
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.appointment-entry {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 15px;     /* ✅ เพิ่มห่างจากด้านบน */
+  margin-bottom: 12px;
+}
+
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.appointment-date {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #333;
+}
+
+.appointment-detail {
+  font-size: 0.85em;
+  color: #777;
+  margin: 2px 0;
+}
+
+.appointment-time {
+  font-size: 0.85em;
+  color: #777;
+  margin: 0;
+}
+/* 🟦 Container ที่ห่อซ้าย+ขวา */
+.aertr-overall-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top:-15px;
+}
+
+/* 🟨 ฝั่งขวา: วาง Feedback & Entries แยกจาก SummaryCard */
+.aertr-side-panel {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* === Combined Card === */
+.aertr-summary-card {
+  flex: 2;
+  display: flex;
+  gap: 24px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  min-width: 600px;
+  margin-bottom: 1px;
+}
+
+
+/* === Left Panel: Chart === */
+.aertr-summary-left {
+  flex: 2;
+  min-width: 320px;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.aertr-summary-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.aertr-chart-placeholder {
+  height: 240px;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.aertr-emotion-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aertr-emotion {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+.aertr-emotion-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 15px;
+}
+
+.aertr-emotion.happy    { background-color: #fde047; color: #333; }
+.aertr-emotion.sad      { background-color: #60a5fa; }
+.aertr-emotion.neutral  { background-color: #a1a1aa; }
+.aertr-emotion.angry    { background-color: #f87171; }
+.aertr-emotion.excited  { background-color: #fb923c; }
+.aertr-emotion.anxious  { background-color: #818cf8; }
+.aertr-emotion.grateful { background-color: #f472b6; }
+
+/* === Right Panel: Cards === */
+.aertr-summary-right {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.aertr-trend-box {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+
+  margin-top: 65px; /* ✅ เว้นห่างจากด้านบน */
+}
+
+/* === Trend Tabs === */
+.aertr-tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.aertr-tab {
+  flex: 1;
+  background-color: #f3f4f6; /* เทาอ่อน */
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827; /* สีดำเข้ม */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.aertr-tab.active {
+   background-color: #f3f4f6; /* เทาอ่อน */
+  color: #111827; /* text สีดำ */
+  font-weight: 600;
+  box-shadow: none;
+}
+.aertr-feedback-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aertr-feedback-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.aertr-feedback-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280; /* สีเทาแบบภาพตัวอย่าง */
+  margin-bottom: 12px;
+}
+
+/* === Trend Card === */
+.aertr-trend-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.aertr-trend-content h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.aertr-trend-content {
+  font-size: 0.92rem;
+  color: #111827;
+}
+
+.aertr-trend-content .aertr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.aertr-label {
+   font-size: 0.85rem;
+  color: #333;
+}
+
+.aertr-value {
+  font-weight: 600;
+}
+
+/* Emotion badge */
+.aertr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background-color: #fef08a; /* soft yellow */
+  color: #111827;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+
+/* === Feedback Card === */
+.aertr-feedback-card {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.aertr-feedback-card h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.aertr-feedback-positive {
+  background-color: #e0f2fe;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #0c4a6e;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+.qewty-entry-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+}
+.qewty-entry-label {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* ระยะห่างระหว่าง icon และข้อความ */
+}
+.aertr-feedback-suggestion {
+  background-color: #fef9c3;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+.aertr-feedback-btn {
+  margin-top: 16px;
+  width: 100%;                     /* ✅ ทำให้ปุ่มยาวเต็ม card */
+  text-align: center;
+  background-color: transparent;
+  border: 1.5px solid #3b82f6;
+  border-radius: 8px;
+  padding: 10px 0;                 /* ✅ padding ด้านบน-ล่างมากขึ้น */
+  color: #2563eb;                  /* ✅ สี text ฟ้าเข้ม */
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+
+
+
+/* === Previous Entries Card === */
+.aertr-previous-card {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.aertr-previous-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.aertr-previous-entry {
+  background-color: #f9fafb;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.aertr-entry-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.aertr-entry-text {
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .aertr-summary-card {
+    flex-direction: column;
+  }
+
+  .aertr-summary-left,
+  .aertr-summary-right {
+    width: 100%;
+  }
+}
+/* === Summary Container (เหมือน Combined Card) === */
+.qewty-summary-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  width: 1435px;         /* ✅ ตาม aertr-style */
+  margin-bottom: 1px;
+  margin-top: -61px;        /* คงไว้ตามเดิม */
+}
+
+/* === Summary Left Panel (เหมือน Chart Panel) === */
+.qewty-summary-left {
+  flex: 2;
+  min-width: 300px;        /* ✅ ตาม aertr-style */
+  padding: 20px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+/* Title */
+.qewty-summary-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* 🟠 Pie chart + Legend layout */
+.qewty-chart-legend-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Pie Chart */
+.qewty-pie-chart {
+  width: 220px;
+  height: 220px;
+  background: #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Legend (Right of Pie Chart) */
+.qewty-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qewty-legend-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  width: 160px;
+}
+
+.qewty-legend-label .dot {
+  margin-right: 10px;
+}
+
+.qewty-legend-label .label {
+  display: flex;
+  align-items: center;
+  color: #444;
+}
+
+.qewty-legend-label .percent {
+  color: #333;
+  font-weight: 500;
+}
+
+/* Colored Dots */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot.happy  { background: #4caf50; }
+.dot.sad    { background: #2196f3; }
+.dot.other  { background: #9c27b0; }
+
+/* ⬇️ Emotion Chips */
+.qewty-emotions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.qewty-chip {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Pastel Backgrounds for Emotion Tags */
+.qewty-chip.happy    { background: #fff8d5; color: #444; }
+.qewty-chip.sad      { background: #d6eaff; color: #444; }
+.qewty-chip.neutral  { background: #eeeeee; color: #444; }
+.qewty-chip.angry    { background: #ffe3e3; color: #444; }
+.qewty-chip.excited  { background: #ffedcc; color: #444; }
+.qewty-chip.anxious  { background: #efe6fa; color: #444; }
+.qewty-chip.grateful { background: #fde7ef; color: #444; }
+
+/* 💡 Recent Entries Container */
+.qewty-entry-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start; /* ✅ ไม่ชิดขวาเกินไป */
+}
+
+/* 🧾 Individual Entry Card */
+.qewty-entry-card {
+  background: #f8f9fb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  width: 260px;
+  min-height: 125px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ✅ Hover effect */
+.qewty-entry-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+
+
+.qewty-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.qewty-entry-header span:first-child {
+  margin-right: 6px;
+}
+
+.qewty-entry-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: normal;
+}
+
+.qewty-entry-text {
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.4;
+}
+
+.qewty-recent-entries h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.qewty-subtext {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.qewty-entry {
+  background: #f8f9fb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-size: 0.88rem;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.qewty-entry span {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+/* 🟦 RIGHT SIDE */
+.qewty-summary-right {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.qewty-tabs {
+  display: flex;
+  gap: 10px;
+}
+.qewty-tabs button {
+  flex: 1;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
+  background: #f0f0f0;
+  font-weight: 500;
+  cursor: pointer;
+}
+.qewty-tabs .active {
+      background-color: #f3f4f6;
+  color: rgb(0, 0, 0);
+}
+
+.qewty-stats-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.qewty-stats-box h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.qewty-stats-box p {
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+/* Feedback Card */
+.qewty-feedback-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  flex: 1;
+  min-width: 230px;     /* ✅ กำหนดขั้นต่ำ */
+  max-width: 320px;     /* ✅ ป้องกันกว้างเกิน */
+  height: 350px;
+}
+
+/* Feedback Title */
+.qewty-feedback-title {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  gap: 8px;
+}
+
+.qewty-feedback-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.qewty-feedback-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Feedback Boxes */
+.qewty-feedback-box {
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.qewty-green-box {
+  background: #e7f7eb;
+  border-left: 4px solid #4caf50;
+}
+
+.qewty-purple-box {
+  background: #f3e8ff;
+  border-left: 4px solid #9c27b0;
+}
+
+.qewty-feedback-box-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.qewty-feedback-box-text {
+  font-size: 0.88rem;
+  color: #444;
+}
+
+/* Feedback Button */
+.qewty-feedback-btn {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1.5px solid #007bff;
+  color: #007bff;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+/* Container for Right Side Cards */
+.qewty-right-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  flex-wrap: wrap; /* ✅ Responsive */
+}
+.qewty-stats-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-top:70px; /* ✅ เพิ่มระยะห่างด้านบน */
+}
+
+/* Apply to Both Feedback and Stats Cards */
+.qewty-stats-box,
+.qewty-feedback-card {
+  flex: 1;
+  min-width: 230px;
+  max-width: 320px;
+}
+
+
+/* Stats Content */
+.qewty-stats-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+  margin-top: 16px;
+}
+.qewty-stats-subtitle {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+/* Row layout */
+.qewty-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 0.9rem;
+}
+
+.qewty-stats-label {
+  color: #333;
+}
+.qewty-stats-value {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .deer-tiger-dashboard-container {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .deer-tiger-dashboard-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* ไอคอน checkbox */
+.deer-check-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+/* ป้ายชื่อรายการ */
+.deer-item-label {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+/* กลุ่มไอคอน+ข้อความทางซ้าย */
+.deer-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

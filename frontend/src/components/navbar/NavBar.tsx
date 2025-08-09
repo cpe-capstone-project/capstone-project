@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import "./Navbar.css";
 import Swal from "sweetalert2";
 import healthImage from "../../assets/med5.png";
+import { k, KEYS } from "../../unid/storageKeys";
+const NOTI_KEY = k(KEYS.NOTI);
+const NOTICE_FLAG_KEY = k(KEYS.NOTICE_FLAG);
 
 // ✅ เพิ่ม global function
 declare global {
@@ -15,18 +18,20 @@ function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
-  const [hasNotice, setHasNotice] = useState(localStorage.getItem("has_new_notice") === "true");
-  const [, setNoticeList] = useState(() => {
-    const stored = localStorage.getItem("patient_notifications");
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [hasNotice, setHasNotice] = useState(localStorage.getItem(NOTICE_FLAG_KEY) === "true");
+const [, setNoticeList] = useState(() => {
+  const stored = localStorage.getItem(NOTI_KEY);
+  return stored ? JSON.parse(stored) : [];
+});
 
   // ✅ อัปเดตทุกวินาทีเพื่อตรวจ flag ใหม่
   useEffect(() => {
-    const interval = setInterval(() => {
-      const isNew = localStorage.getItem("has_new_notice") === "true";
-      setHasNotice(isNew);
-    }, 1000);
+   // เดิม: "has_new_notice"
+const interval = setInterval(() => {
+  const isNew = localStorage.getItem(NOTICE_FLAG_KEY) === "true";
+  setHasNotice(isNew);
+}, 1000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -84,15 +89,16 @@ useEffect(() => {
     if (data.type === "appointment_created") {
       console.log("🔥 ได้รับนัดหมายใหม่");
 
-      const existing = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
+      const existing = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
       const updated = [...existing, {
         start_time: data.start_time,
         end_time: data.end_time,
         detail: data.detail,
         appointment_id: data.appointment_id,
       }];
-      localStorage.setItem("patient_notifications", JSON.stringify(updated));
-      localStorage.setItem("has_new_notice", "true");
+      localStorage.setItem(NOTI_KEY, JSON.stringify(updated));
+localStorage.setItem(NOTICE_FLAG_KEY, "true");
+
       setNoticeList(updated);
       setHasNotice(true);
 
@@ -375,45 +381,36 @@ width: "850px",
   }
 };
 
-  const out = () => {
-     // ✅ เก็บค่า loginHistory และ currentLoginUser ไว้
-  const historyKeys = Object.keys(localStorage).filter(key =>
-     key.startsWith("loginHistory-") || key === "currentLoginUser" ||
-  key === "patient_notifications" || key === "has_new_notice"
-);
-  const historyData: Record<string, string> = {};
-  for (const key of historyKeys) {
-    historyData[key] = localStorage.getItem(key)!;
+const out = () => {
+  const keepKeys = new Set<string>([
+    "currentLoginUser",
+    ...Object.keys(localStorage).filter((key) => key.startsWith("loginHistory-")),
+
+    k(KEYS.NOTI),            // patient_notifications:<uid>
+    k(KEYS.NOTICE_FLAG),     // has_new_notice:<uid>
+    k(KEYS.CAL),             // calendar_events:<uid>
+    k(KEYS.CHECK_DAY),       // daily-checklist-v2:<uid>
+    k(KEYS.CHECK_BYDATE),    // daily-checklist-bydate-v2:<uid>
+  ]);
+
+  const backup: Record<string, string> = {};
+  for (const key of keepKeys) {
+    const v = localStorage.getItem(key);
+    if (v !== null) backup[key] = v;
   }
 
-  // 🔥 ลบทุกค่า
   localStorage.clear();
 
-  // ✅ คืนค่าประวัติ login กลับไป
-  for (const key in historyData) {
-    localStorage.setItem(key, historyData[key]);
+  for (const [key, v] of Object.entries(backup)) {
+    localStorage.setItem(key, v);
   }
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "top-end",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
-      },
-    });
 
-    Toast.fire({
-      icon: "success",
-      title: "Log out successfully",
-    });
+  const Toast = Swal.mixin({ toast:true, position:"top-end", showConfirmButton:false, timer:3000, timerProgressBar:true,
+    didOpen:(t)=>{ t.onmouseenter = Swal.stopTimer; t.onmouseleave = Swal.resumeTimer; }});
+  Toast.fire({ icon:"success", title:"Log out successfully" });
+  setTimeout(() => navigate("/"), 500);
+};
 
-    setTimeout(() => {
-      navigate("/");
-    }, 500);
-  };
 
   return (
     <section className="navbar">

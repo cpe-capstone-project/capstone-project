@@ -13,11 +13,80 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 import { k, KEYS } from "../../unid/storageKeys";
 // --- เพิ่มบนสุดของไฟล์ (นอก component) ---
-
+// เพิ่มตรงหัวไฟล์
+import DiaryStatsChart from "../../components/DiaryStatsChart/DiaryStatsChart";
+import { useDiary } from "../../contexts/DiaryContext";
+import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
 function HomePage() {
+  // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
+const { diaries } = useDiary();
+
   const [today, setToday] = useState<DiaryInterface | null>(null);
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
+// แปลงแท็บ -> label ภาษาไทยที่ backend ใช้
+const tabToLabelTH = (tab: "daily" | "weekly" | "monthly"): "รายวัน" | "รายสัปดาห์" | "รายเดือน" => {
+  if (tab === "weekly") return "รายสัปดาห์";
+  if (tab === "monthly") return "รายเดือน";
+  return "รายวัน";
+};
+
+const [summarizedTabs, setSummarizedTabs] = useState<{
+  daily?: boolean;
+  weekly?: boolean;
+  monthly?: boolean;
+}>({});
+const onTab = async (tab: "daily" | "weekly" | "monthly") => {
+  setStatTab(tab);
+  if (!summarizedTabs[tab] && !isSummarizingStats) {
+    try {
+      await summarize(tab);
+      setSummarizedTabs((prev) => ({ ...prev, [tab]: true }));
+    } catch (e) {
+      // optional: แจ้ง error หรือ Swal.alert ก็ได้
+      console.error(e);
+    }
+  }
+};
+
+const norm = (s: string) => s.trim().toLowerCase();
+const toClass = (t: string) => norm(t).replace(/\s+/g, "-");
+const EMOJI: Record<string, string> = {
+  happy: "😊", sad: "😢", anxious: "😰", calm: "😐",
+  angry: "😠", excited: "🤩", tired: "🥱", confused: "🤔",
+  grateful: "💖", neutral: "😐",
+};
+ const [statTab, setStatTab] = useState<"daily" | "weekly" | "monthly">("daily");
+ const {
+  isLoading: isSummarizingStats,
+   summaryText,
+   detectedEmotions,
+   currentEmotion,
+   summarize,
+ } = useDiarySummary();
+
+// สร้างช่วงเวลา (local time)
+const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
+  const now = new Date();
+  let start = new Date(), end = new Date();
+  if (tab === "daily") {
+    start.setHours(0,0,0,0);
+    end.setHours(23,59,59,999);
+  } else if (tab === "weekly") {
+    const offset = now.getDay() === 0 ? -6 : 1 - now.getDay(); // จันทร์เป็นวันแรก
+    start = new Date(now);
+    start.setDate(now.getDate() + offset);
+    start.setHours(0,0,0,0);
+    end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23,59,59,999);
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0);
+    end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { start, end };
+};
+
 
   useEffect(() => {
     (async () => {
@@ -1092,53 +1161,111 @@ const htmlContent = `
 </button>
 
 </div>
+{/* ===== Summary Diary Text (aertr) ===== */}
 <div className="aertr-overall-container">
-{/* Emotion Summary Section (Combined Card) */}
-<div className="aertr-summary-card">
-  {/* Left: Chart & Emotion Legend */}
-  <div className="aertr-summary-left">
-    <h3 className="aertr-summary-title">Summary Diary Text</h3>
-    <div className="aertr-chart-placeholder">[Chart Placeholder]</div>
-     <p className="aertr-emotion-label">Current Emotion</p>
-    <div className="aertr-emotion-legend">
-      <span className="aertr-emotion happy">😊 Happy</span>
-      <span className="aertr-emotion sad">😢 Sad</span>
-      <span className="aertr-emotion neutral">😐 Neutral</span>
-      <span className="aertr-emotion angry">😠 Angry</span>
-      <span className="aertr-emotion excited">🤩 Excited</span>
-      <span className="aertr-emotion anxious">😰 Anxious</span>
-      <span className="aertr-emotion grateful">💖 Grateful</span>
-    </div>
-  </div>
-
-  {/* Right: Tabs + Feedback + Previous */}
-  <div className="aertr-summary-right">
-    {/* Tabs + Weekly Stats */}
-    <div className="aertr-trend-box">
-      <div className="aertr-tab-buttons">
-        <button className="aertr-tab active">Daily</button>
-        <button className="aertr-tab">Weekly</button>
-        <button className="aertr-tab">Monthly</button>
+  <div className="aertr-summary-card">
+    {/* Left */}
+    <div className="aertr-summary-left">
+      <h3 className="aertr-summary-title">Summary Diary Text</h3>
+      <div
+        style={{
+          marginTop: 12,
+          padding: "12px 14px",
+          border: "1px solid #eee",
+          borderRadius: 12,
+          background: "#fff",
+        }}
+      >
+        <DiaryStatsChart diaries={diaries} dateField="UpdatedAt" />
       </div>
-     <div className="aertr-trend-content">
-  <h4>This Week</h4>
-  <p className="aertr-row">
-    <span className="aertr-label">Most Common</span>
-    <span className="aertr-value">
-      <span className="aertr-badge">😊 Happy</span>
-    </span>
-  </p>
-  <p className="aertr-row">
-    <span className="aertr-label">Entries</span>
-    <span className="aertr-value">7 this week</span>
-  </p>
-  <p className="aertr-row">
-    <span className="aertr-label">Streak</span>
-    <span className="aertr-value">3 days</span>
-  </p>
-</div>
 
+      <p className="aertr-emotion-label">
+        Current Emotion
+      </p>
+
+      <div className="aertr-emotion-legend">
+        {TAGS.map((t) => {
+          const key = norm(t);
+          const active = detectedEmotions.map(norm).includes(key);
+          const icon = EMOJI[key] || "🙂";
+          return (
+            <span
+              key={t}
+              className={`aertr-emotion ${toClass(t)} ${
+                active ? "active" : ""
+              }`}
+              title={t}
+            >
+              {icon} {t}
+            </span>
+          );
+        })}
+      </div>
     </div>
+
+    {/* Right */}
+    <div className="aertr-summary-right">
+      <div className="aertr-trend-box">
+        <div className="aertr-tab-buttons">
+         <button
+  className={`aertr-tab ${statTab === "daily" ? "active" : ""}`}
+  onClick={() => onTab("daily")}
+  disabled={isSummarizingStats}
+>
+  {isSummarizingStats && statTab === "daily" ? "Loading…" : "Daily"}
+</button>
+
+<button
+  className={`aertr-tab ${statTab === "weekly" ? "active" : ""}`}
+  onClick={() => onTab("weekly")}
+  disabled={isSummarizingStats}
+>
+  {isSummarizingStats && statTab === "weekly" ? "Loading…" : "Weekly"}
+</button>
+
+<button
+  className={`aertr-tab ${statTab === "monthly" ? "active" : ""}`}
+  onClick={() => onTab("monthly")}
+  disabled={isSummarizingStats}
+>
+  {isSummarizingStats && statTab === "monthly" ? "Loading…" : "Monthly"}
+</button>
+
+        </div>
+
+        <div className="aertr-trend-content">
+          <h4>
+            {statTab === "daily"
+              ? "Daily"
+              : statTab === "weekly"
+              ? "This Week"
+              : "This Month"}
+          </h4>
+
+          <div
+            style={{
+              marginTop: 12,
+              padding: "12px 14px",
+              border: "1px solid #eee",
+              borderRadius: 12,
+              background: "#fff",
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>
+              {statTab === "daily"
+                ? "สรุปวันนี้"
+                : statTab === "weekly"
+                ? "สรุปรายสัปดาห์"
+                : "สรุปรายเดือน"}
+            </div>
+            <div style={{ color: "#374151", lineHeight: 1.6 }}>
+              {isSummarizingStats
+                ? "กำลังสรุปข้อมูล…"
+                : summaryText || "— ยังไม่มีสรุป —"}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
      <div className="aertr-side-panel">
     {/* AI Feedback */}

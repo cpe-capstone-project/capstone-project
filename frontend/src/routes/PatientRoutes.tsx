@@ -7,6 +7,7 @@ import RequireRole from "./RequireRole";
 import DiarySummary from "../pages/diary_summary/DiarySummary";
 import Homepage from "../pages/homepage/homepage";
 import ThoughtRecordList from "../pages/thought_record_list/ThoughtRecordList";
+import ThoughtRecordDetail from "../pages/thought_record_detail/ThoughtRecordDetail";
 const PatientRoutes = {
   path: "/patient",
   element: (
@@ -23,7 +24,9 @@ const PatientRoutes = {
     { path: "diary", element: <DiaryList /> },
     { path: "diary/detail/:id", element: <DiaryDetail /> },
     { path: "diary-summary", element: <DiarySummary /> },
-    { path: "thought_record", element: <ThoughtRecordList /> },
+    { path: "thought_records", element: <ThoughtRecordList /> },
+    { path: "thought_record/:id", element: <ThoughtRecordDetail /> },
+
   ],
 };
 

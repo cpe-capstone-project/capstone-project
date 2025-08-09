@@ -17,6 +17,9 @@ import { EyeOutlined } from "@ant-design/icons"; // เพิ่มอันน�
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import "./ThoughtRecordList.css"; // <-- สำคัญ
+import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
+import { GiDramaMasks } from "react-icons/gi";
+
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -115,11 +118,15 @@ function ThoughtRecordList() {
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
+                          fontWeight: 500,
+                          fontSize: "15px",
+                          color: "#1f1f1f",
                         }}
                         title={record.Situation || "-"}
                       >
                         {record.Situation || "-"}
                       </Paragraph>
+
                     </div>
                   }
                   hoverable
@@ -142,15 +149,24 @@ function ThoughtRecordList() {
                 >
                   <div style={{ flexGrow: 1 }}>
                     <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                      <Paragraph ellipsis={{ rows: 1 }}>
-                        <Text strong>ความคิด:</Text> {record.Thoughts || "-"}
-                      </Paragraph>
-                      <Paragraph ellipsis={{ rows: 1 }}>
-                        <Text strong>พฤติกรรม:</Text> {record.Behaviors || "-"}
-                      </Paragraph>
-                      <Paragraph ellipsis={{ rows: 1 }}>
-                        <Text strong>ความคิดทางเลือก:</Text> {record.AlternateThought || "-"}
-                      </Paragraph>
+                      <div className="field-box" style={{ borderLeftColor: "#519bf1ff" }}>
+                        <Paragraph ellipsis={{ rows: 1 }}>
+                          <FaRegCommentDots style={{ marginRight: 6, color: "#519bf1ff" }} />
+                          <Text strong>ความคิด:</Text> {record.Thoughts || "-"}
+                        </Paragraph>
+                      </div>
+                      <div className="field-box" style={{ borderLeftColor: "#519bf1ff" }}>
+                        <Paragraph ellipsis={{ rows: 1 }}>
+                          <GiDramaMasks style={{ marginRight: 6, color: "#519bf1ff" }} />
+                          <Text strong>พฤติกรรม:</Text> {record.Behaviors || "-"}
+                        </Paragraph>
+                      </div>
+                      <div className="field-box" style={{ borderLeftColor: "#519bf1ff" }}>
+                        <Paragraph ellipsis={{ rows: 1 }}>
+                          <FaRedoAlt style={{ marginRight: 6, color: "#519bf1ff" }} />
+                          <Text strong>ความคิดทางเลือก:</Text> {record.AlternateThought || "-"}
+                        </Paragraph>
+                      </div>
                     </Space>
                   </div>
 
@@ -168,7 +184,7 @@ function ThoughtRecordList() {
                     type="primary"
                     shape="circle"
                     icon={<EyeOutlined />}
-                    onClick={() => navigate(`/thought-records/${record.ID}`)}
+                    onClick={() => navigate(`/patient/thought_record/${record.ID}`)}
                   />
                 </Card>
               </div>
@@ -179,5 +195,4 @@ function ThoughtRecordList() {
     </section>
   );
 }
-
 export default ThoughtRecordList;

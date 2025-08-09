@@ -6,7 +6,7 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
-
+import { k, KEYS } from "../../unid/storageKeys";
 
 
 import Customcalendar from "../../components/customcalendar/customcalendar";
@@ -35,18 +35,18 @@ const Homedoc: React.FC = () => {
   const role = localStorage.getItem("role");
   const isLogin = localStorage.getItem("isLogin");
   const id = localStorage.getItem("id");
-  const [loading, setLoading] = useState(true); // ✅ โหลดสถานะ
+  const [, setLoading] = useState(true); // ✅ โหลดสถานะ
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
-const [searchTerm, setSearchTerm] = useState("");
+//const [searchTerm, setSearchTerm] = useState("");
+const CAL_KEY = k(KEYS.CAL);
+//const filteredPatients = patients.filter((p) => {
+  //const fullText = `${p.first_name} ${p.last_name} ${p.gender} ${p.age} ${p.birthday}`.toLowerCase();
 
-const filteredPatients = patients.filter((p) => {
-  const fullText = `${p.first_name} ${p.last_name} ${p.gender} ${p.age} ${p.birthday}`.toLowerCase();
-
-  return fullText.includes(searchTerm.toLowerCase());
-});
+  //return fullText.includes(searchTerm.toLowerCase());
+//});
 const stats = [
   {
     title: "Total Patients",
@@ -117,21 +117,45 @@ useEffect(() => {
       return res.json();
     })
     .then((data) => {
-   const loadedEvents = data.map((item: { id: any; title: any; detail: any; start_time: string | number | Date; end_time: string | number | Date; }) => ({
+   const loadedEvents = data.map((item: {
+     status: string; id: any; title: any; detail: any; start_time: string | number | Date; end_time: string | number | Date; 
+}) => ({
   id: item.id, // ✅ สำคัญ! เพื่อให้สามารถส่ง id กลับไปตอนอัปเดตได้
   title: item.title,
   detail: item.detail,
   start: new Date(item.start_time),
   end: new Date(item.end_time),
+  status: item.status ?? "pending",
 }));
 
 setEvents(loadedEvents);
-      localStorage.setItem("calendar_events", JSON.stringify(loadedEvents));
+      localStorage.setItem(CAL_KEY, JSON.stringify(loadedEvents));
 
     })
     .catch((err) => {
       console.error("โหลดนัดหมายล้มเหลว", err);
     });
+}, [id]);
+useEffect(() => {
+  if (!id) return;
+  const ws = new WebSocket(`ws://localhost:8000/ws/psych/${id}`); // ให้ตรงกับ backend ของคุณ
+
+  ws.onmessage = (ev) => {
+    try {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === "appointment_status_changed") {
+        setEvents(prev => {
+          const updated = prev.map(e =>
+            e.id === Number(msg.appointment_id) ? { ...e, status: msg.status } : e
+          );
+          localStorage.setItem(CAL_KEY, JSON.stringify(updated));
+          return updated;
+        });
+      }
+    } catch {}
+  };
+
+  return () => ws.close();
 }, [id]);
 
 useEffect(() => {
@@ -146,7 +170,8 @@ useEffect(() => {
 // ✅ โหลดนัดหมายจาก localStorage ถ้ามี
 useEffect(() => {
   const loadEventsFromStorage = () => {
-    const savedEvents = localStorage.getItem("calendar_events");
+    const savedEvents = localStorage.getItem(CAL_KEY); // ⬅️ แทนที่ "calendar_events"
+
     if (savedEvents) {
       try {
         const parsed = JSON.parse(savedEvents);
@@ -326,7 +351,7 @@ const createdEvent: CalendarEvent = {
     
 setEvents((prev) => {
     const updated = [...prev, createdEvent];
-    localStorage.setItem("calendar_events", JSON.stringify(updated));
+     localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
     return updated;
   });// ✅ เพิ่มนัดใหม่พร้อม id
 Swal.fire("สร้างนัดหมายสำเร็จ", "", "success");
@@ -368,7 +393,7 @@ const handleSelectEvent = (event: {
 
   setEvents((prev) => {
   const updated = prev.filter((e) => e.id !== event.id);
-  localStorage.setItem("calendar_events", JSON.stringify(updated));
+ localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
   return updated;
 });
 
@@ -482,7 +507,7 @@ const handleSelectEvent = (event: {
   const updated = prev.map((e) =>
     e.id === event.id ? { ...e, start: newTimes.newStart, end: newTimes.newEnd } : e
   );
-  localStorage.setItem("calendar_events", JSON.stringify(updated));
+  localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
   return updated;
 });
 

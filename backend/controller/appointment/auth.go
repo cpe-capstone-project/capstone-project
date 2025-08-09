@@ -89,34 +89,42 @@ func GetAppointmentsByPatient(c *gin.Context) {
 }
 
 // ========== อัปเดตสถานะนัดหมาย (เช่น ยอมรับ/ปฏิเสธ) ==========
+// ========== อัปเดตสถานะนัดหมาย (เช่น ยอมรับ/ปฏิเสธ) ==========
 func UpdateAppointmentStatus(c *gin.Context) {
-	var req struct {
-		ID     uint   `json:"id"`
-		Status string `json:"status"` // accepted / rejected
-		Reason string `json:"reason"` // optional
-	}
+    var req struct {
+        ID     uint   `json:"id"`
+        Status string `json:"status"` // accepted / rejected
+        Reason string `json:"reason"` // optional
+    }
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-		return
-	}
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+        return
+    }
 
-	db := config.DB()
-	var appointment entity.Appointment
-	if err := db.First(&appointment, req.ID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Appointment not found"})
-		return
-	}
+    db := config.DB()
+    var appointment entity.Appointment
+    if err := db.First(&appointment, req.ID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Appointment not found"})
+        return
+    }
 
-	appointment.Status = req.Status
-	appointment.Reason = req.Reason
+    appointment.Status = req.Status
+    appointment.Reason = req.Reason
 
-	if err := db.Save(&appointment).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update status"})
-		return
-	}
+    if err := db.Save(&appointment).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update status"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "Status updated successfully"})
+    // ✅ ส่งแจ้งเตือนไปยัง "หมอ" ที่เป็นเจ้าของนัดหมาย
+    ws.GlobalHub.SendToUser(fmt.Sprint(appointment.PsychologistID), map[string]interface{}{
+        "type":           "appointment_status_changed",
+        "appointment_id": appointment.ID,
+        "status":         appointment.Status, // "accepted" / "rejected"
+    })
+
+    c.JSON(http.StatusOK, gin.H{"message": "Status updated successfully"})
 }
 
 // ========== ลบนัดหมาย ==========

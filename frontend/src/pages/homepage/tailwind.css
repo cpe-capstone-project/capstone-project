@@ -699,6 +699,9 @@
 .qewty-chip.excited  { background: #ffedcc; color: #444; }
 .qewty-chip.anxious  { background: #efe6fa; color: #444; }
 .qewty-chip.grateful { background: #fde7ef; color: #444; }
+.aertr-emotion.calm     { background-color: #86efac; color: #333; }  /* เขียวอ่อน */
+.aertr-emotion.tired { background-color: #f9a8d4; color: #333; } /* ชมพูพาสเทล */
+.aertr-emotion.confused { background-color: #c084fc; color: #fff; }  /* ม่วงอ่อน */
 
 /* 💡 Recent Entries Container */
 .qewty-entry-list {
@@ -729,6 +732,11 @@
 }
 
 
+.aertr-highlight {
+  background: #fff7b3;   /* เหลืองพาสเทล */
+  padding: 0 .22rem;
+  border-radius: .3rem;
+}
 
 
 .qewty-entry-header {

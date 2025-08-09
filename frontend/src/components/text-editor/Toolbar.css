@@ -15,7 +15,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
   border: 0 solid;
   border-radius: var(--radius-md);
   padding: calc(var(--padding-text-editor) / 2);
@@ -28,7 +27,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
   border: 0 solid;
   gap: var(--space-xs);
   border-radius: var(--radius-md);
@@ -36,10 +34,10 @@
 }
 
 .toolbar div {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
   border: 0 solid;
   gap: var(--space-xs);
   border-radius: var(--radius-md);
@@ -106,10 +104,41 @@
   background-color: var(--color-red-hover);
 }
 
+/* speech-to-text */
+.toolbar .speech-to-text-container {
+  display: flex;
+  align-items: normal;
+  justify-content: space-between;
+  padding: 0 var(--space-xxs);
+  gap: 0;
+  border-radius: var(--radius-full);
+  background-color: #e2e2e2;
+  overflow: hidden;
+
+  button {
+    background-color: #e2e2e2;
+  }
+
+  select {
+    background-color: #e2e2e2;
+  }
+
+  .speech-warning-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: inline-block;
+    margin-left: 4px;
+    width: 13px;
+    height: 13px;
+    color: var(--color-yellow-alert);
+  }
+}
+
 .mic-dot {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
   display: inline-block;
   margin-left: 4px;
   width: 8px;
@@ -134,17 +163,3 @@
   }
 }
 
-.speech-to-text-container {
-  position: relative;
-
-  .speech-warning-icon {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    display: inline-block;
-    margin-left: 4px;
-    width: 13px;
-    height: 13px;
-    color: var(--color-yellow-alert);
-  }
-}

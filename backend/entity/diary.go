@@ -16,5 +16,9 @@ type Diaries struct {
 	TherapyCaseID	uint
 	TherapyCase		*TherapyCase 	`gorm:"foreignKey:TherapyCaseID"`
 
-	Summaries 		[]DiarySummary `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
+	// many-to-many relationship
+	Summaries 		[]DiarySummary 	`gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
+
+	// One-to-many relationship
+	Feedbacks 		[]Feedback 		`gorm:"foreignKey:DiaryID"`
 }

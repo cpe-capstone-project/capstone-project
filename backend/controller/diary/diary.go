@@ -35,7 +35,7 @@ func ListDiaries(c *gin.Context){
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	results := db.Find(&diaries)
+	results := db.Preload("TherapyCase").Preload("Feedbacks").Find(&diaries)
 	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
@@ -49,7 +49,7 @@ func GetDiaryByID(c *gin.Context){
 	var diary entity.Diaries
 
 	db := config.DB()
-	results := db.First(&diary, ID)
+	results := db.Preload("TherapyCase").Preload("Feedbacks").First(&diary, ID)
 	if results.Error != nil{
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return

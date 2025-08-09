@@ -21,18 +21,20 @@ import { AiOutlineUnderline } from "react-icons/ai";
 import { BiHighlight } from "react-icons/bi";
 import { FiAlertTriangle } from "react-icons/fi";
 import "./Toolbar.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Tooltip } from "antd";
 
 type ToolbarProps = {
   editor: Editor;
   onReset?: () => void;
-  onSpeechToText?: () => void;
+  onSpeechToText?: (language: string) => void;
   isRecording?: boolean;
   fullscreen?: boolean;
   onToggleFullscreen?: () => void;
   browserSupportsSpeechRecognition?: boolean;
   confirmSave?: boolean;
+  speechLang?: string;
+  setSpeechLang?: (lang: string) => void;
 };
 
 function Toolbar({
@@ -44,9 +46,13 @@ function Toolbar({
   onToggleFullscreen,
   browserSupportsSpeechRecognition,
   confirmSave,
+    speechLang,
+  setSpeechLang,
 }: ToolbarProps) {
   const canUndo = editor.can().undo();
   const canRedo = editor.can().redo();
+
+  const [language, setLanguage] = useState("th-TH");
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -240,19 +246,18 @@ function Toolbar({
         </Tooltip>
 
         <div className="speech-to-text-container">
+          {/* Mic button */}
           <Tooltip
             title={
               !browserSupportsSpeechRecognition
                 ? "Browser does not support speech recognition"
-                : "Speech to Text"
+                : `Speech to Text (${language})`
             }
           >
             <button
               onClick={() => {
-                if (!browserSupportsSpeechRecognition) {
-                  return;
-                }
-                if (onSpeechToText) onSpeechToText();
+                if (!browserSupportsSpeechRecognition) return;
+                if (onSpeechToText) onSpeechToText(language);
               }}
               className={isRecording ? "recording" : ""}
               style={isRecording ? { color: "red" } : {}}
@@ -272,6 +277,21 @@ function Toolbar({
               {isRecording && <span className="mic-dot"></span>}
             </button>
           </Tooltip>
+          <hr />
+          {/* Language selector */}
+          <div className="language-selector">
+    <select
+      value={speechLang || language}
+      onChange={(e) => {
+        setLanguage(e.target.value);
+        if (setSpeechLang) setSpeechLang(e.target.value);
+      }}
+      disabled={confirmSave}
+    >
+      <option value="th-TH">TH</option>
+      <option value="en-US">EN</option>
+    </select>
+  </div>
         </div>
 
         <Tooltip title="Reset">

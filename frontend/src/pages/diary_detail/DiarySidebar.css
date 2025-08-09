@@ -105,7 +105,7 @@ scrollbar-color: #0000004d transparent;
   color: black;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
-  /* Diary Info */
+
   .left-side-diary-info {
     display: flex;
     flex-direction: column;

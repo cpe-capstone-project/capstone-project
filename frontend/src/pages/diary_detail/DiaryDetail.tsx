@@ -48,6 +48,8 @@ function DiaryDetail() {
   // ดึงข้อมูล diary และฟังก์ชันอัปเดต diary จาก context
   const { diaries, updateDiary, createDiary } = useDiary();
 
+  const [speechLang, setSpeechLang] = useState("th-TH");
+
   // state สำหรับเก็บ diary ปัจจุบัน, ต้นฉบับ, และสถานะการแก้ไข
   const [diary, setDiary] = useState<DiaryInterface>();
   const [originalDiary, setOriginalDiary] = useState<DiaryInterface>();
@@ -193,17 +195,18 @@ function DiaryDetail() {
   // Insert ข้อความจาก speech-to-text และอัปเดต isModified ทันที
   useEffect(() => {
     if (transcript && editor) {
-      const newText = transcript.replace(prevTranscriptRef.current, "").trim();
-
-      // ป้องกันข้อความซ้ำ
-      if (newText && newText !== prevTranscriptRef.current.trim()) {
+      const prevLength = prevTranscriptRef.current.length;
+      // ตัดข้อความใหม่ที่เพิ่งมาเพิ่ม
+      const newText = transcript.slice(prevLength).trim();
+      if (newText) {
         editor.chain().focus().insertContent(newText).run();
         prevTranscriptRef.current = transcript;
         setIsModified(true);
 
-        // รอ 5 วินาที ค่อย reset
+        // Reset transcript after delay
         setTimeout(() => {
           resetTranscript();
+          prevTranscriptRef.current = "";
         }, 5000);
       }
     }
@@ -318,19 +321,22 @@ function DiaryDetail() {
                 setIsModified(true);
               }
             }}
-            onSpeechToText={
+            onSpeechToText={(lang) =>
               listening
-                ? () => SpeechRecognition.stopListening()
-                : () =>
-                    SpeechRecognition.startListening({
-                      language: "th-TH",
-                      continuous: true,
-                    })
+                ? SpeechRecognition.stopListening()
+                : SpeechRecognition.startListening({
+                    language: lang,
+                    continuous: true,
+                    interimResults: true,
+                  })
             }
             isRecording={listening}
             browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
             confirmSave={diary.Confirmed}
+            speechLang={speechLang}
+            setSpeechLang={setSpeechLang}
           />
+
           {/* พื้นที่แสดง editor */}
           <EditorContent editor={editor} className="editor-content" />
         </section>

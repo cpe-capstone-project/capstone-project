@@ -1,0 +1,245 @@
+/* src/pages/ThoughtRecord/ThoughtRecordDetail.css */
+
+.thought-record-detail {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.back-button {
+  background: #519bf1;
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(81, 155, 241, 0.3);
+}
+
+.back-button:hover {
+  background: #4088d4;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(81, 155, 241, 0.4);
+}
+
+.main-card {
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(81, 155, 241, 0.15);
+  border: none;
+  position: relative;
+}
+
+.main-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #519bf1 0%, #7db8f5 50%, #519bf1 100%);
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.brain-icon {
+  font-size: 32px;
+  color: #f151e6d0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.card-title {
+  color: #2c3e50;
+  margin: 0 !important;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.record-tag {
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 4px 16px;
+  border: none;
+  background: linear-gradient(135deg, #519bf1 0%, #7db8f5 100%);
+  color: white;
+}
+
+.custom-divider {
+  margin: 24px 0;
+  border-color: rgba(81, 155, 241, 0.3);
+  border-width: 2px;
+}
+
+.content-item {
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.content-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.content-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(81, 155, 241, 0.1);
+}
+
+.situation { background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%); }
+.situation::before { background: #ff9500; }
+
+.thoughts { background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ff 100%); }
+.thoughts::before { background: #519bf1; }
+
+.behaviors { background: linear-gradient(135deg, #f9f0ff 0%, #f0e6ff 100%); }
+.behaviors::before { background: #9c5bf1; }
+
+.alternative { background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); }
+.alternative::before { background: #22c55e; }
+
+.content-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.content-icon {
+  font-size: 20px;
+  color: #519bf1;
+}
+
+.content-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.content-body {
+  margin-left: 32px;
+}
+
+.content-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4a5568;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.alternative-text {
+  font-weight: 500;
+  color: #059669;
+}
+
+.timestamp-divider {
+  margin: 32px 0 24px 0;
+  border-color: #e6f0ff;
+}
+
+.timestamp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(81, 155, 241, 0.1);
+}
+
+.timestamp-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timestamp-icon {
+  color: #519bf1;
+  font-size: 14px;
+}
+
+.timestamp-value {
+  font-weight: 600;
+  color: #374151;
+}
+
+@media (max-width: 768px) {
+  .thought-record-detail { padding: 16px; }
+  .title-section { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .brain-icon { font-size: 28px; }
+  .card-title { font-size: 24px; }
+  .content-item { padding: 20px; }
+  .content-body { margin-left: 0; margin-top: 12px; }
+  .timestamp-section { padding: 16px 20px; }
+}
+
+@media (max-width: 480px) {
+  .content-item { padding: 16px; }
+  .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .content-icon { font-size: 18px; }
+  .content-label { font-size: 16px; }
+}
+
+.title-section {
+  display: flex;
+  justify-content: space-between; /* ดันซ้าย-ขวา */
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* ระยะห่างระหว่าง icon กับ title */
+}
+
+.card-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* .record-tag {
+  font-weight: 600;
+  font-size: 12px;
+  border-radius: 16px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #f59a78 0%, #eab18e 100%);
+  color: white;
+  white-space: nowrap;
+  border: 1px solid #fba485;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+} */
+

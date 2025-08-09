@@ -12,6 +12,7 @@ type ThoughtRecord struct {
 	Thoughts         string
 	Behaviors        string
 	AlternateThought string
+	TagColors     	string
 	UpdatedAt        time.Time
 	TherapyCaseID    uint
 	EmotionsID       uint

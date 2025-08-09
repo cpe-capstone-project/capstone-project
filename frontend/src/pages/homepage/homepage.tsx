@@ -17,6 +17,7 @@ import { k, KEYS } from "../../unid/storageKeys";
 import DiaryStatsChart from "../../components/DiaryStatsChart/DiaryStatsChart";
 import { useDiary } from "../../contexts/DiaryContext";
 import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
+import { useMemo } from "react";
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
 const { diaries } = useDiary();
@@ -25,11 +26,11 @@ const { diaries } = useDiary();
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
 // แปลงแท็บ -> label ภาษาไทยที่ backend ใช้
-const tabToLabelTH = (tab: "daily" | "weekly" | "monthly"): "รายวัน" | "รายสัปดาห์" | "รายเดือน" => {
+/*const tabToLabelTH = (tab: "daily" | "weekly" | "monthly"): "รายวัน" | "รายสัปดาห์" | "รายเดือน" => {
   if (tab === "weekly") return "รายสัปดาห์";
   if (tab === "monthly") return "รายเดือน";
   return "รายวัน";
-};
+};*/
 
 const [summarizedTabs, setSummarizedTabs] = useState<{
   daily?: boolean;
@@ -64,9 +65,34 @@ const EMOJI: Record<string, string> = {
    currentEmotion,
    summarize,
  } = useDiarySummary();
+// ✅ รวมคีย์เวิร์ดที่จะไฮไลต์ (อาจเพิ่มคำอื่น ๆ ได้เอง)
+const HIGHLIGHT_WORDS = useMemo(() => {
+  const arr = [
+    ...TAGS,
+    ...(detectedEmotions || []),
+    ...(currentEmotion ? [currentEmotion] : []),
+  ];
+  return Array.from(new Set(arr.map((t) => t.trim()).filter(Boolean)));
+}, [detectedEmotions, currentEmotion]);
 
+// ✅ กัน RegExp พัง
+const escapeReg = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// ✅ ไฮไลต์คำใน text -> คืน JSX
+const highlightText = (text?: string | null) => {
+  if (!text || !HIGHLIGHT_WORDS.length) return text || "— ยังไม่มีสรุป —";
+  const pattern = new RegExp(`(${HIGHLIGHT_WORDS.map(escapeReg).join("|")})`, "gi");
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <mark key={i} className="aertr-highlight">{part}</mark>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+};
 // สร้างช่วงเวลา (local time)
-const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
+/*const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
   const now = new Date();
   let start = new Date(), end = new Date();
   if (tab === "daily") {
@@ -85,7 +111,7 @@ const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
     end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999);
   }
   return { start, end };
-};
+};*/
 
 
   useEffect(() => {
@@ -820,7 +846,7 @@ function openChecklistModal(startDate?: Date) {
   render();
 }
 
-const handleShowAppointments = () => {
+/*const handleShowAppointments = () => {
   const notices = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
 
   const filtered = notices.filter((item: any) => {
@@ -883,7 +909,7 @@ const htmlContent = `
   });
 
   localStorage.setItem(NOTICE_FLAG_KEY, "false");
-};
+};*/
    return (
    <div className="diorr-dashboard-container">
  <div className="diorr-card">
@@ -1258,11 +1284,11 @@ const htmlContent = `
                 ? "สรุปรายสัปดาห์"
                 : "สรุปรายเดือน"}
             </div>
-            <div style={{ color: "#374151", lineHeight: 1.6 }}>
-              {isSummarizingStats
-                ? "กำลังสรุปข้อมูล…"
-                : summaryText || "— ยังไม่มีสรุป —"}
-            </div>
+          <div style={{ color: "#374151", lineHeight: 1.6 }}>
+  {isSummarizingStats ? "กำลังสรุปข้อมูล…" : highlightText(summaryText)}
+</div>
+
+
           </div>
         </div>
       </div>

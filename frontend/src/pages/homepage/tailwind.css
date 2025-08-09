@@ -732,6 +732,11 @@
 }
 
 
+.aertr-highlight {
+  background: #fff7b3;   /* เหลืองพาสเทล */
+  padding: 0 .22rem;
+  border-radius: .3rem;
+}
 
 
 .qewty-entry-header {

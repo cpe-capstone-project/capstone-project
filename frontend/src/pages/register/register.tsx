@@ -179,6 +179,14 @@ const handleSubmit = async (e: React.FormEvent) => {
       const data = await response.json();
 
       if (response.ok) {
+         try {
+    const bc = new BroadcastChannel("patient_updates");
+    bc.postMessage({
+      type: "patient_registered",
+      psychologist_id: psychologistId,
+    });
+    bc.close();
+  } catch {}
         await Swal.fire({
           title: "🎉 ลงทะเบียนสำเร็จ!",
           text: "ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว",

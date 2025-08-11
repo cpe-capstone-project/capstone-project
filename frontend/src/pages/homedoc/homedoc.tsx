@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./Homedoc.css";
@@ -7,7 +7,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
 import { k, KEYS } from "../../unid/storageKeys";
-
+import PatientOverviewChart from "../../components/PatientOverviewChart/PatientOverviewChart";
 
 import Customcalendar from "../../components/customcalendar/customcalendar";
 const locales = {
@@ -41,32 +41,114 @@ const Homedoc: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
 //const [searchTerm, setSearchTerm] = useState("");
-const CAL_KEY = k(KEYS.CAL);
+
 //const filteredPatients = patients.filter((p) => {
   //const fullText = `${p.first_name} ${p.last_name} ${p.gender} ${p.age} ${p.birthday}`.toLowerCase();
 
   //return fullText.includes(searchTerm.toLowerCase());
 //});
-const stats = [
+// เพิ่ม state ใหม่
+// เดิม: const CAL_KEY = k(KEYS.CAL);
+
+// ใหม่: ผูก key กับผู้ใช้ที่ล็อกอินอยู่
+const CAL_KEY = React.useMemo(() => {
+  const loginEmail =
+    localStorage.getItem("currentLoginUser") ||
+    localStorage.getItem("email") ||
+    "anonymous";
+  return `CAL:${loginEmail}`;   // หรือถ้าชอบใช้ id:  `CAL_ID:${id}`
+}, []);
+useEffect(() => {
+  const oldKey = k(KEYS.CAL);      // key เดิมที่ใช้ร่วมกันทุกคน
+  const oldVal = localStorage.getItem(oldKey);
+  const newVal = localStorage.getItem(CAL_KEY);
+  if (oldVal && !newVal) {
+    localStorage.setItem(CAL_KEY, oldVal);   // migrate ครั้งเดียว
+  }
+}, [CAL_KEY]);
+useEffect(() => {
+  const loadEventsFromStorage = () => {
+    const savedEvents = localStorage.getItem(CAL_KEY);
+
+    if (savedEvents) {
+      try {
+        const parsed = JSON.parse(savedEvents);
+        const eventsFromStorage = parsed.map((e: any) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        }));
+        setEvents(eventsFromStorage);
+      } catch (err) {
+        console.error("โหลด events จาก localStorage ผิดพลาด", err);
+        setEvents([]);
+      }
+    } else {
+      setEvents([]); // ไม่มีข้อมูลใน local ของคนนี้
+    }
+  };
+
+  loadEventsFromStorage();
+  window.addEventListener("calendarEventsUpdated", loadEventsFromStorage);
+  return () => {
+    window.removeEventListener("calendarEventsUpdated", loadEventsFromStorage);
+  };
+}, [CAL_KEY]); // 👈 สำคัญ
+const saveEventsToLocal = (list: CalendarEvent[]) => {
+  try {
+    localStorage.setItem(CAL_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.error("save CAL failed", e);
+  }
+};
+
+const [inTreatmentIds, setInTreatmentIds] = useState<number[]>([]);
+const [completedIds, setCompletedIds] = useState<number[]>([]);
+useEffect(() => {
+  if (!id) return;
+
+  // 1) ผู้ป่วยที่เริ่มทำกิจกรรม (Diary/TR)
+  fetch(`http://localhost:8000/stats/patient-activity?psychologist_id=${id}`)
+    .then(res => res.ok ? res.json() : Promise.reject("bad res"))
+    .then((data: { diary_patient_ids?: number[]; tr_patient_ids?: number[] }) => {
+      const diaryIds = new Set(data.diary_patient_ids || []);
+      const trIds = new Set(data.tr_patient_ids || []);
+      // union
+      const union = new Set<number>([...diaryIds, ...trIds]);
+      setInTreatmentIds(Array.from(union));
+    })
+    .catch(() => setInTreatmentIds([]));
+
+  // 2) ผู้ป่วยที่อนุมัติ/ปิดเคสแล้ว
+  fetch(`http://localhost:8000/therapy-cases/by-psychologist?psychologist_id=${id}`)
+    .then(res => res.ok ? res.json() : Promise.reject("bad res"))
+    .then((cases: Array<{ patient_id: number; status: string }>) => {
+      const finished = cases.filter(c => c.status?.toLowerCase() === "approved" || c.status?.toLowerCase() === "completed");
+      setCompletedIds(finished.map(c => c.patient_id));
+    })
+    .catch(() => setCompletedIds([]));
+}, [id]);
+
+const [stats, setStats] = useState([
   {
     title: "Total Patients",
-    value: "2,350",
-    subtitle: "+20.1% from last month",
-    icon: "https://cdn-icons-png.flaticon.com/128/747/747376.png", // 👥 icon
+    value: "0",
+    subtitle: "—",
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747376.png",
   },
   {
     title: "Upcoming Sessions",
     value: "12",
     subtitle: "5 this week",
-    icon: "https://cdn-icons-png.flaticon.com/128/747/747310.png", // 🗓️ icon
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747310.png",
   },
   {
     title: "Recent Activities",
     value: "34",
     subtitle: "New notes added today",
-    icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png", // 📈 icon
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png",
   },
-];
+]);
 interface Patient {
   id: number; // ✅ เพิ่มบรรทัดนี้
   first_name: string;
@@ -75,6 +157,17 @@ interface Patient {
   gender: string;
   birthday: string;
 }
+useEffect(() => {
+  const total = patients.filter((p) => p.id && p.id !== 0).length;
+  setStats((prev) =>
+    prev.map((s) =>
+      s.title === "Total Patients"
+        ? { ...s, value: total.toLocaleString("en-US"), subtitle: "updated just now" }
+        : s
+    )
+  );
+}, [patients]);
+
 useEffect(() => {
   console.log("psychologist_id =", id); // ✅ debug
 
@@ -85,10 +178,25 @@ useEffect(() => {
         return res.json();
       })
       .then((data) => {
-        if (!Array.isArray(data)) throw new Error("ข้อมูลผิดรูปแบบ"); // ✅ ป้องกัน crash
-        setPatients(data);
-        setLoading(false); // ✅ ปิด loading
-      })
+  if (!Array.isArray(data)) throw new Error("ข้อมูลผิดรูปแบบ");
+  setPatients(data);
+  setLoading(false);
+
+  // ✅ อัปเดต Total Patients จากจำนวนผู้ป่วยจริง
+  const total = data.filter((p: Patient) => p.id && p.id !== 0).length;
+  setStats((prev) =>
+    prev.map((s) =>
+      s.title === "Total Patients"
+        ? {
+            ...s,
+            value: total.toLocaleString("en-US"),
+            subtitle: "updated just now",
+          }
+        : s
+    )
+  );
+})
+
       .catch((err) => {
         console.error("โหลดผู้ป่วยล้มเหลว", err);
 
@@ -107,7 +215,56 @@ useEffect(() => {
       });
   }
 }, [id]);
-// ✅ ใส่ต่อท้าย useEffect ด้านบน
+useEffect(() => {
+  if (!id) return;
+  let isUnmounted = false;
+
+  const refetchPatients = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${id}`);
+      if (!res.ok) throw new Error("ไม่พบข้อมูล");
+      const data = await res.json();
+      if (!Array.isArray(data) || isUnmounted) return;
+
+      setPatients(data);
+
+      const total = data.filter((p: Patient) => p.id && p.id !== 0).length;
+      setStats((prev) =>
+        prev.map((s) =>
+          s.title === "Total Patients"
+            ? {
+                ...s,
+                value: total.toLocaleString("en-US"),
+                subtitle: "updated just now",
+              }
+            : s
+        )
+      );
+    } catch (e) {
+      console.error("refetch patients failed", e);
+    }
+  };
+
+  try {
+    const bc = new BroadcastChannel("patient_updates");
+    bc.onmessage = (ev) => {
+      const msg = ev.data;
+      if (
+        msg?.type === "patient_registered" &&
+        String(msg.psychologist_id) === String(id)
+      ) {
+
+        refetchPatients();
+      }
+    };
+    return () => {
+      bc.close();
+      isUnmounted = true;
+    };
+  } catch {
+  }
+}, [id]);
+
 useEffect(() => {
   if (!id) return;
 
@@ -129,7 +286,7 @@ useEffect(() => {
 }));
 
 setEvents(loadedEvents);
-      localStorage.setItem(CAL_KEY, JSON.stringify(loadedEvents));
+saveEventsToLocal(loadedEvents);
 
     })
     .catch((err) => {
@@ -148,7 +305,8 @@ useEffect(() => {
           const updated = prev.map(e =>
             e.id === Number(msg.appointment_id) ? { ...e, status: msg.status } : e
           );
-          localStorage.setItem(CAL_KEY, JSON.stringify(updated));
+          saveEventsToLocal(updated);
+
           return updated;
         });
       }
@@ -168,7 +326,7 @@ useEffect(() => {
   }
 }, [id, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
 // ✅ โหลดนัดหมายจาก localStorage ถ้ามี
-useEffect(() => {
+/*useEffect(() => {
   const loadEventsFromStorage = () => {
     const savedEvents = localStorage.getItem(CAL_KEY); // ⬅️ แทนที่ "calendar_events"
 
@@ -196,7 +354,7 @@ useEffect(() => {
   return () => {
     window.removeEventListener("calendarEventsUpdated", loadEventsFromStorage);
   };
-}, []);
+},  [CAL_KEY]); */
 
 
 
@@ -351,7 +509,8 @@ const createdEvent: CalendarEvent = {
     
 setEvents((prev) => {
     const updated = [...prev, createdEvent];
-     localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
+     saveEventsToLocal(updated);
+ // ⬅️ แทนที่
     return updated;
   });// ✅ เพิ่มนัดใหม่พร้อม id
 Swal.fire("สร้างนัดหมายสำเร็จ", "", "success");
@@ -363,6 +522,22 @@ Swal.fire("สร้างนัดหมายสำเร็จ", "", "success
 };
 
 
+const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
+const inSet   = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
+
+const doneCount = useMemo(
+  () => patients.filter(p => doneSet.has(p.id)).length,
+  [patients, doneSet]
+);
+
+const inCount = useMemo(
+  () => patients.filter(p => inSet.has(p.id) && !doneSet.has(p.id)).length,
+  [patients, inSet, doneSet]
+);
+
+// ผู้ป่วยใหม่ = ทั้งหมด - (กำลังรักษา + เสร็จสิ้น)
+// กันค่าติดลบไว้ด้วย
+const newCount = Math.max(0, patients.length - doneCount - inCount);
 
 
 const handleSelectEvent = (event: {
@@ -393,7 +568,8 @@ const handleSelectEvent = (event: {
 
   setEvents((prev) => {
   const updated = prev.filter((e) => e.id !== event.id);
- localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
+ saveEventsToLocal(updated);
+ // ⬅️ แทนที่
   return updated;
 });
 
@@ -507,7 +683,8 @@ const handleSelectEvent = (event: {
   const updated = prev.map((e) =>
     e.id === event.id ? { ...e, start: newTimes.newStart, end: newTimes.newEnd } : e
   );
-  localStorage.setItem(CAL_KEY, JSON.stringify(updated)); // ⬅️ แทนที่
+  saveEventsToLocal(updated);
+// ⬅️ แทนที่
   return updated;
 });
 
@@ -542,31 +719,42 @@ const handleSelectEvent = (event: {
   <h3 className="qewty-chart-title">Patient Overview</h3>
   <p className="qewty-chart-subtitle">Quick insights into your patient base.</p>
 
-  <div className="qewty-barchart-holder">[Bar Placeholder]
+ <div className="qewty-barchart-holder">
+  <PatientOverviewChart
+    patients={patients}
+    inTreatmentIds={inTreatmentIds}
+    completedIds={completedIds}
+  />
 
 
-    {/* Overlay Box */}
     <div className="qewty-status-overlay">
-      <h4 className="qewty-status-title">
-        Patient Status <span className="qewty-status-right">จำนวน</span>
-      </h4>
-      <ul className="qewty-status-list">
-  <li>
-    <span className="qewty-status-left">ผู้ป่วยบำบัดเรียบร้อยแล้ว :</span>
-    <span className="qewty-status-right"><strong>20 คน</strong></span>
-  </li>
-  <li>
-    <span className="qewty-status-left">ผู้ป่วยที่รักษาอยู่ :</span>
-    <span className="qewty-status-right"><strong>10 คน</strong></span>
-  </li>
-  <li>
-    <span className="qewty-status-left">ผู้ป่วยใหม่ :</span>
-    <span className="qewty-status-right"><strong>10 คน</strong></span>
-  </li>
-</ul>
+  <h4 className="qewty-status-title">
+    Patient Status <span className="qewty-status-right">จำนวน</span>
+  </h4>
+  <ul className="qewty-status-list">
+    <li>
+      <span className="qewty-status-left">ผู้ป่วยบำบัดเรียบร้อยแล้ว :</span>
+      <span className="qewty-status-right">
+        <strong>{doneCount.toLocaleString()} คน</strong>
+      </span>
+    </li>
+    <li>
+      <span className="qewty-status-left">ผู้ป่วยที่รักษาอยู่ :</span>
+      <span className="qewty-status-right">
+        <strong>{inCount.toLocaleString()} คน</strong>
+      </span>
+    </li>
+    <li>
+      <span className="qewty-status-left">ผู้ป่วยใหม่ :</span>
+      <span className="qewty-status-right">
+        <strong>{newCount.toLocaleString()} คน</strong>
+      </span>
+    </li>
+  </ul>
 
-      <button className="qewty-overlay-btn">View More Information</button>
-    </div>
+  <button className="qewty-overlay-btn">View More Information</button>
+</div>
+
   </div>
 </div>
 
@@ -677,18 +865,60 @@ const handleSelectEvent = (event: {
 </div>
 
 
-  {/* Right: Resource */}
-  <div className="qewty-resource-card">
-    <h4 className="qewty-resource-title">Resource Recommendations</h4>
-    <div className="qewty-resource-item">
-      <strong>Book: "Feeling Good" by David D. Burns</strong>
-      <p className="qewty-subtext">Recommended for Patient N (CBT focus)</p>
-    </div>
-    <div className="qewty-resource-item">
-      <strong>Meditation App: Calm</strong>
-      <p className="qewty-subtext">Suggested for Patient O (Stress management)</p>
-    </div>
+{/* Right: Resource */}
+<div className="qewty-resource-card">
+  <h4 className="qewty-resource-title">Resource Recommendations</h4>
+
+  <div className="qewty-resource-item">
+    <strong>Book: "Feeling Good" by David D. Burns</strong>
+    <p className="qewty-subtext">Recommended for Patient N (CBT focus)</p>
   </div>
+
+  <div className="qewty-resource-item">
+    <strong>Meditation App: Calm</strong>
+    <p className="qewty-subtext">Suggested for Patient O (Stress management)</p>
+  </div>
+
+  <div className="qewty-resource-item">
+    <strong>Research Article:</strong>
+    <p className="qewty-subtext">
+      <a 
+        href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3584580/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Cognitive Behavioral Therapy for Depression: A Review of Its Efficacy
+      </a>
+    </p>
+  </div>
+
+  <div className="qewty-resource-item">
+    <strong>Therapy Manual (CBT for Psychologists)</strong>
+    <p className="qewty-subtext">
+      <a 
+        href="https://www.apa.org/ptsd-guideline/patients-and-families/cognitive-behavioral"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        APA CBT Treatment Guide
+      </a>
+    </p>
+  </div>
+
+  <div className="qewty-resource-item">
+    <strong>Patient Mood & Behavior Patterns</strong>
+    <p className="qewty-subtext">
+      <a 
+        href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5919646/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Understanding Mood and Behavioral Changes in Patients
+      </a>
+    </p>
+  </div>
+</div>
+
 </div>
 
 

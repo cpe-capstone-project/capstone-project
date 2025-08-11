@@ -65,7 +65,6 @@
   margin-top: 30px;
   gap: 20px;
 }
-
 /* Chart Section (Left) */
 .qewty-chart-section {
   flex: 2;
@@ -74,7 +73,6 @@
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  position: relative;
 }
 
 /* Chart Title/Sub */
@@ -91,22 +89,36 @@
   margin-bottom: 20px;
 }
 
-/* Bar Chart holder */
+/* Holder: วางกราฟซ้าย + overlay ขวา */
 .qewty-barchart-holder {
-  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
 }
 
-/* Overlay Box (status) */
+/* กราฟกินพื้นที่หลัก */
+.qewty-barchart {
+  flex: 1 1 auto;
+  min-width: 0; /* กันกราฟล้น */
+}
+
+/* Overlay Box (status) ขวา */
 .qewty-status-overlay {
-  position: absolute;
-  /*top: 70px;*/
-  right: 20px;
-  background: white;
-  border-radius: 10px;
+  flex: 0 0 260px;
+  background: #fff;
+  border-radius: 12px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
   padding: 16px 20px;
-  z-index: 5;
-  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height:250px;
+}
+
+/* ถ้าอยากให้ลอยตามสกอร์ */
+.qewty-status-overlay.sticky {
+  position: sticky;
+  top: 12px;
 }
 
 .qewty-status-title {
@@ -114,45 +126,49 @@
   justify-content: space-between;
   font-weight: 600;
   font-size: 1rem;
-  margin-bottom: 10px;
+  margin: 0;
 }
+
 .qewty-status-list {
-  list-style: none;        /* เอา bullet ออก */
+  list-style: none;
   padding: 0;
   margin: 0 0 12px 0;
+  display: grid;
+  gap: 8px;
 }
 
 .qewty-status-list li {
-  display: flex;           /* แบ่งซ้าย-ขวา */
+  display: flex;
   justify-content: space-between;
   font-size: 0.95rem;
   color: #333;
-  margin-bottom: 8px;
   line-height: 1.5;
 }
 
-.qewty-status-left {
-  flex: 1;
-  text-align: left;
-}
-
-.qewty-status-right {
-  text-align: right;
-  white-space: nowrap;
-}
-
-
+.qewty-status-left { text-align: left; }
+.qewty-status-right { text-align: right; white-space: nowrap; }
 
 .qewty-overlay-btn {
   width: 100%;
-  padding: 8px 0;
+  padding: 10px 0;
   border: 2px solid #007bff;
-  background: white;
+  background: #fff;
   color: #007bff;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+
+/* Responsive: จอแคบสลับเป็นแนวตั้ง */
+@media (max-width: 1024px) {
+  .qewty-barchart-holder {
+    flex-direction: column;
+  }
+  .qewty-status-overlay {
+    flex: 0 1 auto;
+    width: 100%;
+  }
 }
 
 
@@ -325,7 +341,6 @@
   padding: 8px;
   margin-top: 1rem;
 }
-
 /* ===== RIGHT: Resource Card ===== */
 .qewty-resource-card {
   background: #fff;
@@ -344,6 +359,21 @@
 
 .qewty-resource-item {
   margin-bottom: 18px;
+  padding-left: 28px; /* เว้นที่ให้ไอคอน */
+  position: relative;
+}
+
+.qewty-resource-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background-image: url("https://cdn-icons-png.flaticon.com/128/10828/10828574.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.85;
 }
 
 .qewty-resource-item strong {
@@ -356,4 +386,112 @@
 .qewty-subtext {
   font-size: 0.85rem;
   color: #666;
+}
+.qewty-subtext a {
+  color: #1e88e5; /* ฟ้าโทนสุขภาพ */
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qewty-subtext a::after {
+  content: "↗";
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.qewty-chart-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.qewty-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px; /* เพิ่มระยะระหว่าง label, select และปุ่มทั้งหมด */
+  flex-wrap: wrap; /* กันตกบรรทัดในจอเล็ก */
+}
+.qewty-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px 10px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: #fff;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.qewty-chip__icon { font-size: 1rem; line-height: 1; }
+.qewty-chip__label { line-height: 1; }
+
+/* ตัวเลข badge ขวา */
+.qewty-badge {
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #0f172a;
+  background: #e2e8f0;
+}
+
+/* สถานะ: ผู้ป่วยใหม่ — โทนฟ้า */
+.qewty-chip--new {
+  border-color: #93c5fd;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+.qewty-chip--new .qewty-badge {
+  background: linear-gradient(180deg, #93c5fd 0%, #bfdbfe 100%);
+}
+
+/* สถานะ: รักษาอยู่ — โทนเหลืองส้ม */
+.qewty-chip--in {
+  border-color: #fcd34d;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+}
+.qewty-chip--in .qewty-badge {
+  background: linear-gradient(180deg, #fde68a 0%, #fcd34d 100%);
+}
+
+/* สถานะ: เสร็จสิ้น — โทนเขียว */
+.qewty-chip--done {
+  border-color: #86efac;
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+}
+.qewty-chip--done .qewty-badge {
+  background: linear-gradient(180deg, #86efac 0%, #34d399 100%);
+}
+
+
+.qewty-chip:focus-visible {
+  outline: 3px solid #93c5fd55;
+  outline-offset: 2px;
+}
+/* ไอคอนแบบรูปภาพให้ขนาดกะทัดรัดและตรงแนว baseline */
+.qewty-chip__iconimg {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+/* ถ้าจำนวนเป็นศูนย์ ให้ดูนิ่งลงนิดนึงแต่ยังกดได้ */
+.qewty-chip.is-empty {
+  opacity: 0.75;
+  filter: grayscale(8%);
+}
+.qewty-chip.is-empty:hover {
+  transform: none;
+  box-shadow: none;
 }

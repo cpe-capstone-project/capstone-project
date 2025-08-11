@@ -266,18 +266,39 @@ width: "850px",
     }
   }
 };
-  const out = () => {
-    localStorage.clear();
-    Swal.fire({
-      toast: true,
-      position: "top-end",
-      icon: "success",
-      title: "Log out successfully",
-      showConfirmButton: false,
-      timer: 3000,
-    });
-    setTimeout(() => navigate("/"), 500);
-  };
+ const out = () => {
+  const KEYS_TO_REMOVE = [
+    "isLogin",
+    "token_type",
+    "token",
+    "id",
+    "role",
+    "email",
+    "first_name",
+    "last_name",
+    "gender",
+    "address",
+    "birthday",
+    "phone",
+    "profile_image",
+    "currentLoginUser",
+    // ถ้ามี key อื่นที่เป็นข้อมูล session ก็เติมได้
+  ];
+
+  KEYS_TO_REMOVE.forEach((k) => localStorage.removeItem(k));
+
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    icon: "success",
+    title: "Log out successfully",
+    showConfirmButton: false,
+    timer: 3000,
+  });
+
+  setTimeout(() => navigate("/"), 500);
+};
+
 
   return (
   <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>

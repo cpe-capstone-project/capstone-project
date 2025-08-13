@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 0 solid;
+  border:none;
   border-radius: var(--radius-md);
   padding: calc(var(--padding-text-editor) / 2);
   font-size: var(--font-size-md);
@@ -120,8 +120,10 @@
   }
 
   select {
-    background-color: #e2e2e2;
+    border: 1px solid transparent;
+    background-color: transparent;
   }
+  
 
   .speech-warning-icon {
     position: absolute;

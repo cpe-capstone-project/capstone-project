@@ -1,0 +1,54 @@
+.emotion-bar-container {
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  position: relative;
+}
+
+.emotion-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.emotion-segment {
+  height: 100%;
+  transition: opacity 0.3s ease;
+}
+.emotion-segment:hover {
+  opacity: 0.8;
+}
+
+.emotion-legend {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.tooltip {
+  position: fixed;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  z-index: 999;
+}

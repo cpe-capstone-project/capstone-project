@@ -81,7 +81,7 @@ scrollbar-color: #0000004d transparent;
   align-items: center;
   width: 100%;
   gap: var(--space-md);
-  padding: var(--padding-patient-home-page);
+  
   background-color: white;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
@@ -102,6 +102,7 @@ scrollbar-color: #0000004d transparent;
   align-items: center;
   width: 100%;
   gap: var(--space-md);
+  padding: 24px 24px  24px 0;
   color: black;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
@@ -142,6 +143,7 @@ scrollbar-color: #0000004d transparent;
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: normal;
+      font-size: var(--font-size-sm);
       opacity: 0.8;
     }
   }
@@ -173,6 +175,7 @@ scrollbar-color: #0000004d transparent;
   width: 20px;
   height: 20px;
   border-radius: 50%;
+  margin: 24px 0 24px  24px;
   border: 2px solid #6e6d70;
   cursor: pointer;
   transition: var(--transition-fast);

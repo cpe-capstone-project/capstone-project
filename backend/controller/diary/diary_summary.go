@@ -135,3 +135,50 @@ func SummarizeDiaries(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"summary": summary})
 }
+
+type EmotionCount struct {
+    EmotionName string  `json:"emotion"`
+    Count       int     `json:"count"`
+    Percentage  float64 `json:"percentage"`
+}
+
+func GetDiarySummaryEmotionStats(summaryID uint) ([]EmotionCount, error) {
+    var totalCount int64
+    var results []struct {
+        EmotionName string
+        Count       int64
+    }
+	
+	db := config.DB()
+    // นับจำนวนทั้งหมดของอารมณ์ใน DiarySummary นี้
+    db.Table("emotion_analysis_results").
+        Joins("JOIN diaries ON diaries.id = emotion_analysis_results.diary_id").
+        Joins("JOIN diary_summary_entries ON diary_summary_entries.diary_id = diaries.id").
+        Joins("JOIN diary_summaries ON diary_summaries.id = diary_summary_entries.diary_summary_id").
+        Joins("JOIN emotions ON emotions.id = emotion_analysis_results.emotions_id").
+        Where("diary_summaries.id = ?", summaryID).
+        Count(&totalCount)
+
+    // นับตามอารมณ์
+    db.Table("emotion_analysis_results").
+        Select("emotions.name as emotion_name, COUNT(*) as count").
+        Joins("JOIN diaries ON diaries.id = emotion_analysis_results.diary_id").
+        Joins("JOIN diary_summary_entries ON diary_summary_entries.diary_id = diaries.id").
+        Joins("JOIN diary_summaries ON diary_summaries.id = diary_summary_entries.diary_summary_id").
+        Joins("JOIN emotions ON emotions.id = emotion_analysis_results.emotions_id").
+        Where("diary_summaries.id = ?", summaryID).
+        Group("emotions.name").
+        Scan(&results)
+
+    // แปลงเป็นเปอร์เซ็นต์
+    var stats []EmotionCount
+    for _, r := range results {
+        stats = append(stats, EmotionCount{
+            EmotionName: r.EmotionName,
+            Count:       int(r.Count),
+            Percentage:  (float64(r.Count) / float64(totalCount)) * 100,
+        })
+    }
+
+    return stats, nil
+}

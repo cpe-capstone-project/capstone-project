@@ -16,6 +16,7 @@ import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 import "dayjs/locale/th";
+import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
 dayjs.locale("th");
 
 function DiarySummary() {
@@ -31,16 +32,16 @@ function DiarySummary() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-  const tags = [
-    "Happy",
-    "Sad",
-    "Anxious",
-    "Calm",
-    "Angry",
-    "Excited",
-    "Tired",
-    "Confused",
-  ];
+  // const tags = [
+  //   "Happy",
+  //   "Sad",
+  //   "Anxious",
+  //   "Calm",
+  //   "Angry",
+  //   "Excited",
+  //   "Tired",
+  //   "Confused",
+  // ];
 
   const calculateDateRange = (timeframe: string) => {
     const now = new Date();
@@ -198,17 +199,15 @@ function DiarySummary() {
               <h1>AI Diary Summary ({summaryData.Timeframe})</h1>
               <p>{summaryData.SummaryText}</p>
             </div>
+            <div className="summary-keyword-container">
+              <h1>Keyword: </h1>
+              <p>{summaryData.Keyword}</p>
+            </div>
           </div>
 
-          <h1>Keyword: {summaryData.Keyword}</h1>
-
-          <h1>อารมณ์โดยรวม</h1>
-          <div className="tags-container">
-            {tags.map((tag) => (
-              <div key={tag} className="tag-item">
-                <p>{tag}</p>
-              </div>
-            ))}
+          <div className="emotion-summary-container">
+            <h1>ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่ 12 ฉบับ</h1>
+            <DiarySummaryBarChart />
           </div>
         </div>
       )}

@@ -1,8 +1,8 @@
 .diary-summary-container {
-    display: flex;
-    flex-direction: column;
-    /* padding: 24px 128px; */
-    gap: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  /* padding: 24px 128px; */
+  gap: var(--space-lg);
 }
 
 .diary-summary-header {
@@ -64,44 +64,41 @@
 
 /* Content */
 .diary-summary-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
 
-  }
-  
-  .summary-card {
-    position: relative;
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  overflow: hidden; /* กัน blur ล้นขอบ */
+.summary-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  gap: var(--space-lg);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  color: white;
   overflow: hidden;
-  margin-bottom: var(--space-lg);
 }
 
 .summary-card-content {
   position: relative;
-  z-index: 1; /* ให้เนื้อหาอยู่บน background เบลอ */
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: var(--space-lg);
-  padding: var(--space-md);
-  color: white;
+  gap: var(--space-sm);
+  
+  z-index: 1; /* ให้เนื้อหาอยู่บน background เบลอ */
 
   h1 {
-      font-size: var(--font-size-lg);
+    font-size: var(--font-size-lg);
   }
 
   p {
     /* font-weight: bold; */
-    font-size: var(--font-size-md); 
-  } 
+    font-size: var(--font-size-md);
+  }
 }
-
 
 @keyframes moveBackground {
   0% {
@@ -112,10 +109,29 @@
   }
 }
 
+/* Keyword */
+.summary-keyword-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-xs);
+  border-radius: var(--radius-lg);
+    z-index: 1;
+}
+
 /* Emotion */
+.emotion-summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-2xl);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
 .tags-container {
   display: flex;
-  gap: var(--space-xs); 
+  gap: var(--space-xs);
   flex-wrap: wrap;
 }
 
@@ -169,7 +185,7 @@
 }
 
 .summary-button {
-    width: 50%;
+  width: 50%;
   padding: 12px 24px;
   background-color: #007bff;
   color: white;
@@ -202,5 +218,5 @@
 }
 
 .loading-animation {
-  width: 25%; 
+  width: 25%;
 }

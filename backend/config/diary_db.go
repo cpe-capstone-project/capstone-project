@@ -11,8 +11,6 @@ func SetupDiaryDatabase() {
 		&entity.Diaries{},
 		&entity.DiarySummary{},
 		&entity.DiarySummaryEntry{},
-		&entity.TherapyCase{},
-		&entity.Feedback{},
 	)
 
 	diaries := []entity.Diaries{

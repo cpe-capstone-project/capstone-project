@@ -158,7 +158,8 @@
   width: var(--diary-feedback-width);
   transition: width 0.4s;
   will-change: auto;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .diary-feedback-container.hide {

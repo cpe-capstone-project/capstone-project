@@ -1,25 +1,83 @@
 .diary-feedback {
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: var(--diary-feedback-width);  
+  width: var(--diary-feedback-width); 
   padding: var(--padding-text-editor) var(--padding-patient-home-page);
+  gap: var(--space-md);
+  
 }
 
-.psy-profile {
+.psy-info-container {
+  position: sticky;
+  top: var(--space-sm);
+  padding: var(--space-sm) 0;
+  background: white;
+
+  .psy-profile {
+    width: auto;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .psy-info {
+    font-weight: bold;
+    p {
+      font-size: var(--font-size-sm);
+      opacity: 0.5;
+    }
+  
+    h1 {
+      font-size: var(--font-size-md);
+    }
+  }
+}
+
+
+
+.feedback-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  .feedback-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .feedback-text {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  
+    h1 {
+      font-size: var(--font-size-md);
+    }
+  
+    p {
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+/* no-feedback  */
+.no-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  color: #555;
+  text-align: center;
+}
+
+.no-feedback .ant-empty {
   width: auto;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
-.psy-info {
-  font-weight: bold;
-  p {
-    font-size: var(--font-size-sm);
-    opacity: 0.5;
-  }
-
-  h1 {
-    font-size: var(--font-size-md);
-  }
+.no-feedback .ant-empty-image {
+  width: 300px;
+  height: 150px;
 }

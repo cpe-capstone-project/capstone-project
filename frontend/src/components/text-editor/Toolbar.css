@@ -23,6 +23,12 @@
   transition: all 0.2s ease-in-out;
 }
 
+.toolbar select:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+
+}
+
 .toolbar section {
   display: flex;
   align-items: center;

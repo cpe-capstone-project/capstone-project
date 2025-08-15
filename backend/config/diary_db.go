@@ -72,7 +72,7 @@ func SetupDiaryDatabase() {
 			Content:       `<p>ฉันเผลอพูดไม่ดีใส่เพื่อนเมื่อวาน วันนี้ขอโทษเขาและเขาก็ให้อภัย ตอนนี้ฉันกำลังพยายามให้อภัยตัวเองเช่นกัน เพราะรู้ว่าทุกคนก็เคยทำผิด และเราเรียนรู้จากมันได้...</p>`,
 			UpdatedAt:     time.Now().AddDate(0, -2, 0), // 2 เดือนที่แล้ว,
 			TagColors:     `"#8BC34A", "#CDDC39", "#FFEB3B"`,
-			TherapyCaseID: 1,
+			TherapyCaseID: 2,
 		},
 		{
 			Title:         "วันที่รู้สึกไร้ค่า",
@@ -80,7 +80,7 @@ func SetupDiaryDatabase() {
 			UpdatedAt:     time.Now().AddDate(0, -3, 5), // 3 เดือนก่อน,
 			TagColors:     `"#9E9E9E", "#607D8B", "#546E7A"`,
 			Confirmed:   true,
-			TherapyCaseID: 1,
+			TherapyCaseID: 2,
 		},
 		{
 			Title:         "วันที่เห็นแสงสว่างเล็กๆ",
@@ -88,7 +88,7 @@ func SetupDiaryDatabase() {
 			UpdatedAt:     time.Now().AddDate(-1, 0, 0), // 1 ปีก่อน,
 			TagColors:     `"#4CAF50", "#81C784", "#A5D6A7"`,
 			Confirmed:   false,
-			TherapyCaseID: 1,
+			TherapyCaseID: 2,
 		},
 	}
 	for d := range diaries {

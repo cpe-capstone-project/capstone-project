@@ -61,7 +61,7 @@ func SetupPatientDatabase() {
        Phone:     	"0979989859",
 	   Image: 		"https://static.vecteezy.com/system/resources/previews/002/275/847/original/male-avatar-profile-icon-of-smiling-caucasian-man-vector.jpg",
        GenderID:  	2,
-       RoleID: 		4,
+       RoleID: 		3,
    	}
     db.FirstOrCreate(Psychologists, &entity.Patients{Email: "psytest@gmail.com",})
 

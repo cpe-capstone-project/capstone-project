@@ -43,6 +43,61 @@ func ListDiaries(c *gin.Context){
 	c.JSON(http.StatusOK, diaries)
 }
 
+// GET /diaries/patient/:patientId/therapy-case/:caseId?sort=updated_at&order=desc
+func ListDiariesByPatientAndTherapyCase(c *gin.Context) {
+	patientIDParam := c.Param("patientId")
+	caseIDParam := c.Param("caseId")
+
+	patientID, err := strconv.ParseUint(patientIDParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid patient ID"})
+		return
+	}
+
+	therapyCaseID, err := strconv.ParseUint(caseIDParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid therapy case ID"})
+		return
+	}
+
+	var diaries []entity.Diaries
+	db := config.DB()
+
+	// Sort
+	sortField := c.DefaultQuery("sort", "updated_at")
+	order := c.DefaultQuery("order", "desc")
+	if order != "asc" && order != "desc" {
+		order = "desc"
+	}
+
+	var sortColumn string
+	switch sortField {
+	case "CreatedAt":
+		sortColumn = "diaries.created_at"
+	case "UpdatedAt":
+		sortColumn = "diaries.updated_at"
+	default:
+		sortColumn = "diaries.updated_at"
+	}
+	db = db.Order(sortColumn + " " + order)
+
+	// Query
+	result := db.Preload("TherapyCase").
+		Preload("Feedbacks.Psychologist").
+		Preload("Feedbacks.FeedbackType").
+		Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+		Where("therapy_cases.id = ? AND therapy_cases.patient_id = ?", therapyCaseID, patientID).
+		Find(&diaries)
+
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, diaries)
+}
+
+
 // GET /diary/:id
 func GetDiaryByID(c *gin.Context){
 	ID := c.Param("id")

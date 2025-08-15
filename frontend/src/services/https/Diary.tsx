@@ -1,11 +1,10 @@
 import axios from "axios";
 import type { DiarySummaryInterface } from "../../interfaces/IDiarySummary";
 
-const apiUrl = import.meta.env.VITE_API_URL
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Authorization = localStorage.getItem("token");
 const Bearer = localStorage.getItem("token_type");
-
 
 const requestOptions = {
   headers: {
@@ -20,6 +19,21 @@ async function GetDiary(
 ) {
   return await axios
     .get(`${apiUrl}/diaries?sort=${sort}&order=${order}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function GetDiariesByPatientAndTherapyCase(
+  patientId: number | string,
+  therapyCaseId: number | string,
+  sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
+  order: "asc" | "desc" = "desc"
+) {
+  return await axios
+    .get(
+      `${apiUrl}/diaries/patient/${patientId}/therapy-case/${therapyCaseId}?sort=${sort}&order=${order}`,
+      requestOptions
+    )
     .then((res) => res)
     .catch((e) => e.response);
 }
@@ -45,14 +59,12 @@ async function UpdateDiaryById(id: number, data: DiarySummaryInterface) {
     .catch((e) => e.response);
 }
 
-
 async function DeleteDiaryById(id: number) {
   return await axios
     .delete(`${apiUrl}/diary/${id}`, requestOptions)
     .then((res) => res)
     .catch((e) => e.response);
 }
-
 
 async function CreateDiary(data: DiarySummaryInterface) {
   return await axios
@@ -77,7 +89,7 @@ async function GetDiarySummaryById(id: number) {
 async function GetDiaryCountThisMonth(year?: number, month?: number) {
   const now = new Date();
   const y = year ?? now.getFullYear();
-  const m = month ?? (now.getMonth() + 1); // 1-12
+  const m = month ?? now.getMonth() + 1; // 1-12
 
   return await axios
     .get(`${apiUrl}/diaries/count?year=${y}&month=${m}`, requestOptions)
@@ -93,6 +105,7 @@ async function GetHomeDiaries(tz = "Asia/Bangkok") {
 
 export {
   GetDiary,
+  GetDiariesByPatientAndTherapyCase,
   GetDiaryById,
   GetLatestDiaries,
   UpdateDiaryById,
@@ -100,6 +113,6 @@ export {
   CreateDiary,
   CreateDiarySummary,
   GetDiarySummaryById,
-   GetDiaryCountThisMonth,
-    GetHomeDiaries,
+  GetDiaryCountThisMonth,
+  GetHomeDiaries,
 };

@@ -21,11 +21,13 @@ func SetupRouter() *gin.Engine {
 	SetupPsychologistRoutes(r)
 	SetupAdminRoutes(r)
 	SetupAppointmentRoutes(r)
+	
 	// Private Routes (Require Authorization)
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())
 	SetupDiaryRoutes(private)
 	SetupThoughtRecordRoutes(private)
+	SetupTherapyCaseRoutes(private)
 	
 	// ✅ ย้าย route นี้มาอยู่ตรงนี้
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)

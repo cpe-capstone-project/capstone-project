@@ -39,14 +39,18 @@ import DiaryFeedback from "./DiaryFeedback";
 import ColorPickerTooltip from "../../components/color-picker-tooltip/ColorPickerTooltip";
 // import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import "./DiaryDetail.css";
+import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 
 function DiaryDetail() {
+  const patientId = Number(localStorage.getItem("id"));
   // ดึง id จาก URL
   const { id } = useParams();
   // ดึง path และฟังก์ชันจัดการ path
   const { basePath } = usePath();
   // ดึงข้อมูล diary และฟังก์ชันอัปเดต diary จาก context
   const { diaries, updateDiary, createDiary } = useDiary();
+
+  const { getTherapyCaseByPatient } = useTherapyCase();
 
   const [speechLang, setSpeechLang] = useState("th-TH");
 
@@ -125,10 +129,15 @@ function DiaryDetail() {
 
   // ฟังก์ชันสร้างไดอารี่ใหม่
   const handleCreateDiary = async () => {
+    const therapyCases = await getTherapyCaseByPatient(patientId);
+    if (!therapyCases || typeof therapyCases.ID === "undefined") {
+      return;
+    }
+
     const newDiary: DiaryInterface = {
       Title: "New Diary",
       Content: '<p style="text-align: left;"></p>',
-      TherapyCaseID: 1,
+      TherapyCaseID: therapyCases.ID,
     };
     const res = await createDiary(newDiary);
     if (res) {

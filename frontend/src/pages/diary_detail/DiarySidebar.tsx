@@ -13,6 +13,7 @@ import { useDiary } from "../../contexts/DiaryContext";
 import { groupByDate } from "../../utils/GroupByDate";
 
 import "./DiarySidebar.css";
+import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 
 const stripHtml = (html: string) => {
   const tmp = document.createElement("div");
@@ -22,7 +23,8 @@ const stripHtml = (html: string) => {
 
 const DiarySidebar = () => {
   const { id } = useParams<{ id: string }>();
-  const { diaries, fetchDiaries, deleteDiary } = useDiary();
+  const { diaries, fetchDiariesByPatientAndTherapyCase, deleteDiary } = useDiary();
+  const { getTherapyCaseByPatient } = useTherapyCase();
   const { basePath, getBackPath } = usePath();
   const { formatShort } = useDate();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -39,8 +41,21 @@ const DiarySidebar = () => {
   );
 
   useEffect(() => {
-    fetchDiaries(sortField, sortOrder);
+    const patientId = Number(localStorage.getItem("id"));
+  
+    const fetchData = async () => {
+      // ดึง therapy cases ของ patient
+      const therapyCases = await getTherapyCaseByPatient(patientId);
+  
+      if (therapyCases && typeof therapyCases.ID !== "undefined") {
+        const therapyCaseId = therapyCases.ID;
+        fetchDiariesByPatientAndTherapyCase(patientId, therapyCaseId, sortField, sortOrder);
+      }
+    };
+  
+    fetchData();
   }, [sortField, sortOrder]);
+  
 
   useEffect(() => {
     localStorage.setItem("diary_sortOrder", sortOrder);

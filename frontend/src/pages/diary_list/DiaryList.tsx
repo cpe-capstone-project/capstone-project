@@ -13,11 +13,13 @@ import "./DiaryList.css";
 import ToggleSwitch from "../../components/togle-switch/ToggleSwitch";
 import DiaryCalendar from "../../components/diary-calendar/DiaryCalendar";
 import DiaryCard from "../../components/diary-card/DiaryCard";
-
+import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 
 function DiaryList() {
+  const patientId = Number(localStorage.getItem("id"));
   // ดึงข้อมูล diaries จาก context
-  const { diaries, fetchDiaries } = useDiary();
+  const { diaries, fetchDiariesByPatientAndTherapyCase } = useDiary();
+  const { getTherapyCaseByPatient } = useTherapyCase();
   // ดึงฟังก์ชัน formatLong จาก context สำหรับแสดงวันที่
   // const { formatLong } = useDate();
   // ดึง path และฟังก์ชันจัดการ path
@@ -49,10 +51,15 @@ function DiaryList() {
   const grouped = groupByDate(diaries, sortField, th);
 
   const handleCreateDiary = async () => {
+    const therapyCases = await getTherapyCaseByPatient(patientId);
+    if (!therapyCases || typeof therapyCases.ID === "undefined") {
+      return;
+    }
+
     const newDiary: DiaryInterface = {
       Title: "New Diary",
       Content: '<p style="text-align: left;"></p>',
-      TherapyCaseID: 1,
+      TherapyCaseID: therapyCases.ID,
     };
     const res = await createDiary(newDiary);
     if (res) {
@@ -73,7 +80,22 @@ function DiaryList() {
   }, [sortField]);
 
   useEffect(() => {
-    fetchDiaries(sortField, sortOrder);
+    const fetchData = async () => {
+      // ดึง therapy cases ของ patient
+      const therapyCases = await getTherapyCaseByPatient(patientId);
+
+      if (therapyCases && typeof therapyCases.ID !== "undefined") {
+        const therapyCaseId = therapyCases.ID;
+        fetchDiariesByPatientAndTherapyCase(
+          patientId,
+          therapyCaseId,
+          sortField,
+          sortOrder
+        );
+      }
+    };
+
+    fetchData();
   }, [sortField, sortOrder]);
 
   return (

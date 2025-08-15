@@ -11,7 +11,6 @@ function DiaryFeedback() {
   const { getDiaryById } = useDiary();
   const { formatLong } = useDate();
   const [diary, setDiary] = useState<DiaryInterface | null>(null);
-  console.log("diary:", diary);
 
   useEffect(() => {
     (async () => {

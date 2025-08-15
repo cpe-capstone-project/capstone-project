@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   GetDiary,
+  GetDiariesByPatientAndTherapyCase,
   GetDiaryById,
   CreateDiary,
   UpdateDiaryById,
@@ -14,6 +15,12 @@ interface DiaryContextType {
   loading: boolean;
   error: string | null;
   fetchDiaries: (
+    sortBy?: "CreatedAt" | "UpdatedAt",
+    order?: "asc" | "desc"
+  ) => void;
+  fetchDiariesByPatientAndTherapyCase: (
+    patientId: number | string,
+    therapyCaseId: number | string,
     sortBy?: "CreatedAt" | "UpdatedAt",
     order?: "asc" | "desc"
   ) => void;
@@ -52,6 +59,26 @@ export const DiaryContextProvider = ({
       .finally(() => setLoading(false));
   };
 
+  const fetchDiariesByPatientAndTherapyCase = (
+    patientId: number | string,
+    therapyCaseId: number | string,
+    sortBy: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
+    order: "asc" | "desc" = "desc"
+  ) => {
+    setLoading(true);
+    GetDiariesByPatientAndTherapyCase(patientId, therapyCaseId, sortBy, order)
+      .then((res) => {
+        if (res?.status === 200) {
+          setDiaries(res.data);
+          setError(null);
+        } else {
+          setError("Failed to load diaries");
+        }
+      })
+      .catch(() => setError("Failed to fetch diaries"))
+      .finally(() => setLoading(false));
+  };
+
   const getDiaryById = async (id: number): Promise<DiaryInterface | null> => {
     const res = await GetDiaryById(id);
     return res?.status === 200 ? res.data : null;
@@ -62,7 +89,7 @@ export const DiaryContextProvider = ({
   ): Promise<DiaryInterface | null> => {
     const res = await CreateDiary(data);
     if (res?.status === 201 || res?.status === 200) {
-      fetchDiaries(); // reload list
+      fetchDiaries();
       return res.data;
     }
     return res;
@@ -100,6 +127,7 @@ export const DiaryContextProvider = ({
         loading,
         error,
         fetchDiaries,
+        fetchDiariesByPatientAndTherapyCase,
         getDiaryById,
         createDiary,
         updateDiary,

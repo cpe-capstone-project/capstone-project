@@ -11,6 +11,7 @@ func SetupDiaryRoutes(r *gin.RouterGroup) {
 	r.POST("/diary-summary", diary.SummarizeDiaries)
 
 	r.GET("/diaries", diary.ListDiaries)
+	r.GET("/diaries/patient/:patientId/therapy-case/:caseId", diary.ListDiariesByPatientAndTherapyCase)
 	r.GET("/diaries/latest", diary.ListLatestDiaries)
 	r.GET("/diary/:id", diary.GetDiaryByID)
 	r.POST("/diary", diary.CreateDiary)

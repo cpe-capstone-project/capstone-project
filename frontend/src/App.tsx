@@ -4,6 +4,7 @@ import { DateContextProvider } from "./contexts/DateContext";
 import RouterComponent from "./routes/RouterComponent";
 import { useEffect, useState } from "react";
 import { k, KEYS, getUID } from "./unid/storageKeys";
+import { TherapyCaseProvider } from "./contexts/TherapyCaseContext";
 
 function App() {
   const [uid, setUid] = useState(getUID());
@@ -35,7 +36,9 @@ function App() {
     <BrowserRouter>
       <PathContextProvider>
         <DateContextProvider>
-          <RouterComponent />
+          <TherapyCaseProvider>
+            <RouterComponent />
+          </TherapyCaseProvider>
         </DateContextProvider>
       </PathContextProvider>
     </BrowserRouter>

@@ -23,7 +23,7 @@
 }
 
 .left-side:hover {
-scrollbar-color: #0000004d transparent;
+  scrollbar-color: #0000004d transparent;
 }
 
 /* Header */
@@ -81,7 +81,7 @@ scrollbar-color: #0000004d transparent;
   align-items: center;
   width: 100%;
   gap: var(--space-md);
-  
+
   background-color: white;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
@@ -102,7 +102,7 @@ scrollbar-color: #0000004d transparent;
   align-items: center;
   width: 100%;
   gap: var(--space-md);
-  padding: 24px 24px  24px 0;
+  padding: 24px 24px 24px 0;
   color: black;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
@@ -120,15 +120,16 @@ scrollbar-color: #0000004d transparent;
       gap: var(--space-xs);
 
       h1 {
-        width: 80%;
         display: -webkit-box;
-        -webkit-line-clamp: 1;
+        -webkit-line-clamp: 1; /* จำนวนบรรทัด */
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: normal;
-        word-break: break-word;
+
         font-size: var(--font-size-md);
+
+        width: 80%;
+        word-break: break-word;
       }
 
       p {
@@ -138,13 +139,17 @@ scrollbar-color: #0000004d transparent;
 
     .content {
       display: -webkit-box;
-      -webkit-line-clamp: 2; /* หรือ 1 ถ้าอยากให้เหลือบรรทัดเดียว */
+      -webkit-line-clamp: 2; /* จำนวนบรรทัด */
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+
       font-weight: normal;
       font-size: var(--font-size-sm);
       opacity: 0.8;
+
+      width: 100%;
+      word-break: break-word;
     }
   }
 }
@@ -155,7 +160,7 @@ scrollbar-color: #0000004d transparent;
   top: -5%;
   right: -5%;
   padding: var(--space-xxs) var(--space-sm);
-  background-color: var(--color-yellow-alert);   /* สีแดงแจ้งเตือน */
+  background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
   color: white;
   border-radius: var(--radius-full);
   font-size: 12px;
@@ -164,7 +169,6 @@ scrollbar-color: #0000004d transparent;
   font-weight: bold;
   z-index: 1;
 }
-
 
 /* Circle Select Button */
 .circle-select-btn {
@@ -175,7 +179,7 @@ scrollbar-color: #0000004d transparent;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  margin: 24px 0 24px  24px;
+  margin: 24px 0 24px 24px;
   border: 2px solid #6e6d70;
   cursor: pointer;
   transition: var(--transition-fast);
@@ -188,12 +192,11 @@ scrollbar-color: #0000004d transparent;
 }
 
 .circle-select-btn.confirmed {
- background-color: #ccc;     /* สีจาง */
-  cursor: not-allowed;        /* เม้าส์เป็นสัญลักษณ์ห้าม */
-  opacity: 0.6;               /* ทำให้จางลง */
-  pointer-events: none;       /* กันไม่ให้คลิกได้ */
+  background-color: #ccc; /* สีจาง */
+  cursor: not-allowed; /* เม้าส์เป็นสัญลักษณ์ห้าม */
+  opacity: 0.6; /* ทำให้จางลง */
+  pointer-events: none; /* กันไม่ให้คลิกได้ */
 }
-
 
 .menu-item {
   display: flex;
@@ -240,11 +243,11 @@ scrollbar-color: #0000004d transparent;
       cursor: pointer;
       transition: background 0.2s;
     }
-  
+
     .reset-selected-btn:hover {
       background-color: #ddd;
     }
-  
+
     .delete-selected-btn {
       display: flex;
       align-items: center;
@@ -256,7 +259,7 @@ scrollbar-color: #0000004d transparent;
       cursor: pointer;
       transition: var(--transition-fast);
       z-index: 10;
-  
+
       svg {
         color: white;
         width: 24px;
@@ -264,7 +267,6 @@ scrollbar-color: #0000004d transparent;
       }
     }
   }
-  
 }
 
 .delete-selected-container.active {

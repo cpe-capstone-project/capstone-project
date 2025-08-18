@@ -495,3 +495,7 @@
   transform: none;
   box-shadow: none;
 }
+/* ซ่อนข้อความ title ของอีเวนต์ทุกวิว */
+.rbc-event .rbc-event-content {
+  display: none !important;
+}

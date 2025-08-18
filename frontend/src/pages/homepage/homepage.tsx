@@ -1133,7 +1133,13 @@ const htmlContent = `
 </div>
 
 
-    <button className="deer-tiger-btn">View More</button>
+    <button
+  className="deer-tiger-btn"
+  onClick={() => navigate("/patient/thought_records")}
+>
+  View More
+</button>
+
   </div>
 
 <div className="deer-tiger-card">

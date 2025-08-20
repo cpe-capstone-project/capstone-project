@@ -84,7 +84,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03); /* เงาเบาๆ */
 }
 
@@ -212,7 +212,7 @@
   border: 1px solid #eef2f7;
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: .95rem;
+  font-size: .93rem;
   color: #0f172a;
 }
 

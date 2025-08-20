@@ -88,220 +88,298 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03); /* เงาเบาๆ */
 }
 
-/* wrapper ของ popup ทั้งหมด */
-.xbn-popup {
-  display: flex;
-  gap: 5rem;
-  justify-content: space-between;
-  align-items: flex-start;
+/* ==== SweetAlert container tweaks ==== */
+.xbn-swal.swal2-popup {
+  border-radius: 16px;
+  padding-top: 42px;                 /* มีหัวเผื่อปุ่ม X ซ้าย */
+  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.12);
 }
 
-/* sidebar เมนูด้านซ้าย */
-.xbn-profile-sidebar {
-  background-color: #f9f9f9;
-  padding: 1.5rem 1rem;
-  border-radius: 1rem;
-  width: 160px;
-  font-size: 15px;
-  font-family: 'Prompt', sans-serif;
-}
-
-.xbn-profile-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.xbn-profile-sidebar li {
-  padding: 10px 5px;
-  color: #333;
+/* กากบาทมุมซ้ายบน */
+.xbn-swal .swal2-close {
+  left: 12px;
+  right: auto;
+  top: 10px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
-  cursor: pointer;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  transition: background-color 0.3s ease;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0ea5e9;
+  transition: all .2s ease;
+}
+.xbn-swal .swal2-close:hover {
+  background: #e0f2fe;
+  transform: translateY(-1px);
 }
 
-.xbn-profile-sidebar li:hover {
-  background-color: #e6e6e6;
-  font-weight: 500;
+/* ปรับหัวข้อให้ดูสะอาด */
+.xbn-html-wrapper h3 {
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: #0f172a;
 }
 
-/* รูปโปรไฟล์ตรงกลาง */
-.xbn-profile-center {
+/* ==== Layout หลักใน popup (ทั้ง view/edit) ==== */
+.dfg {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 18px;
+  min-height: 420px;
+}
+
+/* ==== Sidebar (มีไอคอนแบบ CSS ไม่ต้องโหลด lib) ==== */
+.xbn-profile-sidebar-edit {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  padding: 12px;
+  height: 100%;
+}
+.xbn-profile-sidebar-edit ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.xbn-profile-sidebar-edit li {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #0f172a;
+  transition: background .2s ease, transform .05s ease;
+  position: relative;
+}
+.xbn-profile-sidebar-edit li:hover { background: #eaf6ff; }
+.xbn-profile-sidebar-edit li.active {
+  background: #e0f2fe;
+  font-weight: 700;
+  color: #0369a1;
 }
 
+/* ==== กล่องคอนเทนต์ (view / edit) ==== */
+.xbn-content {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  padding: 18px;
+}
+
+/* Header โปรไฟล์ (สวยขึ้นด้วยกราเดียนต์) */
+.xbn-profile-header {
+  text-align: center;
+  padding: 16px 8px 10px;
+  margin: -8px -8px 14px;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+  border-bottom: 1px solid #e6f3ff;
+}
 .xbn-profile-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  outline: 3px solid #bae6fd;          /* วงแหวนอ่อนๆ */
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18);
+  background: #fff;
+}
+.xbn-profile-header h4 {
+  margin: 10px 0 2px;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.xbn-profile-header p {
+  margin: 0;
+  color: #475569;
+  font-size: .92rem;
+}
+
+/* รายละเอียดโปรไฟล์ */
+.xbn-profile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+}
+.xbn-profile-details div {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: .95rem;
+  color: #0f172a;
+}
+
+/* ==== โซนแก้ไข ==== */
+.tigerd {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tigerd .xbn-profile-img {
+  width: 104px;
+  height: 104px;
+  outline-color: #a5f3fc;               /* แยกจาก view เล็กน้อย */
+}
+
+.xbn-profile-info-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+.xbn-profile-info-form label {
+  display: grid;
+  gap: 6px;
+  font-size: .88rem;
+  color: #0f172a;
+}
+.xbn-profile-info-form label span {
+  font-weight: 700;
+  color: #0c4a6e;
+}
+.xbn-profile-info-form .swal2-input {
+  height: 40px;
+  margin: 0;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: none !important;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.xbn-profile-info-form .swal2-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+}
+
+/* ปรับปุ่ม Swal */
+.xbn-swal .swal2-actions {
+  gap: 8px;
+}
+.xbn-swal .swal2-styled.swal2-confirm {
+  background: #0ea5e9;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.xbn-swal .swal2-styled.swal2-cancel {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* สกอร์บาร์นุ่ม ๆ */
+.xbn-content::-webkit-scrollbar { height: 8px; width: 8px; }
+.xbn-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1; border-radius: 10px;
+}
+.xbn-content::-webkit-scrollbar-track { background: transparent; }
+
+/* ==== Responsive ==== */
+@media (max-width: 900px) {
+  .dfg { grid-template-columns: 1fr; }
+  .xbn-profile-info-form { grid-template-columns: 1fr; }
+  .xbn-profile-details { grid-template-columns: 1fr; }
+}
+
+/* ==== (ออปชัน) แต้มแจ้งเตือนที่ไอคอนกระดิ่งให้เนียนขึ้น ==== */
+.menu li .noti-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px; height: 10px;
+  background: #ef4444;
+  border-radius: 999px;
+  outline: 2px solid #fff;
+}
+/* icon ที่ sidebar (โปรไฟล์, แก้ไขโปรไฟล์) */
+.xbn-sidebar-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* icon เล็ก ๆ ที่ใส่ใน detail เช่น email */
+.xbn-detail-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  opacity: 0.8; /* ทำให้ดูไม่เด่นเกินไป */
+}
+/* ปุ่มอัปโหลดรูป */
+.img-upload-btn {
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .05s ease, filter .2s ease;
+}
+.img-upload-btn:hover { filter: brightness(1.05); }
+.img-upload-btn:active { transform: translateY(1px); }
+
+/* กรอบพรีวิว */
+.preview-frame {
+  display: grid;
+  place-items: center;
+}
+#profile-preview.xbn-profile-img {
   width: 120px;
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  background-color: #ddd;
-}
-.xbn-profile-row:first-child {
-  margin-top: 20px; /* 👈 เฉพาะบรรทัดแรก */
-}
-
-.xbn-profile-info {
-  flex: 1;
-  font-family: 'Prompt', sans-serif;
-  font-size: 15px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  border: 3px solid #fff;
+  outline: 3px solid #bae6fd;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18);
+  background: #fff;
 }
 
-.xbn-profile-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
-  
+.img-hint {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 6px;
 }
 
-.xbn-profile-row span:first-child {
-  font-weight: bold;
-  min-width: 100px;
+/* ขนาดไอคอนใน sidebar และ detail (อีเมล) */
+.xbn-sidebar-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
-
-
-/* แบบฟอร์มแก้ไขด้านขวา */
-
-.xbn-profile-info-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem 1.2rem;
-  max-width: 450px;
-  font-family: 'Prompt', sans-serif;
-  font-size: 15px;
+.xbn-detail-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 6px;
+  object-fit: contain;
 }
-
-.xbn-profile-info-form label {
-  display: flex;
-  flex-direction: column;
-  color: #333;
-}
-
-.xbn-profile-info-form span {
-  margin-bottom: 4px;
-  font-weight: 500;
-  color: #444;
-}
-
-/* ครอบทั้งหมด: จัด 3 ส่วนในแถวเดียว */
-.xbn-popup {
-  display: flex;
-  gap: 3rem;
-  align-items: flex-start;
-}
-
-/* Sidebar */
-.xbn-profile-sidebar-edit {
-  background-color: #f9f9f9;
-  padding: 1.5rem 1rem;
-  border-radius: 1rem;
-  width: 150px;
-  margin-left: 0; /* ไม่ต้องลบ margin แล้ว */
-  font-size: 15px;
-  font-family: 'Prompt', sans-serif;
-}
-
-.xbn-profile-sidebar-edit ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.xbn-profile-sidebar-edit li {
-  padding: 10px 5px;
-  color: #333;
+.img-upload-btn {
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
   border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  transition: background-color 0.3s ease;
+  transition: transform .05s ease, filter .2s ease;
 }
+.img-upload-btn:hover { filter: brightness(1.05); }
+.img-upload-btn:active { transform: translateY(1px); }
 
-.xbn-profile-sidebar-edit li:hover {
-  background-color: #e6e6e6;
-  font-weight: 500;
+.preview-frame { display: grid; place-items: center; }
+#profile-preview.xbn-profile-img {
+  width: 120px; height: 120px; border-radius: 50%;
+  object-fit: cover; border: 3px solid #fff; outline: 3px solid #bae6fd;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18); background: #fff;
 }
-.dfg {
-  display: flex;
-  justify-content: center; /* ✅ จัดให้อยู่ตรงกลางหน้าจอ */
-  align-items: flex-start;
-  gap: 2rem; /* ✅ ลดช่องว่างระหว่างรูปและ input */
-   margin-left: 20px; /* ✅ ขยับไปทางขวา 20px */
-}
-
-.tigerd {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 5px;
-  margin-right: -80px;
-}
-
-
-.xbn-profile-info-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem 1.2rem;
-  font-family: 'Prompt', sans-serif;
-  font-size: 14px;
-  margin-top: 5px;
-  margin-left: 0; /* ✅ ลบ margin ซ้าย ถ้ามี */
-}
-
-
-.xbn-profile-info-form label {
-  display: flex;
-  flex-direction: column;
-  color: #444;
-  gap: 4px;
-}
-
-.xbn-profile-info-form .swal2-input {
-  font-size: 14px;
-  padding: 6px 10px;
-  width: 110px;
-  box-sizing: border-box;
-}
-/* 🔷 Sidebar */
-.xbn-profile-sidebar,
-.xbn-profile-sidebar-edit {
-  background-color: #e7f3fc; /* ฟ้าอ่อน */
-  box-shadow: 0 0 10px rgba(0, 136, 204, 0.08);
-}
-
-.xbn-profile-sidebar li,
-.xbn-profile-sidebar-edit li {
-  background-color: #ffffff;
-}
-
-
-/* 🔷 โปรไฟล์ตรงกลาง */
-.xbn-profile-img {
-  background-color: #d9efff;
-  border: 3px solid #7ecfff;
-}
-
-/* 🔷 ช่องข้อมูลโปรไฟล์ */
-.xbn-profile-row {
-  border-bottom: 1px solid #cbe8f7;
-}
-
-
-.xbn-profile-info-form .swal2-input {
-  background-color: #f0faff;
-  border: 1px solid #b3e0f7;
-  border-radius: 8px;
-}
-
+.img-hint { color: #64748b; font-size: 12px; margin-top: 6px; }

@@ -18,10 +18,13 @@ import DiaryStatsChart from "../../components/DiaryStatsChart/DiaryStatsChart";
 import { useDiary } from "../../contexts/DiaryContext";
 import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
 import { useMemo } from "react";
+// เพิ่มบนสุดของไฟล์ HomePage.tsx
+import { GetDiarySummaryById } from "../../services/https/Diary"; // ⬅️ เพิ
+
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
 const { diaries } = useDiary();
-
+  const [summaryKeywords, setSummaryKeywords] = useState<string[]>([]); // ⬅️ เพิ่ม
   const [today, setToday] = useState<DiaryInterface | null>(null);
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +34,29 @@ const { diaries } = useDiary();
   if (tab === "monthly") return "รายเดือน";
   return "รายวัน";
 };*/
+// ด้านล่าง useEffect อื่น ๆ ใน HomePage
+useEffect(() => {
+  (async () => {
+    try {
+      const idRaw = localStorage.getItem("diary_summary_id");
+      const id = idRaw ? parseInt(idRaw) : 0;
+      if (!id) return;
+
+      const res = await GetDiarySummaryById(id);
+      if (res?.status === 200 && res.data) {
+        // สมมติ backend ส่ง field "Keyword" เป็นสตริง เช่น "stress, anxious, sleep"
+        const raw = String(res.data.Keyword ?? "");
+        const tokens = raw
+          .split(/[,\n]/)         // คั่นด้วย , หรือขึ้นบรรทัด
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setSummaryKeywords(tokens);
+      }
+    } catch {
+      setSummaryKeywords([]);
+    }
+  })();
+}, []);
 
 const [summarizedTabs, setSummarizedTabs] = useState<{
   daily?: boolean;
@@ -71,14 +97,13 @@ const HIGHLIGHT_WORDS = useMemo(() => {
     ...TAGS,
     ...(detectedEmotions || []),
     ...(currentEmotion ? [currentEmotion] : []),
+     ...summaryKeywords,
   ];
-  return Array.from(new Set(arr.map((t) => t.trim()).filter(Boolean)));
-}, [detectedEmotions, currentEmotion]);
+ return Array.from(new Set(arr.map((t) => t.trim()).filter(Boolean)));
+}, [detectedEmotions, currentEmotion, summaryKeywords]);  
 
-// ✅ กัน RegExp พัง
+
 const escapeReg = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-// ✅ ไฮไลต์คำใน text -> คืน JSX
 const highlightText = (text?: string | null) => {
   if (!text || !HIGHLIGHT_WORDS.length) return text || "— ยังไม่มีสรุป —";
   const pattern = new RegExp(`(${HIGHLIGHT_WORDS.map(escapeReg).join("|")})`, "gi");
@@ -91,6 +116,7 @@ const highlightText = (text?: string | null) => {
     )
   );
 };
+
 // สร้างช่วงเวลา (local time)
 /*const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
   const now = new Date();
@@ -910,73 +936,73 @@ const htmlContent = `
 
   localStorage.setItem(NOTICE_FLAG_KEY, "false");
 };*/
+const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
    return (
-   <div className="diorr-dashboard-container">
- <div className="diorr-card">
-  <div className="diorr-card-header">
-    <div className="diorr-card-title">
-      <h3>Daily Progress</h3>
-      <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Daily Progress Icon" className="diorr-icon" />
-    </div>
-    <span className="diorr-stat-text">{completed}/{total}</span>
-    <div className="diorr-progress-bar">
-      <div className="diorr-progress" style={{ width: `${progressPct}%` }} />
-    </div>
-  </div>
-</div>
-
-
-  <div className="diorr-card">
-    <div className="diorr-card-header">
-      <div className="diorr-card-title">
-        <h3>Diary Entries</h3>
-        <img src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png" alt="Diary Entries Icon" className="diorr-icon" />
+  <div className="dash-frame">
+  <div className="dash-content">
+    <div className="deer-dashboard-container">
+      
+      <div className="diorr-card1">
+        <div className="diorr-card-header">
+          <div className="diorr-card-title">
+            <h3>Daily Progress</h3>
+            <img src="https://cdn-icons-png.flaticon.com/128/5948/5948941.png" alt="Daily Progress Icon" className="diorr-icon" />
+          </div>
+          <span className="diorr-stat-text">{completed}/{total}</span>
+          <div className="diorr-progress-bar">
+            <div className="diorr-progress" style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
       </div>
-      <span className="diorr-stat-text">{monthCount}</span>
-      <span className="diorr-stat-subtext">This month</span>
-    </div>
-  </div>
 
-  <div className="diorr-card">
-    <div className="diorr-card-header">
-      <div className="diorr-card-title">
-        <h3>Thought Records</h3>
-        <img src="https://cdn-icons-png.flaticon.com/128/109/109827.png" alt="Thought Records Icon" className="diorr-icon" />
+      <div className="diorr-card2">
+        <div className="diorr-card-header">
+          <div className="diorr-card-title">
+            <h3>Diary Entries</h3>
+            <img src="https://cdn-icons-png.flaticon.com/128/8275/8275593.png" alt="Diary Entries Icon" className="diorr-icon" />
+          </div>
+          <span className="diorr-stat-text">{monthCount}</span>
+          <span className="diorr-stat-subtext">This month</span>
+        </div>
       </div>
-      <span className="diorr-stat-text">8</span>
-      <span className="diorr-stat-subtext">This week</span>
-    </div>
-  </div>
 
- <div className="diorr-card">
-  <div className="diorr-card-header">
-    <div className="diorr-card-title">
-      <h3>Next Appointment</h3>
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png"
-        alt="Next Appointment Icon"
-        className="diorr-icon"
-      />
-    </div>
+      <div className="diorr-card3">
+        <div className="diorr-card-header">
+          <div className="diorr-card-title">
+            <h3>Thought Records</h3>
+            <img src="https://cdn-icons-png.flaticon.com/128/109/109827.png" alt="Thought Records Icon" className="diorr-icon" />
+          </div>
+          <span className="diorr-stat-text">8</span>
+          <span className="diorr-stat-subtext">This week</span>
+        </div>
+      </div>
+      <div className="diorr-card4">
+        <div className="diorr-card-header">
+          <div className="diorr-card-title">
+            <h3>Next Appointment</h3>
+            <img src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png" alt="Next Appointment Icon" className="diorr-icon" />
+          </div>
 
-    <span className="diorr-stat-text">
-      {daysAway === null ? "—" : daysAway}
-    </span>
+          <span className="diorr-stat-text">
+            {daysAway === null ? "—" : daysAway}
+          </span>
 
-    <span className="diorr-stat-subtext">
-      {daysDiff === 0 && nextAppointmentText !== "ไม่มีนัดหมายเร็ว ๆ นี้"
-        ? "Today"
-        : daysDiff === 1
-        ? "Tomorrow"
-        : "Days away"}
-    </span>
-  </div>
+          <span className="diorr-stat-subtext">
+            {daysDiff === 0 && nextAppointmentText !== "ไม่มีนัดหมายเร็ว ๆ นี้"
+              ? "Today"
+              : daysDiff === 1
+              ? "Tomorrow"
+              : "Days away"}
+          </span>
+        </div>
 
-  {/* วันที่-เวลา */}
-  <div style={{ marginTop: 8, fontSize: "0.9em", color: "#666" }}>
-    {nextAppointmentText}
-  </div>
-</div>
+        {/* วันที่-เวลา */}
+        <div style={{ marginTop: 8, fontSize: "0.9em", color: "#666" }}>
+          {nextAppointmentText}
+        </div>
+      </div>
+
+
  {/* Lower Section */}
 <div className="deer-tiger-dashboard-container">
 
@@ -1058,18 +1084,17 @@ const htmlContent = `
             {today?.UpdatedAt ? relTime(today.UpdatedAt) : "—"}
           </span>
         </span>
-        <span className="diary-entry-content">
-          {
-            today
-              ? (
-                  (today.Content ? today.Content.replace(/<[^>]*>?/gm, "") : "")
-                    .slice(0, 120) ||
-                  today.Title ||
-                  "ยังไม่มีบันทึกวันนี้"
-                )
-              : "ยังไม่มีบันทึกวันนี้"
-          }
-        </span>
+       <span className="diary-entry-content">
+    {
+      today
+        ? highlightText(
+            (stripHtml(today.Content).slice(0, 120) ||
+              today.Title ||
+              "ยังไม่มีบันทึกวันนี้")
+          )
+        : "ยังไม่มีบันทึกวันนี้"
+    }
+  </span>
       </p>
 
        <p className="deer-tiger-diary-entry">
@@ -1080,17 +1105,17 @@ const htmlContent = `
         </span>
       </span>
       <span className="diary-entry-content">
-        {
-          week
-            ? (
-                (week.Content ? week.Content.replace(/<[^>]*>?/gm, "") : "")
-                  .slice(0, 120) ||
-                week.Title ||
-                "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา"
-              )
-            : "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา"
-        }
-      </span>
+  {
+    week
+      ? highlightText(
+          (stripHtml(week.Content).slice(0, 120) ||
+            week.Title ||
+            "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา")
+        )
+      : "ยังไม่มีบันทึกสัปดาห์ที่ผ่านมา"
+  }
+</span>
+
     </p>
     </>
   )}
@@ -1483,8 +1508,8 @@ const htmlContent = `
       <button className="qewty-feedback-btn">View More</button>
     </div>
 </div>
-
-
+</div>
+</div>
 
 </div>
   );

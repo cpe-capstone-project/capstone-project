@@ -8,9 +8,10 @@ export const k = (base: string) => {
 };
 
 export const KEYS = {
-  NOTI: "patient_notifications",
-  NOTICE_FLAG: "has_new_notice",
-  CAL: "calendar_events",
-  CHECK_DAY: "daily-checklist-v2",
-  CHECK_BYDATE: "daily-checklist-bydate-v2",
+  NOTI: "patient_notifications",     // แจ้งเตือนนัดหมาย
+  NOTICE_FLAG: "has_new_notice",     // flag ว่ามีแจ้งเตือนใหม่
+  CAL: "calendar_events",            // ปฏิทิน
+  CHECK_DAY: "daily-checklist-v2",   // checklist วันนี้
+  CHECK_BYDATE: "daily-checklist-bydate-v2", // checklist ตามวัน
+  PROFILE: "patient_profile",        // ✅ cache โปรไฟล์คนไข้
 };

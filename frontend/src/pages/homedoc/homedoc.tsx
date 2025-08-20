@@ -295,7 +295,7 @@ saveEventsToLocal(loadedEvents);
 }, [id]);
 useEffect(() => {
   if (!id) return;
-  const ws = new WebSocket(`ws://localhost:8000/ws/psych/${id}`); // ให้ตรงกับ backend ของคุณ
+   const ws = new WebSocket(`ws://localhost:8000/ws/${id}`);
 
   ws.onmessage = (ev) => {
     try {
@@ -538,165 +538,222 @@ const inCount = useMemo(
 // ผู้ป่วยใหม่ = ทั้งหมด - (กำลังรักษา + เสร็จสิ้น)
 // กันค่าติดลบไว้ด้วย
 const newCount = Math.max(0, patients.length - doneCount - inCount);
+// เดิม: เปิด popup รายการเดียว และถามจะลบ/เลื่อน
+// ใหม่: เปิด “ลิสต์นัดหมายของวันนั้นทั้งหมด”
+const handleSelectEvent = (event: { start: Date }) => {
+  openDayAppointments(new Date(event.start));
+};
 
+// ✅ ช่วยฟอร์แมตเวลาเป็น HH:mm
+const fmt = (d: Date) =>
+  d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false });
 
-const handleSelectEvent = (event: {
-  detail: string; id: number; title: string; start: Date; end: Date 
-}) => {
-  Swal.fire({
-    title: `นัดหมาย: ${event.title}`,
-    text: "คุณต้องการทำอะไรกับนัดหมายนี้?",
-    showDenyButton: true,
-    showCancelButton: true,
-    confirmButtonText: "ลบ",
-    denyButtonText: "เลื่อนเวลา",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-       if (!event.id || isNaN(event.id)) {
-    Swal.fire("เกิดข้อผิดพลาด", "ไม่พบรหัสนัดหมาย (ID)", "error");
+// ✅ เช็คว่าเป็นวันเดียวกัน (ไม่สนเวลา)
+const isSameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
+
+// ✅ เปิดลิสต์นัดหมายทั้งหมดของวันเป้าหมาย พร้อมปุ่มจัดการทีละรายการ
+const openDayAppointments = (targetDate: Date) => {
+  const dayEvents = events
+    .filter(e => isSameDay(new Date(e.start), targetDate))
+    .sort((a, b) => +new Date(a.start) - +new Date(b.start));
+
+  if (dayEvents.length === 0) {
+    Swal.fire("ไม่มีนัดหมายในวันนี้", "", "info");
     return;
   }
-      try {
-  const res = await fetch(`http://localhost:8000/appointments/${event.id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
-    },
-  });
 
-  if (!res.ok) throw new Error("ลบนัดหมายไม่สำเร็จ");
+  const htmlList = dayEvents.map(ev => {
+    const color =
+      (ev.status ?? "pending") === "accepted" ? "#10b981" :
+      (ev.status ?? "pending") === "rejected" ? "#ef4444" :
+      "#f59e0b";
 
-  setEvents((prev) => {
-  const updated = prev.filter((e) => e.id !== event.id);
- saveEventsToLocal(updated);
- // ⬅️ แทนที่
-  return updated;
-});
-
-  Swal.fire("ลบนัดหมายแล้ว", "", "success");
-} catch (err) {
-  console.error("ลบล้มเหลว", err);
-  Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบนัดหมายได้", "error");
-}
-
-
-    } else if (result.isDenied) {
-      const startTime = event.start.toTimeString().slice(0, 5);
-      const endTime = event.end.toTimeString().slice(0, 5);
-
-      const { value: newTimes } = await Swal.fire({
-        title: "เลื่อนเวลานัดหมาย",
-        html: `
-          <div style="text-align: left; width: 100%;">
-            <div style="margin-bottom: 1rem;">
-              <label for="startTime">เวลาเริ่มต้นใหม่</label><br/>
-              <input
-                type="time"
-                id="startTime"
-                class="swal2-input"
-                style="width: 50%; display: block; margin-left: 0;"
-                value="${startTime}"
-              />
+    return `
+      <div style="
+        border:1px solid #eee; border-left:6px solid ${color};
+        border-radius:10px; padding:10px 12px; margin-bottom:10px;
+      ">
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+          <div style="min-width:0;">
+            <div style="font-weight:600; font-size:14px;">${ev.title || "-"}</div>
+            <div style="font-size:12px; color:#666; margin-top:2px;">
+              ${fmt(new Date(ev.start))}–${fmt(new Date(ev.end))}
+              ${ev.detail ? ` · ${ev.detail}` : ""}
             </div>
-
-            <div style="margin-bottom: 1rem;">
-              <label for="endTime">เวลาสิ้นสุดใหม่</label><br/>
-              <input
-                type="time"
-                id="endTime"
-                class="swal2-input"
-                style="width: 50%; display: block; margin-left: 0;"
-                value="${endTime}"
-              />
+            <div style="font-size:12px; margin-top:2px;">
+              สถานะ: <span style="font-weight:600; color:${color};">${ev.status ?? "pending"}</span>
             </div>
           </div>
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: "บันทึก",
-        preConfirm: () => {
-          const startStr = (document.getElementById("startTime") as HTMLInputElement)?.value;
-          const endStr = (document.getElementById("endTime") as HTMLInputElement)?.value;
+          <div style="flex:0 0 auto; display:flex; gap:6px;">
+          <button class="swal2-confirm qewty-apt-reschedule" data-id="${ev.id}"
+  style="padding:6px 10px; font-size:12px;">
+  เลื่อนเวลา
+</button>
+<button class="swal2-deny qewty-apt-delete" data-id="${ev.id}"
+  style="padding:6px 10px; font-size:12px;">
+  ลบ
+</button>
 
-          if (!startStr || !endStr) {
-            Swal.showValidationMessage("กรุณากรอกเวลาให้ครบ");
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  Swal.fire({
+    title: `นัดหมายในวันนี้ (${dayEvents.length})`,
+    html: `<div style="text-align:left; max-height:60vh; overflow:auto;">${htmlList}</div>`,
+    showConfirmButton: true,
+    confirmButtonText: "ปิด",
+    didOpen: () => {
+      // ลบ
+      document.querySelectorAll<HTMLButtonElement>(".qewty-apt-delete").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.dataset.id);
+          if (!id || Number.isNaN(id)) {
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่พบรหัสนัดหมาย (ID)", "error");
             return;
           }
-
-          const selectedDate = new Date(event.start);
-          const [sh, sm] = startStr.split(":").map(Number);
-          const [eh, em] = endStr.split(":").map(Number);
-
-          const newStart = new Date(selectedDate);
-          newStart.setHours(sh, sm, 0, 0);
-
-          const newEnd = new Date(selectedDate);
-          newEnd.setHours(eh, em, 0, 0);
-
-          if (newEnd <= newStart) {
-            Swal.showValidationMessage("เวลาสิ้นสุดต้องหลังเวลาเริ่มต้น");
-            return;
-          }
-
-          // ✅ ตรวจสอบเวลาทับซ้อนกับ event อื่น (ยกเว้นตัวเอง)
-          const isConflict = events.some((ev) => {
-            if (ev.id === event.id) return false;
-            const existingStart = new Date(ev.start);
-            const existingEnd = new Date(ev.end);
-
-            return (
-              selectedDate.toDateString() === existingStart.toDateString() &&
-              newStart < existingEnd &&
-              newEnd > existingStart
-            );
+          const ok = await Swal.fire({
+            title: "ยืนยันการลบ",
+            text: "คุณต้องการลบนัดหมายนี้หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "ลบ",
+            cancelButtonText: "ยกเลิก",
           });
+          if (!ok.isConfirmed) return;
 
-          if (isConflict) {
-            Swal.showValidationMessage("ช่วงเวลานี้มีนัดหมายอยู่แล้ว โปรดเลือกเวลาอื่น");
-            return;
+          try {
+            const res = await fetch(`http://localhost:8000/appointments/${id}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+              },
+            });
+            if (!res.ok) throw new Error("delete failed");
+
+            setEvents(prev => {
+              const updated = prev.filter(e => e.id !== id);
+              saveEventsToLocal(updated);
+              return updated;
+            });
+
+            Swal.fire("ลบนัดหมายแล้ว", "", "success").then(() => {
+              openDayAppointments(targetDate); // refresh ลิสต์วันนั้น
+            });
+          } catch (e) {
+            console.error(e);
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบนัดหมายได้", "error");
           }
-
-          return { newStart, newEnd };
-        },
+        });
       });
 
-      if (newTimes) {
-  try {
-    const res = await fetch(`http://localhost:8000/appointments/update-time`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
-        id: event.id, // ถ้าใช้ id ได้ จะดีกว่า!
-        new_start: newTimes.newStart.toISOString(),
-        new_end: newTimes.newEnd.toISOString(),
-        title: event.title, // ✅ ส่งชื่อใหม่ (ถ้ามี)
-        detail: event.detail || "---", // ✅ ปลอดภัยไว้ก่อน
-      }),
-    });
+      // เลื่อน
+      document.querySelectorAll<HTMLButtonElement>(".qewty-apt-reschedule").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.dataset.id);
+          const ev = events.find(x => x.id === id);
+          if (!ev) {
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่พบนัดหมาย", "error");
+            return;
+          }
+          const startTime = ev.start instanceof Date ? ev.start : new Date(ev.start);
+          const endTime = ev.end instanceof Date ? ev.end : new Date(ev.end);
 
-    if (!res.ok) throw new Error("อัปเดตเวลานัดหมายล้มเหลว");
+          const { value: newTimes } = await Swal.fire({
+            title: "เลื่อนเวลานัดหมาย",
+            html: `
+              <div style="text-align:left;">
+                <div style="margin-bottom:8px;">
+                  <label>เวลาเริ่มต้นใหม่</label><br/>
+                  <input id="startTime" type="time" class="swal2-input" style="width:60%;"
+                    value="${fmt(startTime)}">
+                </div>
+                <div>
+                  <label>เวลาสิ้นสุดใหม่</label><br/>
+                  <input id="endTime" type="time" class="swal2-input" style="width:60%;"
+                    value="${fmt(endTime)}">
+                </div>
+              </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "บันทึก",
+            preConfirm: () => {
+              const startStr = (document.getElementById("startTime") as HTMLInputElement)?.value;
+              const endStr = (document.getElementById("endTime") as HTMLInputElement)?.value;
+              if (!startStr || !endStr) {
+                Swal.showValidationMessage("กรุณากรอกเวลาให้ครบ");
+                return;
+              }
+              const [sh, sm] = startStr.split(":").map(Number);
+              const [eh, em] = endStr.split(":").map(Number);
 
-  setEvents((prev) => {
-  const updated = prev.map((e) =>
-    e.id === event.id ? { ...e, start: newTimes.newStart, end: newTimes.newEnd } : e
-  );
-  saveEventsToLocal(updated);
-// ⬅️ แทนที่
-  return updated;
-});
+              const base = new Date(ev.start);
+              const ns = new Date(base); ns.setHours(sh, sm, 0, 0);
+              const ne = new Date(base); ne.setHours(eh, em, 0, 0);
 
-    Swal.fire("เลื่อนนัดหมายเรียบร้อย", "", "success");
-  } catch (err) {
-    console.error(err);
-    Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเลื่อนเวลานัดหมายได้", "error");
-  }
-}
-    }
+              if (ne <= ns) {
+                Swal.showValidationMessage("เวลาสิ้นสุดต้องหลังเวลาเริ่มต้น");
+                return;
+              }
+              const conflict = events.some(other => {
+                if (other.id === ev.id) return false;
+                return isSameDay(new Date(other.start), ns) &&
+                       ns < new Date(other.end) &&
+                       ne > new Date(other.start);
+              });
+              if (conflict) {
+                Swal.showValidationMessage("ช่วงเวลานี้มีนัดหมายอยู่แล้ว");
+                return;
+              }
+              return { ns, ne };
+            }
+          });
+
+          if (!newTimes) return;
+
+          try {
+            const res = await fetch(`http://localhost:8000/appointments/update-time`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+              },
+              body: JSON.stringify({
+                id: ev.id,
+                new_start: newTimes.ns.toISOString(),
+                new_end: newTimes.ne.toISOString(),
+                title: ev.title,
+                detail: ev.detail || "---",
+              }),
+            });
+            if (!res.ok) throw new Error("update failed");
+
+            setEvents(prev => {
+              const updated = prev.map(x =>
+                x.id === ev.id ? { ...x, start: newTimes.ns, end: newTimes.ne } : x
+              );
+              saveEventsToLocal(updated);
+              return updated;
+            });
+
+            Swal.fire("เลื่อนนัดหมายเรียบร้อย", "", "success").then(() => {
+              openDayAppointments(targetDate); // refresh ลิสต์วันนั้น
+            });
+          } catch (e) {
+            console.error(e);
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเลื่อนเวลานัดหมายได้", "error");
+          }
+        });
+      });
+    },
   });
 };
+
 
 
 

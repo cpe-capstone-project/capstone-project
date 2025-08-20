@@ -499,3 +499,18 @@
 .rbc-event .rbc-event-content {
   display: none !important;
 }
+/* ปุ่มเลื่อนเวลา */
+.qewty-apt-reschedule {
+  background-color: #0ea5e9 !important;  /* ฟ้า */
+  border-radius: 6px;
+  cursor: pointer;  /* ชี้แล้วเป็น pointer */
+  transition: background-color 0.2s ease;
+}
+
+/* ปุ่มลบ */
+.qewty-apt-delete {
+  background-color: #ef4444 !important;  /* แดง */
+  border-radius: 6px;
+  cursor: pointer;  /* ชี้แล้วเป็น pointer */
+  transition: background-color 0.2s ease;
+}

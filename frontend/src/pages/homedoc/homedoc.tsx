@@ -84,7 +84,7 @@ useEffect(() => {
         setEvents([]);
       }
     } else {
-      setEvents([]); // ไม่มีข้อมูลใน local ของคนนี้
+      setEvents([]);
     }
   };
 
@@ -93,7 +93,7 @@ useEffect(() => {
   return () => {
     window.removeEventListener("calendarEventsUpdated", loadEventsFromStorage);
   };
-}, [CAL_KEY]); // 👈 สำคัญ
+}, [CAL_KEY]); 
 const saveEventsToLocal = (list: CalendarEvent[]) => {
   try {
     localStorage.setItem(CAL_KEY, JSON.stringify(list));
@@ -274,47 +274,105 @@ useEffect(() => {
       return res.json();
     })
     .then((data) => {
-   const loadedEvents = data.map((item: {
-     status: string; id: any; title: any; detail: any; start_time: string | number | Date; end_time: string | number | Date; 
-}) => ({
-  id: item.id, // ✅ สำคัญ! เพื่อให้สามารถส่ง id กลับไปตอนอัปเดตได้
-  title: item.title,
-  detail: item.detail,
-  start: new Date(item.start_time),
-  end: new Date(item.end_time),
-  status: item.status ?? "pending",
-}));
+  const loadedEvents = data.map((item: {
+    status: string; id: any; title: any; detail: any; start_time: string | number | Date; end_time: string | number | Date;
+  }) => ({
+    id: item.id,
+    title: item.title,
+    detail: item.detail,
+    start: new Date(item.start_time),
+    end: new Date(item.end_time),
+    status: String(item.status || "pending").toLowerCase() as "pending" | "accepted" | "rejected",
+  }));
 
-setEvents(loadedEvents);
-saveEventsToLocal(loadedEvents);
-
-    })
+  setEvents(loadedEvents);
+  saveEventsToLocal(loadedEvents);
+})
     .catch((err) => {
       console.error("โหลดนัดหมายล้มเหลว", err);
     });
 }, [id]);
 useEffect(() => {
-  if (!id) return;
-   const ws = new WebSocket(`ws://localhost:8000/ws/${id}`);
+  // ใช้ ws_uid ที่เซ็ตตอน login (แนะนำให้เซ็ตไว้แล้วใน SignInPages)
+  const wsUid =
+    localStorage.getItem("ws_uid") ||
+    `d:${localStorage.getItem("psych_id") || localStorage.getItem("id") || ""}`;
+
+  if (!wsUid) return;
+
+  const ws = new WebSocket(`ws://localhost:8000/ws/${encodeURIComponent(wsUid)}`);
+  ws.onopen = () => console.log("✅ WS psych connected:", wsUid);
 
   ws.onmessage = (ev) => {
     try {
       const msg = JSON.parse(ev.data);
+
       if (msg.type === "appointment_status_changed") {
-        setEvents(prev => {
-          const updated = prev.map(e =>
-            e.id === Number(msg.appointment_id) ? { ...e, status: msg.status } : e
+        const newStatus = String(msg.status || "pending").toLowerCase() as
+          "pending" | "accepted" | "rejected";
+
+        setEvents((prev) => {
+          const updated = prev.map((e) =>
+            e.id === Number(msg.appointment_id) ? { ...e, status: newStatus } : e
           );
           saveEventsToLocal(updated);
-
           return updated;
         });
+
+        // ปลอดภัยไว้ก่อน: ดึงจากฐานข้อมูลซ้ำ (กันกรณี event หล่น)
+        refetchAppointments();
       }
     } catch {}
   };
 
   return () => ws.close();
-}, [id]);
+}, []);
+
+// helper ดึงข้อมูลจากฐานข้อมูล (เรียกใช้ซ้ำได้)
+const refetchAppointments = async () => {
+  const psychId = localStorage.getItem("id");
+  if (!psychId) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}`
+    );
+    if (!res.ok) throw new Error("reload failed");
+    const data = await res.json();
+
+    const normalize = (s?: string) =>
+      String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";
+
+    const loaded = data.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      detail: item.detail,
+      start: new Date(item.start_time),
+      end: new Date(item.end_time),
+      status: normalize(item.status),
+    }));
+
+    setEvents(loaded);
+    saveEventsToLocal(loaded);
+  } catch (e) {
+    console.error("refetchAppointments error", e);
+  }
+};
+useEffect(() => {
+  const onVisible = () => {
+    if (document.visibilityState === "visible") {
+      refetchAppointments();
+    }
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  return () => document.removeEventListener("visibilitychange", onVisible);
+}, []);
+
+// polling ทุก 30–60 วิ (เบา ๆ)
+useEffect(() => {
+  const t = setInterval(refetchAppointments, 30000);
+  return () => clearInterval(t);
+}, []);
 
 useEffect(() => {
   if (!id || !isLogin || role !== "Psychologist") {

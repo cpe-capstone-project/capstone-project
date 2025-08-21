@@ -12,13 +12,10 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 //import type { DiaryInterface } from "../../interfaces/IDiary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 import { k, KEYS } from "../../unid/storageKeys";
-// --- เพิ่มบนสุดของไฟล์ (นอก component) ---
-// เพิ่มตรงหัวไฟล์
 import DiaryStatsChart from "../../components/DiaryStatsChart/DiaryStatsChart";
 import { useDiary } from "../../contexts/DiaryContext";
 import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
 import { useMemo } from "react";
-// เพิ่มบนสุดของไฟล์ HomePage.tsx
 import { GetDiarySummaryById } from "../../services/https/Diary"; // ⬅️ เพิ
 
 function HomePage() {
@@ -461,15 +458,10 @@ const progressPct = total ? (completed / total) * 100 : 0;
     //setLoginCount(todayCount);
     //setPercentChange(percent);
   //}, []);
-
- // const formattedDate = currentDate.toLocaleDateString("th-TH");
-// วางไว้ใกล้ๆ ฟังก์ชันอื่นๆ ใน HomePage
-// วางไว้ใกล้ๆ ฟังก์ชันอื่นๆ ใน HomePage
 const updateNoticeStatus = (
   appointmentId: string | number,
   status: "accepted" | "rejected"
 ): boolean => {
-  // อ่านและกันพังจาก localStorage
   let list: any[] = [];
   try {
     const raw = localStorage.getItem(NOTI_KEY);
@@ -479,105 +471,165 @@ const updateNoticeStatus = (
     list = [];
   }
 
-  // หาเป้าหมาย
   const idx = list.findIndex(
     (x) => String(x.appointment_id) === String(appointmentId)
   );
-  if (idx === -1) {
-    console.warn("updateNoticeStatus: appointment not found", appointmentId);
-    return false;
-  }
+  if (idx === -1) return false;
 
-  // อัปเดตเฉพาะเมื่อมีการเปลี่ยนสถานะจริง
   if (list[idx].status !== status) {
-    list[idx] = {
-      ...list[idx],
-      status,
-      _updatedAt: new Date().toISOString(),
-    };
+    list[idx] = { ...list[idx], status, _updatedAt: new Date().toISOString() };
     localStorage.setItem(NOTI_KEY, JSON.stringify(list));
-
-    // กระตุ้นให้ส่วนอื่นๆ รีเฟรช (ภายในแท็บเดียวกัน)
     window.dispatchEvent(new Event("calendarEventsUpdated"));
-
-    // ถ้าอยากให้ useEffect ที่ฟัง "storage" ในแท็บเดียวกันทำงานด้วย ก็ยิง custom event เอง
-    // (หมายเหตุ: 'storage' จริงๆ จะยิงข้ามแท็บเท่านั้น)
     window.dispatchEvent(new Event("storage"));
   }
-
   return true;
+};
+useEffect(() => {
+(window as any).confirmAppointment = async (
+  appointmentId: string | number,
+  status: "accepted" | "rejected"
+) => {
+  try {
+    const res = await fetch("http://localhost:8000/appointments/status", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ id: Number(appointmentId), status }),
+    });
+
+    if (!res.ok) {
+      const msg = await res.text().catch(() => "");
+      // 401 ก็เด้งล็อกอินได้เลย
+      if (res.status === 401) {
+        Swal.fire("หมดเวลาเข้าสู่ระบบ", "โปรดเข้าสู่ระบบอีกครั้ง", "warning");
+        // เคลียร์ token แล้วนำทางกลับหน้าล็อกอินตามที่คุณใช้อยู่
+      } else {
+        Swal.fire("อัปเดตไม่สำเร็จ", msg || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์", "error");
+      }
+      return; // ⛔️ อย่าไปอัพเดต local ต่อ
+    }
+    updateNoticeStatus(appointmentId, status);
+
+    Swal.fire({
+      icon: "success",
+      title: status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว",
+      timer: 1200,
+      showConfirmButton: false,
+    });
+  } catch (e) {
+    console.error("Update appointment status failed:", e);
+    Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
+  }
 };
 
 
+  return () => {
+    try { delete (window as any).confirmAppointment; } catch {}
+  };
+}, []);
 
- useEffect(() => {
-  const id = localStorage.getItem("id");
-  if (!id) return;
 
-  const socket = new WebSocket(`ws://localhost:8000/ws/${id}`);
-  socket.onopen = () => console.log("✅ WebSocket opened");
+
+useEffect(() => {
+  const wsUid =
+    localStorage.getItem("ws_uid") ||
+    `p:${localStorage.getItem("patient_id") || localStorage.getItem("id") || ""}`;
+
+  if (!wsUid) return;
+
+  const socket = new WebSocket(`ws://localhost:8000/ws/${encodeURIComponent(wsUid)}`);
+  socket.onopen = () => console.log("✅ WS patient connected:", wsUid);
   socket.onerror = (err) => console.error("❌ WebSocket error", err);
 
   socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+    const data = JSON.parse(event.data || "{}");
+
+    // === นัดหมายใหม่ที่หมอสร้าง ===
     if (data.type === "appointment_created") {
-      console.log("🔥 ได้รับนัดหมายใหม่");
-
       const existing = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-      const updated = [...existing, {
-        start_time: data.start_time,
-        end_time: data.end_time,
-        detail: data.detail,
-        appointment_id: data.appointment_id,
-         status: "pending", 
-      }];
+      const updated = [
+        ...existing,
+        {
+          start_time: data.start_time,
+          end_time: data.end_time,
+          detail: data.detail,
+          appointment_id: data.appointment_id,
+          status: (data.status || "pending") as "pending" | "accepted" | "rejected",
+        },
+      ];
       localStorage.setItem(NOTI_KEY, JSON.stringify(updated));
-localStorage.setItem(NOTICE_FLAG_KEY, "true");
+      localStorage.setItem(NOTICE_FLAG_KEY, "true");
 
-    const htmlContent = `
-  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px; text-align: left;">
-    <h3 style="margin-bottom: 15px; text-align: center;">
-      <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-      แจ้งเตือนนัดหมาย
-    </h3>
-    <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9rem;">
-      <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()} 
-        ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
-      </div>
-      <div><b>รายละเอียด:</b> ${data.detail}</div>
-    </div>
-  </div>
-`;
+      const htmlContent = `
+        <div style="background-color:#e0f2ff;padding:20px;border-radius:16px;text-align:left;">
+          <h3 style="margin-bottom:15px;text-align:center;">
+            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align:middle;margin-right:8px;" />
+            แจ้งเตือนนัดหมาย
+          </h3>
+          <div style="background:#fff;padding:10px 16px;border-radius:12px;margin-bottom:10px;font-size:0.9rem;">
+            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()}
+              ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
+            </div>
+            <div><b>รายละเอียด:</b> ${data.detail ?? "—"}</div>
+          </div>
+        </div>
+      `;
 
+      Swal.fire({
+        html: htmlContent,
+        width: 600,
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "✅ ยืนยันการนัด",
+        denyButtonText: "❌ ปฏิเสธการนัด",
+        cancelButtonText: "ยกเลิก",
+        showCloseButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.confirmAppointment?.(data.appointment_id, "accepted");
+          updateNoticeStatus(data.appointment_id, "accepted");
+        } else if (result.isDenied) {
+          window.confirmAppointment?.(data.appointment_id, "rejected");
+          updateNoticeStatus(data.appointment_id, "rejected");
+        }
+      });
 
- Swal.fire({
-  html: htmlContent,
-  width: 600,
-  showDenyButton: true, // ✅ เพิ่ม
-  showCancelButton: true,
-  confirmButtonText: "✅ ยืนยันการนัด",
-  denyButtonText: "❌ ปฏิเสธการนัด", // ✅ แยกปุ่ม deny ออกต่างหาก
-  cancelButtonText: "ยกเลิก",
-  showCloseButton: true,
-}).then((result) => {
-  if (result.isConfirmed) {
-  window.confirmAppointment(data.appointment_id, "accepted");
-  updateNoticeStatus(data.appointment_id, "accepted"); // ⬅️ เพิ่ม
-} else if (result.isDenied) {
-  window.confirmAppointment(data.appointment_id, "rejected");
-  updateNoticeStatus(data.appointment_id, "rejected"); // ⬅️ เพิ่ม
-}
- else if (result.dismiss === Swal.DismissReason.cancel) {
-    console.log("❎ ยกเลิกการตอบกลับ");
-  }
-});
+      return;
+    }
 
+    // === หมออัปเดตสถานะ (echo กลับผู้ป่วย) ===
+    if (data.type === "appointment_status_echo") {
+      updateNoticeStatus(data.appointment_id, data.status);
+      return;
+    }
 
+    // === หมอเลื่อนเวลา (อัปเดตเวลาใน local + กระตุ้นรีเฟรชการ์ด/สรุป) ===
+    if (data.type === "appointment_time_updated") {
+      try {
+        const id = data.appointment_id;
+        const list: any[] = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
+        const idx = list.findIndex((x) => String(x.appointment_id) === String(id));
+        if (idx !== -1) {
+          list[idx].start_time = data.new_start;
+          list[idx].end_time = data.new_end;
+          list[idx]._updatedAt = new Date().toISOString();
+          localStorage.setItem(NOTI_KEY, JSON.stringify(list));
+          // ปลุก useEffect อื่น ๆ ให้คำนวณใหม่
+          window.dispatchEvent(new Event("calendarEventsUpdated"));
+          window.dispatchEvent(new Event("storage"));
+        }
+      } catch (e) {
+        console.error("update local time failed:", e);
+      }
+      return;
     }
   };
 
   return () => socket.close();
 }, []);
+
  // ==== Appointments (patient side) ====
 type Notice = {
   start_time: string;

@@ -158,6 +158,28 @@ interface Patient {
   birthday: string;
 }
 useEffect(() => {
+  let bc: BroadcastChannel | null = null;
+  try {
+    bc = new BroadcastChannel("appointment_updates");
+    bc.onmessage = (ev) => {
+      const msg = ev.data || {};
+      if (!msg || !msg.appointment_id || !msg.status) return;
+
+      const newStatus = String(msg.status).toLowerCase() as "pending" | "accepted" | "rejected";
+      setEvents((prev) => {
+        const updated = prev.map((e) =>
+          e.id === Number(msg.appointment_id) ? { ...e, status: newStatus } : e
+        );
+        saveEventsToLocal(updated);
+        return updated;
+      });
+    };
+  } catch (e) {
+    // Safari private mode อาจไม่รองรับ BroadcastChannel — ข้ามไปใช้ WS/polling แทน
+  }
+  return () => { try { bc?.close(); } catch {} };
+}, []);
+useEffect(() => {
   const total = patients.filter((p) => p.id && p.id !== 0).length;
   setStats((prev) =>
     prev.map((s) =>
@@ -268,34 +290,46 @@ useEffect(() => {
 useEffect(() => {
   if (!id) return;
 
-  fetch(`http://localhost:8000/appointments/by-psychologist?psychologist_id=${id}`, {
-  headers: {
-    Authorization: `${localStorage.getItem("token_type") || "Bearer"} ${localStorage.getItem("token") || ""}`,
-  },
-})
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const url = `http://localhost:8000/appointments/by-psychologist?psychologist_id=${id}&include_rejected=1`;
+
+  fetch(url, { headers: { Authorization: `${tokenType} ${token}` } })
     .then((res) => {
       if (!res.ok) throw new Error("โหลดนัดหมายล้มเหลว");
       return res.json();
     })
     .then((data) => {
-  const loadedEvents = data.map((item: {
-    status: string; id: any; title: any; detail: any; start_time: string | number | Date; end_time: string | number | Date;
-  }) => ({
-    id: item.id,
-    title: item.title,
-    detail: item.detail,
-    start: new Date(item.start_time),
-    end: new Date(item.end_time),
-    status: String(item.status || "pending").toLowerCase() as "pending" | "accepted" | "rejected",
-  }));
+      const normalize = (s?: string) =>
+        String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";
 
-  setEvents(loadedEvents);
-  saveEventsToLocal(loadedEvents);
-})
+      const loaded: CalendarEvent[] = (Array.isArray(data) ? data : []).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        detail: item.detail,
+        start: new Date(item.start_time),
+        end: new Date(item.end_time),
+        status: normalize(item.status),
+      }));
+
+      // 🔐 รวมกับของเดิม เพื่อกันกรณี backend ไม่ส่ง rejected
+      setEvents((prev) => {
+        const prevById = new Map(prev.map((e) => [e.id, e]));
+        const loadedById = new Map(loaded.map((e) => [e.id, e]));
+        const allIds = new Set([...prevById.keys(), ...loadedById.keys()]);
+        const merged: CalendarEvent[] = [];
+        for (const id of allIds) {
+          merged.push(loadedById.get(id) ?? prevById.get(id)!);
+        }
+        saveEventsToLocal(merged);
+        return merged;
+      });
+    })
     .catch((err) => {
       console.error("โหลดนัดหมายล้มเหลว", err);
     });
 }, [id]);
+
 useEffect(() => {
   // ใช้ ws_uid ที่เซ็ตตอน login (แนะนำให้เซ็ตไว้แล้วใน SignInPages)
   const wsUid =
@@ -323,8 +357,8 @@ useEffect(() => {
           return updated;
         });
 
-        // ปลอดภัยไว้ก่อน: ดึงจากฐานข้อมูลซ้ำ (กันกรณี event หล่น)
-        refetchAppointments();
+        
+        //refetchAppointments();
       }
     } catch {}
   };
@@ -338,14 +372,15 @@ const refetchAppointments = async () => {
   if (!psychId) return;
 
   try {
-   const res = await fetch(
-  `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}`,
-  {
-    headers: {
-      Authorization: `${localStorage.getItem("token_type") || "Bearer"} ${localStorage.getItem("token") || ""}`,
-    },
-  }
-);
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+    const token = localStorage.getItem("token") || "";
+
+    // ถ้า backend รองรับการขอรวม rejected ด้วย ให้ใช้พารามิเตอร์นี้
+    const url = `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}&include_rejected=1`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: `${tokenType} ${token}` },
+    });
 
     if (!res.ok) throw new Error("reload failed");
     const data = await res.json();
@@ -353,7 +388,7 @@ const refetchAppointments = async () => {
     const normalize = (s?: string) =>
       String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";
 
-    const loaded = data.map((item: any) => ({
+    const loaded: CalendarEvent[] = (Array.isArray(data) ? data : []).map((item: any) => ({
       id: item.id,
       title: item.title,
       detail: item.detail,
@@ -362,12 +397,32 @@ const refetchAppointments = async () => {
       status: normalize(item.status),
     }));
 
-    setEvents(loaded);
-    saveEventsToLocal(loaded);
+    // ⬇️ สำคัญ: รวมกับของเดิม เพื่อกันกรณี backend ไม่ส่ง rejected กลับมา
+    setEvents((prev) => {
+      const prevById = new Map(prev.map((e) => [e.id, e]));
+      const loadedById = new Map(loaded.map((e) => [e.id, e]));
+
+      const allIds = new Set([...prevById.keys(), ...loadedById.keys()]);
+      const merged: CalendarEvent[] = [];
+
+      for (const id of allIds) {
+        const fromLoaded = loadedById.get(id);
+        const fromPrev = prevById.get(id);
+        // ถ้าโหลดมาได้ ใช้อันที่โหลด (ถือเป็น truth source)
+        // ถ้าโหลดมาไม่ได้ (เช่น rejected ไม่ถูกส่ง) ให้คงอันเดิมไว้
+        merged.push((fromLoaded ?? fromPrev)!);
+      }
+
+      // เซฟลง localStorage
+      saveEventsToLocal(merged);
+      return merged;
+    });
   } catch (e) {
     console.error("refetchAppointments error", e);
   }
 };
+
+// รีเฟรชเมื่อหน้าโฟกัสกลับมา
 useEffect(() => {
   const onVisible = () => {
     if (document.visibilityState === "visible") {
@@ -377,6 +432,7 @@ useEffect(() => {
   document.addEventListener("visibilitychange", onVisible);
   return () => document.removeEventListener("visibilitychange", onVisible);
 }, []);
+
 
 // polling ทุก 30–60 วิ (เบา ๆ)
 useEffect(() => {

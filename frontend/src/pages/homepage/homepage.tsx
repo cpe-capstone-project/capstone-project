@@ -510,6 +510,15 @@ useEffect(() => {
       }
       return; // ⛔️ อย่าไปอัพเดต local ต่อ
     }
+    try {
+  const bc = new BroadcastChannel("appointment_updates");
+  bc.postMessage({
+    type: "appointment_status_changed",
+    appointment_id: Number(appointmentId),
+    status, // "accepted" | "rejected"
+  });
+  bc.close();
+} catch {}
     updateNoticeStatus(appointmentId, status);
 
     Swal.fire({

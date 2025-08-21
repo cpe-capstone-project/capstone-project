@@ -566,6 +566,7 @@ useEffect(() => {
           detail: data.detail,
           appointment_id: data.appointment_id,
           status: (data.status || "pending") as "pending" | "accepted" | "rejected",
+          rescheduled: false, 
         },
       ];
       localStorage.setItem(NOTI_KEY, JSON.stringify(updated));
@@ -613,27 +614,71 @@ useEffect(() => {
       updateNoticeStatus(data.appointment_id, data.status);
       return;
     }
+if (data.type === "appointment_time_updated") {
+  try {
+    const id = data.appointment_id;
+    const list: any[] = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
+    const idx = list.findIndex((x) => String(x.appointment_id) === String(id));
+    if (idx !== -1) {
+      const oldStart = list[idx].start_time;
+      const oldEnd = list[idx].end_time;
 
-    // === หมอเลื่อนเวลา (อัปเดตเวลาใน local + กระตุ้นรีเฟรชการ์ด/สรุป) ===
-    if (data.type === "appointment_time_updated") {
-      try {
-        const id = data.appointment_id;
-        const list: any[] = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-        const idx = list.findIndex((x) => String(x.appointment_id) === String(id));
-        if (idx !== -1) {
-          list[idx].start_time = data.new_start;
-          list[idx].end_time = data.new_end;
-          list[idx]._updatedAt = new Date().toISOString();
-          localStorage.setItem(NOTI_KEY, JSON.stringify(list));
-          // ปลุก useEffect อื่น ๆ ให้คำนวณใหม่
-          window.dispatchEvent(new Event("calendarEventsUpdated"));
-          window.dispatchEvent(new Event("storage"));
-        }
-      } catch (e) {
-        console.error("update local time failed:", e);
-      }
-      return;
+      // ⬇️ เก็บเวลาเดิม + ติดธงว่าเคยเลื่อน + อัปเดตเวลาใหม่
+      list[idx] = {
+        ...list[idx],
+        old_start_time: oldStart,
+        old_end_time: oldEnd,
+        start_time: data.new_start,
+        end_time: data.new_end,
+        rescheduled: true,
+        _updatedAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem(NOTI_KEY, JSON.stringify(list));
+      // กระตุ้นให้การ์ด/ลิสต์คำนวณใหม่
+      window.dispatchEvent(new Event("calendarEventsUpdated"));
+      window.dispatchEvent(new Event("storage"));
+
+      // ⬇️ แจ้งเตือน (สีส้ม)
+      const fmtDate = (d: Date) =>
+        d.toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" });
+      const fmtTime = (d: Date) =>
+        d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+      const os = new Date(oldStart);
+      const oe = new Date(oldEnd);
+      const ns = new Date(data.new_start);
+      const ne = new Date(data.new_end);
+
+      const html = `
+        <div style="background:#fff7ed;border:1px solid #fed7aa;padding:16px;border-radius:12px;text-align:left">
+          <h3 style="margin:0 0 8px;color:#9a3412">⏱️ เลื่อนเวลานัดหมาย</h3>
+          <div style="margin:6px 0">
+            <div><b>จากเดิม:</b> <span style="color:#6b7280"><s>${fmtDate(os)} ${fmtTime(os)}–${fmtTime(oe)} น.</s></span></div>
+            <div><b>เป็นเวลาใหม่:</b> <span style="color:#d97706;font-weight:700">${fmtDate(ns)} ${fmtTime(ns)}–${fmtTime(ne)} น.</span></div>
+          </div>
+          ${
+            list[idx].detail
+              ? `<div style="margin-top:6px"><b>รายละเอียด:</b> ${list[idx].detail}</div>`
+              : ""
+          }
+        </div>
+      `;
+
+      Swal.fire({
+        html,
+        width: 600,
+        icon: undefined,
+        showConfirmButton: true,
+        confirmButtonText: "รับทราบ",
+      });
     }
+  } catch (e) {
+    console.error("update local time failed:", e);
+  }
+  return;
+}
+
   };
 
   return () => socket.close();
@@ -646,6 +691,10 @@ type Notice = {
   detail?: string;
   status?: "pending" | "accepted" | "rejected";
   appointment_id?: string | number;
+
+  old_start_time?: string;
+  old_end_time?: string;
+  rescheduled?: boolean;
 };
 
 const [upcomingNotices, setUpcomingNotices] = useState<Notice[]>([]);
@@ -776,81 +825,219 @@ const list = data
   const fmtTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+  /*const badge = (status?: string) => {
+    if (status === "accepted") return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
+    if (status === "rejected") return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
+    return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
+  };*/
+  const renderItem = (x: any) => {
+  const _start = new Date(x.start_time);
+  const _end = new Date(x.end_time);
+
+  const rescheduled = !!x.rescheduled && x.old_start_time && x.old_end_time;
+  const _oldStart = rescheduled ? new Date(x.old_start_time) : null;
+  const _oldEnd = rescheduled ? new Date(x.old_end_time) : null;
+
+  const dateText = rescheduled
+    ? `
+      <div>
+        <div style="color:#d97706;font-weight:700">
+          ${fmtDate(_start)} ${fmtTime(_start)}–${fmtTime(_end)} น.
+          <span style="background:#fff7ed;color:#d97706;border:1px solid #fed7aa;padding:2px 8px;border-radius:9999px;font-size:12px;margin-left:6px">
+            ⏱️ เปลี่ยนเวลา
+          </span>
+        </div>
+        <div style="color:#6b7280;font-size:12px;margin-top:2px">
+          เดิม: <s>${fmtDate(_oldStart!)} ${fmtTime(_oldStart!)}–${fmtTime(_oldEnd!)} น.</s>
+        </div>
+      </div>
+    `
+    : `${fmtDate(_start)} ${fmtTime(_start)}–${fmtTime(_end)} น.`;
+
   const badge = (status?: string) => {
     if (status === "accepted") return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
     if (status === "rejected") return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
     return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
   };
 
-  const renderItem = (x: any) => {
-    const dateText = `${fmtDate(x._start)} ${fmtTime(x._start)}–${fmtTime(x._end)} น.`;
-    const isPending = !x.status || x.status === "pending";
-    return `
-      <div style="background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee;text-align:left">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-          <div style="font-weight:700">Psychologist</div>
-          <div>${badge(x.status)}</div>
-        </div>
-        <div style="margin:6px 0 2px">
-          <b>เวลา:</b> ${dateText}
-        </div>
-        <div style="color:#444"><b>รายละเอียด:</b> ${x.detail || "—"}</div>
-        ${
-          isPending
-            ? `
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <button
-              data-act="accept"
-              data-id="${x.appointment_id}"
-              style="flex:1;background:#d1e7dd;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
-            >✅ ยืนยันการนัด</button>
-            <button
-              data-act="reject"
-              data-id="${x.appointment_id}"
-              style="flex:1;background:#f8d7da;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
-            >❌ ปฏิเสธการนัด</button>
-          </div>`
-            : ``
-        }
+  const isPending = !x.status || x.status === "pending";
+
+  return `
+    <div style="background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee;text-align:left">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div style="font-weight:700">Psychologist</div>
+        <div>${badge(x.status)}</div>
       </div>
-    `;
-  };
-
-  const html = `
-    <div style="text-align:left">
-      <h3 style="margin:0 0 8px">นัดหมายทั้งหมด</h3>
-
-      <div style="margin:12px 0 6px;color:#555">กำลังจะถึง</div>
-      ${upcoming.length ? upcoming.map(renderItem).join("") : `<div style="color:#777">— ไม่มี —</div>`}
-
-      <div style="margin:16px 0 6px;color:#555">ที่ผ่านมา</div>
-      ${past.length ? past.map(renderItem).join("") : `<div style="color:#777">— ไม่มี —</div>`}
+      <div style="margin:6px 0 2px">
+        <b>เวลา:</b> ${dateText}
+      </div>
+      <div style="color:#444"><b>รายละเอียด:</b> ${x.detail || "—"}</div>
+      ${
+        isPending
+          ? `
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button
+            data-act="accept"
+            data-id="${x.appointment_id}"
+            style="flex:1;background:#d1e7dd;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
+          >✅ ยืนยันการนัด</button>
+          <button
+            data-act="reject"
+            data-id="${x.appointment_id}"
+            style="flex:1;background:#f8d7da;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
+          >❌ ปฏิเสธการนัด</button>
+        </div>`
+          : ``
+      }
     </div>
   `;
+};
+const LABEL_MORE = "ดูเพิ่ม";
+const LABEL_LESS = "ย่อ";
 
-  Swal.fire({
-    html,
-    width: 640,
-    showCloseButton: true,
-    showConfirmButton: false,
-    didOpen: () => {
-      // delegate ปุ่มยืนยัน/ปฏิเสธ (ใช้ window.confirmAppointment ของคุณ)
+const html = `
+  <style>
+    .qewty-divider{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:8px 0 4px}
+    .qewty-toggle-wrap{display:flex;justify-content:center;margin-top:8px}
+    .qewty-toggle-btn{
+      appearance:none; border:1px solid #e5e7eb; background:linear-gradient(180deg,#ffffff,#f8fafc);
+      border-radius:9999px; padding:8px 14px; font-weight:600; font-size:12.5px; cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px; 
+      box-shadow:0 1px 2px rgba(15,23,42,.06), inset 0 0 0 1px #fff;
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .qewty-toggle-btn:hover{transform:translateY(-1px);border-color:#d1d5db;box-shadow:0 6px 12px rgba(15,23,42,.08)}
+    .qewty-toggle-btn:active{transform:translateY(0)}
+    .qewty-toggle-chip{
+      background:#111827; color:#fff; border-radius:9999px; font-weight:700; font-size:11px;
+      padding:2px 8px; line-height:1;
+    }
+    .qewty-toggle-icn{font-size:12px; opacity:.8}
+  </style>
+
+  <div style="text-align:left">
+    <h3 style="margin:0 0 8px">นัดหมายทั้งหมด</h3>
+
+    <div style="margin:12px 0 6px;color:#555">กำลังจะถึง</div>
+    <div id="upcomingList"></div>
+    ${
+      upcoming.length > 5
+        ? `
+          <div class="qewty-divider"></div>
+          <div class="qewty-toggle-wrap">
+            <button id="toggleUpcomingBtn" class="qewty-toggle-btn" type="button" aria-expanded="false">
+              <span class="qewty-toggle-text">${LABEL_MORE}</span>
+              <span class="qewty-toggle-chip">+${upcoming.length - 5}</span>
+              <span class="qewty-toggle-icn">▾</span>
+            </button>
+          </div>
+        `
+        : ``
+    }
+
+    <div style="margin:16px 0 6px;color:#555">ที่ผ่านมา</div>
+    <div id="pastList"></div>
+    ${
+      past.length > 5
+        ? `
+          <div class="qewty-divider"></div>
+          <div class="qewty-toggle-wrap">
+            <button id="togglePastBtn" class="qewty-toggle-btn" type="button" aria-expanded="false">
+              <span class="qewty-toggle-text">${LABEL_MORE}</span>
+              <span class="qewty-toggle-chip">+${past.length - 5}</span>
+              <span class="qewty-toggle-icn">▾</span>
+            </button>
+          </div>
+        `
+        : ``
+    }
+  </div>
+`;
+
+Swal.fire({
+  html,
+  width: 640,
+  showCloseButton: true,
+  showConfirmButton: false,
+  didOpen: () => {
+    const upcomingListEl = document.getElementById("upcomingList");
+    const pastListEl = document.getElementById("pastList");
+    const toggleUpcomingBtn = document.getElementById("toggleUpcomingBtn") as HTMLButtonElement | null;
+    const togglePastBtn = document.getElementById("togglePastBtn") as HTMLButtonElement | null;
+
+    let showAllUpcoming = false;
+    let showAllPast = false;
+
+    const bindActionButtons = () => {
       document.querySelectorAll<HTMLButtonElement>("button[data-act]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const act = btn.getAttribute("data-act");
           const apptId = btn.getAttribute("data-id");
           if (!apptId) return;
-         if (act === "accept") {
-  (window as any).confirmAppointment?.(apptId, "accepted");
-  updateNoticeStatus(apptId!, "accepted"); // ⬅️ เพิ่ม
-} else if (act === "reject") {
-  (window as any).confirmAppointment?.(apptId, "rejected");
-  updateNoticeStatus(apptId!, "rejected"); // ⬅️ เพิ่ม
-}
+          if (act === "accept") {
+            (window as any).confirmAppointment?.(apptId, "accepted");
+            updateNoticeStatus(apptId!, "accepted");
+          } else if (act === "reject") {
+            (window as any).confirmAppointment?.(apptId, "rejected");
+            updateNoticeStatus(apptId!, "rejected");
+          }
         });
       });
-    },
-  });
+    };
+
+    const updateToggleBtn = (
+      btn: HTMLButtonElement | null,
+      expanded: boolean,
+      remainCount: number
+    ) => {
+      if (!btn) return;
+      const txt = btn.querySelector(".qewty-toggle-text") as HTMLElement | null;
+      const chip = btn.querySelector(".qewty-toggle-chip") as HTMLElement | null;
+      const icn = btn.querySelector(".qewty-toggle-icn") as HTMLElement | null;
+
+      if (txt) txt.textContent = expanded ? LABEL_LESS : LABEL_MORE;
+      if (icn) icn.textContent = expanded ? "▴" : "▾";
+      if (chip) {
+        chip.textContent = `+${remainCount}`;
+        chip.style.display = expanded || remainCount <= 0 ? "none" : "inline-block";
+      }
+      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    };
+
+    const renderSection = () => {
+      // upcoming
+      if (upcomingListEl) {
+        const upArr = showAllUpcoming ? upcoming : upcoming.slice(0, 5);
+        upcomingListEl.innerHTML = upArr.length
+          ? upArr.map(renderItem).join("")
+          : `<div style="color:#777">— ไม่มี —</div>`;
+      }
+      // past
+      if (pastListEl) {
+        const pastArr = showAllPast ? past : past.slice(0, 5);
+        pastListEl.innerHTML = pastArr.length
+          ? pastArr.map(renderItem).join("")
+          : `<div style="color:#777">— ไม่มี —</div>`;
+      }
+
+      updateToggleBtn(toggleUpcomingBtn, showAllUpcoming, Math.max(0, upcoming.length - 5));
+      updateToggleBtn(togglePastBtn, showAllPast, Math.max(0, past.length - 5));
+
+      bindActionButtons(); // re-bind หลัง innerHTML ถูกแทนที่
+    };
+
+    toggleUpcomingBtn?.addEventListener("click", () => {
+      showAllUpcoming = !showAllUpcoming;
+      renderSection();
+    });
+    togglePastBtn?.addEventListener("click", () => {
+      showAllPast = !showAllPast;
+      renderSection();
+    });
+
+    renderSection(); // ครั้งแรก: โชว์ 5 รายการ/กลุ่ม
+  },
+});
 };
 
 

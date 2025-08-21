@@ -9,14 +9,14 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: var(--padding-left-right-patient-home-page);
   z-index: 999;
-  width:103%
+  width:100%
 }
 .logo {
   height: 60px;
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
-  margin-left:25px;
+/*  margin-left:25px;*/
   display: block;
 }
 /* Menu (right side items) */

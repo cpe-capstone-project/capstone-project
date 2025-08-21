@@ -268,7 +268,11 @@ useEffect(() => {
 useEffect(() => {
   if (!id) return;
 
-  fetch(`http://localhost:8000/appointments/by-psychologist?psychologist_id=${id}`)
+  fetch(`http://localhost:8000/appointments/by-psychologist?psychologist_id=${id}`, {
+  headers: {
+    Authorization: `${localStorage.getItem("token_type") || "Bearer"} ${localStorage.getItem("token") || ""}`,
+  },
+})
     .then((res) => {
       if (!res.ok) throw new Error("โหลดนัดหมายล้มเหลว");
       return res.json();
@@ -334,9 +338,15 @@ const refetchAppointments = async () => {
   if (!psychId) return;
 
   try {
-    const res = await fetch(
-      `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}`
-    );
+   const res = await fetch(
+  `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}`,
+  {
+    headers: {
+      Authorization: `${localStorage.getItem("token_type") || "Bearer"} ${localStorage.getItem("token") || ""}`,
+    },
+  }
+);
+
     if (!res.ok) throw new Error("reload failed");
     const data = await res.json();
 

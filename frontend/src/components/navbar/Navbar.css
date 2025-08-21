@@ -16,7 +16,7 @@
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
-
+  margin-left:25px;
   display: block;
 }
 /* Menu (right side items) */

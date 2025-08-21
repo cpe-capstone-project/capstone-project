@@ -9,7 +9,6 @@ import MindcareImage from "../../../assets/mindcare.png";
 function SignInPages() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
-
    const onFinish = async (values: SignInInterface) => {
   const email = (values.email ?? "").toLowerCase().trim(); 
   const cleanedValues = { ...values, email };
@@ -81,6 +80,20 @@ if (loginHistory[yesterdayStr] === undefined) {
 // เก็บกลับ
 localStorage.setItem(loginHistoryKey, JSON.stringify(loginHistory));
 localStorage.setItem("currentLoginUser", email);
+// หลังจากกำหนด role แล้ว (ก่อน redirect ก็ได้)
+const uid = res.data.id?.toString();
+
+// ตั้ง ws_uid ให้ component อื่น ๆ ใช้เปิด WS ได้ถูกห้อง
+if (role === "Psychologist") {
+  localStorage.setItem("psych_id", uid || "");
+  localStorage.setItem("ws_uid", `d:${uid}`);  // doctor channel
+} else if (role === "Patient") {
+  localStorage.setItem("patient_id", uid || "");
+  localStorage.setItem("ws_uid", `p:${uid}`);  // patient channel
+} else {
+  // เผื่อ Admin ยังอยากได้ WS ไว้ในอนาคต
+  localStorage.setItem("ws_uid", `a:${uid}`);
+}
 
 
 

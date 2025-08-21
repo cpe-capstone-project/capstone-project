@@ -29,6 +29,9 @@ interface CalendarEvent {
   end: Date;
   patientIndex?: number;
   status?: "pending" | "accepted" | "rejected"; 
+   rescheduled?: boolean;
+  oldStart?: Date | string;
+  oldEnd?: Date | string;
 }
 const Homedoc: React.FC = () => {
   const navigate = useNavigate();
@@ -77,6 +80,8 @@ useEffect(() => {
           ...e,
           start: new Date(e.start),
           end: new Date(e.end),
+           ...(e.oldStart ? { oldStart: new Date(e.oldStart) } : {}),
+           ...(e.oldEnd ? { oldEnd: new Date(e.oldEnd) } : {}),
         }));
         setEvents(eventsFromStorage);
       } catch (err) {
@@ -690,16 +695,18 @@ const openDayAppointments = (targetDate: Date) => {
   }
 
   const htmlList = dayEvents.map(ev => {
+    const rescheduled = (ev as any).rescheduled && ev.oldStart && ev.oldEnd; 
     const color =
       (ev.status ?? "pending") === "accepted" ? "#10b981" :
       (ev.status ?? "pending") === "rejected" ? "#ef4444" :
       "#f59e0b";
-
+    const statusText = rescheduled ? "เปลี่ยนเวลานัดเรียบร้อยแล้ว" : (ev.status ?? "pending");
+    const statusColor = rescheduled ? "#d97706" : color;
     return `
       <div style="
-        border:1px solid #eee; border-left:6px solid ${color};
-        border-radius:10px; padding:10px 12px; margin-bottom:10px;
-      ">
+  border:1px solid ${rescheduled ? statusColor : '#eee'}; border-left:6px solid ${statusColor};
+  border-radius:10px; padding:10px 12px; margin-bottom:10px;
+">
         <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
           <div style="min-width:0;">
             <div style="font-weight:600; font-size:14px;">${ev.title || "-"}</div>
@@ -707,9 +714,14 @@ const openDayAppointments = (targetDate: Date) => {
               ${fmt(new Date(ev.start))}–${fmt(new Date(ev.end))}
               ${ev.detail ? ` · ${ev.detail}` : ""}
             </div>
-            <div style="font-size:12px; margin-top:2px;">
-              สถานะ: <span style="font-weight:600; color:${color};">${ev.status ?? "pending"}</span>
-            </div>
+         <div style="font-size:12px; margin-top:2px;">
+  สถานะ: <span style="font-weight:600; color:${statusColor};">${statusText}</span>
+</div>
+${rescheduled
+  ? `<div style="font-size:12px;color:#9CA3AF;margin-top:2px">
+       เดิม: <s>${fmt(new Date(ev.oldStart as any))}–${fmt(new Date(ev.oldEnd as any))}</s>
+     </div>`
+  : ``}
           </div>
           <div style="flex:0 0 auto; display:flex; gap:6px;">
           <button class="swal2-confirm qewty-apt-reschedule" data-id="${ev.id}"
@@ -859,7 +871,9 @@ const openDayAppointments = (targetDate: Date) => {
 
             setEvents(prev => {
               const updated = prev.map(x =>
-                x.id === ev.id ? { ...x, start: newTimes.ns, end: newTimes.ne } : x
+                x.id === ev.id ? { ...x, start: newTimes.ns, end: newTimes.ne, rescheduled: true,
+          oldStart: startTime,
+          oldEnd: endTime, } : x
               );
               saveEventsToLocal(updated);
               return updated;

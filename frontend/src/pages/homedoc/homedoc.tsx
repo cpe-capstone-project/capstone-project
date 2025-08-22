@@ -14,6 +14,161 @@ const locales = {
   "en-US": enUS,
   th: th,
 };
+// ===== Inbox helpers (ต้องมาก่อน handleViewMore) =====
+const DOC_REJECT_INBOX_KEY = "doc_reject_inbox";
+
+type RejectedProposal = {
+  appointment_id: number;
+  proposed_start: string; // ISO
+  proposed_end: string;   // ISO
+  reason?: string;
+  note?: string;
+  patient_name?: string;
+  detail?: string;
+  created_at?: string;
+};
+// ✅ ฟอร์แมตแบบ dd/MM/yy HH:mm (ปีพุทธฯ 2 หลัก)
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const fmtTH = (d: Date) => {
+  const buddhistYear = d.getFullYear() + 543;
+  const yy = pad2(buddhistYear % 100);
+  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${yy} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+};
+
+const loadDocInbox = (): RejectedProposal[] => {
+  try { return JSON.parse(localStorage.getItem(DOC_REJECT_INBOX_KEY) || "[]"); }
+  catch { return []; }
+};
+const saveDocInbox = (list: RejectedProposal[]) =>
+  localStorage.setItem(DOC_REJECT_INBOX_KEY, JSON.stringify(list));
+
+/*async function handleDeclineProposal(_item: RejectedProposal, index: number) {
+  // ถ้าต้อง call backend เพิ่ม เติมตรงนี้ได้
+  const list = loadDocInbox();
+  list.splice(index, 1);
+  saveDocInbox(list);
+  Swal.fire("ดำเนินการแล้ว", "ปฏิเสธข้อเสนอเวลาใหม่", "info")
+    .then(() => handleViewMore({ title: "Recent Activities" }));
+}*/
+const handleViewMore = (stat: any) => {
+  if (stat.title !== "Recent Activities") return;
+
+  const proposals = loadDocInbox();
+  const MAX_PREVIEW = 5;
+
+  const itemHTML = (p: RejectedProposal) => `
+    <div class="rp-item">
+      <div class="rp-line">
+        <div class="rp-label">Appointment ID:</div>
+        <div class="rp-value">${String(p.appointment_id)}</div>
+      </div>
+      <div class="rp-line">
+        <div class="rp-label">ผู้ป่วย:</div>
+        <div class="rp-value">${p.patient_name || "-"}</div>
+      </div>
+      ${p.reason ? `
+      <div class="rp-line">
+        <div class="rp-label">เหตุผล:</div>
+        <div class="rp-value">${p.reason}</div>
+      </div>` : ``}
+      <div class="rp-line" style="margin-top:8px">
+        <div class="rp-label">เวลาใหม่ที่เสนอ:</div>
+        <div class="rp-value">
+          <span class="rp-time">
+            ${fmtTH(new Date(p.proposed_start))} – ${fmtTH(new Date(p.proposed_end))}
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const renderList = (list: RejectedProposal[], limit?: number) => {
+    const data = (typeof limit === "number") ? list.slice(0, limit) : list;
+    if (!data.length) return `<div class="rp-empty">— ยังไม่มีคำขอเปลี่ยนเวลานัด —</div>`;
+    return data.map(itemHTML).join("");
+  };
+
+  const html = `
+    <style>
+      .rp-wrap{ text-align:left }
+      .rp-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px }
+      .rp-title{ margin:0; font-weight:800; font-size:18px }
+      .rp-count{ font-size:12px; color:#6b7280 }
+      .rp-item{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin-bottom:10px; text-align:left }
+      .rp-line{ display:flex; align-items:flex-start; gap:10px; margin:6px 0 }
+      .rp-label{ min-width:140px; color:#6b7280 }
+      .rp-value{ color:#111827; font-weight:600; word-break:break-word }
+      .rp-time{ display:inline-block; padding:4px 8px; border:1px solid #111827; border-radius:8px; background:#fff; color:#111827; font-size:13px; font-weight:500 }
+      .rp-empty{ color:#777; text-align:center; padding:12px }
+      .rp-footer{ display:flex; justify-content:center; margin-top:4px }
+      .rp-toggle-btn{
+        padding: 8px 12px;
+        border: 2px solid #007bff;   /* ขอบน้ำเงิน */
+        background: #fff;            /* พื้นหลังขาว */
+        color: #007bff;              /* ตัวหนังสือน้ำเงิน */
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: -15px;
+      }
+    </style>
+
+    <div class="rp-wrap">
+      <div class="rp-head">
+        <h3 class="rp-title">คำขอเปลี่ยนเวลานัดล่าสุด</h3>
+        <span class="rp-count">${Math.min(proposals.length, MAX_PREVIEW)} / ${proposals.length}</span>
+      </div>
+
+      <div id="rp-list">
+        ${renderList(proposals, MAX_PREVIEW)}
+      </div>
+
+      ${proposals.length > MAX_PREVIEW ? `
+      <div class="rp-footer">
+        <button id="rp-toggle" class="rp-toggle-btn" data-expanded="false">
+          More (${proposals.length - MAX_PREVIEW})
+        </button>
+      </div>` : ``}
+    </div>
+  `;
+
+  Swal.fire({
+    html,
+    width: 700,
+    showCloseButton: true,
+    showConfirmButton: false,
+    didOpen: () => {
+      const toggleBtn = document.getElementById("rp-toggle");
+      const listEl = document.getElementById("rp-list");
+      const countEl = document.querySelector(".rp-count");
+
+      if (!toggleBtn || !listEl || !countEl) return;
+
+      toggleBtn.addEventListener("click", () => {
+        const expanded = toggleBtn.getAttribute("data-expanded") === "true";
+
+        if (expanded) {
+          // กลับไปแสดง 5 อัน
+          listEl.innerHTML = renderList(proposals, MAX_PREVIEW);
+          countEl.textContent = `${Math.min(proposals.length, MAX_PREVIEW)} / ${proposals.length}`;
+          toggleBtn.textContent = `More (${Math.max(0, proposals.length - MAX_PREVIEW)})`;
+          toggleBtn.setAttribute("data-expanded", "false");
+        } else {
+          // แสดงทั้งหมด
+          listEl.innerHTML = renderList(proposals);
+          countEl.textContent = `${proposals.length} / ${proposals.length}`;
+          toggleBtn.textContent = "Less";
+          toggleBtn.setAttribute("data-expanded", "true");
+        }
+      });
+    }
+  });
+};
+
+
+
+
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -39,9 +194,77 @@ const Homedoc: React.FC = () => {
   const isLogin = localStorage.getItem("isLogin");
   const id = localStorage.getItem("id");
   const [, setLoading] = useState(true); // ✅ โหลดสถานะ
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  // ใกล้ ๆ กับ useState ของ events
+const [events, setEvents] = useState<CalendarEvent[]>([]);
+// ใกล้ ๆ กับ eventsRef
+const eventsRef = React.useRef<CalendarEvent[]>([]);
+useEffect(() => { eventsRef.current = events; }, [events]);
 
-  const [patients, setPatients] = useState<Patient[]>([]);
+const [patients, setPatients] = useState<Patient[]>([]);
+
+// ✅ เพิ่ม ref สำหรับผู้ป่วย
+const patientsRef = React.useRef<Patient[]>([]);
+useEffect(() => { patientsRef.current = patients; }, [patients]);
+
+// ✅ helper: หาชื่อผู้ป่วยให้ได้มากที่สุด (ไม่อ้าง state ตรง ๆ)
+const resolvePatientName = async (msg: any): Promise<string> => {
+  // 1) payload ส่งมาก็ใช้เลย
+  if (msg?.patient_name && String(msg.patient_name).trim()) return msg.patient_name;
+
+  // 2) หาใน events ที่มีแล้วใน memory
+  const byEvent = eventsRef.current.find(e => e.id === Number(msg?.appointment_id));
+  if (byEvent?.title && String(byEvent.title).trim()) return byEvent.title;
+
+  // 3) ขอข้อมูลนัดจาก backend
+  try {
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+    const token = localStorage.getItem("token") || "";
+    const res = await fetch(`http://localhost:8000/appointments/${msg?.appointment_id}`, {
+      headers: { Authorization: `${tokenType} ${token}` },
+    });
+    if (res.ok) {
+      const appt = await res.json();
+
+      // 3.1 มีชื่อมากับนัด
+      if (appt?.patient_name && String(appt.patient_name).trim()) return appt.patient_name;
+
+      // 3.2 มี patient_id → ลองประกอบชื่อจาก patientsRef ก่อน
+      if (appt?.patient_id) {
+        const fromRef = patientsRef.current.find(x => Number(x.id) === Number(appt.patient_id));
+        if (fromRef) return `${fromRef.first_name} ${fromRef.last_name}`.trim();
+
+        // 3.3 สุดท้าย ลองยิงตรงไปที่ข้อมูลผู้ป่วย (เผื่อ state ยังไม่ทันโหลด)
+        try {
+          // ปรับ path ให้ตรงกับ backend ของคุณ ถ้าไม่ใช่ /patients/{id} ให้เปลี่ยนได้
+          const r2 = await fetch(`http://localhost:8000/patients/${appt.patient_id}`, {
+            headers: { Authorization: `${tokenType} ${token}` },
+          });
+          if (r2.ok) {
+            const p = await r2.json();
+            // รองรับทั้งเคส { first_name, last_name } หรือ { name }
+            if (p?.first_name || p?.last_name) {
+              return `${p.first_name || ""} ${p.last_name || ""}`.trim() || "-";
+            }
+            if (p?.name && String(p.name).trim()) return p.name;
+          }
+        } catch {}
+      }
+
+      // 3.4 สุดท้ายใช้ title ของนัด
+      if (appt?.title && String(appt.title).trim()) return appt.title;
+    }
+  } catch {}
+
+  // 4) หมดทางจริง ๆ
+  return "-";
+};
+
+
+useEffect(() => {
+  eventsRef.current = events;
+}, [events]);
+
+
   const [calendarDate, setCalendarDate] = useState(new Date());
 //const [searchTerm, setSearchTerm] = useState("");
 
@@ -106,6 +329,23 @@ const saveEventsToLocal = (list: CalendarEvent[]) => {
     console.error("save CAL failed", e);
   }
 };
+// helper: bump "Recent Activities" card
+const bumpRecentActivities = (subtitle: string) => {
+  setStats((prev) =>
+    prev.map((s) =>
+      s.title === "Recent Activities"
+        ? {
+            ...s,
+            value: String(
+              // รองรับสตริงตัวเลข หรือค่าอื่นๆ
+              (Number(s.value) || 0) + 1
+            ),
+            subtitle,
+          }
+        : s
+    )
+  );
+};
 
 const [inTreatmentIds, setInTreatmentIds] = useState<number[]>([]);
 const [completedIds, setCompletedIds] = useState<number[]>([]);
@@ -133,6 +373,82 @@ useEffect(() => {
     })
     .catch(() => setCompletedIds([]));
 }, [id]);
+// วางไว้ใกล้ ๆ ด้านบนของไฟล์ (นอก useEffect)
+function showRescheduleDialog(opts: {
+  appointment_id: number | string;
+  patient_name: string;
+  reason?: string;
+  note?: string;
+  proposedText: string;
+}) {
+  const { appointment_id, patient_name, reason, note, proposedText } = opts;
+
+const html = `
+  <div style="
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:16px 18px;
+    background:#fafafa;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);
+    line-height:1.55;
+    text-align:left;
+  ">
+    <div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start">
+      <div style="min-width:140px;color:#6b7280">Appointment ID:</div>
+      <div style="color:#111827;font-weight:600;word-break:break-word;font-size:17px">
+        ${String(appointment_id)}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start">
+      <div style="min-width:140px;color:#6b7280">ผู้ป่วย:</div>
+      <div style="color:#111827;font-weight:600;word-break:break-word;font-size:17px">
+        ${patient_name}
+      </div>
+    </div>
+
+    ${reason ? `
+      <div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start">
+        <div style="min-width:140px;color:#6b7280">เหตุผล:</div>
+        <div style="color:#111827;font-weight:600;word-break:break-word;font-size:17px">
+          ${reason}
+        </div>
+      </div>` : ``}
+
+    ${note ? `
+      <div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start">
+        <div style="min-width:140px;color:#6b7280">หมายเหตุ:</div>
+        <div style="color:#111827;font-weight:600;word-break:break-word;font-size:17px">
+          ${note}
+        </div>
+      </div>` : ``}
+
+    <!-- เวลาใหม่ที่เสนอ -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <span style="color:#6b7280;">เวลาใหม่ที่เสนอ:</span>
+      <span style="
+        display:inline-block;
+        padding:4px 8px;
+        color:#000;
+        font-size:13px;
+        font-weight:500;
+        margin-left:13px;
+      ">${proposedText}</span>
+    </div>
+
+  </div>
+`;
+
+  return Swal.fire({
+    title: "ผู้ป่วยขอเลื่อน/ปฏิเสธนัด",
+    html,
+    showCloseButton: true,
+    confirmButtonText: "รับทราบ",
+    // ไม่มี icon → จะไม่เห็นไอคอนแล้ว
+  });
+}
+
+
 
 const [stats, setStats] = useState([
   {
@@ -147,12 +463,13 @@ const [stats, setStats] = useState([
     subtitle: "5 this week",
     icon: "https://cdn-icons-png.flaticon.com/128/747/747310.png",
   },
-  {
-    title: "Recent Activities",
-    value: "34",
-    subtitle: "New notes added today",
-    icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png",
-  },
+{
+  title: "Recent Activities",
+  value: "34",
+  subtitle: "Rescheduled Appointment",
+  icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png",
+},
+
 ]);
 interface Patient {
   id: number; // ✅ เพิ่มบรรทัดนี้
@@ -166,24 +483,79 @@ useEffect(() => {
   let bc: BroadcastChannel | null = null;
   try {
     bc = new BroadcastChannel("appointment_updates");
-    bc.onmessage = (ev) => {
-      const msg = ev.data || {};
-      if (!msg || !msg.appointment_id || !msg.status) return;
+    bc.onmessage = async (ev) => {
+  const msg = ev.data || {};
+  if (!msg) return;
 
-      const newStatus = String(msg.status).toLowerCase() as "pending" | "accepted" | "rejected";
-      setEvents((prev) => {
-        const updated = prev.map((e) =>
-          e.id === Number(msg.appointment_id) ? { ...e, status: newStatus } : e
-        );
-        saveEventsToLocal(updated);
-        return updated;
+  // ... เคส appointment_status_changed คงเดิม
+
+  if (msg.type === "appointment_rejected_with_proposal" && msg.appointment_id) {
+    const proposedStart = msg.proposed_start ? new Date(msg.proposed_start) : null;
+    const proposedEnd   = msg.proposed_end   ? new Date(msg.proposed_end)   : null;
+
+    // อัปเดต events ให้เป็น rejected + เก็บ oldStart/oldEnd
+    setEvents((prev) => {
+      const updated = prev.map((e) =>
+        e.id === Number(msg.appointment_id)
+          ? { ...e, status: "rejected" as const, detail: e.detail ?? "---", oldStart: e.start, oldEnd: e.end }
+          : e
+      );
+      saveEventsToLocal(updated);
+      return updated;
+    });
+
+    // ✅ หา patientName ให้ได้แน่
+    const patientName = await resolvePatientName(msg);
+
+    // เก็บลง inbox (กันหาย)
+    const list = loadDocInbox();
+    const isDup = list.some(
+      (x) =>
+        String(x.appointment_id) === String(msg.appointment_id) &&
+        x.proposed_start === msg.proposed_start &&
+        x.proposed_end === msg.proposed_end
+    );
+    if (!isDup) {
+      list.unshift({
+        appointment_id: Number(msg.appointment_id),
+        proposed_start: msg.proposed_start,
+        proposed_end: msg.proposed_end,
+        reason: msg.reason,
+        note: msg.note,
+        patient_name: patientName,  // ⬅️ ใช้ชื่อที่ resolve แล้ว
+        detail: msg.detail,
+        created_at: new Date().toISOString(),
       });
-    };
-  } catch (e) {
-    // Safari private mode อาจไม่รองรับ BroadcastChannel — ข้ามไปใช้ WS/polling แทน
+      saveDocInbox(list);
+      window.dispatchEvent(new Event("calendarEventsUpdated"));
+      window.dispatchEvent(new Event("storage"));
+    }
+
+    const proposedText =
+      proposedStart && proposedEnd ? `${fmtTH(proposedStart)} – ${fmtTH(proposedEnd)}` : "—";
+
+    await showRescheduleDialog({
+  appointment_id: msg.appointment_id,
+  patient_name: patientName,
+  reason: msg.reason,
+  note: msg.note,
+  proposedText,
+});
+
+    bumpRecentActivities("Rescheduled Appointments");
   }
-  return () => { try { bc?.close(); } catch {} };
-}, []);
+    };
+  } catch {
+    // บราวเซอร์บางตัวไม่รองรับ BroadcastChannel (เช่น Safari Private Mode)
+  }
+  return () => {
+    try {
+      bc?.close();
+    } catch {}
+  };
+}, [setEvents]);
+
+
 useEffect(() => {
   const total = patients.filter((p) => p.id && p.id !== 0).length;
   setStats((prev) =>
@@ -345,28 +717,44 @@ useEffect(() => {
 
   const ws = new WebSocket(`ws://localhost:8000/ws/${encodeURIComponent(wsUid)}`);
   ws.onopen = () => console.log("✅ WS psych connected:", wsUid);
+ws.onmessage = async (ev) => {
+  try {
+    const msg = JSON.parse(ev.data || "{}");
 
-  ws.onmessage = (ev) => {
-    try {
-      const msg = JSON.parse(ev.data);
+    // ... เคส appointment_status_changed คงเดิม
 
-      if (msg.type === "appointment_status_changed") {
-        const newStatus = String(msg.status || "pending").toLowerCase() as
-          "pending" | "accepted" | "rejected";
+    if (msg.type === "appointment_rejected_with_proposal" && msg.appointment_id) {
+      const proposedStart = msg.proposed_start ? new Date(msg.proposed_start) : null;
+      const proposedEnd   = msg.proposed_end   ? new Date(msg.proposed_end)   : null;
 
-        setEvents((prev) => {
-          const updated = prev.map((e) =>
-            e.id === Number(msg.appointment_id) ? { ...e, status: newStatus } : e
-          );
-          saveEventsToLocal(updated);
-          return updated;
-        });
+      setEvents((prev) => {
+        const updated = prev.map((e) =>
+          e.id === Number(msg.appointment_id)
+            ? { ...e, status: "rejected" as const, oldStart: e.start, oldEnd: e.end }
+            : e
+        );
+        saveEventsToLocal(updated);
+        return updated;
+      });
 
-        
-        //refetchAppointments();
-      }
-    } catch {}
-  };
+      const patientName = await resolvePatientName(msg);
+
+      const proposedText =
+        proposedStart && proposedEnd ? `${fmtTH(proposedStart)} – ${fmtTH(proposedEnd)}` : "—";
+
+      await showRescheduleDialog({
+  appointment_id: msg.appointment_id,
+  patient_name: patientName,
+  reason: msg.reason,
+  note: msg.note,
+  proposedText,
+});
+
+      bumpRecentActivities("Rescheduled Appointments");
+    }
+  } catch {}
+};
+
 
   return () => ws.close();
 }, []);
@@ -896,19 +1284,39 @@ ${rescheduled
 
 
   return (
-  <div className="qewty-stats-container">
-      {stats.map((stat, index) => (
-        <div key={index} className="qewty-stat-card">
-          <div className="qewty-stat-header">
-            <h4>{stat.title}</h4>
-            <img src={stat.icon} alt="icon" className="qewty-stat-icon" />
+<div className="qewty-stats-container">
+  {stats.map((stat, index) => (
+    <div key={index} className="qewty-stat-card">
+      <div className="qewty-stat-header">
+        <h4>{stat.title}</h4>
+        <img src={stat.icon} alt="icon" className="qewty-stat-icon" />
+      </div>
+
+      <div className="qewty-stat-main">
+        <span className="qewty-stat-value">{stat.value}</span>
+
+        {/* การ์ดทั่วไปยังใช้บรรทัดย่อยเดิม */}
+        {stat.title !== "Recent Activities" && (
+          <p className="qewty-stat-sub">{stat.subtitle}</p>
+        )}
+
+        {/* การ์ด Recent Activities: ซ้ายข้อความ / ขวาปุ่ม */}
+        {stat.title === "Recent Activities" && (
+          <div className="qewty-stat-row">
+            <span className="qewty-stat-sub qewty-stat-sub--tight">
+              {stat.subtitle /* "Rescheduled Appointment" */}
+            </span>
+            <button
+              className="qewty-view-btn"
+              onClick={() => handleViewMore(stat)}
+            >
+              View Details →
+            </button>
           </div>
-          <div className="qewty-stat-main">
-            <span className="qewty-stat-value">{stat.value}</span>
-            <p className="qewty-stat-sub">{stat.subtitle}</p>
-          </div>
-        </div>
-      ))}
+        )}
+      </div>
+    </div>
+  ))}
    {/* Left Chart Section */}
 <div className="qewty-chart-section">
   <h3 className="qewty-chart-title">Patient Overview</h3>

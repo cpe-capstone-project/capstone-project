@@ -487,9 +487,11 @@ const updateNoticeStatus = (
 useEffect(() => {
 (window as any).confirmAppointment = async (
   appointmentId: string | number,
-  status: "accepted" | "rejected"
+  status: "accepted" | "rejected",
+  extra?: { proposed_start?: string; proposed_end?: string; reason?: string; note?: string }
 ) => {
   try {
+    // อัพเดตสถานะหลักก่อน
     const res = await fetch("http://localhost:8000/appointments/status", {
       method: "PUT",
       headers: {
@@ -501,24 +503,55 @@ useEffect(() => {
 
     if (!res.ok) {
       const msg = await res.text().catch(() => "");
-      // 401 ก็เด้งล็อกอินได้เลย
       if (res.status === 401) {
         Swal.fire("หมดเวลาเข้าสู่ระบบ", "โปรดเข้าสู่ระบบอีกครั้ง", "warning");
-        // เคลียร์ token แล้วนำทางกลับหน้าล็อกอินตามที่คุณใช้อยู่
       } else {
         Swal.fire("อัปเดตไม่สำเร็จ", msg || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์", "error");
       }
-      return; // ⛔️ อย่าไปอัพเดต local ต่อ
+      return;
     }
+
+    // ✅ ถ้ามี “ข้อเสนอเวลาใหม่” แนบไปยัง backend (ถ้าคุณสร้าง endpoint ไว้)
+    if (status === "rejected" && extra?.proposed_start && extra?.proposed_end) {
+      try {
+        // แนะนำให้มี endpoint นี้ใน backend:
+        //   PUT /appointments/proposal
+        // body: { id, proposed_start, proposed_end, reason, note }
+        await fetch("http://localhost:8000/appointments/proposal", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            id: Number(appointmentId),
+            proposed_start: extra.proposed_start,
+            proposed_end: extra.proposed_end,
+            reason: extra.reason || "",
+            note: extra.note || "",
+          }),
+        }).catch(() => {});
+      } catch {}
+    }
+
     try {
-  const bc = new BroadcastChannel("appointment_updates");
-  bc.postMessage({
-    type: "appointment_status_changed",
-    appointment_id: Number(appointmentId),
-    status, // "accepted" | "rejected"
-  });
-  bc.close();
-} catch {}
+      const bc = new BroadcastChannel("appointment_updates");
+      bc.postMessage({
+        type: status === "accepted" ? "appointment_status_changed" : "appointment_rejected_with_proposal",
+        appointment_id: Number(appointmentId),
+        status,
+        ...(extra?.proposed_start && extra?.proposed_end
+          ? {
+              proposed_start: extra.proposed_start,
+              proposed_end: extra.proposed_end,
+              reason: extra.reason || "",
+              note: extra.note || "",
+            }
+          : {}),
+      });
+      bc.close();
+    } catch {}
+
     updateNoticeStatus(appointmentId, status);
 
     Swal.fire({
@@ -601,8 +634,7 @@ useEffect(() => {
           window.confirmAppointment?.(data.appointment_id, "accepted");
           updateNoticeStatus(data.appointment_id, "accepted");
         } else if (result.isDenied) {
-          window.confirmAppointment?.(data.appointment_id, "rejected");
-          updateNoticeStatus(data.appointment_id, "rejected");
+          openRejectDialog(data.appointment_id, data.start_time, data.end_time);
         }
       });
 
@@ -695,6 +727,10 @@ type Notice = {
   old_start_time?: string;
   old_end_time?: string;
   rescheduled?: boolean;
+   proposed_start?: string; // ISO
+  proposed_end?: string;   // ISO
+  reject_reason?: "ไม่สะดวก" | "ติดธุระ" | "อื่นๆ";
+  reject_note?: string;    // ข้อความเพิ่มเติมกรณี "อื่นๆ"
 };
 
 const [upcomingNotices, setUpcomingNotices] = useState<Notice[]>([]);
@@ -799,6 +835,194 @@ useEffect(() => {
   };
 }, []);
 
+
+async function openRejectDialog(
+  appointmentId: string | number,
+  defaultStartISO?: string,
+  defaultEndISO?: string
+) {
+  const defS = defaultStartISO ? new Date(defaultStartISO) : new Date();
+  const defE = defaultEndISO ? new Date(defaultEndISO) : new Date(defS.getTime() + 30 * 60000);
+
+  // ใช้กับ value ของ <input type="datetime-local">
+  const toLocalInput = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+
+  // ป้ายกำกับสวย ๆ: DD/MM/YYYY hh:mm AM/PM
+  const fmtLabel = (d: Date) => {
+    const dd = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const yyyy = d.getFullYear();
+    let hh = d.getHours();
+    const min = String(d.getMinutes()).padStart(2,"0");
+    const ampm = hh >= 12 ? "PM" : "AM";
+    hh = hh % 12 || 12;
+    return `${dd}/${mm}/${yyyy} ${String(hh).padStart(2,"0")}:${min} ${ampm}`;
+  };
+
+  const html = `
+  <style>
+    .ap-wrap{ text-align:left }
+    .ap-row{ margin:10px 0 }
+    .ap-label{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:6px }
+    .ap-chip{ background:#111827; color:#fff; border-radius:9999px; padding:2px 8px; font-size:11px; font-weight:700 }
+    .ap-input, .ap-select{
+      width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; background:#fff;
+    }
+    .ap-note{ display:none }
+    .ap-help{ color:#6b7280; font-size:12px; margin-top:6px }
+    .ap-card{
+      background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px; margin-top:8px
+    }
+    .ap-inline{
+      display:grid; grid-template-columns: 1fr; gap:10px;
+    }
+    @media (min-width: 560px){
+      .ap-inline{ grid-template-columns: 1fr 1fr; }
+    }
+    .ap-mini{ font-size:15px; color:#374151; margin-bottom:6px }
+  </style>
+
+  <div class="ap-wrap">
+    <div class="ap-row">
+      <div class="ap-label">แจ้งเปลี่ยนเวลานัด <span class="ap-chip">ใหม่</span></div>
+      <div class="ap-help">โปรดระบุเหตุผล และเสนอเวลาใหม่ให้เหมาะสม</div>
+    </div>
+
+    <div class="ap-row">
+      <label class="ap-label">เหตุผล</label>
+      <select id="rejReason" class="ap-select">
+        <option value="ติดภารกิจด่วน">ติดภารกิจด่วน</option>
+        <option value="ไม่สะดวกด้วยเหตุผลส่วนตัว">ไม่สะดวกด้วยเหตุผลส่วนตัว</option>
+        <option value="ติดภารกิจราชการ">ติดภารกิจราชการ</option>
+        <option value="ติดประชุมสำคัญ">ติดประชุมสำคัญ</option>
+        <option value="ไม่สบาย">ไม่สบาย / เหตุผลด้านสุขภาพ</option>
+        <option value="อื่นๆ โปรดระบุ">อื่นๆ โปรดระบุ</option>
+      </select>
+      <input id="rejNote" class="ap-input ap-note" style="margin-top:8px" placeholder="โปรดระบุรายละเอียดเพิ่มเติม..." />
+      <div class="ap-help" id="rejHelp" style="display:none">กรุณาระบุรายละเอียดเพิ่มเติม</div>
+    </div>
+
+   <div class="ap-mini">เสนอเวลาใหม่ (เริ่ม)</div>
+<input id="newStart" type="datetime-local" class="ap-input" value="${toLocalInput(defS)}" />
+
+<div class="ap-mini">เสนอเวลาใหม่ (สิ้นสุด)</div>
+<input id="newEnd" type="datetime-local" class="ap-input" value="${toLocalInput(defE)}" />
+</div>
+  </div>
+  `;
+
+  const { value: form } = await Swal.fire({
+    title: "แจ้งเปลี่ยนเวลานัด",
+    html,
+    width: 640,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "ยืนยันการนัด",
+    didOpen: () => {
+      const reasonEl = document.getElementById("rejReason") as HTMLSelectElement;
+      const noteEl = document.getElementById("rejNote") as HTMLInputElement;
+      const helpEl = document.getElementById("rejHelp") as HTMLDivElement;
+      const startEl = document.getElementById("newStart") as HTMLInputElement;
+      const endEl = document.getElementById("newEnd") as HTMLInputElement;
+      const labelStart = document.getElementById("labelStart") as HTMLSpanElement;
+      const labelEnd = document.getElementById("labelEnd") as HTMLSpanElement;
+
+      const toggleNote = () => {
+        const show = reasonEl.value === "อื่นๆ โปรดระบุ";
+        noteEl.style.display = show ? "block" : "none";
+        helpEl.style.display = "none";
+      };
+      toggleNote();
+      reasonEl.addEventListener("change", toggleNote);
+
+      const syncLabels = () => {
+        if (startEl.value) labelStart.textContent = fmtLabel(new Date(startEl.value));
+        if (endEl.value) labelEnd.textContent = fmtLabel(new Date(endEl.value));
+      };
+      startEl.addEventListener("input", syncLabels);
+      endEl.addEventListener("input", syncLabels);
+    },
+    preConfirm: () => {
+      const reason = (document.getElementById("rejReason") as HTMLSelectElement)?.value as string;
+      const noteEl = document.getElementById("rejNote") as HTMLInputElement;
+      const helpEl = document.getElementById("rejHelp") as HTMLDivElement;
+      const ns = (document.getElementById("newStart") as HTMLInputElement)?.value;
+      const ne = (document.getElementById("newEnd") as HTMLInputElement)?.value;
+
+      if (reason === "อื่นๆ โปรดระบุ" && !noteEl.value.trim()) {
+        helpEl.style.display = "block";
+        Swal.showValidationMessage("โปรดระบุรายละเอียดเพิ่มเติม");
+        return;
+      }
+
+      if (!ns || !ne) {
+        Swal.showValidationMessage("กรุณาระบุเวลาเริ่มและเวลาสิ้นสุด");
+        return;
+      }
+      const newStart = new Date(ns);
+      const newEnd = new Date(ne);
+      if (+newEnd <= +newStart) {
+        Swal.showValidationMessage("เวลาสิ้นสุดต้องหลังเวลาเริ่มต้น");
+        return;
+      }
+
+      return {
+        reason,
+        note: noteEl.value.trim(),
+        newStart,
+        newEnd,
+      };
+    },
+  });
+
+  if (!form) return;
+
+  // 1) อัพเดตสถานะฝั่งเซิร์ฟเวอร์เป็น rejected + แนบข้อเสนอเวลาใหม่
+  await (window as any).confirmAppointment?.(appointmentId, "rejected", {
+    proposed_start: form.newStart.toISOString(),
+    proposed_end: form.newEnd.toISOString(),
+    reason: form.reason,
+    note: form.note,
+  });
+
+  // 2) อัปเดต local notice
+  try {
+    const NOTI_KEY = k(KEYS.NOTI);
+    const raw = localStorage.getItem(NOTI_KEY) || "[]";
+    const list: any[] = JSON.parse(raw);
+    const idx = list.findIndex((x) => String(x.appointment_id) === String(appointmentId));
+    if (idx !== -1) {
+      list[idx] = {
+        ...list[idx],
+        status: "rejected",
+        proposed_start: form.newStart.toISOString(),
+        proposed_end: form.newEnd.toISOString(),
+        reject_reason: form.reason,
+        reject_note: form.note,
+      };
+      localStorage.setItem(NOTI_KEY, JSON.stringify(list));
+      window.dispatchEvent(new Event("calendarEventsUpdated"));
+      window.dispatchEvent(new Event("storage"));
+    }
+  } catch {}
+
+  // 3) ส่ง Broadcast แจ้งฝั่งนักจิต (เผื่อ backend ยังไม่ push เอง)
+  try {
+    const bc = new BroadcastChannel("appointment_updates");
+    bc.postMessage({
+      type: "appointment_rejected_with_proposal",
+      appointment_id: Number(appointmentId),
+      proposed_start: form.newStart.toISOString(),
+      proposed_end: form.newEnd.toISOString(),
+      reason: form.reason,
+      note: form.note,
+    });
+    bc.close();
+  } catch {}
+
+  Swal.fire("ส่งคำขอแล้ว", "รอการตอบกลับจากนักจิต", "success");
+}
 
 
 const handleShowAppointmentsAll = () => {
@@ -968,22 +1192,37 @@ Swal.fire({
     let showAllUpcoming = false;
     let showAllPast = false;
 
-    const bindActionButtons = () => {
-      document.querySelectorAll<HTMLButtonElement>("button[data-act]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const act = btn.getAttribute("data-act");
-          const apptId = btn.getAttribute("data-id");
-          if (!apptId) return;
-          if (act === "accept") {
-            (window as any).confirmAppointment?.(apptId, "accepted");
-            updateNoticeStatus(apptId!, "accepted");
-          } else if (act === "reject") {
-            (window as any).confirmAppointment?.(apptId, "rejected");
-            updateNoticeStatus(apptId!, "rejected");
-          }
-        });
-      });
-    };
+    // ⬇️ แทนที่ฟังก์ชัน bindActionButtons เดิมทั้งก้อน
+const bindActionButtons = () => {
+  document.querySelectorAll<HTMLButtonElement>("button[data-act]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const act = btn.getAttribute("data-act");
+      const apptId = btn.getAttribute("data-id");
+      if (!apptId) return;
+
+      // หา record ของนัดนั้น เพื่อส่งค่าเวลาเดิมไปเป็นค่า default ใน dialog
+      const findById = (arr: any[]) =>
+        arr.find((x) => String(x.appointment_id) === String(apptId));
+      const item =
+        findById(upcoming) ??
+        findById(past) ??
+        null;
+
+      if (act === "accept") {
+        (window as any).confirmAppointment?.(apptId, "accepted");
+        updateNoticeStatus(apptId!, "accepted");
+      } else if (act === "reject") {
+        // ⬇️ ใช้ dialog แจ้งเปลี่ยนเวลานัด + เหตุผล
+        openRejectDialog(
+          apptId!,
+          item?.start_time,   // ส่งเวลาเดิมไปเป็น default (ถ้ามี)
+          item?.end_time
+        );
+      }
+    });
+  });
+};
+
 
     const updateToggleBtn = (
       btn: HTMLButtonElement | null,

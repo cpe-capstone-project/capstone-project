@@ -1,55 +1,48 @@
+import axios from "axios";
 import type { PatientInterface } from "../../interfaces/IPatient";
 
-import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL;
 
-const apiUrl = import.meta.env.VITE_API_URL
-
-const Authorization = localStorage.getItem("token");
-const Bearer = localStorage.getItem("token_type");
-
-
-const requestOptions = {
-  headers: {
+export function authHeaders() {
+  const token = localStorage.getItem("token") || "";
+  const type  = localStorage.getItem("token_type") || "Bearer";
+  return {
     "Content-Type": "application/json",
-    Authorization: `${Bearer} ${Authorization}`,
-  },
-};
+    Authorization: `${type} ${token}`,
+  };
+}
 
 async function GetPatient() {
   return await axios
-    .get(`${apiUrl}/patient`, requestOptions)
+    .get(`${apiUrl}/patient`, { headers: authHeaders() })
     .then((res) => res)
     .catch((e) => e.response);
 }
-
 
 async function GetPatientById(id: number) {
   return await axios
-    .get(`${apiUrl}/patient/${id}`, requestOptions)
+    .get(`${apiUrl}/patient/${id}`, { headers: authHeaders() })
     .then((res) => res)
     .catch((e) => e.response);
 }
-
 
 async function UpdatePatientById(id: number, data: PatientInterface) {
   return await axios
-    .patch(`${apiUrl}/patient/${id}`, data, requestOptions)
+    .patch(`${apiUrl}/patient/${id}`, data, { headers: authHeaders() })
     .then((res) => res)
     .catch((e) => e.response);
 }
-
 
 async function DeletePatientById(id: number) {
   return await axios
-    .delete(`${apiUrl}/patient/${id}`, requestOptions)
+    .delete(`${apiUrl}/patient/${id}`, { headers: authHeaders() })
     .then((res) => res)
     .catch((e) => e.response);
 }
 
-
 async function CreatePatient(data: PatientInterface) {
   return await axios
-    .post(`${apiUrl}/signup`, data, requestOptions)
+    .post(`${apiUrl}/signup`, data, { headers: authHeaders() })
     .then((res) => res)
     .catch((e) => e.response);
 }

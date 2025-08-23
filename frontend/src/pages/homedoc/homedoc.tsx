@@ -197,6 +197,31 @@ const Homedoc: React.FC = () => {
   // ใกล้ ๆ กับ useState ของ events
 const [events, setEvents] = useState<CalendarEvent[]>([]);
 // ใกล้ ๆ กับ eventsRef
+const refreshRecentActivitiesCount = () => {
+  const count = loadDocInbox().length;
+  setStats(prev =>
+    prev.map(s =>
+      s.title === "Recent Activities"
+        ? {
+            ...s,
+            value: String(count),
+            subtitle: count > 0 ? "Rescheduled Appointment" : "—",
+          }
+        : s
+    )
+  );
+};
+useEffect(() => {
+  // โหลดครั้งแรก
+  refreshRecentActivitiesCount();
+
+  // ฟัง custom event ที่เราจะยิงตอนมีการเพิ่ม/ลบใน inbox
+  const onInbox = () => refreshRecentActivitiesCount();
+  window.addEventListener("docInboxUpdated", onInbox);
+
+  return () => window.removeEventListener("docInboxUpdated", onInbox);
+}, []);
+
 const eventsRef = React.useRef<CalendarEvent[]>([]);
 useEffect(() => { eventsRef.current = events; }, [events]);
 
@@ -330,7 +355,7 @@ const saveEventsToLocal = (list: CalendarEvent[]) => {
   }
 };
 // helper: bump "Recent Activities" card
-const bumpRecentActivities = (subtitle: string) => {
+/*const bumpRecentActivities = (subtitle: string) => {
   setStats((prev) =>
     prev.map((s) =>
       s.title === "Recent Activities"
@@ -345,7 +370,7 @@ const bumpRecentActivities = (subtitle: string) => {
         : s
     )
   );
-};
+};*/
 
 const [inTreatmentIds, setInTreatmentIds] = useState<number[]>([]);
 const [completedIds, setCompletedIds] = useState<number[]>([]);
@@ -464,11 +489,11 @@ const [stats, setStats] = useState([
     icon: "https://cdn-icons-png.flaticon.com/128/747/747310.png",
   },
 {
-  title: "Recent Activities",
-  value: "34",
-  subtitle: "Rescheduled Appointment",
-  icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png",
-},
+    title: "Recent Activities",
+    value: String(loadDocInbox().length),   // ✅ เริ่มต้นจากกล่องจริง
+    subtitle: loadDocInbox().length > 0 ? "Rescheduled Appointment" : "—",
+    icon: "https://cdn-icons-png.flaticon.com/128/747/747327.png",
+  },
 
 ]);
 interface Patient {
@@ -527,6 +552,7 @@ useEffect(() => {
         created_at: new Date().toISOString(),
       });
       saveDocInbox(list);
+      window.dispatchEvent(new Event("docInboxUpdated")); // ✅ แจ้งให้การ์ดนับใหม่
       window.dispatchEvent(new Event("calendarEventsUpdated"));
       window.dispatchEvent(new Event("storage"));
     }
@@ -542,7 +568,7 @@ useEffect(() => {
   proposedText,
 });
 
-    bumpRecentActivities("Rescheduled Appointments");
+    refreshRecentActivitiesCount();
   }
     };
   } catch {
@@ -750,7 +776,7 @@ ws.onmessage = async (ev) => {
   proposedText,
 });
 
-      bumpRecentActivities("Rescheduled Appointments");
+      refreshRecentActivitiesCount();
     }
   } catch {}
 };

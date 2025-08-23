@@ -17,14 +17,18 @@ import { useDiary } from "../../contexts/DiaryContext";
 import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
 import { useMemo } from "react";
 import { GetDiarySummaryById } from "../../services/https/Diary"; // ⬅️ เพิ
+import { GetPatientById } from "../../services/https/Patient";
+import type { PatientInterface } from "../../interfaces/IPatient";
+
 
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
-const { diaries } = useDiary();
+  const { diaries } = useDiary();
   const [summaryKeywords, setSummaryKeywords] = useState<string[]>([]); // ⬅️ เพิ่ม
   const [today, setToday] = useState<DiaryInterface | null>(null);
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
+  const [, setMe] = useState<PatientInterface | null>(null);
 // แปลงแท็บ -> label ภาษาไทยที่ backend ใช้
 /*const tabToLabelTH = (tab: "daily" | "weekly" | "monthly"): "รายวัน" | "รายสัปดาห์" | "รายเดือน" => {
   if (tab === "weekly") return "รายสัปดาห์";
@@ -51,6 +55,27 @@ useEffect(() => {
       }
     } catch {
       setSummaryKeywords([]);
+    }
+  })();
+}, []);
+useEffect(() => {
+  const role = localStorage.getItem("role");
+  if (role !== "Patient") {
+    navigate("/");
+    return;
+  }
+
+  const id = localStorage.getItem("patient_id");
+  if (!id) {
+    Swal.fire("ไม่พบผู้ใช้", "กรุณาเข้าสู่ระบบใหม่อีกครั้ง", "warning");
+    navigate("/");
+    return;
+  }
+
+  (async () => {
+    const res = await GetPatientById(Number(id));
+    if (res?.status === 200) {
+      setMe(res.data); // หรือ res.data.data ตาม API
     }
   })();
 }, []);

@@ -30,6 +30,13 @@ if (res.status === 200) {
   localStorage.setItem("id", res.data.id.toString());
   localStorage.setItem("role", res.data.role);
   localStorage.setItem("email", res.data.email);
+  const emailNow = res.data.email;
+localStorage.setItem("currentLoginUser", emailNow);
+const todayKey = new Date().toLocaleDateString("th-TH");
+const histKey = `loginHistory-${emailNow}`;
+const hist = JSON.parse(localStorage.getItem(histKey) || "{}");
+hist[todayKey] = (hist[todayKey] || 0) + 1;
+localStorage.setItem(histKey, JSON.stringify(hist));
 
   const profile = res.data.profile;
   if (profile) {

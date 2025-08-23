@@ -8,14 +8,19 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { th, enUS } from "date-fns/locale";
 import { k, KEYS } from "../../unid/storageKeys";
 import PatientOverviewChart from "../../components/PatientOverviewChart/PatientOverviewChart";
-
 import Customcalendar from "../../components/customcalendar/customcalendar";
 const locales = {
   "en-US": enUS,
   th: th,
 };
 // ===== Inbox helpers (ต้องมาก่อน handleViewMore) =====
-const DOC_REJECT_INBOX_KEY = "doc_reject_inbox";
+const getScopedKey = (base: string) => {
+  const role = localStorage.getItem("role") || "-";
+  const pid  = localStorage.getItem("psych_id") || "";
+  const uid  = pid || localStorage.getItem("id") || "";
+  return `${base}:${role}:${uid}`; // เช่น "CAL:Psychologist:12"
+};
+const DOC_REJECT_INBOX_KEY = getScopedKey("DOC_REJECT_INBOX");
 
 type RejectedProposal = {
   appointment_id: number;
@@ -192,7 +197,7 @@ const Homedoc: React.FC = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const isLogin = localStorage.getItem("isLogin");
-  const id = localStorage.getItem("id");
+  const psychId = localStorage.getItem("psych_id") || localStorage.getItem("id");
   const [, setLoading] = useState(true); // ✅ โหลดสถานะ
   // ใกล้ ๆ กับ useState ของ events
 const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -302,21 +307,37 @@ useEffect(() => {
 // เดิม: const CAL_KEY = k(KEYS.CAL);
 
 // ใหม่: ผูก key กับผู้ใช้ที่ล็อกอินอยู่
-const CAL_KEY = React.useMemo(() => {
-  const loginEmail =
-    localStorage.getItem("currentLoginUser") ||
-    localStorage.getItem("email") ||
-    "anonymous";
-  return `CAL:${loginEmail}`;   // หรือถ้าชอบใช้ id:  `CAL_ID:${id}`
-}, []);
+// ---- helpers ----
+const safeGet = (k: string) => {
+  try { return localStorage.getItem(k); } catch { return null; }
+};
+const safeSet = (k: string, v: string) => {
+  try { localStorage.setItem(k, v); } catch {}
+};
+
+const CAL_KEY              = React.useMemo(() => getScopedKey("CAL"), []);
+
+// ---- one-time migration (จากคีย์รวม -> คีย์ต่อผู้ใช้) ----
 useEffect(() => {
-  const oldKey = k(KEYS.CAL);      // key เดิมที่ใช้ร่วมกันทุกคน
-  const oldVal = localStorage.getItem(oldKey);
-  const newVal = localStorage.getItem(CAL_KEY);
-  if (oldVal && !newVal) {
-    localStorage.setItem(CAL_KEY, oldVal);   // migrate ครั้งเดียว
-  }
-}, [CAL_KEY]);
+  const migFlag = `__migrated__:${DOC_REJECT_INBOX_KEY}::${CAL_KEY}`;
+  if (safeGet(migFlag) === "1") return;
+
+  // inbox: doc_reject_inbox -> scoped
+  const oldInboxKey = "doc_reject_inbox";
+  const oldInboxVal = safeGet(oldInboxKey);
+  const newInboxVal = safeGet(DOC_REJECT_INBOX_KEY);
+  if (oldInboxVal && !newInboxVal) safeSet(DOC_REJECT_INBOX_KEY, oldInboxVal);
+
+  // calendar: k(KEYS.CAL) -> scoped
+  const oldCalKey = k(KEYS.CAL);
+  const oldCalVal = safeGet(oldCalKey);
+  const newCalVal = safeGet(CAL_KEY);
+  if (oldCalVal && !newCalVal) safeSet(CAL_KEY, oldCalVal);
+
+  safeSet(migFlag, "1");
+}, [DOC_REJECT_INBOX_KEY, CAL_KEY]); // typo fix below!
+// ^ จะมี typo นิดนึงใน line นี้ แก้เป็น DOC_REJECT_INBOX_KEY
+
 useEffect(() => {
   const loadEventsFromStorage = () => {
     const savedEvents = localStorage.getItem(CAL_KEY);
@@ -375,10 +396,10 @@ const saveEventsToLocal = (list: CalendarEvent[]) => {
 const [inTreatmentIds, setInTreatmentIds] = useState<number[]>([]);
 const [completedIds, setCompletedIds] = useState<number[]>([]);
 useEffect(() => {
-  if (!id) return;
+  if (!psychId) return;
 
   // 1) ผู้ป่วยที่เริ่มทำกิจกรรม (Diary/TR)
-  fetch(`http://localhost:8000/stats/patient-activity?psychologist_id=${id}`)
+  fetch(`http://localhost:8000/stats/patient-activity?psychologist_id=${psychId}`)
     .then(res => res.ok ? res.json() : Promise.reject("bad res"))
     .then((data: { diary_patient_ids?: number[]; tr_patient_ids?: number[] }) => {
       const diaryIds = new Set(data.diary_patient_ids || []);
@@ -390,14 +411,14 @@ useEffect(() => {
     .catch(() => setInTreatmentIds([]));
 
   // 2) ผู้ป่วยที่อนุมัติ/ปิดเคสแล้ว
-  fetch(`http://localhost:8000/therapy-cases/by-psychologist?psychologist_id=${id}`)
+  fetch(`http://localhost:8000/therapy-cases/by-psychologist?psychologist_id=${psychId}`)
     .then(res => res.ok ? res.json() : Promise.reject("bad res"))
     .then((cases: Array<{ patient_id: number; status: string }>) => {
       const finished = cases.filter(c => c.status?.toLowerCase() === "approved" || c.status?.toLowerCase() === "completed");
       setCompletedIds(finished.map(c => c.patient_id));
     })
     .catch(() => setCompletedIds([]));
-}, [id]);
+}, [psychId]);
 // วางไว้ใกล้ ๆ ด้านบนของไฟล์ (นอก useEffect)
 function showRescheduleDialog(opts: {
   appointment_id: number | string;
@@ -594,10 +615,10 @@ useEffect(() => {
 }, [patients]);
 
 useEffect(() => {
-  console.log("psychologist_id =", id); // ✅ debug
+   console.log("psychologist_id =", psychId);
 
-  if (id) {
-    fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${id}`)
+  if (psychId) {
+     fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`)
       .then((res) => {
         if (!res.ok) throw new Error("ไม่พบข้อมูล");
         return res.json();
@@ -639,14 +660,14 @@ useEffect(() => {
         setLoading(false);
       });
   }
-}, [id]);
+}, [psychId]);
 useEffect(() => {
-  if (!id) return;
+  if (!psychId) return;
   let isUnmounted = false;
 
   const refetchPatients = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${id}`);
+      const res = await fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`);
       if (!res.ok) throw new Error("ไม่พบข้อมูล");
       const data = await res.json();
       if (!Array.isArray(data) || isUnmounted) return;
@@ -676,7 +697,7 @@ useEffect(() => {
       const msg = ev.data;
       if (
         msg?.type === "patient_registered" &&
-        String(msg.psychologist_id) === String(id)
+        String(msg.psychologist_id) === String(psychId)
       ) {
 
         refetchPatients();
@@ -688,14 +709,14 @@ useEffect(() => {
     };
   } catch {
   }
-}, [id]);
+}, [psychId]);
 
 useEffect(() => {
-  if (!id) return;
+  if (!psychId) return;
 
   const tokenType = localStorage.getItem("token_type") || "Bearer";
   const token = localStorage.getItem("token") || "";
-  const url = `http://localhost:8000/appointments/by-psychologist?psychologist_id=${id}&include_rejected=1`;
+  const url = `http://localhost:8000/appointments/by-psychologist?psychologist_id=${psychId}&include_rejected=1`;
 
   fetch(url, { headers: { Authorization: `${tokenType} ${token}` } })
     .then((res) => {
@@ -731,7 +752,7 @@ useEffect(() => {
     .catch((err) => {
       console.error("โหลดนัดหมายล้มเหลว", err);
     });
-}, [id]);
+}, [psychId]);
 
 useEffect(() => {
   // ใช้ ws_uid ที่เซ็ตตอน login (แนะนำให้เซ็ตไว้แล้วใน SignInPages)
@@ -860,14 +881,14 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  if (!id || !isLogin || role !== "Psychologist") {
+  if (!psychId || !isLogin || role !== "Psychologist") {
     Swal.fire({
       icon: "warning",
       title: "กรุณาเข้าสู่ระบบด้วยบัญชีนักจิตวิทยา",
     }).then(() => navigate("/"));
     return;
   }
-}, [id, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
+}, [psychId, isLogin, role]); // เพิ่ม dependency เพื่อป้องกันปัญหาดึงค่าช้า
 // ✅ โหลดนัดหมายจาก localStorage ถ้ามี
 /*useEffect(() => {
   const loadEventsFromStorage = () => {
@@ -1033,7 +1054,7 @@ if (formValues) {
       body: JSON.stringify({
         title: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
         patient_id: selectedPatient.id,
-        psychologist_id: Number(id), 
+        psychologist_id: Number(psychId), 
         start: formValues.startTime.toISOString(),
         end: formValues.endTime.toISOString(),
         detail: formValues.detail,

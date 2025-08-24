@@ -85,6 +85,22 @@
   background-color: white;
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
+
+  /* Badge */
+  .unconfirmed-badge {
+    position: absolute;
+    top: -5%;
+    right: -5%;
+    padding: var(--space-xxs) var(--space-sm);
+    background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+    z-index: 1;
+  }
 }
 
 .diary-list-item:hover {
@@ -152,22 +168,6 @@
       word-break: break-word;
     }
   }
-}
-
-/* Badge */
-.unconfirmed-badge {
-  position: absolute;
-  top: -5%;
-  right: -5%;
-  padding: var(--space-xxs) var(--space-sm);
-  background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
-  color: white;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  text-align: center;
-  line-height: 20px;
-  font-weight: bold;
-  z-index: 1;
 }
 
 /* Circle Select Button */

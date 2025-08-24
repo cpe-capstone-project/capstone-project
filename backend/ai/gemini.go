@@ -5,7 +5,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const GEMINI_API_KEY="AIzaSyAWXCDJ6_FIX60X_8_rg-SyDwZfFYVzgo0"
+const GEMINI_API_KEY="AIzaSyDYw8wgRWwThS4xDk2iY9PtXjwJWYHxcds"
 
 func SummarizeWithGemini(input string) (string, error) {
 	ctx := context.Background()

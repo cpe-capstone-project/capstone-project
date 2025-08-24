@@ -4,8 +4,9 @@ import { useDiary } from "../../contexts/DiaryContext";
 // import { useDate } from "../../contexts/DateContext";
 import { th } from "date-fns/locale";
 import { groupByDate } from "../../utils/GroupByDate";
-import { Button, Select } from "antd";
+import { Button, Select, Tooltip } from "antd";
 import { FaPlus } from "react-icons/fa6";
+import { LuCircleAlert } from 'react-icons/lu';
 import { usePath } from "../../contexts/PathContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 // import CoverBook from "../../assets/book cover/cover1.jpg";
@@ -147,15 +148,22 @@ function DiaryList() {
         // แสดงเฉพาะเมื่อ viewMode เป็น list
         <>
           {Object.entries(grouped).map(([label, items]) => (
+            
             <div
               key={label}
               className="diary-list"
               style={{ marginBottom: "var(--space-2xl)" }}
             >
+              
               <h2>{label}</h2>
               <div className="diary-grid">
                 {items.map((item) => (
                   <div key={item.ID} className="diary-item">
+                    {!item.Confirmed && (
+                      <Tooltip title="ยังไม่บันทึก">
+                        <div className="unconfirmed-badge"><LuCircleAlert/></div>
+                      </Tooltip>
+                    )}
                     <DiaryCard diary={item} sortField={sortField} />
                   </div>
                 ))}

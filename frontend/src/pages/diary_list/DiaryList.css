@@ -10,7 +10,6 @@
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
 
-
   .diary-list-menu {
     display: flex;
     align-items: center;
@@ -27,9 +26,25 @@
   row-gap: 45px;
 
   .diary-item {
+    position: relative;
     text-decoration: none;
     width: 360px;
     height: 180px;
     color: black;
+
+    .unconfirmed-badge {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: -5%;
+      right: -3%;
+      padding: var(--space-xxs);
+      background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+      color: white;
+      font-size: var(--font-size-lg);
+      border-radius: var(--radius-full);
+      z-index: 1;
+    }
   }
 }

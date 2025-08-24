@@ -15,10 +15,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border:none;
+   border: transparent 1px solid;
   border-radius: var(--radius-md);
   padding: calc(var(--padding-text-editor) / 2);
   font-size: var(--font-size-md);
+  background-color: transparent;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }

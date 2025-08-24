@@ -7,9 +7,10 @@ import "dayjs/locale/th";
 dayjs.locale("th");
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import { useNavigate, useLocation } from "react-router";
-import "./DiaryCalendar.css";
 import EditDiaryModal from "../edit-diary-modal/EditDiaryModal";
 import { useDiary } from "../../contexts/DiaryContext";
+import { LuCircleAlert } from "react-icons/lu";
+import "./DiaryCalendar.css";
 
 interface DiaryCalendarProps {
   diaries: DiaryInterface[];
@@ -67,6 +68,13 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
               title={
                 <section className="diary-tooltip">
                   <div className="diary-tooltip-info">
+                    {!diary.Confirmed && (
+                      <div className="unconfirmed-badge">
+                        <LuCircleAlert /> 
+                        <p>ยังไม่บันทึก</p>
+                      </div>
+
+                    )}
                     <strong>{diary.Title || "No Title"}</strong>
                     <br />
                     <span>
@@ -74,8 +82,11 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
                         "DD MMM YYYY HH:mm"
                       )}
                     </span>
+
                     <br />
-                    <span className="tooltip-content-preview">{stripHtml(diary.Content || "")}</span>
+                    <span className="tooltip-content-preview">
+                      {stripHtml(diary.Content || "")}
+                    </span>
                   </div>
                   {/* <div className="diary-tooltip-actions">
                     <button
@@ -97,16 +108,16 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
               arrow={true}
             >
               <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  cursor: "pointer",
-                }}
+                className="diary-calendar-item"
                 onClick={() =>
                   navigate(`${location.pathname}/detail/${diary.ID}`)
                 }
               >
+                {!diary.Confirmed && (
+                  <div className="unconfirmed-badge">
+                    <LuCircleAlert />
+                  </div>
+                )}
                 {/* ✅ แถบสีสั้น ๆ ด้านหน้าชื่อ */}
                 <div className="tag-color-strip">
                   {tagColors.map((color, i) => (

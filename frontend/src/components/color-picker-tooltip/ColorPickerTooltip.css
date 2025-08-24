@@ -49,11 +49,11 @@
     height: 24px;
     border-radius: 50%;
     cursor: pointer;
-    border: 1px solid #ccc;
+    border: 3px solid #ccc;
     box-sizing: border-box;
   }
 
   .color-circle.selected {
-    border: 2px solid black;
+    border: 3px solid black;
   }
 }

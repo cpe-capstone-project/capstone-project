@@ -12,6 +12,13 @@
     white-space: normal;
     word-break: break-word;
   }
+
+  .unconfirmed-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xxs);
+    color:  var(--color-yellow-alert);
+  }
 }
 
 .diary-tooltip-actions {
@@ -37,16 +44,35 @@
   background-color: var(--color-red);
 }
 
-/* tag-color */
-.tag-color-strip {
+.diary-calendar-item {
+  position: relative;
   display: flex;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
+  align-items: center;
+  gap: var(--space-xxs);
+  
+  /* tag-color */
+  .tag-color-strip {
+    display: flex;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  
+  .tag-color-dot {
+    width: 8px;
+    height: 8px;
+  }
 
-.tag-color-dot {
-  width: 8px;
-  height: 8px;
+  .unconfirmed-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -5%;
+    right: 0%;
+    background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+    color: white;
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-full);
+  }
 }
 
 /* calendar-confirm */

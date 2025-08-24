@@ -17,31 +17,22 @@ import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 import "dayjs/locale/th";
 import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
+import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 dayjs.locale("th");
 
 function DiarySummary() {
+  const { getTherapyCaseByPatient } = useTherapyCase();
+  const [therapyCaseId, setTherapyCaseId] = useState<number | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState("รายวัน");
   const [summaryData, setSummaryData] = useState<DiarySummaryInterface | null>(
     null
   );
+  console.log("summaryData:", summaryData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  // const [customStartDate, setCustomStartDate] = useState<Dayjs | null>(null);
-  // const [customEndDate, setCustomEndDate] = useState<Dayjs | null>(null);
   const [customRange, setCustomRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(null);
-
-  // const tags = [
-  //   "Happy",
-  //   "Sad",
-  //   "Anxious",
-  //   "Calm",
-  //   "Angry",
-  //   "Excited",
-  //   "Tired",
-  //   "Confused",
-  // ];
 
   const calculateDateRange = (timeframe: string) => {
     const now = new Date();
@@ -97,21 +88,19 @@ function DiarySummary() {
         return;
       }
     }
-    console.log("selectedTimeframe:", selectedTimeframe);
 
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
-      console.log("Start Date:", startDate.toISOString());
-      console.log("End Date:", endDate.toISOString());
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const response = await CreateDiarySummary({
-        TherapyCaseID: 1,
+        TherapyCaseID: therapyCaseId,
         Timeframe: selectedTimeframe,
         StartDate: startDate.toISOString(),
         EndDate: endDate.toISOString(),
         Timezone: timezone,
       });
+      console.log("Response:", response);
 
       if (response.status === 200 && response.data?.summary) {
         const summary = response.data.summary;
@@ -127,6 +116,21 @@ function DiarySummary() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const patientId = Number(localStorage.getItem("id"));
+
+    const fetchData = async () => {
+      // ดึง therapy cases ของ patient
+      const therapyCases = await getTherapyCaseByPatient(patientId);
+
+      if (therapyCases && typeof therapyCases.ID !== "undefined") {
+        setTherapyCaseId(therapyCases.ID);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const loadFromStorage = async () => {
@@ -206,7 +210,10 @@ function DiarySummary() {
           </div>
 
           <div className="emotion-summary-container">
-            <h1>ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่ 12 ฉบับ</h1>
+            <h1>
+              ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่{" "}
+              {summaryData?.Diaries ? summaryData.Diaries.length : 0} ฉบับ
+            </h1>
             <DiarySummaryBarChart />
           </div>
         </div>

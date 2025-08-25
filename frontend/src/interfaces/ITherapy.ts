@@ -1,8 +1,8 @@
-import type { PatientInterface } from "./IPatient";
+import type { PatientTherapyInterface } from "./IPatientTherapy";
 import type { PsychologistInterface } from "./IPsychologist";
 import type {CaseStatusInterface} from "./ICaseStatus"
 
-export interface TherapyCaseInterface {
+export interface TherapyInterface {
   ID?: number;
   CaseTitle?: string;
   CaseDescription?: string;
@@ -14,6 +14,6 @@ export interface TherapyCaseInterface {
   Psychologist?: PsychologistInterface
 
   PatientID?: number;
-  Patient?: PatientInterface
+  Patient?: PatientTherapyInterface
 
 }

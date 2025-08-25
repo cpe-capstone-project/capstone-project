@@ -25,6 +25,8 @@ type Psychologist struct {
 	Role   *Roles
 
 	VerifyCodeHash string // ✅ ใหม่: เก็บ PIN แบบ hash
+	
+	TherapyCases  []TherapyCase `gorm:"foreignKey:PsychologistID"`
 }
 
 //

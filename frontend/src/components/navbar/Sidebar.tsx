@@ -296,8 +296,8 @@ const Exchangeprofile = async () => {
       {!isCollapsed && <span>Dashboard</span>}
     </div>
     <div
-      className={`sidebar-item ${location.pathname.includes("diary") ? "active" : ""}`}
-      onClick={() => handleNavigate("diary")}
+      className={`sidebar-item ${location.pathname.includes("therapy") ? "active" : ""}`}
+      onClick={() => handleNavigate("therapy")}
     >
       <img src=" https://cdn-icons-png.flaticon.com/128/2696/2696455.png" alt="Therapy Case" />
       {!isCollapsed && <span>Therapy Case</span>}

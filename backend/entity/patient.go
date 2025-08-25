@@ -23,4 +23,6 @@ type Patients struct {
   Role            *Roles
   PsychologistID uint
   Psychologist   *Psychologist `gorm:"foreignKey:PsychologistID"`
+
+  TherapyCase  []TherapyCase `gorm:"foreignKey:PatientID"`
 }

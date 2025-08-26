@@ -1,33 +1,64 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Edit, List, Trash2 } from 'lucide-react';
+import { Search, Plus, Edit, List, Trash2, BookText, Pen } from 'lucide-react';
 import { useNavigate } from "react-router";
-import { GetTherapyCaseByPsychologisId, DeleteTherapyCase } from "../../services/https/TherapyCase";
+import {
+  GetTherapyCaseByPsychologisId,
+  DeleteTherapyCase,
+  GetDiariesByTherapyCaseID,
+  GetThoughtRecordsByTherapyCaseID
+} from "../../services/https/TherapyCase";
 import type { TherapyInterface } from "../../interfaces/ITherapy";
-
 
 export default function TherapyCaseManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [cases, setCases] = useState<TherapyInterface[]>([]);
+  const [diaryStatus, setDiaryStatus] = useState<Record<number, boolean>>({}); // เก็บสถานะไดอารี่วันนี้
+  const [thoughtStatus, setThoughtStatus] = useState<Record<number, boolean>>({});
+
   const [loading, setLoading] = useState(true);
   const psychoIdStr = localStorage.getItem('id');
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!psychoIdStr) return;
+  if (!psychoIdStr) return;
 
-    setLoading(true);
-    GetTherapyCaseByPsychologisId(Number(psychoIdStr))
-      .then((res) => {
-        setCases(res.data as TherapyInterface[]); // ใช้ interface
-      })
-      .catch((err) => {
-        console.error("Error fetching therapy cases:", err);
-        setCases([]);
-      })
-      .finally(() => setLoading(false));
-  }, [psychoIdStr]);
+  setLoading(true);
+  GetTherapyCaseByPsychologisId(Number(psychoIdStr))
+    .then(async (res) => {
+      const data = res.data as TherapyInterface[];
+      setCases(data);
 
-  console.log(cases)
+      // 🔥 เช็ค Diaries และ ThoughtRecord วันนี้สำหรับทุกเคส
+      const diaryMap: Record<number, boolean> = {};
+      const thoughtMap: Record<number, boolean> = {};
+
+      for (const c of data) {
+        if (c.ID) {
+          try {
+            const resDiary = await GetDiariesByTherapyCaseID(c.ID);
+            diaryMap[c.ID] = resDiary?.written_today || false;
+          } catch {
+            diaryMap[c.ID] = false;
+          }
+
+          try {
+            const resThought = await GetThoughtRecordsByTherapyCaseID(c.ID);
+            thoughtMap[c.ID] = resThought?.written_today || false;
+          } catch {
+            thoughtMap[c.ID] = false;
+          }
+        }
+      }
+
+      setDiaryStatus(diaryMap);
+      setThoughtStatus(thoughtMap);
+    })
+    .catch((err) => {
+      console.error("Error fetching therapy cases:", err);
+      setCases([]);
+    })
+    .finally(() => setLoading(false));
+}, [psychoIdStr]);
 
   const filteredCases = cases.filter(case_ =>
     case_.CaseTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,25 +70,21 @@ export default function TherapyCaseManagement() {
     navigate("/psychologist/therapyCreate")
   };
   const handleEdit = (id?: number) => {
-    if (!id) return; // ถ้าไม่มี id ก็ไม่ทำอะไร
+    if (!id) return;
     navigate(`/psychologist/therapyUpdate/${id}`);
   };
   const handleView = (id?: number) => {
-    if (!id) return; // ถ้าไม่มี id ก็ไม่ทำอะไร
+    if (!id) return;
     navigate(`/psychologist/therapyDetail/${id}`)
   };
 
   const handleDelete = async (id?: number) => {
-    if (!id) return; // ถ้าไม่มี id ก็ไม่ทำอะไร
-
+    if (!id) return;
     try {
       const confirmed = window.confirm("คุณต้องการลบเคสนี้หรือไม่?");
       if (!confirmed) return;
 
-      // เรียก API ลบ
       await DeleteTherapyCase(id);
-
-      // อัปเดตรายการเคสหลังลบ
       setCases((prev) => prev.filter((item) => item.ID !== id));
 
       alert("ลบเคสสำเร็จ!");
@@ -66,7 +93,6 @@ export default function TherapyCaseManagement() {
       alert("ไม่สามารถลบเคสได้");
     }
   };
-
 
   if (loading) return <div className="text-center py-12 text-gray-500">กำลังโหลดข้อมูล...</div>;
 
@@ -119,6 +145,8 @@ export default function TherapyCaseManagement() {
                 <th className="!px-6 !py-4 !text-left !text-sm !font-semibold !text-gray-900">การบำบัด</th>
                 <th className="!px-6 !py-4 !text-left !text-sm !font-semibold !text-gray-900">วันที่เริ่ม</th>
                 <th className="!px-6 !py-4 !text-left !text-sm !font-semibold !text-gray-900">สถานะ</th>
+                <th className="!px-6 !py-4 !text-left !text-sm !font-semibold !text-gray-900">ไดอารี่วันนี้</th>
+                <th className="!px-6 !py-4 !text-left !text-sm !font-semibold !text-gray-900">แบบทดสอบวันนี้</th>
                 <th className="!px-6 !py-4 !text-center !text-sm !font-semibold !text-gray-900 !w-32">จัดการ</th>
               </tr>
             </thead>
@@ -129,7 +157,9 @@ export default function TherapyCaseManagement() {
                     <div className="!text-sm !font-medium !text-gray-900">{index + 1}</div>
                   </td>
                   <td className="!px-6 !py-4 !whitespace-nowrap">
-                    <div className="!text-sm !font-medium !text-gray-900">{case_.Patient?.FirstName || "ไม่ทราบชื่อ"}  {case_.Patient?.LastName || "ไม่ทราบชื่อ"}</div>
+                    <div className="!text-sm !font-medium !text-gray-900">
+                      {case_.Patient?.FirstName || "ไม่ทราบชื่อ"} {case_.Patient?.LastName || "ไม่ทราบชื่อ"}
+                    </div>
                   </td>
                   <td className="!px-6 !py-4">
                     <div className="!max-w-xs">
@@ -138,20 +168,44 @@ export default function TherapyCaseManagement() {
                     </div>
                   </td>
                   <td className="!px-6 !py-4 !whitespace-nowrap">
-                    <div className="!text-sm !text-gray-500">{case_.CaseStartDate ? new Date(case_.CaseStartDate).toLocaleDateString('th-TH') : '-'}</div>
+                    <div className="!text-sm !text-gray-500">
+                      {case_.CaseStartDate ? new Date(case_.CaseStartDate).toLocaleDateString('th-TH') : '-'}
+                    </div>
                   </td>
                   <td className="!px-6 !py-4 !whitespace-nowrap">
-                    <span className={`!inline-flex !px-3 !py-1 !rounded-full !text-xs !font-medium `}>{case_.CaseStatus?.StatusName}</span>
+                    <span className="!inline-flex !px-3 !py-1 !rounded-full !text-xs !font-medium">
+                      {case_.CaseStatus?.StatusName}
+                    </span>
+                  </td>
+                  <td className="!px-6 !py-4 !whitespace-nowrap">
+                    <div className="!flex !items-center !space-x-1">
+                      <BookText className="!h-4 !w-4 !text-gray-600" />
+                      {diaryStatus[case_.ID ?? 0] ? (
+                        <span className="!text-green-600 !font-medium">เขียนแล้ว </span>
+                      ) : (
+                        <span className="!text-red-500 !font-medium">ยังไม่ได้เขียน </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="!px-6 !py-4 !whitespace-nowrap">
+                    <div className="!flex !items-center !space-x-1">
+                      <Pen className="!h-4 !w-4 !text-gray-600" />
+                      {thoughtStatus[case_.ID ?? 0] ? (
+                        <span className="!text-green-600 !font-medium">เขียนแล้ว </span>
+                      ) : (
+                        <span className="!text-red-500 !font-medium">ยังไม่ได้เขียน </span>
+                      )}
+                    </div>
                   </td>
                   <td className="!px-6 !py-4 !whitespace-nowrap">
                     <div className="!flex !items-center !justify-center !space-x-1">
-                      <button onClick={() => handleEdit(case_.ID)} className="!text-gray-600 !hover:text-gray-900 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150  cursor-pointer" title="แก้ไข">
+                      <button onClick={() => handleEdit(case_.ID)} className="!text-gray-600 !hover:text-gray-900 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150 cursor-pointer" title="แก้ไข">
                         <Edit className="!h-4 !w-4" />
                       </button>
-                      <button onClick={() => handleView(case_.ID)} className="!text-gray-600 !hover:text-gray-900 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150  cursor-pointer" title="ดูรายละเอียด">
+                      <button onClick={() => handleView(case_.ID)} className="!text-gray-600 !hover:text-gray-900 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150 cursor-pointer" title="ดูรายละเอียด">
                         <List className="!h-4 !w-4" />
                       </button>
-                      <button onClick={() => handleDelete(case_.ID)} className="!text-gray-600 !hover:text-red-600 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150  cursor-pointer" title="ลบ">
+                      <button onClick={() => handleDelete(case_.ID)} className="!text-gray-600 !hover:text-red-600 !p-2 !rounded-md !hover:bg-gray-100 !transition-all !duration-150 cursor-pointer" title="ลบ">
                         <Trash2 className="!h-4 !w-4" />
                       </button>
                     </div>

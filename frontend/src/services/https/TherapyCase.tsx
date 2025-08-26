@@ -1,10 +1,17 @@
 import axios from "axios";
-import type {TherapyCaseInterface} from "../../interfaces/ITherapyCase"
+import type { TherapyCaseInterface } from "../../interfaces/ITherapyCase"
+import type { DiaryInterface } from "../../interfaces/IDiary"
+import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord"
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Authorization = localStorage.getItem("token");
 const Bearer = localStorage.getItem("token_type");
+
+export interface DiariesResponse {
+  diaries: DiaryInterface[];
+  written_today: boolean;
+}
 
 const requestOptions = {
   headers: {
@@ -42,7 +49,7 @@ async function GetPatientByPsycoId(id: number) {
     .catch((e) => e.response);
 }
 
- async function CreateTherapyCase(payload: TherapyCaseInterface) {
+async function CreateTherapyCase(payload: TherapyCaseInterface) {
   try {
     const res = await axios.post(`${apiUrl}/therapy-case/create`, payload, requestOptions);
     console.log("✅ API Success:", res.data);
@@ -56,8 +63,8 @@ async function GetPatientByPsycoId(id: number) {
 async function UpdateTherapyCase(id: number, payload: TherapyCaseInterface) {
   try {
     const res = await axios.patch(
-      `${apiUrl}/therapy-case/update/${id}`, 
-      payload, 
+      `${apiUrl}/therapy-case/update/${id}`,
+      payload,
       requestOptions
     );
     console.log("✅ API Success:", res.data);
@@ -84,6 +91,52 @@ const DeleteTherapyCase = async (id: number) => {
   }
 };
 
+async function GetCaseStatuses() {
+  return await axios
+    .get(`${apiUrl}/therapy-case/status`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+async function GetDiariesByTherapyCaseID(
+  therapyCaseID: number
+): Promise<DiariesResponse | null> {
+  try {
+    const token = localStorage.getItem("token"); 
+    const res = await axios.get(`${apiUrl}/therapy-case/${therapyCaseID}/diaries`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching diaries:", error);
+    return null;
+  }
+}
+
+export interface ThoughtRecordResponse {
+  thought_records: ThoughtRecordInterface[];
+  written_today: boolean;
+}
+
+export async function GetThoughtRecordsByTherapyCaseID(
+  therapyCaseID: number
+): Promise<ThoughtRecordResponse | null> {
+  try {
+    const token = localStorage.getItem("token"); // ดึง JWT จาก localStorage
+    const res = await axios.get(`${apiUrl}/therapy-case/${therapyCaseID}/thought-records`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching thought records:", error);
+    return null;
+  }
+}
+
 
 
 
@@ -95,4 +148,6 @@ export {
   GetTherapyCaseByID,
   UpdateTherapyCase,
   DeleteTherapyCase,
+  GetCaseStatuses,
+  GetDiariesByTherapyCaseID,
 };

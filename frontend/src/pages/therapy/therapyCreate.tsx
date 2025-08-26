@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Save, ArrowLeft, FileText, } from 'lucide-react';
-import { CreateTherapyCase, GetPatientByPsycoId } from "../../services/https/TherapyCase";
+import { CreateTherapyCase, GetPatientByPsycoId, GetCaseStatuses } from "../../services/https/TherapyCase";
 import type { TherapyInterface } from "../../interfaces/ITherapy"
 import type { PatientTherapyInterface } from "../../interfaces/IPatientTherapy"
+import type { CaseStatusInterface } from "../../interfaces/ICaseStatus";
 
 
-const sampleCaseStatuses = [
-  { ID: 1, StatusName: "กำลังบำบัด", StatusColor: "#059669" },
-  { ID: 2, StatusName: "เสร็จสิ้นการรักษา", StatusColor: "#DC2626" },
-  { ID: 3, StatusName: "รอการนัดหมาย", StatusColor: "#D97706" },
-  { ID: 4, StatusName: "ระงับชั่วคราว", StatusColor: "#6B7280" }
-];
 
 export default function CreateTherapyCasePage() {
   const navigate = useNavigate();
@@ -25,6 +20,7 @@ export default function CreateTherapyCasePage() {
     PatientID: 0
   });
   const [patient, setPatient] = useState<PatientTherapyInterface[]>([]);
+  const [casesStatus, setCasesStatus] = useState<CaseStatusInterface[]>([]);
   const psychoIdStr = localStorage.getItem('id');
 
   type FormErrors = Partial<Record<keyof TherapyInterface, string>>;
@@ -32,25 +28,40 @@ export default function CreateTherapyCasePage() {
 
 
   useEffect(() => {
-  if (!psychoIdStr) return;
-
-  GetPatientByPsycoId(Number(psychoIdStr))
-    .then((res) => {
-      // ตรวจสอบว่าข้อมูลมาจาก API เป็น array หรือไม่
-      if (Array.isArray(res.data)) {
-        setPatient(res.data);
-      } else if (res.data) {
-        // ถ้า API ส่ง object เดียว แปลงเป็น array
-        setPatient([res.data]);
-      } else {
-        setPatient([]);
+    const fetchStatuses = async () => {
+      try {
+        const res = await GetCaseStatuses();
+        if (res) {
+          setCasesStatus(res.data); // สมมติ backend คืน array [{ID, StatusName, ...}]
+        }
+      } catch (error) {
+        console.error("Error fetching case statuses:", error);
       }
-    })
-    .catch((err) => {
-      console.error("Error fetching therapy cases:", err);
-      setPatient([]);
-    });
-}, [psychoIdStr]);
+    };
+
+    fetchStatuses();
+  }, []);
+
+  useEffect(() => {
+    if (!psychoIdStr) return;
+
+    GetPatientByPsycoId(Number(psychoIdStr))
+      .then((res) => {
+        // ตรวจสอบว่าข้อมูลมาจาก API เป็น array หรือไม่
+        if (Array.isArray(res.data)) {
+          setPatient(res.data);
+        } else if (res.data) {
+          // ถ้า API ส่ง object เดียว แปลงเป็น array
+          setPatient([res.data]);
+        } else {
+          setPatient([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching therapy cases:", err);
+        setPatient([]);
+      });
+  }, [psychoIdStr]);
 
 
   console.log(patient)
@@ -235,7 +246,7 @@ export default function CreateTherapyCasePage() {
                   onChange={handleInputChange}
                   className="!block !w-full !px-4 !py-3 !border !border-gray-300 !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-gray-900 !transition-all !duration-200"
                 >
-                  {sampleCaseStatuses.map(status => (
+                  {casesStatus.map(status => (
                     <option key={status.ID} value={status.ID}>{status.StatusName}</option>
                   ))}
                 </select>

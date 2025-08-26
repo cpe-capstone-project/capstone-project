@@ -5,21 +5,19 @@ import {
     GetTherapyCaseByID,
     UpdateTherapyCase,
     GetPatientByPsycoId,
+    GetCaseStatuses,
 } from "../../services/https/TherapyCase";
 import type { TherapyInterface } from "../../interfaces/ITherapy";
 import type { PatientTherapyInterface } from "../../interfaces/IPatientTherapy";
+import type { CaseStatusInterface } from "../../interfaces/ICaseStatus";
 
-const sampleCaseStatuses = [
-    { ID: 1, StatusName: "กำลังบำบัด", StatusColor: "#059669" },
-    { ID: 2, StatusName: "เสร็จสิ้นการรักษา", StatusColor: "#DC2626" },
-    { ID: 3, StatusName: "รอการนัดหมาย", StatusColor: "#D97706" },
-    { ID: 4, StatusName: "ระงับชั่วคราว", StatusColor: "#6B7280" },
-];
 
 export default function EditTherapyCasePage() {
     const navigate = useNavigate();
     const { id } = useParams(); // รับ id จาก path
     const psychoIdStr = localStorage.getItem("id");
+    const [casesStatus, setCasesStatus] = useState<CaseStatusInterface[]>([]);
+    console.log("casesStatus",casesStatus)
 
     const [formData, setFormData] = useState<TherapyInterface>({
         CaseTitle: "",
@@ -33,6 +31,21 @@ export default function EditTherapyCasePage() {
     const [patient, setPatient] = useState<PatientTherapyInterface[]>([]);
     type FormErrors = Partial<Record<keyof TherapyInterface, string>>;
     const [errors, setErrors] = useState<FormErrors>({});
+
+    useEffect(() => {
+        const fetchStatuses = async () => {
+            try {
+                const res = await GetCaseStatuses();
+                if (res) {
+                    setCasesStatus(res.data); // สมมติ backend คืน array [{ID, StatusName, ...}]
+                }
+            } catch (error) {
+                console.error("Error fetching case statuses:", error);
+            }
+        };
+
+        fetchStatuses();
+    }, []);
 
     // โหลดข้อมูลเคสมาแสดง
     useEffect(() => {
@@ -295,7 +308,7 @@ export default function EditTherapyCasePage() {
                             onChange={handleInputChange}
                             className="!block !w-full !px-4 !py-3 !border !border-gray-300 !rounded-lg"
                         >
-                            {sampleCaseStatuses.map((status) => (
+                            {casesStatus.map((status) => (
                                 <option key={status.ID} value={status.ID}>
                                     {status.StatusName}
                                 </option>

@@ -3,13 +3,20 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import "./Sidebar.css";
 import healthImage from "../../assets/med5.png";
+import { k, KEYS } from "../../unid/storageKeys";
+
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const PROFILE_KEY = k(KEYS.PROFILE);
 
+const getProfileFromLS = () => {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); }
+  catch { return {}; }
+};
   const handleNavigate = (path: string) => {
     const basePath = location.pathname.split("/")[1];
     navigate(`/${basePath}/${path}`);
@@ -33,6 +40,7 @@ function Sidebar() {
       localStorage.setItem("phone", data.phone);
       localStorage.setItem("email", data.email);
       localStorage.setItem("profile_image", data.image);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
     }
   } catch (error) {
     console.error("โหลดโปรไฟล์ล้มเหลว", error);
@@ -52,18 +60,18 @@ const genderReverseMap: Record<string, number> = {
 };
 const Exchangeprofile = async () => {
   setShowMenu(false);
+ await fetchProfileAndUpdateStorage();
 
+  const p = getProfileFromLS();   // อ่านจาก namespaced key
   const profile = {
-    first_name: localStorage.getItem("first_name") || "-",
-    last_name: localStorage.getItem("last_name") || "-",
-    address: localStorage.getItem("address") || "-",
-    birthday: localStorage.getItem("birthday") || "-",
-    email: localStorage.getItem("email") || "-",
-    phone: localStorage.getItem("phone") || "-",
-    image:
-      localStorage.getItem("profile_image") ||
-      "https://cdn-icons-png.flaticon.com/128/1430/1430402.png",
-    gender: genderMap[localStorage.getItem("gender") || ""] || "-",
+    first_name: p.first_name || "-",
+    last_name:  p.last_name  || "-",
+    address:    p.address    || "-",
+    birthday:   p.birthday   || "-",
+    email:      p.email      || "-",
+    phone:      p.phone      || "-",
+    image:      p.image || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png",
+    gender:     genderMap[String(p.gender)] || "-",
   };
 
   const { value: formValues } = await Swal.fire({
@@ -239,6 +247,7 @@ const Exchangeprofile = async () => {
 };
 
  const out = () => {
+  const profileKey = PROFILE_KEY;
   const KEYS_TO_REMOVE = [
     "isLogin",
     "token_type",
@@ -254,6 +263,7 @@ const Exchangeprofile = async () => {
     "phone",
     "profile_image",
     "currentLoginUser",
+    profileKey,
     // ถ้ามี key อื่นที่เป็นข้อมูล session ก็เติมได้
   ];
 

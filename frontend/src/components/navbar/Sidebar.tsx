@@ -89,10 +89,10 @@ const Exchangeprofile = async () => {
           <div class="xbn-profile-header">
             <img src="${profile.image}" alt="profile" class="xbn-profile-img"/>
             <h4>${profile.first_name} ${profile.last_name}</h4>
-            <p>
-              <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" class="xbn-detail-icon"/>
-              ${profile.email}
-            </p>
+             <p class="xbn-email">
+  <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" class="xbn-detail-icon" alt="mail"/>
+  <span>${profile.email || "-"}</span>
+</p>
           </div>
           <div class="xbn-profile-details">
             <div><b>เพศ:</b> ${profile.gender}</div>

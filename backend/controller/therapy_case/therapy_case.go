@@ -19,6 +19,17 @@ type CreateTherapyCaseInput struct {
     PatientID       uint   `json:"patient_id" binding:"required"`
 }
 
+func GetCaseStatuses(c *gin.Context) {
+	var statuses []entity.CaseStatus
+
+	if err := config.DB().Find(&statuses).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลได้"})
+		return
+	}
+
+	c.JSON(http.StatusOK, statuses)
+}
+
 // GET /therapy-case/patient/:id
 func GetTherapyCaseByPatientID(c *gin.Context) {
 	patientID := c.Param("id")
@@ -27,7 +38,7 @@ func GetTherapyCaseByPatientID(c *gin.Context) {
 	db := config.DB()
 	result := db.Preload("CaseStatus").
 		Preload("Psychologist").
-		Preload("Patients").
+		Preload("Patient").
 		Where("patient_id = ?", patientID).
 		Order("created_at desc").
 		First(&therapyCase) // ดึงตัวแรก (ล่าสุด)
@@ -212,6 +223,51 @@ func DeleteTherapyCase(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"message": "ลบเคสสำเร็จ"})
 }
+
+func GetDiariesByTherapyCaseID(c *gin.Context) {
+	therapyCaseID := c.Param("id")
+
+	var diaries []entity.Diaries
+	if err := config.DB().Where("therapy_case_id = ?", therapyCaseID).Find(&diaries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูล Diaries ได้"})
+		return
+	}
+
+	// ===== เช็คว่ามีการเขียนวันนี้หรือยัง =====
+	today := time.Now().Format("2006-01-02") // YYYY-MM-DD
+	var todayDiary entity.Diaries
+
+	err := config.DB().Where("therapy_case_id = ? AND DATE(created_at) = ?", therapyCaseID, today).First(&todayDiary).Error
+	writtenToday := err == nil // true ถ้ามี record วันนี้
+
+	c.JSON(http.StatusOK, gin.H{
+		"diaries":       diaries,
+		"written_today": writtenToday,
+	})
+}
+
+func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
+    therapyCaseID := c.Param("id")
+
+    var records []entity.ThoughtRecord
+    if err := config.DB().Where("therapy_case_id = ?", therapyCaseID).Find(&records).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูล ThoughtRecord ได้"})
+        return
+    }
+
+    // ===== เช็คว่ามีการเขียนวันนี้หรือยัง =====
+    today := time.Now().Format("2006-01-02") // YYYY-MM-DD
+    var todayRecord entity.ThoughtRecord
+
+    err := config.DB().Where("therapy_case_id = ? AND DATE(created_at) = ?", therapyCaseID, today).First(&todayRecord).Error
+    writtenToday := err == nil // true ถ้ามี record วันนี้
+
+    c.JSON(http.StatusOK, gin.H{
+        "thought_records": records,
+        "written_today":   writtenToday,
+    })
+}
+
 
 
 

@@ -396,7 +396,7 @@ useEffect(() => {
 </label>
 
 <label className="wellness-label">
-  เลขที่ใบรับรองแพทย์
+  เลขที่ใบประกอบวิชาชีพแพทย์
   <input
     className="wellness-input"
     type="text"
@@ -433,7 +433,7 @@ useEffect(() => {
             onClick={handleUploadFile}
             style={{ marginBottom: "0.5rem" }}
           >
-            แนบไฟล์รูปใบรับรองแพทย์
+            แนบไฟล์รูปใบประกอบวิชาชีพแพทย์
           </button>
 
           {attachedFile && (

@@ -422,41 +422,42 @@ const handleSubmit = async (e: React.FormEvent) => {
             <span
               onClick={(e) => {
                 e.preventDefault();
-                Swal.fire({
-                  title: "นโยบายความเป็นส่วนตัวและการให้ความยินยอม",
-                  html: `
-                  <ul style="text-align: left; padding-left: 1.2em;">
-            <li>แอปพลิเคชันจะเก็บรวบรวมข้อมูลส่วนบุคคล ข้อมูลบำบัด CBT เพื่อใช้ในการให้บริการ</li>
-            <li>ข้อมูลของผู้ใช้จะถูกเก็บรักษาอย่างปลอดภัยและจำกัดการเข้าถึงเฉพาะเจ้าหน้าที่ที่รับผิดชอบ</li>
-            <li>ข้อมูลส่วนบุคคลจะไม่ถูกเปิดเผยแก่บุคคลที่สามโดยไม่ได้รับความยินยอมล่วงหน้า เว้นแต่เป็นไปตามกฎหมาย</li>
-            <li>ผู้ใช้มีสิทธิ์เข้าถึง แก้ไข หรือลบข้อมูลส่วนบุคคลของตนเองได้ตามกฎหมายที่เกี่ยวข้อง</li>
-            <li>การใช้แอปพลิเคชันถือเป็นการยินยอมให้เก็บ ใช้ และประมวลผลข้อมูลส่วนบุคคลตามนโยบายนี้</li>
-            <li>
-    หากมีข้อสงสัยหรือต้องการติดต่อเกี่ยวกับข้อมูลส่วนบุคคล สามารถติดต่อได้ที่<br><br>
-    <img src="https://cdn-icons-png.flaticon.com/128/126/126509.png" width="16" style="vertical-align: middle; margin-right: 6px;" />
-    โทรศัพท์: 094-564-3456<br><br>
-    <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" width="16" style="vertical-align: middle; margin-right: 6px;" />
-    อีเมล: DepressionRec@gmail.com
-  </li>
-          </ul>
-        `,
-        imageUrl: "https://cdn-icons-png.flaticon.com/128/10348/10348976.png",
-        imageWidth: 64,
-        imageHeight: 64,
-        imageAlt: "Privacy Policy Icon",
-        confirmButtonText: "ตกลง",
-        customClass: {
-          confirmButton: "health-btn-swal"
-        },
-        width: '600px',
-        backdrop: true,
-        showClass: {
-          popup: "animate__animated animate__fadeInDown",
-        },
-        hideClass: {
-          popup: "animate__animated animate__fadeOutUp",
-        },
-      });
+               Swal.fire({
+  title: "นโยบายความเป็นส่วนตัวและการให้ความยินยอม",
+  html: `
+    <ul style="text-align: left; padding-left: 1.2em; margin: 0 0 1rem 0;">
+      <li>- แอปพลิเคชันจะเก็บรวบรวมข้อมูลส่วนบุคคล ข้อมูลบำบัด CBT เพื่อใช้ในการให้บริการ</li>
+      <li>- ข้อมูลของผู้ใช้จะถูกเก็บรักษาอย่างปลอดภัยและจำกัดการเข้าถึงเฉพาะเจ้าหน้าที่ที่รับผิดชอบ</li>
+      <li>- ข้อมูลส่วนบุคคลจะไม่ถูกเปิดเผยแก่บุคคลที่สามโดยไม่ได้รับความยินยอมล่วงหน้า เว้นแต่เป็นไปตามกฎหมาย</li>
+      <li>- ผู้ใช้มีสิทธิ์เข้าถึง แก้ไข หรือลบข้อมูลส่วนบุคคลของตนเองได้ตามกฎหมายที่เกี่ยวข้อง</li>
+      <li>- การใช้แอปพลิเคชันถือเป็นการยินยอมให้เก็บ ใช้ และประมวลผลข้อมูลส่วนบุคคลตามนโยบายนี้</li>
+    </ul>
+
+    <div style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+      <img src="https://cdn-icons-png.flaticon.com/128/126/126509.png" width="16"
+           style="vertical-align:middle;" alt="phone"/>
+      <span>โทรศัพท์: <a href="tel:0945643456" style="color:inherit; text-decoration:none;">094-564-3456</a></span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+      <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" width="16"
+           style="vertical-align:middle;" alt="email"/>
+      <span>อีเมล: <a href="mailto:DepressionRec@gmail.com"
+              style="color:inherit; text-decoration:none;">DepressionRec@gmail.com</a></span>
+    </div>
+  `,
+  imageUrl: "https://cdn-icons-png.flaticon.com/128/10348/10348976.png",
+  imageWidth: 64,
+  imageHeight: 64,
+  imageAlt: "Privacy Policy Icon",
+  confirmButtonText: "ตกลง",
+  customClass: { confirmButton: "health-btn-swal" },
+  width: '600px',
+  backdrop: true,
+  showClass: { popup: "animate__animated animate__fadeInDown" },
+  hideClass: { popup: "animate__animated animate__fadeOutUp" },
+});
+
     }}
     style={{ cursor: "pointer", color: "#007bff", marginLeft: "8px" }}
   >

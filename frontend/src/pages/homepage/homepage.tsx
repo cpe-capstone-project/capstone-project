@@ -1105,11 +1105,22 @@ const list = data
     `
     : `${fmtDate(_start)} ${fmtTime(_start)}–${fmtTime(_end)} น.`;
 
-  const badge = (status?: string) => {
-    if (status === "accepted") return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
-    if (status === "rejected") return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
-    return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
-  };
+const badge = (item: any) => {
+  const wasRescheduled =
+    !!item.rescheduled && item.old_start_time && item.old_end_time;
+
+  if (wasRescheduled) {
+    return `<span style="color:#d97706;font-weight:600">🕒 เปลี่ยนเวลาแล้ว</span>`;
+  }
+  if (item.status === "accepted") {
+    return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
+  }
+  if (item.status === "rejected") {
+    return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
+  }
+  return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
+};
+
 
   const isPending = !x.status || x.status === "pending";
 
@@ -1117,7 +1128,7 @@ const list = data
     <div style="background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee;text-align:left">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
         <div style="font-weight:700">Psychologist</div>
-        <div>${badge(x.status)}</div>
+         <div>${badge(x)}</div>
       </div>
       <div style="margin:6px 0 2px">
         <b>เวลา:</b> ${dateText}

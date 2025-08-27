@@ -56,9 +56,8 @@
 }
 
 .qewty-stat-header h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #222;
+  font-size: 1.2em;
+  color: #333;
 }
 
 .qewty-stat-icon {
@@ -103,10 +102,9 @@
 
 /* Chart Title/Sub */
 .qewty-chart-title {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.2em;
+  color: #333;
   margin-bottom: 5px;
-  color: #222;
 }
 
 .qewty-chart-subtitle {
@@ -216,8 +214,8 @@
 }
 
 .qewty-feedback-card h4 {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.2em;
+  color: #333;
   margin-bottom: 5px;
 }
 

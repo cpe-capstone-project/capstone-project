@@ -298,12 +298,19 @@ const Exchangeprofile = async () => {
   </div>
 
   <div className="sidebar-menu">
+     <div
+      className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
+      onClick={() => handleNavigate("")}
+    >
+      <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" alt="" />
+      {!isCollapsed && <span>Dashboard</span>}
+    </div>
     <div
       className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
       onClick={() => handleNavigate("homedoc")}
     >
-      <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" alt="dashboard" />
-      {!isCollapsed && <span>Dashboard</span>}
+      <img src="https://cdn-icons-png.flaticon.com/128/11450/11450628.png" alt="dashboard" />
+      {!isCollapsed && <span>Main Menu</span>}
     </div>
     <div
       className={`sidebar-item ${location.pathname.includes("therapy") ? "active" : ""}`}

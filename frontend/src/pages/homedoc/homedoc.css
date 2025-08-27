@@ -72,8 +72,7 @@
 }
 
 .qewty-stat-value {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.5rem;
   color: #111;
 }
 
@@ -537,4 +536,20 @@
   border-radius: 6px;
   cursor: pointer;  /* ชี้แล้วเป็น pointer */
   transition: background-color 0.2s ease;
+}
+.ann-image-only {
+  position: relative;
+  width: 100%;
+  height: 300px;       /* ✅ สูงเท่ากับ .docflour-calendar-container เดิม */
+  padding: 0;          /* ❌ เอา padding ออก */
+  border-radius: 16px; /* ✅ ให้โค้งตาม .docflour-card */
+  overflow: hidden;    /* กันภาพล้น */
+}
+
+.ann-full {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* ✅ ให้ภาพกินเต็มทั้งกรอบ */
+  border-radius: 16px; /* ✅ ขอบโค้งพอดี */
+  display: block;
 }

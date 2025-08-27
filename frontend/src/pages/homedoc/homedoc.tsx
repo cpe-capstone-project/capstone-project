@@ -181,6 +181,14 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
+// ⬇️ เพิ่มใหม่
+const canonStatus = (s: any): "pending" | "accepted" | "rejected" => {
+  const v = String(s ?? "pending").toLowerCase();
+  if (["accepted","approve","approved","confirm","confirmed","ok","yes"].includes(v)) return "accepted";
+  if (["rejected","decline","declined","deny","denied","cancel","canceled","cancelled","no"].includes(v)) return "rejected";
+  return "pending";
+};
+
 interface CalendarEvent {
   id: number;
   title: string;
@@ -533,7 +541,25 @@ useEffect(() => {
   const msg = ev.data || {};
   if (!msg) return;
 
-  // ... เคส appointment_status_changed คงเดิม
+    // ... เคส appointment_status_changed คงเดิม
+    // ✅ NEW: รับการยืนยัน/ปฏิเสธ แล้วอัปเดตสีในปฏิทินทันที
+if (msg.type === "appointment_status_changed" && msg.appointment_id) {
+  setEvents((prev) => {
+    const updated = prev.map((e) =>
+      e.id === Number(msg.appointment_id)
+        ? { ...e, status: canonStatus(msg.status)
+ }
+        : e
+    );
+    saveEventsToLocal(updated);
+    return updated;
+  });
+
+  window.dispatchEvent(new Event("calendarEventsUpdated"));
+  window.dispatchEvent(new Event("storage"));
+  return; // จบงานเคสนี้
+}
+
 
   if (msg.type === "appointment_rejected_with_proposal" && msg.appointment_id) {
     const proposedStart = msg.proposed_start ? new Date(msg.proposed_start) : null;
@@ -724,8 +750,8 @@ useEffect(() => {
       return res.json();
     })
     .then((data) => {
-      const normalize = (s?: string) =>
-        String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";
+      /*const normalize = (s?: string) =>
+        String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";*/
 
       const loaded: CalendarEvent[] = (Array.isArray(data) ? data : []).map((item: any) => ({
         id: item.id,
@@ -733,7 +759,7 @@ useEffect(() => {
         detail: item.detail,
         start: new Date(item.start_time),
         end: new Date(item.end_time),
-        status: normalize(item.status),
+        status: canonStatus(item.status),
       }));
 
       // 🔐 รวมกับของเดิม เพื่อกันกรณี backend ไม่ส่ง rejected
@@ -743,8 +769,17 @@ useEffect(() => {
         const allIds = new Set([...prevById.keys(), ...loadedById.keys()]);
         const merged: CalendarEvent[] = [];
         for (const id of allIds) {
-          merged.push(loadedById.get(id) ?? prevById.get(id)!);
-        }
+  const fromLoaded = loadedById.get(id);
+  const fromPrev   = prevById.get(id);
+
+  // ✅ กันเคส backend ยังส่ง pending มากลบทับ accepted ที่อัปเดตไปแล้ว
+  if (fromPrev && fromPrev.status === "accepted" && fromLoaded?.status === "pending") {
+    merged.push({ ...fromLoaded, status: "accepted" as const });
+  } else {
+    merged.push((fromLoaded ?? fromPrev)!);
+  }
+}
+
         saveEventsToLocal(merged);
         return merged;
       });
@@ -769,6 +804,24 @@ ws.onmessage = async (ev) => {
     const msg = JSON.parse(ev.data || "{}");
 
     // ... เคส appointment_status_changed คงเดิม
+    // ✅ NEW: อัปเดตสถานะจาก WS ให้ปฏิทินเปลี่ยนสีทันที
+if (msg.type === "appointment_status_changed" && msg.appointment_id) {
+  setEvents((prev) => {
+    const updated = prev.map((e) =>
+      e.id === Number(msg.appointment_id)
+        ? { ...e, status: canonStatus(msg.status)
+ }
+        : e
+    );
+    saveEventsToLocal(updated);
+    return updated;
+  });
+
+  window.dispatchEvent(new Event("calendarEventsUpdated"));
+  window.dispatchEvent(new Event("storage"));
+  return;
+}
+
 
     if (msg.type === "appointment_rejected_with_proposal" && msg.appointment_id) {
       const proposedStart = msg.proposed_start ? new Date(msg.proposed_start) : null;
@@ -808,7 +861,7 @@ ws.onmessage = async (ev) => {
 
 // helper ดึงข้อมูลจากฐานข้อมูล (เรียกใช้ซ้ำได้)
 const refetchAppointments = async () => {
-  const psychId = localStorage.getItem("id");
+  const psychId = localStorage.getItem("psych_id") || localStorage.getItem("id");
   if (!psychId) return;
 
   try {
@@ -825,8 +878,8 @@ const refetchAppointments = async () => {
     if (!res.ok) throw new Error("reload failed");
     const data = await res.json();
 
-    const normalize = (s?: string) =>
-      String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";
+    /*const normalize = (s?: string) =>
+      String(s || "pending").toLowerCase() as "pending" | "accepted" | "rejected";*/
 
     const loaded: CalendarEvent[] = (Array.isArray(data) ? data : []).map((item: any) => ({
       id: item.id,
@@ -834,7 +887,8 @@ const refetchAppointments = async () => {
       detail: item.detail,
       start: new Date(item.start_time),
       end: new Date(item.end_time),
-      status: normalize(item.status),
+      status: canonStatus(item.status),
+
     }));
 
     // ⬇️ สำคัญ: รวมกับของเดิม เพื่อกันกรณี backend ไม่ส่ง rejected กลับมา
@@ -846,12 +900,17 @@ const refetchAppointments = async () => {
       const merged: CalendarEvent[] = [];
 
       for (const id of allIds) {
-        const fromLoaded = loadedById.get(id);
-        const fromPrev = prevById.get(id);
-        // ถ้าโหลดมาได้ ใช้อันที่โหลด (ถือเป็น truth source)
-        // ถ้าโหลดมาไม่ได้ (เช่น rejected ไม่ถูกส่ง) ให้คงอันเดิมไว้
-        merged.push((fromLoaded ?? fromPrev)!);
-      }
+  const fromLoaded = loadedById.get(id);
+  const fromPrev   = prevById.get(id);
+
+  // ✅ รักษา accepted ถ้า loaded ยังเป็น pending
+  if (fromPrev && fromPrev.status === "accepted" && fromLoaded?.status === "pending") {
+    merged.push({ ...fromLoaded, status: "accepted" as const });
+  } else {
+    merged.push((fromLoaded ?? fromPrev)!);
+  }
+}
+
 
       // เซฟลง localStorage
       saveEventsToLocal(merged);

@@ -632,10 +632,12 @@ useEffect(() => {
 
       const htmlContent = `
         <div style="background-color:#e0f2ff;padding:20px;border-radius:16px;text-align:left;">
-          <h3 style="margin-bottom:15px;text-align:center;">
-            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align:middle;margin-right:8px;" />
-            แจ้งเตือนนัดหมาย
-          </h3>
+          <h3 style="margin-bottom:15px;display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;font-size:1.1rem;">
+      <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png"
+           width="28" height="28"
+           style="display:block;" />
+      <span>แจ้งเตือนนัดหมาย</span>
+    </h3>
           <div style="background:#fff;padding:10px 16px;border-radius:12px;margin-bottom:10px;font-size:0.9rem;">
             <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()}
               ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.

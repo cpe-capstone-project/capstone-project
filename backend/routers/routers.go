@@ -22,6 +22,7 @@ func SetupRouter() *gin.Engine {
 	SetupAdminRoutes(r)
 	SetupAppointmentRoutes(r)
 	SetupRequestRoutes(r)
+	SetupChecklistRoutes(r)
 	// Private Routes (Require Authorization)
 	private := r.Group("/")
 	private.Use(middlewares.Authorizes())
@@ -29,11 +30,11 @@ func SetupRouter() *gin.Engine {
 	SetupThoughtRecordRoutes(private)
 	SetupTherapyCaseRoutes(private)
 	
-	// ✅ ย้าย route นี้มาอยู่ตรงนี้
+
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)
 	
 	private.PUT("/patient/update-profile", patient.UpdateProfile)
-	// Root Route
+	
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "API RUNNING... PORT: %s", PORT)
 	})

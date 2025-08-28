@@ -40,6 +40,17 @@ type RequestItem = {
   meetingStart?: string;     // ISO (เฉพาะ "ขอนัดพบ")
   meetingEnd?: string;       // ISO (เฉพาะ "ขอนัดพบ")
 };
+const getScopedKey = (base: string) => {
+  const role = localStorage.getItem("role") || "-";
+  // ใช้ไอดีของบทบาทนั้นๆ เป็นหลัก
+  const uid =
+    (role === "Psychologist"
+      ? localStorage.getItem("psych_id")
+      : localStorage.getItem("patient_id")) ||
+    localStorage.getItem("id") ||
+    ""; // fallback
+  return `${base}:${role}:${uid}`;
+};
 
 async function postRequestToServer(newItem: RequestItem) {
   try {
@@ -75,8 +86,7 @@ async function postRequestToServer(newItem: RequestItem) {
   }
 }
 
-const REQUESTS_KEY = k((KEYS as any)?.REQUESTS ?? "REQUESTS");
-
+const REQUESTS_KEY = getScopedKey("REQUESTS:v2"); // เปลี่ยนเวอร์ชันเพื่อแยกจากของเก่า
 const loadRequests = (): RequestItem[] => {
   try {
     const raw = localStorage.getItem(REQUESTS_KEY) || "[]";
@@ -92,6 +102,15 @@ const saveRequests = (list: RequestItem[]) => {
 // === Requests state ===
 const [recentRequests, setRecentRequests] = useState<RequestItem[]>([]);
 const [requestCount, setRequestCount] = useState<number>(0); // ⬅️ เพิ่ม
+useEffect(() => {
+  return scheduleMidnightReset(async () => {
+    try {
+      await fetchChecklistTodayFromServer();
+    } catch {
+      setChecklist(newDayState()); // เผื่อออฟไลน์
+    }
+  });
+}, []);
 
 useEffect(() => {
   const all = loadRequests()
@@ -614,7 +633,6 @@ const TASK_SETS: Task[][] = [
   ],
 ];
 
-// ---- utils ----
 const STORAGE_KEY = k(KEYS.CHECK_DAY);
 const STORAGE_KEY_BYDATE = k(KEYS.CHECK_BYDATE);
 //const STORAGE_KEY = "daily-checklist-v2"; // เปลี่ยน key กันชนกับของเก่า
@@ -747,6 +765,69 @@ function loadChecklist(): ChecklistState {
     return newDayState();
   }
 }
+// ✅ GET วันนี้
+async function fetchChecklistTodayFromServer() {
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const patientId = Number(localStorage.getItem("patient_id") || 0);
+  const tz = "Asia/Bangkok";
+  if (!patientId) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  // ⬇️ ใส่ /api
+  const url = `http://localhost:8000/api/patients/${patientId}/checklists?date=${today}&tz=${encodeURIComponent(tz)}`;
+
+  const res = await fetch(url, {
+    headers: { Authorization: `${tokenType} ${token}` },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    const s: ChecklistState = {
+      date: data.date,
+      tasks: (data.tasks || []).map((t: any) => ({ id: t.id, label: t.label })),
+      done: data.done || {},
+    };
+    setChecklist(s);
+    saveChecklist(s);
+  }
+}
+
+// ✅ PATCH toggle
+async function toggleTaskOnServer(dateYYYYMMDD: string, taskId: TaskId, done: boolean, version?: number) {
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const patientId = Number(localStorage.getItem("patient_id") || 0);
+  const tz = "Asia/Bangkok";
+  if (!patientId) return;
+
+  // ⬇️ ใส่ /api
+  const url = `http://localhost:8000/api/patients/${patientId}/checklists/${dateYYYYMMDD}/toggle?tz=${encodeURIComponent(tz)}`;
+
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `${tokenType} ${token}`,
+    },
+    body: JSON.stringify({ taskId, done, version: version || 0 }),
+  });
+
+  if (res.status === 409) {
+    await fetchChecklistTodayFromServer();
+    return;
+  }
+  if (res.ok) {
+    const data = await res.json();
+    const s: ChecklistState = {
+      date: data.date,
+      tasks: (data.tasks || []).map((t: any) => ({ id: t.id, label: t.label })),
+      done: data.done || {},
+    };
+    setChecklist(s);
+    saveChecklist(s);
+  }
+}
+
 
 function saveChecklist(s: ChecklistState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
@@ -774,14 +855,17 @@ const [checklist, setChecklist] = useState<ChecklistState>(() => loadChecklist()
 
 useEffect(() => { saveChecklist(checklist); }, [checklist]);
 
-useEffect(() => scheduleMidnightReset(() => setChecklist(newDayState())), []);
+//useEffect(() => scheduleMidnightReset(() => setChecklist(newDayState())), []);
 
-// ---- actions ----
-const toggleTask = (id: TaskId) =>
-  setChecklist((s) => ({
-    ...s,
-    done: { ...s.done, [id]: !s.done[id] },
-  }));
+const toggleTask = (id: TaskId) => {
+  setChecklist((s) => {
+    const next = { ...s, done: { ...s.done, [id]: !s.done[id] } };
+    saveChecklist(next);
+    // fire & forget ซิงก์ (ถ้าอยากกัน spam ให้ debounce/throttle 200–400ms)
+    toggleTaskOnServer(next.date, id, next.done[id]).catch(console.error);
+    return next;
+  });
+};
 
 // ---- progress ----
 const total = checklist.tasks.length;

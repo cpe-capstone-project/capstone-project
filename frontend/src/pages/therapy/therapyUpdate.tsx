@@ -4,11 +4,9 @@ import { Save, ArrowLeft } from "lucide-react";
 import {
     GetTherapyCaseByID,
     UpdateTherapyCase,
-    GetPatientByPsycoId,
     GetCaseStatuses,
 } from "../../services/https/TherapyCase";
 import type { TherapyInterface } from "../../interfaces/ITherapy";
-import type { PatientTherapyInterface } from "../../interfaces/IPatientTherapy";
 import type { CaseStatusInterface } from "../../interfaces/ICaseStatus";
 
 
@@ -28,7 +26,6 @@ export default function EditTherapyCasePage() {
         PatientID: 0,
     });
 
-    const [patient, setPatient] = useState<PatientTherapyInterface[]>([]);
     type FormErrors = Partial<Record<keyof TherapyInterface, string>>;
     const [errors, setErrors] = useState<FormErrors>({});
 
@@ -75,29 +72,6 @@ export default function EditTherapyCasePage() {
     }, [id]);
 
 
-
-    // โหลดรายชื่อผู้ป่วย
-    // โหลดรายชื่อผู้ป่วย
-    useEffect(() => {
-        if (!psychoIdStr) return;
-
-        GetPatientByPsycoId(Number(psychoIdStr))
-            .then((res) => {
-                const data = res.data;
-
-                if (Array.isArray(data)) {
-                    setPatient(data);
-                } else if (data) {
-                    setPatient([data]); // แปลง object เดียวเป็น array
-                } else {
-                    setPatient([]);
-                }
-            })
-            .catch((err) => {
-                console.error("Error fetching patients:", err);
-                setPatient([]);
-            });
-    }, [psychoIdStr]);
 
 
     const handleInputChange = (
@@ -189,35 +163,6 @@ export default function EditTherapyCasePage() {
                     onSubmit={handleSubmit}
                     className="!w-full !bg-white !border !border-gray-200 !rounded-lg !p-8 !space-y-8"
                 >
-                    {/* Patient */}
-                    <div>
-                        <label
-                            htmlFor="PatientID"
-                            className="!block !text-sm !font-medium !text-gray-700 !mb-2"
-                        >
-                            ผู้ป่วย <span className="!text-red-500">*</span>
-                        </label>
-                        <select
-                            id="PatientID"
-                            name="PatientID"
-                            value={formData.PatientID}
-                            onChange={handleInputChange}
-                            className={`!block !w-full !px-4 !py-3 !border !rounded-lg ${errors.PatientID ? "!border-red-500" : "!border-gray-300"
-                                }`}
-                        >
-                            <option value="">เลือกผู้ป่วย</option>
-                            {patient.map((p) => (
-                                <option key={p.ID} value={p.ID}>
-                                    {p.FirstName}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.PatientID && (
-                            <p className="!mt-1 !text-sm !text-red-600">
-                                {errors.PatientID}
-                            </p>
-                        )}
-                    </div>
 
                     {/* Title */}
                     <div>

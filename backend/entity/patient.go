@@ -26,4 +26,5 @@ type Patients struct {
   Requests    []Request    `gorm:"foreignKey:PatientID"`
   DailyChecklists []DailyChecklist `gorm:"foreignKey:PatientID"`
   TherapyCase  []TherapyCase `gorm:"foreignKey:PatientID"`
+  Feedback     []Feedback `gorm:"foreignKey:PatientID"`
 }

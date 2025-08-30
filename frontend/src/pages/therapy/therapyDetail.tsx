@@ -1,6 +1,6 @@
 import  { useState, useEffect } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, User, Calendar, } from 'lucide-react';
+import { ArrowLeft, FileText, User, Calendar,List } from 'lucide-react';
 import type { TherapyInterface } from "../../interfaces/ITherapy"
 import {
   GetTherapyCaseByID,
@@ -12,6 +12,7 @@ export default function TherapyCaseDetailPage() {
   
   const [caseDetail, setCaseDetail] = useState<TherapyInterface | null>(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   console.log('caseDetail: ',caseDetail)
 
@@ -42,6 +43,9 @@ export default function TherapyCaseDetailPage() {
 }, [id]);
 
   const handleBack = () => navigate(-1);
+  const handleDiaryClick = () => {
+    if (caseDetail?.ID) navigate(`/psychologist/diary/patient/${caseDetail.ID}`);
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -80,9 +84,9 @@ export default function TherapyCaseDetailPage() {
   return (
     <div className="!min-h-screen !bg-white !p-8">
       <div className="!max-w-4xl !mx-auto">
-        {/* Header */}
+        {/* Header with Dropdown Menu */}
         <div className="!mb-8">
-          <div className="!flex !items-center !mb-6">
+          <div className="!flex !items-center !justify-between !mb-6">
             <button
               onClick={handleBack}
               className="!inline-flex !items-center !px-4 !py-2 !text-sm !font-medium !text-gray-600 !hover:!text-gray-900 !transition-colors"
@@ -90,6 +94,31 @@ export default function TherapyCaseDetailPage() {
               <ArrowLeft className="!h-5 !w-5 !mr-2" />
               กลับ
             </button>
+            
+            {/* เมนู Diary - ย้ายมาอยู่ขวาบน */}
+            <div className="!relative !inline-block !text-left">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="!inline-flex !justify-between !items-center !w-48 !px-4 !py-2 !bg-gray-100 !rounded-md !hover:!bg-gray-200 !focus:outline-none"
+              >
+                <List className="!w-5 !h-5 !mr-2" />
+                <span>เมนู</span>
+                <span className="ml-2">{menuOpen ? '▲' : '▼'}</span>
+              </button>
+
+              {menuOpen && (
+                <div className="!origin-top-right !absolute !right-0 !mt-2 !w-48 !rounded-md !shadow-lg !bg-white !ring-1 !ring-black !ring-opacity-5 !focus:outline-none z-10">
+                  <div className="!py-1">
+                    <button
+                      onClick={handleDiaryClick}
+                      className="!w-full !text-left !px-4 !py-2 !text-sm !text-gray-700 hover:!bg-gray-100"
+                    >
+                      ดู Diary ทั้งหมด
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="!text-center">

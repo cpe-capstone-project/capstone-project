@@ -101,22 +101,29 @@ func GetTherapyCasesByID(c *gin.Context) {
 func GetPatientByPsychologistID(c *gin.Context) {
     psychoID := c.Param("id") // รับ Psychologist ID จาก URL
 
-    var patient []entity.Patients
+    var patients []entity.Patients
 
     db := config.DB()
-    // ดึงทุก TherapyCase ของ Psychologist พร้อม preload Patient และ CaseStatus
-    result := db.Where("psychologist_id = ?", psychoID).Find(&patient)
+
+    // Subquery: เลือก patient_id ที่มีอยู่ใน therapy_case
+    subQuery := db.Model(&entity.TherapyCase{}).Select("patient_id")
+
+    // ดึง Patients ของ psychologist_id ที่ยังไม่มีใน therapy_case
+    result := db.Where("psychologist_id = ?", psychoID).
+        Where("id NOT IN (?)", subQuery).
+        Find(&patients)
+
     if result.Error != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
         return
     }
 
-    if len(patient) == 0 {
+    if len(patients) == 0 {
         c.JSON(http.StatusNoContent, gin.H{})
         return
     }
 
-    c.JSON(http.StatusOK, patient)
+    c.JSON(http.StatusOK, patients)
 }
 
 func CreateTherapyCase(c *gin.Context) {

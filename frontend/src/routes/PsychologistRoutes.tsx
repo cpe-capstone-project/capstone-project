@@ -6,6 +6,8 @@ import  Therapy from "../pages/therapy/therapy";
 import TherapyCreate from "../pages/therapy/therapyCreate"
 import TherapyUpdate from "../pages/therapy/therapyUpdate"
 import TherapyDetail from "../pages/therapy/therapyDetail"
+import TherapyDiaryList from "../pages/therapy/therapyDiary"
+
 
 const PsychologistRoutes = {
   path: "/psychologist",
@@ -21,6 +23,7 @@ const PsychologistRoutes = {
     { path: "therapyCreate", element: <TherapyCreate /> },
     { path: "therapyUpdate/:id", element: <TherapyUpdate /> },
     { path: "therapyDetail/:id", element: <TherapyDetail /> },
+    { path: "diary/patient/:id", element: <TherapyDiaryList /> },
   ],
 };
 

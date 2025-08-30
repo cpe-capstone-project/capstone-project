@@ -182,7 +182,7 @@ export default function CreateTherapyCasePage() {
                   >
                     <option value="">เลือกผู้ป่วย</option>
                     {patient.map(p => (
-                      <option key={p.ID} value={p.ID}>{p.FirstName}</option>
+                      <option key={p.ID} value={p.ID}>{p.FirstName}{" "}{p.LastName}</option>
                     ))}
                   </select>
                 </div>

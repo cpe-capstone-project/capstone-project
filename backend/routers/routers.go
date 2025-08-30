@@ -29,6 +29,7 @@ func SetupRouter() *gin.Engine {
 	SetupDiaryRoutes(private)
 	SetupThoughtRecordRoutes(private)
 	SetupTherapyCaseRoutes(private)
+	SetupFeedbackRoutes(private)
 	
 
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)

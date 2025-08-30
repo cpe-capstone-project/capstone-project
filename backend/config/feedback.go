@@ -3,43 +3,63 @@ package config
 import (
 	"capstone-project/entity"
 	"fmt"
-	"time"
 )
 
 func SetupFeedbackDatabase() {
 	db.AutoMigrate(
+		&entity.FeedbackDiary{},
 		&entity.Feedback{},
+		&entity.FeedbackTime{},
 		&entity.FeedbackType{},
 	)
 
+	// ---- Seed FeedbackTime ----
+	feedbackTimes := []entity.FeedbackTime{
+		{
+			FeedbackTimeName: "Diary Summary",
+		},
+		{
+			FeedbackTimeName: "Daily Summary",
+		},
+		{
+			FeedbackTimeName: "Weekly Summary",
+		},
+		{
+			FeedbackTimeName: "Monthly Summary",
+		},
+	}
+
+	for _, ft := range feedbackTimes {
+		db.Where(entity.FeedbackTime{FeedbackTimeName: ft.FeedbackTimeName}).
+			Assign(ft).
+			FirstOrCreate(&ft)
+	}
+
 	// ---- Seed FeedbackType ----
 	feedbackTypes := []entity.FeedbackType{
-		{
-			FeedbackName:     "Weekly Summary",
-			FeedbackStartDate: time.Now().AddDate(0, 0, -7),
-			FeedbackEndDate:   time.Now(),
-		},
-		{
-			FeedbackName:     "Monthly Summary",
-			FeedbackStartDate: time.Now().AddDate(0, -1, 0),
-			FeedbackEndDate:   time.Now(),
-		},
+		{FeedbackTypeName: "Diary"},
+		{FeedbackTypeName: "Thought Record"},
 	}
 
 	for _, ft := range feedbackTypes {
-		db.FirstOrCreate(&ft, entity.FeedbackType{FeedbackName: ft.FeedbackName})
+		db.Where(entity.FeedbackType{FeedbackTypeName: ft.FeedbackTypeName}).
+			Assign(ft).
+			FirstOrCreate(&ft)
 	}
 
-	// ---- Seed Feedback (สมมติว่ามี DiaryID, PsychologistID, ThoughtRecordID อยู่แล้ว) ----
+	// ---- Seed Feedback (สมมติว่ามี PsychologistID และ PatientID อยู่แล้วใน DB) ----
 	feedback := entity.Feedback{
 		FeedbackTitle:   "ควบคุมความรู้สึก",
-		FeedbackContent: "อันดับแรกคือห้ามตัดสินความทุกข์ของผู้อื่น อย่างเด็ดขาด และในขณะเดียวกันคุณก็จะ ต้องแสดงความห่วงใยให้ผู้ที่กำลังป่วยได้รับ รู้อย่างเต็มที่ เมื่อผู้ป่วยสัมผัสได้ถึงความจริงใจและความห่วงใยที่คุณมี ",
+		FeedbackContent: "อันดับแรกคือห้ามตัดสินความทุกข์ของผู้อื่น อย่างเด็ดขาด และในขณะเดียวกันคุณก็ต้องแสดงความห่วงใยให้ผู้ที่กำลังป่วยได้รับรู้อย่างเต็มที่ เมื่อผู้ป่วยสัมผัสได้ถึงความจริงใจและความห่วงใยที่คุณมี",
 		PsychologistID:  1, // ต้องมีอยู่ใน DB
-		DiaryID:         1, // ต้องมีอยู่ใน DB
-		FeedbackTypeID:  1, // Weekly Summary
-		ThoughtRecordID: 0, // ต้องมีอยู่ใน DB
+		PatientID:       1, // ต้องมีอยู่ใน DB
+		FeedbackTypeID:  1, // General
+		FeedbackTimeID:  2, // Weekly Summary
 	}
-	db.FirstOrCreate(&feedback , entity.Feedback{FeedbackTitle: feedback.FeedbackTitle})
+
+	db.Where(entity.Feedback{FeedbackTitle: feedback.FeedbackTitle}).
+		Assign(feedback).
+		FirstOrCreate(&feedback)
 
 	fmt.Println("Feedback data has been added to the database.")
 }

@@ -81,7 +81,7 @@ function ThoughtRecordList() {
             type="primary"
             icon={<FaPlus />}
             style={{ borderRadius: "var(--radius-full)" }}
-            onClick={() => navigate("/thought-records/create")}
+            onClick={() => navigate("/patient/thought_records/create")}
           >
             สร้างบันทึก
           </Button>
@@ -173,7 +173,7 @@ function ThoughtRecordList() {
                   <Divider style={{ margin: "8px 0" }} />
 
                   <Text type="secondary" style={{ fontSize: "12px", marginTop: "auto" }}>
-                    แก้ไขล่าสุด:{" "}
+                    สร้างเมื่อ:{" "}
                     {record.UpdatedAt
                       ? new Date(record.UpdatedAt).toLocaleString("th-TH")
                       : "-"}
@@ -184,7 +184,7 @@ function ThoughtRecordList() {
                     type="primary"
                     shape="circle"
                     icon={<EyeOutlined />}
-                    onClick={() => navigate(`/patient/thought_record/${record.ID}`)}
+                    onClick={() => navigate(`/patient/thought_records/${record.ID}`)}
                   />
                 </Card>
               </div>

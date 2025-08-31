@@ -1,0 +1,225 @@
+.thought-record-create {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 24px 16px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Form Card */
+.form-card {
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  padding: 32px;
+  background: white;
+}
+
+/* Header Inside Card */
+.header-content {
+  text-align: center;
+ 
+}
+
+.page-title {
+  margin: 0 !important;
+  color: #1f2937;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.title-icon {
+  color: #1677ff;
+  font-size: 1.2em;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 0px;
+}
+
+.form-section:last-of-type {
+  margin-bottom: 32px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+  margin-top: 16px;
+}
+
+.section-title {
+  color: #374151;
+  font-weight: 600;
+  margin: 0 !important;
+  font-size: 18px;
+}
+
+.section-divider {
+  margin: 8px 0 0 0 !important;
+  border-color: #e5e7eb;
+}
+
+/* Field Labels and Icons */
+.field-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.field-icon {
+  font-size: 16px;
+  width: 18px;
+}
+
+.field-icon.situation {
+  color: #059669;
+}
+
+.field-icon.thoughts {
+  color: #dc2626;
+}
+
+.field-icon.behaviors {
+  color: #7c3aed;
+}
+
+.field-icon.alternate {
+  color: #ea580c;
+}
+
+/* Form Controls */
+.create-form .ant-form-item-label > label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.textarea-field {
+  border-radius: 12px !important;
+  border: 2px solid #e5e7eb !important;
+  padding: 12px 16px !important;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  resize: vertical;
+}
+
+.textarea-field:focus,
+.textarea-field:hover {
+  border-color: #1677ff !important;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1) !important;
+}
+
+.textarea-field::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-actions .ant-btn {
+  margin: 0 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .thought-record-create {
+    padding: 16px 12px;
+  }
+
+  .form-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .header-content {
+    padding: 20px 16px;
+    margin: 0 -4px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-section {
+    margin-bottom: 32px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .ant-btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .textarea-field {
+    padding: 10px 12px !important;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+}
+
+/* Primary Button Override */
+.ant-btn-primary {
+  background-color: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #4096ff !important;
+  border-color: #4096ff !important;
+  color: #fff !important;
+}
+
+.ant-btn-primary:disabled {
+  background-color: #91caff !important;
+  border-color: #91caff !important;
+  color: #fff !important;
+}
+
+/* ไฮไลต์ทั้ง column (ข้อมูล) */
+.highlight-col {
+  background-color: #e6f4ff !important; /* ฟ้าอ่อน */
+}
+
+/* ไฮไลต์เฉพาะหัวตารางให้เข้มกว่า */
+.ant-table-thead .highlight-col {
+  background-color: #3d79f1 !important; /* ฟ้าเข้ม */
+  color: #fff !important;              /* ตัวอักษรขาว */
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+/* หัวตารางปกติ (ยังไม่ถูกไฮไลต์) */
+.ant-table-thead > tr > th {
+  background-color: #f0f2f5 !important; /* เทาอ่อน */
+  color: #333 !important;
+  font-weight: 600 !important;
+  text-align: center;
+  border: 1px solid #d9d9d9 !important;   /* เส้นรอบหัวตาราง */
+  border-bottom: 2px solid #d9d9d9 !important; /* เส้นคั่นด้านล่าง */
+}

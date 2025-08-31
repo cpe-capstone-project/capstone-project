@@ -21,4 +21,5 @@ type Diaries struct {
 
 	// One-to-many relationship
 	FeedbackDiary 		[]FeedbackDiary 		`gorm:"foreignKey:DiaryID"`
+
 }

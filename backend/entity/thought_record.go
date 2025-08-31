@@ -18,6 +18,6 @@ type ThoughtRecord struct {
 	EmotionsID       uint
 
 	// Relation to Feedbacks
-	Feedback []Feedback `gorm:"foreignKey:ThoughtRecordID"`
+	Feedback []Feedbacks `gorm:"foreignKey:ThoughtRecordID"`
 	TherapyCase TherapyCase `gorm:"foreignKey:TherapyCaseID"`     // many-to-one
 }

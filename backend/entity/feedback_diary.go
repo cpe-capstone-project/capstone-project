@@ -12,7 +12,7 @@ type FeedbackDiary struct {
 	Diary  *Diaries `gorm:"foreignKey:DiaryID"`
 
 	FeedbackID uint
-	Feedback   *Feedback `gorm:"foreignKey:FeedbackID"`
+	Feedbacks   *Feedbacks `gorm:"foreignKey:FeedbackID"`
 
 
 }

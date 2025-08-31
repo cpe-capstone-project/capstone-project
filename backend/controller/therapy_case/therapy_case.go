@@ -33,7 +33,7 @@ func GetCaseStatuses(c *gin.Context) {
 // GET /therapy-case/patient/:id
 func GetTherapyCaseByPatientID(c *gin.Context) {
 	patientID := c.Param("id")
-	var therapyCase entity.TherapyCase
+	var therapyCase []entity.TherapyCase
 
 	db := config.DB()
 	result := db.Preload("CaseStatus").

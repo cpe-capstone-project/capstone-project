@@ -9,5 +9,5 @@ type FeedbackTime struct {
   FeedbackTimeName string
 
 
-  Feedback  []Feedback `gorm:"foreignKey:FeedbackTimeID"`
+  Feedbacks  []Feedbacks `gorm:"foreignKey:FeedbackTimeID"`
 }

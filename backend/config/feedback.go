@@ -8,7 +8,7 @@ import (
 func SetupFeedbackDatabase() {
 	db.AutoMigrate(
 		&entity.FeedbackDiary{},
-		&entity.Feedback{},
+		&entity.Feedbacks{},
 		&entity.FeedbackTime{},
 		&entity.FeedbackType{},
 	)
@@ -48,7 +48,7 @@ func SetupFeedbackDatabase() {
 	}
 
 	// ---- Seed Feedback (สมมติว่ามี PsychologistID และ PatientID อยู่แล้วใน DB) ----
-	feedback := entity.Feedback{
+	feedback := entity.Feedbacks{
 		FeedbackTitle:   "ควบคุมความรู้สึก",
 		FeedbackContent: "อันดับแรกคือห้ามตัดสินความทุกข์ของผู้อื่น อย่างเด็ดขาด และในขณะเดียวกันคุณก็ต้องแสดงความห่วงใยให้ผู้ที่กำลังป่วยได้รับรู้อย่างเต็มที่ เมื่อผู้ป่วยสัมผัสได้ถึงความจริงใจและความห่วงใยที่คุณมี",
 		PsychologistID:  1, // ต้องมีอยู่ใน DB
@@ -57,7 +57,7 @@ func SetupFeedbackDatabase() {
 		FeedbackTimeID:  2, // Weekly Summary
 	}
 
-	db.Where(entity.Feedback{FeedbackTitle: feedback.FeedbackTitle}).
+	db.Where(entity.Feedbacks{FeedbackTitle: feedback.FeedbackTitle}).
 		Assign(feedback).
 		FirstOrCreate(&feedback)
 

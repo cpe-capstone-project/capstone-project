@@ -37,6 +37,8 @@ func SetupDatabase() {
     SetupThoughtRecordDatabase()
     SetupFeedbackDatabase()
     SetupTherapyCaseDatabase()
+    SetuprequestData() 
+    SetupInitialChecklist()
     
     fmt.Println("Sample data has been added to the database.")
 }

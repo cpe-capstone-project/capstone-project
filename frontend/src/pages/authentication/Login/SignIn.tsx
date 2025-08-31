@@ -6,6 +6,8 @@ import Swal from "sweetalert2";
 import patientImage from "../../../assets/patient.png";
 import psychologyImage from "../../../assets/psychology.png";
 import MindcareImage from "../../../assets/mindcare.png";
+import { k, KEYS } from "../../../unid/storageKeys";
+
 function SignInPages() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
@@ -110,9 +112,40 @@ if (role === "Psychologist") {
   }
 
   console.log("redirecting to:", redirectPath);
+    try {
+    if (role === "Patient" && res?.data?.id) {
+      const tz = "Asia/Bangkok";
+      const todayISO = new Date().toISOString().slice(0, 10);
+      const r = await fetch(
+        `http://localhost:8000/api/patients/${res.data.id}/checklists?date=${todayISO}&tz=${encodeURIComponent(tz)}`,
+        {
+          headers: {
+            Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (r.ok) {
+        const data = await r.json();
+        localStorage.setItem(
+          k(KEYS.CHECK_DAY),
+          JSON.stringify({
+            date: data.date,
+            tasks: (data.tasks || []).map((t: any) => ({ id: t.id, label: t.label })),
+            done: data.done || {},
+          })
+        );
+      }
+    }
+  } catch (e) {
+    console.error("preload checklist failed", e);
+  }
+
+  // 🔽 redirect คงไว้เหมือนเดิม
   setTimeout(() => {
     location.href = redirectPath;
   }, 1000);
+
 }
  else {
     messageApi.error(res.data?.error || "Sign-in failed");

@@ -2,12 +2,12 @@ package entity
 
 import (
   "gorm.io/gorm"
-  "time"
 )
 
 type FeedbackType struct {
   gorm.Model
-  FeedbackName string
-  FeedbackStartDate     time.Time
-  FeedbackEndDate     time.Time
+  FeedbackTypeName string
+
+  Feedback  []Feedback `gorm:"foreignKey:FeedbackTypeID"`
+
 }

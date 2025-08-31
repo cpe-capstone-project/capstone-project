@@ -12,11 +12,11 @@ type TherapyCase struct {
   CaseStartDate     time.Time
 
   CaseStatusID uint
-  CaseStatus   *CaseStatus `gorm:"foreignKey:CaseStatusID"`
+  CaseStatus   CaseStatus `gorm:"foreignKey:CaseStatusID"`
 
   PsychologistID uint
-  Psychologist   *Psychologist `gorm:"foreignKey:PsychologistID"`
+  Psychologist   Psychologist `gorm:"foreignKey:PsychologistID"`
 
   PatientID uint
-  Patients   *Patients `gorm:"foreignKey:PatientID"`
+  Patient   Patients `gorm:"foreignKey:PatientID"`
 }

@@ -20,5 +20,5 @@ type Diaries struct {
 	Summaries 		[]DiarySummary 	`gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
 
 	// One-to-many relationship
-	Feedbacks 		[]Feedback 		`gorm:"foreignKey:DiaryID"`
+	FeedbackDiary 		[]FeedbackDiary 		`gorm:"foreignKey:DiaryID"`
 }

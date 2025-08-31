@@ -8,6 +8,6 @@ type Emotions struct {
 	gorm.Model
 	Emotionsname			string
 	Category		string
-
-	// EmotionAnalysisResults []EmotionAnalysisResults `gorm:"foreignKey:EmotionAnalysisResultsID"`
+	ThaiEmotionsname string
+	EmotionsColor string
 }

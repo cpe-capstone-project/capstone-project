@@ -6,7 +6,8 @@ import healthImage from "../../assets/med5.png";
 import { k, KEYS } from "../../unid/storageKeys";
 const NOTI_KEY = k(KEYS.NOTI);
 const NOTICE_FLAG_KEY = k(KEYS.NOTICE_FLAG);
-
+const PROFILE_KEY = k(KEYS.PROFILE);
+const CAL_KEY = k(KEYS.CAL);    
 // ✅ เพิ่ม global function
 declare global {
   interface Window {
@@ -34,6 +35,15 @@ const interval = setInterval(() => {
 
     return () => clearInterval(interval);
   }, []);
+// helper บนสุดของไฟล์ (ใต้ const ต่าง ๆ)
+const getProfileFromLS = () => {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); }
+  catch { return {}; }
+};
+const getProfileImage = () => {
+  const p = getProfileFromLS();
+  return p.image || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png";
+};
 
 useEffect(() => {
   window.confirmAppointment = async (id: string, status: string) => {
@@ -55,19 +65,19 @@ useEffect(() => {
 
       Swal.fire("สำเร็จ", status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว", "success");
 
-      // 🔹 อัปเดต calendar_events
-      const calendar = JSON.parse(localStorage.getItem("calendar_events") || "[]");
-      const updatedCalendar = calendar.map((ev: any) =>
-        ev.id === Number(id) ? { ...ev, status } : ev
-      );
-      localStorage.setItem("calendar_events", JSON.stringify(updatedCalendar));
+       // ✅ calendar events ต่อผู้ใช้
+    const calendar = JSON.parse(localStorage.getItem(CAL_KEY) || "[]");
+    const updatedCalendar = calendar.map((ev: any) =>
+      ev.id === Number(id) ? { ...ev, status } : ev
+    );
+    localStorage.setItem(CAL_KEY, JSON.stringify(updatedCalendar));
 
-      // 🔹 อัปเดต patient_notifications
-      const noticeList = JSON.parse(localStorage.getItem("patient_notifications") || "[]");
-      const updatedNoticeList = noticeList.map((notice: any) =>
-        notice.appointment_id === Number(id) ? { ...notice, status } : notice
-      );
-      localStorage.setItem("patient_notifications", JSON.stringify(updatedNoticeList));
+    // ✅ patient notifications ต่อผู้ใช้
+    const noticeList = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
+    const updatedNoticeList = noticeList.map((notice: any) =>
+      notice.appointment_id === Number(id) ? { ...notice, status } : notice
+    );
+    localStorage.setItem(NOTI_KEY, JSON.stringify(updatedNoticeList));
 
       window.dispatchEvent(new Event("calendarEventsUpdated"));
     } catch (err: any) {
@@ -163,6 +173,7 @@ localStorage.setItem(NOTICE_FLAG_KEY, "true");
       localStorage.setItem("phone", data.phone);
       localStorage.setItem("email", data.email);
       localStorage.setItem("profile_image", data.image);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
     }
   } catch (error) {
     console.error("โหลดโปรไฟล์ล้มเหลว", error);
@@ -182,18 +193,19 @@ const genderReverseMap: Record<string, number> = {
 };
 const handleEditProfile = async () => {
   setShowMenu(false);
+  await fetchProfileAndUpdateStorage();
+    const raw = localStorage.getItem(PROFILE_KEY);
+  const p = raw ? JSON.parse(raw) : {};
 
   const profile = {
-    first_name: localStorage.getItem("first_name") || "-",
-    last_name: localStorage.getItem("last_name") || "-",
-    address: localStorage.getItem("address") || "-",
-    birthday: localStorage.getItem("birthday") || "-",
-    email: localStorage.getItem("email") || "-",
-    phone: localStorage.getItem("phone") || "-",
-    image:
-      localStorage.getItem("profile_image") ||
-      "https://cdn-icons-png.flaticon.com/128/1430/1430402.png",
-    gender: genderMap[localStorage.getItem("gender") || ""] || "-",
+    first_name: p.first_name || "-",
+    last_name:  p.last_name  || "-",
+    address:    p.address    || "-",
+    birthday:   p.birthday   || "-",
+    email:      p.email      || "-",
+    phone:      p.phone      || "-",
+    image:      p.image || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png",
+    gender:     genderMap[String(p.gender)] || "-", // ถ้า backend ส่งเป็นเลข 1/2/3
   };
 
   const { value: formValues } = await Swal.fire({
@@ -219,10 +231,10 @@ const handleEditProfile = async () => {
       <div class="xbn-profile-header">
         <img src="${profile.image}" alt="profile" class="xbn-profile-img"/>
         <h4>${profile.first_name} ${profile.last_name}</h4>
-        <p>
-          <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" class="xbn-detail-icon"/>
-          ${profile.email}
-        </p>
+       <p class="xbn-email">
+  <img src="https://cdn-icons-png.flaticon.com/128/732/732200.png" class="xbn-detail-icon" alt="mail"/>
+  <span>${profile.email || "-"}</span>
+</p>
       </div>
       <div class="xbn-profile-details">
         <div><b>เพศ:</b> ${profile.gender}</div>
@@ -388,7 +400,10 @@ const out = () => {
       </a>
       <ul className="menu">
         <li>
-          <a onClick={() => handleNavigate("home")}>Dashboard</a>
+          <a onClick={() => handleNavigate("")}>Dashboard</a>
+        </li>
+        <li>
+          <a onClick={() => handleNavigate("home")}>Main Menu</a>
         </li>
         <li>
           <a onClick={() => handleNavigate("diary")}>Diary</a>
@@ -423,12 +438,13 @@ const out = () => {
 
 
         <div style={{ position: "relative" }}>
-          <img
+         <img
   className="profile"
-  src={localStorage.getItem("profile_image") || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png"}
+  src={getProfileImage()}
   alt=""
   onClick={() => setShowMenu(!showMenu)}
 />
+
           {showMenu && (
             <div className="housemed-profile-menu">
               <button onClick={handleEditProfile}>Edit Profile</button>

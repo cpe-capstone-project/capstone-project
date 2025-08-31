@@ -29,13 +29,414 @@ function HomePage() {
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
   const [, setMe] = useState<PatientInterface | null>(null);
-// แปลงแท็บ -> label ภาษาไทยที่ backend ใช้
-/*const tabToLabelTH = (tab: "daily" | "weekly" | "monthly"): "รายวัน" | "รายสัปดาห์" | "รายเดือน" => {
-  if (tab === "weekly") return "รายสัปดาห์";
-  if (tab === "monthly") return "รายเดือน";
-  return "รายวัน";
-};*/
-// ด้านล่าง useEffect อื่น ๆ ใน HomePage
+// ---- Requests (one-way) ----
+type RequestType = "ขอคำปรึกษา" | "ขอนัดพบ" | "อื่นๆ";
+type RequestItem = {
+  id: string;
+  type: RequestType;
+  detail: string;
+  other?: string;
+  createdAt: string;         // ISO
+  meetingStart?: string;     // ISO (เฉพาะ "ขอนัดพบ")
+  meetingEnd?: string;       // ISO (เฉพาะ "ขอนัดพบ")
+};
+const getScopedKey = (base: string) => {
+  const role = localStorage.getItem("role") || "-";
+  // ใช้ไอดีของบทบาทนั้นๆ เป็นหลัก
+  const uid =
+    (role === "Psychologist"
+      ? localStorage.getItem("psych_id")
+      : localStorage.getItem("patient_id")) ||
+    localStorage.getItem("id") ||
+    ""; // fallback
+  return `${base}:${role}:${uid}`;
+};
+
+async function postRequestToServer(newItem: RequestItem) {
+  try {
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+    const token     = localStorage.getItem("token") || "";
+    const patientId = Number(localStorage.getItem("patient_id") || 0);
+    // เลือกนักจิตปลายทาง: ถ้าแอปมีคู่จับอยู่แล้ว ก็อ่านจาก localStorage หรือตัวแปรที่คุณเก็บ
+    const psychId   = Number(localStorage.getItem("assigned_psych_id") || localStorage.getItem("psych_id") || 0);
+
+    if (!patientId || !psychId) return; // กันพลาด
+
+    const body = {
+      type: newItem.type,
+      detail: newItem.detail,
+      other: newItem.other ?? null,
+      meeting_start: newItem.meetingStart ?? null,
+      meeting_end: newItem.meetingEnd ?? null,
+      patient_id: patientId,
+      psychologist_id: psychId,
+    };
+
+    await fetch("http://localhost:8000/requests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `${tokenType} ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    // เงียบไว้ก่อนก็ได้ หรือจะแจ้งเตือนว่า "บันทึกขึ้นเซิร์ฟเวอร์ไม่สำเร็จ" ก็ได้
+    console.error("postRequestToServer failed", e);
+  }
+}
+
+const REQUESTS_KEY = getScopedKey("REQUESTS:v2"); // เปลี่ยนเวอร์ชันเพื่อแยกจากของเก่า
+const loadRequests = (): RequestItem[] => {
+  try {
+    const raw = localStorage.getItem(REQUESTS_KEY) || "[]";
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+};
+const saveRequests = (list: RequestItem[]) => {
+  localStorage.setItem(REQUESTS_KEY, JSON.stringify(list));
+};
+// === Requests state ===
+const [recentRequests, setRecentRequests] = useState<RequestItem[]>([]);
+const [requestCount, setRequestCount] = useState<number>(0); // ⬅️ เพิ่ม
+useEffect(() => {
+  return scheduleMidnightReset(async () => {
+    try {
+      await fetchChecklistTodayFromServer();
+    } catch {
+      setChecklist(newDayState()); // เผื่อออฟไลน์
+    }
+  });
+}, []);
+
+useEffect(() => {
+  const all = loadRequests()
+    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+  setRecentRequests(all.slice(0, 2));
+  setRequestCount(all.length); // ⬅️ เพิ่ม
+}, []);
+
+// ✅ Drop-in replacement
+async function openRequestForm() {
+  const html = `
+  <style>
+    .rq-row{ margin:10px 0; text-align:left }
+    .rq-label{ font-weight:700; margin-bottom:6px; display:block }
+    .rq-input, .rq-select, .rq-textarea{
+      width:100%; padding:10px 12px; border:1px solid #e5e7eb;
+      border-radius:10px; background:#fff; box-sizing:border-box;
+    }
+    .rq-textarea{ min-height:100px; resize:vertical }
+    .rq-note{ display:none }
+  </style>
+
+  <div class="rq-row">
+    <label class="rq-label">ประเภทคำร้อง</label>
+    <select id="rqType" class="rq-select">
+      <option value="ขอคำปรึกษา">ขอคำปรึกษา</option>
+      <option value="ขอนัดพบ">ขอนัดพบ</option>
+      <option value="อื่นๆ">อื่นๆ</option>
+    </select>
+  </div>
+
+  <!-- ระบุเพิ่มเติม (เฉพาะ "อื่นๆ") -->
+  <div class="rq-row">
+    <label class="rq-label" id="rqOtherLabel" style="display:none">ระบุเพิ่มเติม</label>
+    <input id="rqOther" class="rq-input rq-note" placeholder="โปรดระบุ"/>
+    <div id="rqOtherHelp" style="display:none; color:#ef4444; font-size:12px; margin-top:4px">กรุณาระบุข้อมูลเพิ่มเติม</div>
+  </div>
+
+  <!-- วัน-เวลา (เฉพาะ "ขอนัดพบ") -->
+  <div class="rq-row" id="rqMeetWrap" style="display:none">
+    <label class="rq-label">เลือกวัน/เวลาที่ต้องการ</label>
+    <div>
+      <input id="rqMeetStart" type="datetime-local" class="rq-input" />
+    </div>
+    <div id="rqMeetHelp" style="display:none; color:#ef4444; font-size:12px; margin-top:6px">
+      กรุณาระบุวัน–เวลาเริ่มต้น
+    </div>
+  </div>
+
+  <div class="rq-row">
+    <label class="rq-label">รายละเอียด</label>
+    <textarea id="rqDetail" class="rq-textarea" placeholder=""></textarea>
+  </div>
+`;
+
+
+  const { value: form } = await Swal.fire({
+    title: "ทำแบบคำร้อง",
+    html,
+    width: 640,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "ส่งคำร้อง",
+    didOpen: () => {
+  const typeEl   = document.getElementById("rqType") as HTMLSelectElement;
+  const otherEl  = document.getElementById("rqOther") as HTMLInputElement;
+  const otherLbl = document.getElementById("rqOtherLabel") as HTMLLabelElement;
+  const meetWrap = document.getElementById("rqMeetWrap") as HTMLDivElement;
+
+  const toggleFields = () => {
+    const isOther = typeEl.value === "อื่นๆ";
+    const isMeet  = typeEl.value === "ขอนัดพบ";
+    otherEl.style.display  = isOther ? "block" : "none";
+    otherLbl.style.display = isOther ? "block" : "none";
+    if (!isOther) (document.getElementById("rqOtherHelp") as HTMLDivElement).style.display = "none";
+    meetWrap.style.display = isMeet ? "block" : "none";
+    if (!isMeet) (document.getElementById("rqMeetHelp") as HTMLDivElement).style.display = "none";
+  };
+
+  toggleFields();
+  typeEl.addEventListener("change", toggleFields);
+},
+
+    preConfirm: () => {
+  const typeEl   = document.getElementById("rqType") as HTMLSelectElement;
+  const detailEl = document.getElementById("rqDetail") as HTMLTextAreaElement;
+  const otherEl  = document.getElementById("rqOther") as HTMLInputElement;
+
+  const helpOther = document.getElementById("rqOtherHelp") as HTMLDivElement;
+  const helpMeet  = document.getElementById("rqMeetHelp") as HTMLDivElement;
+
+  const meetStartEl = document.getElementById("rqMeetStart") as HTMLInputElement;
+
+  const type   = (typeEl?.value || "ขอคำปรึกษา") as RequestType;
+  const detail = (detailEl?.value || "").trim();
+  const other  = (otherEl?.value || "").trim();
+
+  if (!detail) {
+    Swal.showValidationMessage("กรุณากรอกรายละเอียด");
+    return;
+  }
+  if (type === "อื่นๆ" && !other) {
+    helpOther.style.display = "block";
+    Swal.showValidationMessage("กรุณาระบุเพิ่มเติมสำหรับ ‘อื่นๆ’");
+    return;
+  }
+
+  let meetingStart: string | undefined;
+  if (type === "ขอนัดพบ") {
+    const s = meetStartEl?.value;
+    if (!s) {
+      helpMeet.style.display = "block";
+      Swal.showValidationMessage("กรุณาระบุวัน–เวลาเริ่มต้น");
+      return;
+    }
+    const ds = new Date(s);
+    meetingStart = ds.toISOString();
+  }
+
+  return { type, detail, other, meetingStart };
+},
+
+  });
+
+  if (!form) return;
+
+  const newItem: RequestItem = {
+    id: Math.random().toString(36).slice(2),
+    type: form.type,
+    detail: form.detail,
+    other: form.other || undefined,
+    createdAt: new Date().toISOString(),
+    meetingStart: form.meetingStart || undefined,
+    meetingEnd: form.meetingEnd || undefined,
+  };
+
+  const all  = loadRequests();
+  const next = [newItem, ...all].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+  saveRequests(next);
+  setRecentRequests(next.slice(0, 2));
+  setRequestCount(next.length);
+  postRequestToServer(newItem);
+
+if (newItem.type === "ขอคำปรึกษา") {
+  await Swal.fire({
+    title: "เหตุฉุกเฉินด้านสุขภาพจิต",
+    html: `
+      <div style="text-align:left;line-height:1.6">
+        <p style="display:flex;align-items:center;gap:8px;">
+          <img src="https://cdn-icons-png.flaticon.com/128/455/455604.png"
+               alt="phone" width="20" height="20"
+               style="display:inline-block" />
+          <b>โทร : 1323</b> <span>(ตลอด 24 ชั่วโมง)</span>
+        </p>
+      </div>
+    `,
+    confirmButtonText: "รับทราบ",
+  });
+}
+
+
+
+  const saved = next.find(x => x.id === newItem.id)!;
+
+const timeBlock =
+  saved.meetingStart
+    ? `
+      <div style="margin-top:6px;padding:8px 10px;border:1px dashed #d1d5db;border-radius:10px;background:#f9fafb">
+        <b>เวลาที่ต้องการ:</b><br/>
+        ${
+          saved.meetingEnd
+            ? `${new Date(saved.meetingStart).toLocaleString("th-TH")} – ${new Date(saved.meetingEnd).toLocaleString("th-TH")}`
+            : `${new Date(saved.meetingStart).toLocaleString("th-TH")}`
+        }
+      </div>`
+    : "";
+
+await Swal.fire({
+  icon: "success",
+  title: "ส่งคำร้องแล้ว",
+  html: `
+    <div style="text-align:left">
+      <p style="margin:6px 0"><b>ประเภท:</b> ${saved.type}${saved.other ? ` (${saved.other})` : ""}</p>
+      ${timeBlock}
+      <p style="margin:6px 0"><b>รายละเอียด:</b> ${saved.detail}</p>
+    </div>
+  `,
+  confirmButtonText: "รับทราบ",
+});
+}
+function handleViewAllRequests() {
+  const all = loadRequests().sort(
+    (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
+  );
+
+  const fmtDate = (iso: string) =>
+    new Date(iso).toLocaleDateString("th-TH", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  const fmtTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const LABEL_MORE = "ดูเพิ่ม";
+  const LABEL_LESS = "ย่อ";
+
+  const html = `
+    <style>
+      .rq-card{background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee}
+      .rq-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+      .rq-type{font-weight:700}
+      .rq-time{color:#6b7280;font-size:12px}
+      .rq-detail{color:#374151;margin-top:6px}
+      .rq-meet{margin-top:6px;padding:8px 10px;border:1px dashed #d1d5db;border-radius:10px;background:#f9fafb}
+      .rq-divider{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:8px 0 4px}
+      .rq-toggle-wrap{display:flex;justify-content:center;margin-top:8px}
+      .rq-toggle-btn{
+        appearance:none;border:1px solid #e5e7eb;background:linear-gradient(180deg,#ffffff,#f8fafc);
+        border-radius:9999px;padding:8px 14px;font-weight:600;font-size:12.5px;cursor:pointer;
+        display:inline-flex;align-items:center;gap:8px;
+        box-shadow:0 1px 2px rgba(15,23,42,.06), inset 0 0 0 1px #fff;
+        transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      }
+      .rq-toggle-btn:hover{transform:translateY(-1px);border-color:#d1d5db;box-shadow:0 6px 12px rgba(15,23,42,.08)}
+      .rq-toggle-btn:active{transform:translateY(0)}
+      .rq-toggle-chip{background:#111827;color:#fff;border-radius:9999px;font-weight:700;font-size:11px;padding:2px 8px;line-height:1}
+      .rq-toggle-icn{font-size:12px;opacity:.8}
+      .rq-empty{color:#777}
+    </style>
+
+    <div style="text-align:left">
+      <h3 style="margin:0 0 8px">คำร้องทั้งหมด</h3>
+      <div id="reqList"></div>
+
+      ${
+        all.length > 5
+          ? `
+        <div class="rq-divider"></div>
+        <div class="rq-toggle-wrap">
+          <button id="toggleReqBtn" class="rq-toggle-btn" type="button" aria-expanded="false">
+            <span class="rq-toggle-text">${LABEL_MORE}</span>
+            <span class="rq-toggle-chip">+${all.length - 5}</span>
+            <span class="rq-toggle-icn">▾</span>
+          </button>
+        </div>`
+          : ``
+      }
+    </div>
+  `;
+
+  Swal.fire({
+    html,
+    width: 640,
+    showCloseButton: true,
+    showConfirmButton: false,
+    didOpen: () => {
+      const listEl = document.getElementById("reqList");
+      const toggleBtn = document.getElementById("toggleReqBtn") as HTMLButtonElement | null;
+
+      let showAll = false;
+
+      const updateToggleBtn = (expanded: boolean) => {
+        if (!toggleBtn) return;
+        const txt = toggleBtn.querySelector(".rq-toggle-text") as HTMLElement | null;
+        const chip = toggleBtn.querySelector(".rq-toggle-chip") as HTMLElement | null;
+        const icn = toggleBtn.querySelector(".rq-toggle-icn") as HTMLElement | null;
+
+        const remain = Math.max(0, all.length - 5);
+        if (txt) txt.textContent = expanded ? LABEL_LESS : LABEL_MORE;
+        if (icn) icn.textContent = expanded ? "▴" : "▾";
+        if (chip) {
+          chip.textContent = `+${remain}`;
+          chip.style.display = expanded || remain <= 0 ? "none" : "inline-block";
+        }
+        toggleBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+      };
+
+      const renderList = () => {
+        if (!listEl) return;
+
+        const items = showAll ? all : all.slice(0, 5);
+        if (!items.length) {
+          listEl.innerHTML = `<div class="rq-empty">— ยังไม่มีคำร้อง —</div>`;
+          return;
+        }
+
+        listEl.innerHTML = items
+          .map((it) => {
+            const created = `${fmtDate(it.createdAt)} ${fmtTime(it.createdAt)} น.`;
+            const extra =
+              it.type === "ขอนัดพบ" && it.meetingStart
+                ? `
+              <div class="rq-meet">
+                <b>เวลาที่ต้องการ:</b><br/>
+                ${fmtDate(it.meetingStart)} ${fmtTime(it.meetingStart)} น.
+              </div>`
+                : "";
+
+            return `
+              <div class="rq-card">
+                <div class="rq-head">
+                  <div class="rq-type">${it.type}${it.other ? ` • ${it.other}` : ""}</div>
+                  <div class="rq-time">${created}</div>
+                </div>
+                <div class="rq-detail"><b>รายละเอียด:</b> ${it.detail || "—"}</div>
+                ${extra}
+              </div>
+            `;
+          })
+          .join("");
+      };
+
+      renderList();
+      updateToggleBtn(showAll);
+
+      toggleBtn?.addEventListener("click", () => {
+        showAll = !showAll;
+        renderList();
+        updateToggleBtn(showAll);
+      });
+    },
+  });
+}
+
+
 useEffect(() => {
   (async () => {
     try {
@@ -138,30 +539,6 @@ const highlightText = (text?: string | null) => {
     )
   );
 };
-
-// สร้างช่วงเวลา (local time)
-/*const getRangeForTab = (tab: "daily" | "weekly" | "monthly") => {
-  const now = new Date();
-  let start = new Date(), end = new Date();
-  if (tab === "daily") {
-    start.setHours(0,0,0,0);
-    end.setHours(23,59,59,999);
-  } else if (tab === "weekly") {
-    const offset = now.getDay() === 0 ? -6 : 1 - now.getDay(); // จันทร์เป็นวันแรก
-    start = new Date(now);
-    start.setDate(now.getDate() + offset);
-    start.setHours(0,0,0,0);
-    end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    end.setHours(23,59,59,999);
-  } else {
-    start = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0);
-    end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999);
-  }
-  return { start, end };
-};*/
-
-
   useEffect(() => {
     (async () => {
       try {
@@ -255,11 +632,7 @@ const TASK_SETS: Task[][] = [
     { id: "analyze_tr_monthly", label: "วิเคราะห์อารมณ์จาก Though Record (รายเดือน)" },
   ],
 ];
-const NOTI_KEY = k(KEYS.NOTI);
-const NOTICE_FLAG_KEY = k(KEYS.NOTICE_FLAG);
 
-
-// ---- utils ----
 const STORAGE_KEY = k(KEYS.CHECK_DAY);
 const STORAGE_KEY_BYDATE = k(KEYS.CHECK_BYDATE);
 //const STORAGE_KEY = "daily-checklist-v2"; // เปลี่ยน key กันชนกับของเก่า
@@ -392,6 +765,69 @@ function loadChecklist(): ChecklistState {
     return newDayState();
   }
 }
+// ✅ GET วันนี้
+async function fetchChecklistTodayFromServer() {
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const patientId = Number(localStorage.getItem("patient_id") || 0);
+  const tz = "Asia/Bangkok";
+  if (!patientId) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  // ⬇️ ใส่ /api
+  const url = `http://localhost:8000/api/patients/${patientId}/checklists?date=${today}&tz=${encodeURIComponent(tz)}`;
+
+  const res = await fetch(url, {
+    headers: { Authorization: `${tokenType} ${token}` },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    const s: ChecklistState = {
+      date: data.date,
+      tasks: (data.tasks || []).map((t: any) => ({ id: t.id, label: t.label })),
+      done: data.done || {},
+    };
+    setChecklist(s);
+    saveChecklist(s);
+  }
+}
+
+// ✅ PATCH toggle
+async function toggleTaskOnServer(dateYYYYMMDD: string, taskId: TaskId, done: boolean, version?: number) {
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const patientId = Number(localStorage.getItem("patient_id") || 0);
+  const tz = "Asia/Bangkok";
+  if (!patientId) return;
+
+  // ⬇️ ใส่ /api
+  const url = `http://localhost:8000/api/patients/${patientId}/checklists/${dateYYYYMMDD}/toggle?tz=${encodeURIComponent(tz)}`;
+
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `${tokenType} ${token}`,
+    },
+    body: JSON.stringify({ taskId, done, version: version || 0 }),
+  });
+
+  if (res.status === 409) {
+    await fetchChecklistTodayFromServer();
+    return;
+  }
+  if (res.ok) {
+    const data = await res.json();
+    const s: ChecklistState = {
+      date: data.date,
+      tasks: (data.tasks || []).map((t: any) => ({ id: t.id, label: t.label })),
+      done: data.done || {},
+    };
+    setChecklist(s);
+    saveChecklist(s);
+  }
+}
+
 
 function saveChecklist(s: ChecklistState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
@@ -419,14 +855,17 @@ const [checklist, setChecklist] = useState<ChecklistState>(() => loadChecklist()
 
 useEffect(() => { saveChecklist(checklist); }, [checklist]);
 
-useEffect(() => scheduleMidnightReset(() => setChecklist(newDayState())), []);
+//useEffect(() => scheduleMidnightReset(() => setChecklist(newDayState())), []);
 
-// ---- actions ----
-const toggleTask = (id: TaskId) =>
-  setChecklist((s) => ({
-    ...s,
-    done: { ...s.done, [id]: !s.done[id] },
-  }));
+const toggleTask = (id: TaskId) => {
+  setChecklist((s) => {
+    const next = { ...s, done: { ...s.done, [id]: !s.done[id] } };
+    saveChecklist(next);
+    // fire & forget ซิงก์ (ถ้าอยากกัน spam ให้ debounce/throttle 200–400ms)
+    toggleTaskOnServer(next.date, id, next.done[id]).catch(console.error);
+    return next;
+  });
+};
 
 // ---- progress ----
 const total = checklist.tasks.length;
@@ -453,858 +892,6 @@ const progressPct = total ? (completed / total) * 100 : 0;
       });
     }
   }, [navigate]);
-  //const [loginCount, setLoginCount] = useState(0);
-  //const [percentChange, setPercentChange] = useState(0);
-
-  //useEffect(() => {
-   // const email = localStorage.getItem("currentLoginUser") || "";
-    //const loginHistoryKey = loginHistory-${email};
-    //const loginHistory = JSON.parse(
-    //  localStorage.getItem(loginHistoryKey) || "{}"
-   // );
-
-    //const today = new Date();
-    //const todayStr = today.toLocaleDateString("th-TH");
-
-    //const yesterday = new Date(today);
-   // yesterday.setDate(today.getDate() - 1);
-    //const yesterdayStr = yesterday.toLocaleDateString("th-TH");
-
-    //const todayCount = loginHistory[todayStr] || 0;
-   // const yesterdayCount = loginHistory[yesterdayStr] || 0;
-
-    //const percent =
-      //yesterdayCount > 0
-       // ? ((todayCount - yesterdayCount) / yesterdayCount) * 100
-        //: todayCount > 0
-       // ? 100 // ถ้าวันนี้มี แต่เมื่อวานไม่มีเลย → ถือเป็น +100%
-       // : 0; // ถ้าวันนี้ก็ไม่มี → แสดง 0%
-
-    //setLoginCount(todayCount);
-    //setPercentChange(percent);
-  //}, []);
-const updateNoticeStatus = (
-  appointmentId: string | number,
-  status: "accepted" | "rejected"
-): boolean => {
-  let list: any[] = [];
-  try {
-    const raw = localStorage.getItem(NOTI_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    list = Array.isArray(parsed) ? parsed : [];
-  } catch {
-    list = [];
-  }
-
-  const idx = list.findIndex(
-    (x) => String(x.appointment_id) === String(appointmentId)
-  );
-  if (idx === -1) return false;
-
-  if (list[idx].status !== status) {
-    list[idx] = { ...list[idx], status, _updatedAt: new Date().toISOString() };
-    localStorage.setItem(NOTI_KEY, JSON.stringify(list));
-    window.dispatchEvent(new Event("calendarEventsUpdated"));
-    window.dispatchEvent(new Event("storage"));
-  }
-  return true;
-};
-useEffect(() => {
-(window as any).confirmAppointment = async (
-  appointmentId: string | number,
-  status: "accepted" | "rejected",
-  extra?: { proposed_start?: string; proposed_end?: string; reason?: string; note?: string }
-) => {
-  try {
-    // อัพเดตสถานะหลักก่อน
-    const res = await fetch("http://localhost:8000/appointments/status", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ id: Number(appointmentId), status }),
-    });
-
-    if (!res.ok) {
-      const msg = await res.text().catch(() => "");
-      if (res.status === 401) {
-        Swal.fire("หมดเวลาเข้าสู่ระบบ", "โปรดเข้าสู่ระบบอีกครั้ง", "warning");
-      } else {
-        Swal.fire("อัปเดตไม่สำเร็จ", msg || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์", "error");
-      }
-      return;
-    }
-
-    // ✅ ถ้ามี “ข้อเสนอเวลาใหม่” แนบไปยัง backend (ถ้าคุณสร้าง endpoint ไว้)
-    if (status === "rejected" && extra?.proposed_start && extra?.proposed_end) {
-      try {
-        // แนะนำให้มี endpoint นี้ใน backend:
-        //   PUT /appointments/proposal
-        // body: { id, proposed_start, proposed_end, reason, note }
-        await fetch("http://localhost:8000/appointments/proposal", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `${localStorage.getItem("token_type")} ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            id: Number(appointmentId),
-            proposed_start: extra.proposed_start,
-            proposed_end: extra.proposed_end,
-            reason: extra.reason || "",
-            note: extra.note || "",
-          }),
-        }).catch(() => {});
-      } catch {}
-    }
-
-    try {
-      const bc = new BroadcastChannel("appointment_updates");
-      bc.postMessage({
-        type: status === "accepted" ? "appointment_status_changed" : "appointment_rejected_with_proposal",
-        appointment_id: Number(appointmentId),
-        status,
-        ...(extra?.proposed_start && extra?.proposed_end
-          ? {
-              proposed_start: extra.proposed_start,
-              proposed_end: extra.proposed_end,
-              reason: extra.reason || "",
-              note: extra.note || "",
-            }
-          : {}),
-      });
-      bc.close();
-    } catch {}
-
-    updateNoticeStatus(appointmentId, status);
-
-    Swal.fire({
-      icon: "success",
-      title: status === "accepted" ? "ยืนยันนัดแล้ว" : "ปฏิเสธนัดแล้ว",
-      timer: 1200,
-      showConfirmButton: false,
-    });
-  } catch (e) {
-    console.error("Update appointment status failed:", e);
-    Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
-  }
-};
-
-
-  return () => {
-    try { delete (window as any).confirmAppointment; } catch {}
-  };
-}, []);
-
-
-
-useEffect(() => {
-  const wsUid =
-    localStorage.getItem("ws_uid") ||
-    `p:${localStorage.getItem("patient_id") || localStorage.getItem("id") || ""}`;
-
-  if (!wsUid) return;
-
-  const socket = new WebSocket(`ws://localhost:8000/ws/${encodeURIComponent(wsUid)}`);
-  socket.onopen = () => console.log("✅ WS patient connected:", wsUid);
-  socket.onerror = (err) => console.error("❌ WebSocket error", err);
-
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data || "{}");
-
-    // === นัดหมายใหม่ที่หมอสร้าง ===
-    if (data.type === "appointment_created") {
-      const existing = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-      const updated = [
-        ...existing,
-        {
-          start_time: data.start_time,
-          end_time: data.end_time,
-          detail: data.detail,
-          appointment_id: data.appointment_id,
-          status: (data.status || "pending") as "pending" | "accepted" | "rejected",
-          rescheduled: false, 
-        },
-      ];
-      localStorage.setItem(NOTI_KEY, JSON.stringify(updated));
-      localStorage.setItem(NOTICE_FLAG_KEY, "true");
-
-      const htmlContent = `
-        <div style="background-color:#e0f2ff;padding:20px;border-radius:16px;text-align:left;">
-          <h3 style="margin-bottom:15px;text-align:center;">
-            <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align:middle;margin-right:8px;" />
-            แจ้งเตือนนัดหมาย
-          </h3>
-          <div style="background:#fff;padding:10px 16px;border-radius:12px;margin-bottom:10px;font-size:0.9rem;">
-            <div><b>ปรึกษาแพทย์</b> เวลานัด: ${new Date(data.start_time).toLocaleDateString()}
-              ${new Date(data.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${new Date(data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
-            </div>
-            <div><b>รายละเอียด:</b> ${data.detail ?? "—"}</div>
-          </div>
-        </div>
-      `;
-
-      Swal.fire({
-        html: htmlContent,
-        width: 600,
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: "✅ ยืนยันการนัด",
-        denyButtonText: "❌ ปฏิเสธการนัด",
-        cancelButtonText: "ยกเลิก",
-        showCloseButton: true,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.confirmAppointment?.(data.appointment_id, "accepted");
-          updateNoticeStatus(data.appointment_id, "accepted");
-        } else if (result.isDenied) {
-          openRejectDialog(data.appointment_id, data.start_time, data.end_time);
-        }
-      });
-
-      return;
-    }
-
-    // === หมออัปเดตสถานะ (echo กลับผู้ป่วย) ===
-    if (data.type === "appointment_status_echo") {
-      updateNoticeStatus(data.appointment_id, data.status);
-      return;
-    }
-if (data.type === "appointment_time_updated") {
-  try {
-    const id = data.appointment_id;
-    const list: any[] = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-    const idx = list.findIndex((x) => String(x.appointment_id) === String(id));
-    if (idx !== -1) {
-      const oldStart = list[idx].start_time;
-      const oldEnd = list[idx].end_time;
-
-      // ⬇️ เก็บเวลาเดิม + ติดธงว่าเคยเลื่อน + อัปเดตเวลาใหม่
-      list[idx] = {
-        ...list[idx],
-        old_start_time: oldStart,
-        old_end_time: oldEnd,
-        start_time: data.new_start,
-        end_time: data.new_end,
-        rescheduled: true,
-        _updatedAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem(NOTI_KEY, JSON.stringify(list));
-      // กระตุ้นให้การ์ด/ลิสต์คำนวณใหม่
-      window.dispatchEvent(new Event("calendarEventsUpdated"));
-      window.dispatchEvent(new Event("storage"));
-
-      // ⬇️ แจ้งเตือน (สีส้ม)
-      const fmtDate = (d: Date) =>
-        d.toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" });
-      const fmtTime = (d: Date) =>
-        d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-      const os = new Date(oldStart);
-      const oe = new Date(oldEnd);
-      const ns = new Date(data.new_start);
-      const ne = new Date(data.new_end);
-
-      const html = `
-        <div style="background:#fff7ed;border:1px solid #fed7aa;padding:16px;border-radius:12px;text-align:left">
-          <h3 style="margin:0 0 8px;color:#9a3412">⏱️ เลื่อนเวลานัดหมาย</h3>
-          <div style="margin:6px 0">
-            <div><b>จากเดิม:</b> <span style="color:#6b7280"><s>${fmtDate(os)} ${fmtTime(os)}–${fmtTime(oe)} น.</s></span></div>
-            <div><b>เป็นเวลาใหม่:</b> <span style="color:#d97706;font-weight:700">${fmtDate(ns)} ${fmtTime(ns)}–${fmtTime(ne)} น.</span></div>
-          </div>
-          ${
-            list[idx].detail
-              ? `<div style="margin-top:6px"><b>รายละเอียด:</b> ${list[idx].detail}</div>`
-              : ""
-          }
-        </div>
-      `;
-
-      Swal.fire({
-        html,
-        width: 600,
-        icon: undefined,
-        showConfirmButton: true,
-        confirmButtonText: "รับทราบ",
-      });
-    }
-  } catch (e) {
-    console.error("update local time failed:", e);
-  }
-  return;
-}
-
-  };
-
-  return () => socket.close();
-}, []);
-
- // ==== Appointments (patient side) ====
-type Notice = {
-  start_time: string;
-  end_time: string;
-  detail?: string;
-  status?: "pending" | "accepted" | "rejected";
-  appointment_id?: string | number;
-
-  old_start_time?: string;
-  old_end_time?: string;
-  rescheduled?: boolean;
-   proposed_start?: string; // ISO
-  proposed_end?: string;   // ISO
-  reject_reason?: "ไม่สะดวก" | "ติดธุระ" | "อื่นๆ";
-  reject_note?: string;    // ข้อความเพิ่มเติมกรณี "อื่นๆ"
-};
-
-const [upcomingNotices, setUpcomingNotices] = useState<Notice[]>([]);
-
-const fmtDateShortTH = (d: Date) =>
-  d.toLocaleDateString("th-TH", { day: "2-digit", month: "short" }); // เช่น 15 ธ.ค.
-const fmtTime = (d: Date) =>
-  d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-useEffect(() => {
-  const computeUpcoming = () => {
-    const raw = localStorage.getItem(NOTI_KEY);
-    const items: Notice[] = raw ? JSON.parse(raw) : [];
-    const now = new Date();
-
-    const upcoming = items
-      .map((it) => ({
-        ...it,
-        _start: new Date(it.start_time),
-        _end: new Date(it.end_time),
-      }))
-      // ✅ โชว์เฉพาะนัดที่ "ยืนยันแล้ว" + อยู่ในอนาคต
-      .filter((it) => it.status === "accepted" && it._start > now)
-      .sort((a, b) => a._start.getTime() - b._start.getTime())
-      .slice(0, 5)
-      .map(({ _start, _end, ...rest }) => rest as Notice);
-
-    setUpcomingNotices(upcoming);
-  };
-
-  computeUpcoming();
-  const onUpdate = () => computeUpcoming();
-  window.addEventListener("calendarEventsUpdated", onUpdate);
-  window.addEventListener("storage", onUpdate);
-  return () => {
-    window.removeEventListener("calendarEventsUpdated", onUpdate);
-    window.removeEventListener("storage", onUpdate);
-  };
-}, []);
-
-
-// --- state ---
-const [daysAway, setDaysAway] = useState<number | null>(null); // ตัวเลขใหญ่ (จำนวนคิววันนี้/พรุ่งนี้ หรือจำนวนวันห่าง)
-const [daysDiff, setDaysDiff] = useState<number | null>(null); // วันห่างจริง (0/1/2/...)
-const [nextAppointmentText, setNextAppointmentText] = useState("ไม่มีนัดหมายเร็ว ๆ นี้");
-
-// --- effect ---
-useEffect(() => {
-  const computeNext = () => {
-    const allNotices: Notice[] = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-    const now = new Date();
-
-    const upcoming = allNotices
-      .map((item) => ({
-        ...item,
-        start: new Date(item.start_time),
-        end: new Date(item.end_time),
-      }))
-      .filter((item) => item.status === "accepted" && item.start > now)
-      .sort((a, b) => a.start.getTime() - b.start.getTime());
-
-    if (upcoming.length > 0) {
-      const next = upcoming[0];
-
-      // วันเดียวกันไหม
-      const isSameDate = (a: Date, b: Date) =>
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate();
-
-      // นัดทั้งหมดที่อยู่วันเดียวกับนัดถัดไป
-      const sameDayCount = upcoming.filter((it) => isSameDate(it.start, next.start)).length;
-
-      // วันห่างจริง
-      const diff = Math.max(
-        0,
-        Math.ceil((next.start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-      );
-
-      setDaysDiff(diff); // ใช้ตัวนี้ตัดสิน subtext Today/Tomorrow
-      setDaysAway(diff === 0 || diff === 1 ? sameDayCount : diff); // เลขใหญ่: วันนี้/พรุ่งนี้แสดงเป็นจำนวนคิว, อื่นๆแสดงเป็นจำนวนวัน
-
-      const startDate = next.start.toLocaleDateString("th-TH");
-      const startTime = next.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const endTime = next.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-      // ✅ แก้ template literal ให้ถูก
-      setNextAppointmentText(`${startDate} ${startTime}–${endTime} น.`);
-    } else {
-      setDaysDiff(null);
-      setDaysAway(null);
-      setNextAppointmentText("ไม่มีนัดหมายเร็ว ๆ นี้");
-    }
-  };
-
-  computeNext();
-  const onNoticeUpdate = () => computeNext();
-  window.addEventListener("storage", onNoticeUpdate);
-  window.addEventListener("calendarEventsUpdated", onNoticeUpdate);
-  return () => {
-    window.removeEventListener("storage", onNoticeUpdate);
-    window.removeEventListener("calendarEventsUpdated", onNoticeUpdate);
-  };
-}, []);
-
-
-async function openRejectDialog(
-  appointmentId: string | number,
-  defaultStartISO?: string,
-  defaultEndISO?: string
-) {
-  const defS = defaultStartISO ? new Date(defaultStartISO) : new Date();
-  const defE = defaultEndISO ? new Date(defaultEndISO) : new Date(defS.getTime() + 30 * 60000);
-
-  // ใช้กับ value ของ <input type="datetime-local">
-  const toLocalInput = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-
-  // ป้ายกำกับสวย ๆ: DD/MM/YYYY hh:mm AM/PM
-  const fmtLabel = (d: Date) => {
-    const dd = String(d.getDate()).padStart(2,"0");
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const yyyy = d.getFullYear();
-    let hh = d.getHours();
-    const min = String(d.getMinutes()).padStart(2,"0");
-    const ampm = hh >= 12 ? "PM" : "AM";
-    hh = hh % 12 || 12;
-    return `${dd}/${mm}/${yyyy} ${String(hh).padStart(2,"0")}:${min} ${ampm}`;
-  };
-
-  const html = `
-  <style>
-    .ap-wrap{ text-align:left }
-    .ap-row{ margin:10px 0 }
-    .ap-label{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:6px }
-    .ap-chip{ background:#111827; color:#fff; border-radius:9999px; padding:2px 8px; font-size:11px; font-weight:700 }
-    .ap-input, .ap-select{
-      width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; background:#fff;
-    }
-    .ap-note{ display:none }
-    .ap-help{ color:#6b7280; font-size:12px; margin-top:6px }
-    .ap-card{
-      background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px; margin-top:8px
-    }
-    .ap-inline{
-      display:grid; grid-template-columns: 1fr; gap:10px;
-    }
-    @media (min-width: 560px){
-      .ap-inline{ grid-template-columns: 1fr 1fr; }
-    }
-    .ap-mini{ font-size:15px; color:#374151; margin-bottom:6px }
-  </style>
-
-  <div class="ap-wrap">
-    <div class="ap-row">
-      <div class="ap-label">แจ้งเปลี่ยนเวลานัด <span class="ap-chip">ใหม่</span></div>
-      <div class="ap-help">โปรดระบุเหตุผล และเสนอเวลาใหม่ให้เหมาะสม</div>
-    </div>
-
-    <div class="ap-row">
-      <label class="ap-label">เหตุผล</label>
-      <select id="rejReason" class="ap-select">
-        <option value="ติดภารกิจด่วน">ติดภารกิจด่วน</option>
-        <option value="ไม่สะดวกด้วยเหตุผลส่วนตัว">ไม่สะดวกด้วยเหตุผลส่วนตัว</option>
-        <option value="ติดภารกิจราชการ">ติดภารกิจราชการ</option>
-        <option value="ติดประชุมสำคัญ">ติดประชุมสำคัญ</option>
-        <option value="ไม่สบาย">ไม่สบาย / เหตุผลด้านสุขภาพ</option>
-        <option value="อื่นๆ โปรดระบุ">อื่นๆ โปรดระบุ</option>
-      </select>
-      <input id="rejNote" class="ap-input ap-note" style="margin-top:8px" placeholder="โปรดระบุรายละเอียดเพิ่มเติม..." />
-      <div class="ap-help" id="rejHelp" style="display:none">กรุณาระบุรายละเอียดเพิ่มเติม</div>
-    </div>
-
-   <div class="ap-mini">เสนอเวลาใหม่ (เริ่ม)</div>
-<input id="newStart" type="datetime-local" class="ap-input" value="${toLocalInput(defS)}" />
-
-<div class="ap-mini">เสนอเวลาใหม่ (สิ้นสุด)</div>
-<input id="newEnd" type="datetime-local" class="ap-input" value="${toLocalInput(defE)}" />
-</div>
-  </div>
-  `;
-
-  const { value: form } = await Swal.fire({
-    title: "แจ้งเปลี่ยนเวลานัด",
-    html,
-    width: 640,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: "ยืนยันการนัด",
-    didOpen: () => {
-      const reasonEl = document.getElementById("rejReason") as HTMLSelectElement;
-      const noteEl = document.getElementById("rejNote") as HTMLInputElement;
-      const helpEl = document.getElementById("rejHelp") as HTMLDivElement;
-      const startEl = document.getElementById("newStart") as HTMLInputElement;
-      const endEl = document.getElementById("newEnd") as HTMLInputElement;
-      const labelStart = document.getElementById("labelStart") as HTMLSpanElement;
-      const labelEnd = document.getElementById("labelEnd") as HTMLSpanElement;
-
-      const toggleNote = () => {
-        const show = reasonEl.value === "อื่นๆ โปรดระบุ";
-        noteEl.style.display = show ? "block" : "none";
-        helpEl.style.display = "none";
-      };
-      toggleNote();
-      reasonEl.addEventListener("change", toggleNote);
-
-      const syncLabels = () => {
-        if (startEl.value) labelStart.textContent = fmtLabel(new Date(startEl.value));
-        if (endEl.value) labelEnd.textContent = fmtLabel(new Date(endEl.value));
-      };
-      startEl.addEventListener("input", syncLabels);
-      endEl.addEventListener("input", syncLabels);
-    },
-    preConfirm: () => {
-      const reason = (document.getElementById("rejReason") as HTMLSelectElement)?.value as string;
-      const noteEl = document.getElementById("rejNote") as HTMLInputElement;
-      const helpEl = document.getElementById("rejHelp") as HTMLDivElement;
-      const ns = (document.getElementById("newStart") as HTMLInputElement)?.value;
-      const ne = (document.getElementById("newEnd") as HTMLInputElement)?.value;
-
-      if (reason === "อื่นๆ โปรดระบุ" && !noteEl.value.trim()) {
-        helpEl.style.display = "block";
-        Swal.showValidationMessage("โปรดระบุรายละเอียดเพิ่มเติม");
-        return;
-      }
-
-      if (!ns || !ne) {
-        Swal.showValidationMessage("กรุณาระบุเวลาเริ่มและเวลาสิ้นสุด");
-        return;
-      }
-      const newStart = new Date(ns);
-      const newEnd = new Date(ne);
-      if (+newEnd <= +newStart) {
-        Swal.showValidationMessage("เวลาสิ้นสุดต้องหลังเวลาเริ่มต้น");
-        return;
-      }
-
-      return {
-        reason,
-        note: noteEl.value.trim(),
-        newStart,
-        newEnd,
-      };
-    },
-  });
-
-  if (!form) return;
-
-  // 1) อัพเดตสถานะฝั่งเซิร์ฟเวอร์เป็น rejected + แนบข้อเสนอเวลาใหม่
-  await (window as any).confirmAppointment?.(appointmentId, "rejected", {
-    proposed_start: form.newStart.toISOString(),
-    proposed_end: form.newEnd.toISOString(),
-    reason: form.reason,
-    note: form.note,
-  });
-
-  // 2) อัปเดต local notice
-  try {
-    const NOTI_KEY = k(KEYS.NOTI);
-    const raw = localStorage.getItem(NOTI_KEY) || "[]";
-    const list: any[] = JSON.parse(raw);
-    const idx = list.findIndex((x) => String(x.appointment_id) === String(appointmentId));
-    if (idx !== -1) {
-      list[idx] = {
-        ...list[idx],
-        status: "rejected",
-        proposed_start: form.newStart.toISOString(),
-        proposed_end: form.newEnd.toISOString(),
-        reject_reason: form.reason,
-        reject_note: form.note,
-      };
-      localStorage.setItem(NOTI_KEY, JSON.stringify(list));
-      window.dispatchEvent(new Event("calendarEventsUpdated"));
-      window.dispatchEvent(new Event("storage"));
-    }
-  } catch {}
-
-  // 3) ส่ง Broadcast แจ้งฝั่งนักจิต (เผื่อ backend ยังไม่ push เอง)
-  try {
-    const bc = new BroadcastChannel("appointment_updates");
-    bc.postMessage({
-      type: "appointment_rejected_with_proposal",
-      appointment_id: Number(appointmentId),
-      proposed_start: form.newStart.toISOString(),
-      proposed_end: form.newEnd.toISOString(),
-      reason: form.reason,
-      note: form.note,
-    });
-    bc.close();
-  } catch {}
-
-  Swal.fire("ส่งคำขอแล้ว", "รอการตอบกลับจากนักจิต", "success");
-}
-
-
-const handleShowAppointmentsAll = () => {
-  const raw = localStorage.getItem(NOTI_KEY) || "[]";
-  const data = JSON.parse(raw);
-
-  // แปลงเวลาขึ้นมาใช้งาน + จัดกลุ่ม
-  const now = new Date();
- // ใหม่ (เอาทุกสถานะมาด้วย: pending / accepted / rejected)
-const list = data
-  .map((item: any) => ({
-    ...item,
-    _start: new Date(item.start_time),
-    _end: new Date(item.end_time),
-  }))
-  .sort((a: any, b: any) => a._start.getTime() - b._start.getTime());
-
-
-  const upcoming = list.filter((x: any) => x._start >= now);
-  const past = list.filter((x: any) => x._start < now).reverse(); // ล่าสุดอยู่บน
-
-  const fmtDate = (d: Date) =>
-    d.toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" });
-  const fmtTime = (d: Date) =>
-    d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-  /*const badge = (status?: string) => {
-    if (status === "accepted") return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
-    if (status === "rejected") return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
-    return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
-  };*/
-  const renderItem = (x: any) => {
-  const _start = new Date(x.start_time);
-  const _end = new Date(x.end_time);
-
-  const rescheduled = !!x.rescheduled && x.old_start_time && x.old_end_time;
-  const _oldStart = rescheduled ? new Date(x.old_start_time) : null;
-  const _oldEnd = rescheduled ? new Date(x.old_end_time) : null;
-
-  const dateText = rescheduled
-    ? `
-      <div>
-        <div style="color:#d97706;font-weight:700">
-          ${fmtDate(_start)} ${fmtTime(_start)}–${fmtTime(_end)} น.
-          <span style="background:#fff7ed;color:#d97706;border:1px solid #fed7aa;padding:2px 8px;border-radius:9999px;font-size:12px;margin-left:6px">
-            ⏱️ เปลี่ยนเวลา
-          </span>
-        </div>
-        <div style="color:#6b7280;font-size:12px;margin-top:2px">
-          เดิม: <s>${fmtDate(_oldStart!)} ${fmtTime(_oldStart!)}–${fmtTime(_oldEnd!)} น.</s>
-        </div>
-      </div>
-    `
-    : `${fmtDate(_start)} ${fmtTime(_start)}–${fmtTime(_end)} น.`;
-
-  const badge = (status?: string) => {
-    if (status === "accepted") return `<span style="color:#10b981;font-weight:600">✅ ยืนยันแล้ว</span>`;
-    if (status === "rejected") return `<span style="color:#ef4444;font-weight:600">❌ ปฏิเสธแล้ว</span>`;
-    return `<span style="color:#f59e0b;font-weight:600">⌛ รอดำเนินการ</span>`;
-  };
-
-  const isPending = !x.status || x.status === "pending";
-
-  return `
-    <div style="background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee;text-align:left">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-        <div style="font-weight:700">Psychologist</div>
-        <div>${badge(x.status)}</div>
-      </div>
-      <div style="margin:6px 0 2px">
-        <b>เวลา:</b> ${dateText}
-      </div>
-      <div style="color:#444"><b>รายละเอียด:</b> ${x.detail || "—"}</div>
-      ${
-        isPending
-          ? `
-        <div style="display:flex;gap:10px;margin-top:10px">
-          <button
-            data-act="accept"
-            data-id="${x.appointment_id}"
-            style="flex:1;background:#d1e7dd;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
-          >✅ ยืนยันการนัด</button>
-          <button
-            data-act="reject"
-            data-id="${x.appointment_id}"
-            style="flex:1;background:#f8d7da;border:none;padding:8px 10px;border-radius:8px;cursor:pointer"
-          >❌ ปฏิเสธการนัด</button>
-        </div>`
-          : ``
-      }
-    </div>
-  `;
-};
-const LABEL_MORE = "ดูเพิ่ม";
-const LABEL_LESS = "ย่อ";
-
-const html = `
-  <style>
-    .qewty-divider{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:8px 0 4px}
-    .qewty-toggle-wrap{display:flex;justify-content:center;margin-top:8px}
-    .qewty-toggle-btn{
-      appearance:none; border:1px solid #e5e7eb; background:linear-gradient(180deg,#ffffff,#f8fafc);
-      border-radius:9999px; padding:8px 14px; font-weight:600; font-size:12.5px; cursor:pointer;
-      display:inline-flex; align-items:center; gap:8px; 
-      box-shadow:0 1px 2px rgba(15,23,42,.06), inset 0 0 0 1px #fff;
-      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-    }
-    .qewty-toggle-btn:hover{transform:translateY(-1px);border-color:#d1d5db;box-shadow:0 6px 12px rgba(15,23,42,.08)}
-    .qewty-toggle-btn:active{transform:translateY(0)}
-    .qewty-toggle-chip{
-      background:#111827; color:#fff; border-radius:9999px; font-weight:700; font-size:11px;
-      padding:2px 8px; line-height:1;
-    }
-    .qewty-toggle-icn{font-size:12px; opacity:.8}
-  </style>
-
-  <div style="text-align:left">
-    <h3 style="margin:0 0 8px">นัดหมายทั้งหมด</h3>
-
-    <div style="margin:12px 0 6px;color:#555">กำลังจะถึง</div>
-    <div id="upcomingList"></div>
-    ${
-      upcoming.length > 5
-        ? `
-          <div class="qewty-divider"></div>
-          <div class="qewty-toggle-wrap">
-            <button id="toggleUpcomingBtn" class="qewty-toggle-btn" type="button" aria-expanded="false">
-              <span class="qewty-toggle-text">${LABEL_MORE}</span>
-              <span class="qewty-toggle-chip">+${upcoming.length - 5}</span>
-              <span class="qewty-toggle-icn">▾</span>
-            </button>
-          </div>
-        `
-        : ``
-    }
-
-    <div style="margin:16px 0 6px;color:#555">ที่ผ่านมา</div>
-    <div id="pastList"></div>
-    ${
-      past.length > 5
-        ? `
-          <div class="qewty-divider"></div>
-          <div class="qewty-toggle-wrap">
-            <button id="togglePastBtn" class="qewty-toggle-btn" type="button" aria-expanded="false">
-              <span class="qewty-toggle-text">${LABEL_MORE}</span>
-              <span class="qewty-toggle-chip">+${past.length - 5}</span>
-              <span class="qewty-toggle-icn">▾</span>
-            </button>
-          </div>
-        `
-        : ``
-    }
-  </div>
-`;
-
-Swal.fire({
-  html,
-  width: 640,
-  showCloseButton: true,
-  showConfirmButton: false,
-  didOpen: () => {
-    const upcomingListEl = document.getElementById("upcomingList");
-    const pastListEl = document.getElementById("pastList");
-    const toggleUpcomingBtn = document.getElementById("toggleUpcomingBtn") as HTMLButtonElement | null;
-    const togglePastBtn = document.getElementById("togglePastBtn") as HTMLButtonElement | null;
-
-    let showAllUpcoming = false;
-    let showAllPast = false;
-
-    // ⬇️ แทนที่ฟังก์ชัน bindActionButtons เดิมทั้งก้อน
-const bindActionButtons = () => {
-  document.querySelectorAll<HTMLButtonElement>("button[data-act]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const act = btn.getAttribute("data-act");
-      const apptId = btn.getAttribute("data-id");
-      if (!apptId) return;
-
-      // หา record ของนัดนั้น เพื่อส่งค่าเวลาเดิมไปเป็นค่า default ใน dialog
-      const findById = (arr: any[]) =>
-        arr.find((x) => String(x.appointment_id) === String(apptId));
-      const item =
-        findById(upcoming) ??
-        findById(past) ??
-        null;
-
-      if (act === "accept") {
-        (window as any).confirmAppointment?.(apptId, "accepted");
-        updateNoticeStatus(apptId!, "accepted");
-      } else if (act === "reject") {
-        // ⬇️ ใช้ dialog แจ้งเปลี่ยนเวลานัด + เหตุผล
-        openRejectDialog(
-          apptId!,
-          item?.start_time,   // ส่งเวลาเดิมไปเป็น default (ถ้ามี)
-          item?.end_time
-        );
-      }
-    });
-  });
-};
-
-
-    const updateToggleBtn = (
-      btn: HTMLButtonElement | null,
-      expanded: boolean,
-      remainCount: number
-    ) => {
-      if (!btn) return;
-      const txt = btn.querySelector(".qewty-toggle-text") as HTMLElement | null;
-      const chip = btn.querySelector(".qewty-toggle-chip") as HTMLElement | null;
-      const icn = btn.querySelector(".qewty-toggle-icn") as HTMLElement | null;
-
-      if (txt) txt.textContent = expanded ? LABEL_LESS : LABEL_MORE;
-      if (icn) icn.textContent = expanded ? "▴" : "▾";
-      if (chip) {
-        chip.textContent = `+${remainCount}`;
-        chip.style.display = expanded || remainCount <= 0 ? "none" : "inline-block";
-      }
-      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
-    };
-
-    const renderSection = () => {
-      // upcoming
-      if (upcomingListEl) {
-        const upArr = showAllUpcoming ? upcoming : upcoming.slice(0, 5);
-        upcomingListEl.innerHTML = upArr.length
-          ? upArr.map(renderItem).join("")
-          : `<div style="color:#777">— ไม่มี —</div>`;
-      }
-      // past
-      if (pastListEl) {
-        const pastArr = showAllPast ? past : past.slice(0, 5);
-        pastListEl.innerHTML = pastArr.length
-          ? pastArr.map(renderItem).join("")
-          : `<div style="color:#777">— ไม่มี —</div>`;
-      }
-
-      updateToggleBtn(toggleUpcomingBtn, showAllUpcoming, Math.max(0, upcoming.length - 5));
-      updateToggleBtn(togglePastBtn, showAllPast, Math.max(0, past.length - 5));
-
-      bindActionButtons(); // re-bind หลัง innerHTML ถูกแทนที่
-    };
-
-    toggleUpcomingBtn?.addEventListener("click", () => {
-      showAllUpcoming = !showAllUpcoming;
-      renderSection();
-    });
-    togglePastBtn?.addEventListener("click", () => {
-      showAllPast = !showAllPast;
-      renderSection();
-    });
-
-    renderSection(); // ครั้งแรก: โชว์ 5 รายการ/กลุ่ม
-  },
-});
-};
-
-
 
 function openChecklistModal(startDate?: Date) {
   let current = startDate ? new Date(startDate) : new Date();
@@ -1383,71 +970,6 @@ function openChecklistModal(startDate?: Date) {
 
   render();
 }
-
-/*const handleShowAppointments = () => {
-  const notices = JSON.parse(localStorage.getItem(NOTI_KEY) || "[]");
-
-  const filtered = notices.filter((item: any) => {
-    const start = new Date(item.start_time);
-    const now = new Date();
-    return (start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 2;
-  });
-
-  if (!filtered.length) {
-    Swal.fire({
-      title: "การแจ้งเตือน",
-      text: "ไม่มีการแจ้งเตือน",
-      icon: "info",
-    });
-    return;
-  }
-
-const htmlContent = `
-  <div style="background-color: #e0f2ff; padding: 20px; border-radius: 16px;">
-    <h3 style="margin-bottom: 15px; text-align: center;">
-      <img src="https://cdn-icons-png.flaticon.com/128/10215/10215675.png" width="32" style="vertical-align: middle; margin-right: 8px;" />
-      แจ้งเตือนนัดหมาย
-    </h3>
-    ${filtered.slice(-99).map((item: any) => {
-      const startTime = new Date(item.start_time);
-      const endTime = new Date(item.end_time);
-      const isConfirmed = item.status === "accepted" || item.status === "rejected";
-      const statusText = item.status === "accepted" ? "✅ ยืนยันแล้ว" :
-                         item.status === "rejected" ? "❌ ปฏิเสธแล้ว" : "";
-      return `
-        <div style="background: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 0.99rem; text-align: left;">
-          <div style="margin-bottom: 4px;"><b>ปรึกษาแพทย์</b> เวลานัด: ${startTime.toLocaleDateString()} 
-            ${startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}–${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} น.
-          </div>
-          <div><b>รายละเอียด:</b> ${item.detail}</div>
-          <div style="margin-top: 10px;">
-            ${
-              isConfirmed
-                ? `<div style="color: #666; font-weight: 500;">${statusText} • ดำเนินการเรียบร้อยแล้ว</div>`
-                : `
-                  <div style="display: flex; gap: 10px;">
-                    <button onclick="window.confirmAppointment('${item.appointment_id}', 'accepted')" style="flex:1; background:#d1e7dd; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ ยืนยันการนัด</button>
-                    <button onclick="window.confirmAppointment('${item.appointment_id}', 'rejected')" style="flex:1; background:#f8d7da; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ ปฏิเสธการนัด</button>
-                  </div>
-                `
-            }
-          </div>
-        </div>
-      `;
-    }).join("")}
-  </div>
-`;
-
-
-  Swal.fire({
-    html: htmlContent,
-    width: 600,
-    showCloseButton: true,
-    showConfirmButton: false,
-  });
-
-  localStorage.setItem(NOTICE_FLAG_KEY, "false");
-};*/
 const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
    return (
   <div className="dash-frame">
@@ -1488,31 +1010,21 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
           <span className="diorr-stat-subtext">This week</span>
         </div>
       </div>
-      <div className="diorr-card4">
-        <div className="diorr-card-header">
-          <div className="diorr-card-title">
-            <h3>Next Appointment</h3>
-            <img src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png" alt="Next Appointment Icon" className="diorr-icon" />
-          </div>
+     <div className="diorr-card4">
+  <div className="diorr-card-header">
+    <div className="diorr-card-title">
+      <h3>Recent Requests</h3>
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/2991/2991113.png"
+        alt="Request Form Icon"
+        className="diorr-icon"
+      />
+    </div>
+    <span className="diorr-stat-text">{requestCount}</span> {/* ⬅️ รวมทั้งหมด */}
+    <span className="diorr-stat-subtext">Total submitted</span>
+  </div>
+</div>
 
-          <span className="diorr-stat-text">
-            {daysAway === null ? "—" : daysAway}
-          </span>
-
-          <span className="diorr-stat-subtext">
-            {daysDiff === 0 && nextAppointmentText !== "ไม่มีนัดหมายเร็ว ๆ นี้"
-              ? "Today"
-              : daysDiff === 1
-              ? "Tomorrow"
-              : "Days away"}
-          </span>
-        </div>
-
-        {/* วันที่-เวลา */}
-        <div style={{ marginTop: 8, fontSize: "0.9em", color: "#666" }}>
-          {nextAppointmentText}
-        </div>
-      </div>
 
 
  {/* Lower Section */}
@@ -1678,58 +1190,68 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
 </button>
 
   </div>
-
 <div className="deer-tiger-card">
   <div className="hior-title">
     <img
-      src="https://cdn-icons-png.flaticon.com/128/2948/2948088.png"
-      alt="Appointments Icon"
+      src="https://cdn-icons-png.flaticon.com/128/2991/2991113.png"
+      alt="Request Form Icon"
       className="frio-icon"
     />
-    <h3>Appointments</h3>
+    <h3>Recent Requests</h3>
   </div>
-  <p className="deer-tiger-subtext">Upcoming therapy sessions</p>
 
-  {upcomingNotices.length === 0 ? (
+  {recentRequests.length === 0 ? (
     <div className="appointment-entry">
       <div className="appointment-header">
         <strong>—</strong>
         <span className="appointment-date">—</span>
       </div>
-      <p className="appointment-detail">ไม่มีนัดหมายเร็ว ๆ นี้</p>
+      <p className="appointment-detail">ยังไม่มีคำร้องล่าสุด</p>
       <p className="appointment-time">—</p>
     </div>
   ) : (
-    upcomingNotices.slice(0, 2).map((it, idx) => {
-      const s = new Date(it.start_time);
-      const e = new Date(it.end_time);
-      const dateText = fmtDateShortTH(s);
-      const timeText = `${fmtTime(s)}–${fmtTime(e)}`;
-
-      // ไม่มีชื่อหมอใน payload ปัจจุบัน → ใส่ค่า default หรือต้องให้ backend ส่งชื่อมา
-      const doctorName = "Psychologist";
+    recentRequests.slice(0, 2).map((rq) => {
+      const created = new Date(rq.createdAt);
+      const dateText = created.toLocaleDateString("th-TH", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+      const timeText = created.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
       return (
-        <div key={it.appointment_id ?? idx} className="appointment-entry">
+        <div key={rq.id} className="appointment-entry" style={{ marginTop: 8 }}>
           <div className="appointment-header">
-            <strong>{doctorName}</strong>
+            <strong>
+              {rq.type}
+              {rq.other ? ` • ${rq.other}` : ""}
+            </strong>
             <span className="appointment-date">{dateText}</span>
           </div>
-          <p className="appointment-detail">{it.detail || "—"}</p>
+          <p className="appointment-detail">{rq.detail || "—"}</p>
           <p className="appointment-time">{timeText}</p>
         </div>
       );
     })
   )}
 
-  <button
-  className="deer-tiger-btn"
-  onClick={handleShowAppointmentsAll}
->
-  View More
-</button>
+  {/* เปลี่ยนปุ่มเป็นส่งคำร้อง */}
+  <button className="deer-tiger-btn" onClick={openRequestForm}>
+    กรอกฟอร์มยื่นคำร้อง
+  </button>
 
+  {/* ถ้าอยากมีปุ่มดูทั้งหมดด้วย ให้คงไว้บรรทัดล่างนี้; ไม่ต้องมีก็ลบทิ้งได้ */}
+  <button
+    className="deer-tiger-btn"
+    onClick={handleViewAllRequests}
+  >
+    ดูคำร้องทั้งหมด
+  </button>
 </div>
+
 {/* ===== Summary Diary Text (aertr) ===== */}
 <div className="aertr-overall-container">
   <div className="aertr-summary-card">
@@ -2022,11 +1544,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
 </div>
 </div>
 </div>
-
 </div>
   );
 };
- 
-
-
 export default HomePage;

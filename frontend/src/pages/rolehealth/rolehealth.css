@@ -409,3 +409,23 @@ width: 100%;
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
+/* ปุ่ม Choose File (รองรับทั้ง spec ใหม่และ webkit เก่า) */
+.swal2-popup .swal2-file::file-selector-button {
+  border: 1.5px solid #000000;    /* ✅ กรอบปุ่มสีดำ */
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.swal2-popup .swal2-file::-webkit-file-upload-button {
+  border: 1.5px solid #000000;    /* ✅ สำหรับ Chrome/Edge เก่า */
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}

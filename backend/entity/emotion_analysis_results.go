@@ -8,13 +8,14 @@ import (
 type EmotionAnalysisResults struct {
 	gorm.Model
 	InputText 			string
+	TranslatedText string
 	AnalysisTimestamp	time.Time
 	Modelversion	string
-	SentimentScore	uint8
+	PrimaryEmotion string
 	DiaryID uint     `json:"diary_id" gorm:"not null"`
     Diary   *Diaries `json:"diary" gorm:"foreignKey:DiaryID;references:ID"`
-	// ThoughtrecordID  	uint      	//`valid:"required~EmotionsID is required"`
-    // Thoughtrecord    	*Thoughtrecord  	`gorm:"foreignKey: thoughtrecord_id" json:"thoughtrecord"`
-	EmotionsID  	uint      	//`valid:"required~EmotionsID is required"`
-    Emotions    	*Emotions  	`gorm:"foreignKey: emotions_id" json:"emotions"`
+	ThoughtRecordID uint
+	ThoughtRecord   *ThoughtRecord `gorm:"foreignKey:ThoughtRecordID"`
+	PatientID uint
+  	Patient   Patients `gorm:"foreignKey:PatientID"`
 }

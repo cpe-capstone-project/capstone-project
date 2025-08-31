@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Feedback struct {
+type Feedbacks struct {
 	gorm.Model
 	FeedbackTitle   string
 	FeedbackContent string

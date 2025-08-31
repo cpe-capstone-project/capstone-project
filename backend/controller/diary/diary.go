@@ -35,7 +35,7 @@ func ListDiaries(c *gin.Context){
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	results := db.Preload("TherapyCase").Preload("Feedbacks.Psychologist").Preload("Feedbacks.FeedbackType").Find(&diaries)
+	results := db.Preload("TherapyCase").Preload("FeedbackDiary.Feedbacks.Psychologist").Preload("FeedbackDiary.Feedbacks.FeedbackType").Find(&diaries)
 	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return

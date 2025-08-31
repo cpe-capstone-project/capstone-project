@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -157,3 +158,31 @@ func ListLatestThoughtRecords(c *gin.Context) {
 
 	c.JSON(http.StatusOK, records)
 }
+
+func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
+    therapyCaseID := c.Param("id") // รับ TherapyCase ID จาก URL
+
+    var thoughtRecords []entity.ThoughtRecord
+
+    db := config.DB()
+    // ดึง ThoughtRecords ของ TherapyCase ตาม ID พร้อม preload TherapyCase, Patient, CaseStatus
+    result := db.Preload("TherapyCase.Patient").
+                 Preload("TherapyCase.CaseStatus").
+                 Where("therapy_case_id = ?", therapyCaseID).
+                 Find(&thoughtRecords)
+
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
+    }
+
+    if len(thoughtRecords) == 0 {
+        c.JSON(http.StatusNoContent, gin.H{})
+        return
+    }
+
+    c.JSON(http.StatusOK, thoughtRecords)
+}
+
+
+

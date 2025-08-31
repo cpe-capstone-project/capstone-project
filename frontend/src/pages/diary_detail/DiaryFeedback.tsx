@@ -22,7 +22,7 @@ function DiaryFeedback() {
   // if (!diary) return <p>No diary found</p>;
 
   // ✅ ดึง feedback จาก FeedbackDiary
-  const feedbacks = diary?.FeedbackDiary?.map(fd => fd.Feedback) || [];
+  const feedbacks = diary?.FeedbackDiary?.map(fd => fd.Feedbacks) || [];
 
   if (feedbacks.length === 0)
     return (

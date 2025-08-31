@@ -13,12 +13,12 @@ import "./DiarySummary.css";
 // ✅ เพิ่ม Ant Design และ Dayjs
 import { DatePicker } from "antd";
 import type { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 import "dayjs/locale/th";
 import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
-dayjs.locale("th");
+// dayjs.locale("th");
 
 function DiarySummary() {
   const { getTherapyCaseByPatient } = useTherapyCase();
@@ -27,6 +27,7 @@ function DiarySummary() {
   const [summaryData, setSummaryData] = useState<DiarySummaryInterface | null>(
     null
   );
+
   // console.log("summaryData:", summaryData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -96,9 +97,10 @@ function DiarySummary() {
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      console.log("Timezone:", timezone);
-      console.log("Start Date:", startDate.toISOString());
-      console.log("End Date:", endDate.toISOString());
+      // console.log("Timezone:", timezone);
+      // console.log("Start Date:", startDate.toISOString());
+      // console.log("End Date:", endDate.toISOString());
+      // console.log("Therapy Case ID:", therapyCaseId);
       // return;
       const response = await CreateDiarySummary({
         TherapyCaseID: therapyCaseId,
@@ -127,9 +129,11 @@ function DiarySummary() {
   useEffect(() => {
     const patientId = Number(localStorage.getItem("id"));
 
+
     const fetchData = async () => {
       // ดึง therapy cases ของ patient
       const therapyCases = await getTherapyCaseByPatient(patientId);
+      console.log("Fetched therapyCases:", therapyCases);
 
       if (therapyCases && typeof therapyCases.ID !== "undefined") {
         setTherapyCaseId(therapyCases.ID);

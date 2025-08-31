@@ -34,10 +34,13 @@ func ListDiaries(c *gin.Context) {
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	results := db.Preload("TherapyCase").Preload("FeedbackDiary.Feedback.Psychologist").
-		Preload("FeedbackDiary.Feedback.Patient").
-		Preload("FeedbackDiary.Feedback.FeedbackType").
-		Preload("FeedbackDiary.Feedback.FeedbackTime").Find(&diaries)
+	results := db.Preload("TherapyCase").
+		Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").
+		Find(&diaries)
+
 	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
@@ -85,10 +88,10 @@ func ListDiariesByPatientAndTherapyCase(c *gin.Context) {
 
 	// Query
 	result := db.Preload("TherapyCase").
-		Preload("FeedbackDiary.Feedback.Psychologist").
-		Preload("FeedbackDiary.Feedback.Patient").
-		Preload("FeedbackDiary.Feedback.FeedbackType").
-		Preload("FeedbackDiary.Feedback.FeedbackTime").
+		Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").
 		Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
 		Where("therapy_cases.id = ? AND therapy_cases.patient_id = ?", therapyCaseID, patientID).
 		Find(&diaries)
@@ -107,13 +110,13 @@ func GetDiaryByID(c *gin.Context) {
 	var diary entity.Diaries
 
 	db := config.DB()
-	results := db.Preload("TherapyCase").Preload("FeedbackDiary.Feedback.Psychologist").
-		Preload("FeedbackDiary.Feedback.Patient").
-		Preload("FeedbackDiary.Feedback.FeedbackType").
-		Preload("FeedbackDiary.Feedback.FeedbackTime").First(&diary, ID)
+	results := db.Preload("TherapyCase").Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").First(&diary, ID)
 	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
-		
+
 		return
 	}
 

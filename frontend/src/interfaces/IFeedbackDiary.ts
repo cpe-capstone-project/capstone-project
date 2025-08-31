@@ -6,5 +6,5 @@ export interface FeedbackDiaryInterface {
   DiaryID?: number;
   Diary?: DiaryInterface;
   FeedbackID?: number;
-  Feedback?: FeedBackInterface;
+  Feedbacks?: FeedBackInterface;
 }

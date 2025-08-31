@@ -17,8 +17,6 @@ func ListThoughtRecord(c *gin.Context){
 	sortField := c.DefaultQuery("sort", "updated_at")
 	order := c.DefaultQuery("order", "desc")
 	
-
-	// ตรวจสอบว่า order มีค่าถูกต้องหรือไม่
 	if order != "asc" && order != "desc" {
 		order = "desc"
 	}
@@ -30,19 +28,18 @@ func ListThoughtRecord(c *gin.Context){
 	case "UpdatedAt":
 		sortColumn = "updated_at"
 	default:
-		sortColumn = "updated_at" // fallback
+		sortColumn = "updated_at"
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	results := db.Find(&record)
-	if results.Error != nil {
+	if results := db.Find(&record); results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, record)
 }
 
-// GET /diary/:id
+// GET /thought_record/:id
 func GetThoughtRecordByID(c *gin.Context){
 	ID := c.Param("id")
 	var record entity.ThoughtRecord
@@ -53,79 +50,56 @@ func GetThoughtRecordByID(c *gin.Context){
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
-	if record.ID == 0{
-		c.JSON(http.StatusNoContent, gin.H{"error": results.Error.Error()})
-		return
-	}
 	c.JSON(http.StatusOK, record)
 }
 
-// POST /diary
+// POST /thought_record
 func CreateThoughtRecord(c *gin.Context){
 	var record entity.ThoughtRecord
 
-	//bind เข้าตัวแปร diary
 	if err := c.ShouldBindJSON(&record); err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
-	// if diary.TagColors == "" {
-	// 	diary.TagColors = defaultColors
-	// }
-
 	db := config.DB()
 
-	bc := entity.ThoughtRecord{
-		Situation: record.Situation,
-		Thoughts: record.Thoughts,
-		Behaviors: record.Behaviors,
-		AlternateThought: record.AlternateThought,
-		TherapyCaseID: record.TherapyCaseID,
-		EmotionsID: record.EmotionsID,
-	}
-
-
-	//บันทึก
-	if err := db.Create(&bc).Error; err != nil{
+	// บันทึกตรง ๆ จาก record ที่ bind มา
+	if err := db.Create(&record).Error; err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, bc)
+
+	c.JSON(http.StatusCreated, record)
 }
 
-// PATCH /diary/:id
+// PATCH /thought_record/:id
 func UpdateThoughtRecordByID(c *gin.Context){
 	var record entity.ThoughtRecord
 	recordID := c.Param("id")
 	db := config.DB()
 	
-	result := db.First(&record, recordID)
-	if result.Error != nil{
+	if err := db.First(&record, recordID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&record); err != nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request, unable to map payload"})
+	var input entity.ThoughtRecord
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
-	// if record.TagColors == "" {
-	// 	record.TagColors = defaultColors
-	// }
-
-	result = db.Save(&record)
-	if result.Error != nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+	// อัปเดตเฉพาะ field ที่ส่งมา
+	if err := db.Model(&record).Updates(input).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Update successful"})
 }
 
-// DELETE /diary/:id
+// DELETE /thought_record/:id
 func DeleteThoughtRecord(c *gin.Context) {
 	id := c.Param("id")
 	db := config.DB()
@@ -149,7 +123,6 @@ func ListLatestThoughtRecords(c *gin.Context) {
 		limit = 5
 	}
 
-	// เรียงตามเวลาที่อัปเดตล่าสุด
 	if err := db.Order("updated_at desc").Limit(limit).Find(&records).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

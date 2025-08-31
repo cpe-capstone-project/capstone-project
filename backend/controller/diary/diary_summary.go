@@ -52,30 +52,23 @@ func SummarizeDiaries(c *gin.Context) {
 		return
 	}
 
-	// 1️⃣ โหลด timezone ของผู้ใช้
-	loc, err := time.LoadLocation(req.Timezone)
-	if err != nil {
-		loc = time.UTC
-	}
+	// แปลงกลับเป็น UTC ก่อน query
+	startStr := req.StartDate.Format("2006-01-02")
+	endStr := req.EndDate.Format("2006-01-02")
 
-	// 2️⃣ แปลง start / end เป็นเวลาของ timezone ที่ผู้ใช้เลือก
-	start := req.StartDate.In(loc)
-	end := req.EndDate.In(loc)
-
-	// 3️⃣ แปลงเป็น UTC ก่อนส่งเข้า SQL (ถ้า DB เก็บ timestamp with timezone)
-	startUTC := start.UTC()
-	endUTC := end.UTC()
 
 	db := config.DB()
 	var diaries []entity.Diaries
 
-	if err := db.Where("therapy_case_id = ? AND confirmed = ? AND updated_at BETWEEN ? AND ?", req.TherapyCaseID, true, startUTC, endUTC).
-		Order("updated_at ASC").Find(&diaries).Error; err != nil {
+	// fmt.Printf("Querying diaries from %s to %s in TherapyCaseID %d\n", startUTC, endUTC, req.TherapyCaseID)
+
+	if err := db.Where("therapy_case_id = ? AND confirmed = 1 AND date(updated_at) BETWEEN ? AND ?",
+		req.TherapyCaseID, startStr, endStr).
+		Order("updated_at ASC").
+		Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
 		return
 	}
-
-	
 
 	if len(diaries) == 0 {
 		c.JSON(http.StatusOK, gin.H{"message": "No diaries in selected timeframe"})
@@ -90,7 +83,6 @@ func SummarizeDiaries(c *gin.Context) {
 	}
 
 	fmt.Println("Full diary text for summarization:", fullText)
-	
 
 	// เตรียมข้อความ prompt เพื่อสรุปด้วย Gemini
 	summaryInput := fmt.Sprintf(`ด้านล่างคือบันทึกประจำวันของผู้ป่วยในการบำบัดด้วย CBT

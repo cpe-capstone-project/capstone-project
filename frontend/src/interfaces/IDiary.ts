@@ -1,3 +1,5 @@
+import type { FeedbackDiaryInterface } from "./IFeedbackDiary";
+
 export interface DiaryInterface {
   ID?: number;
   CreatedAt?: string;
@@ -8,4 +10,6 @@ export interface DiaryInterface {
   TagColors?: string;
   Confirmed?: boolean;
   TherapyCaseID?: number;
+
+  FeedbackDiary?: FeedbackDiaryInterface[];
 }

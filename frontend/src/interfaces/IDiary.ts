@@ -7,7 +7,11 @@ export interface DiaryInterface {
   Title?: string;
   Content?: string;
   UpdatedAt?: string;
-  TagColors?: string;
+  
+  TagColor1?: string;
+  TagColor2?: string;
+  TagColor3?: string;
+
   Confirmed?: boolean;
   TherapyCaseID?: number;
 

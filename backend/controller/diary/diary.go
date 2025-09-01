@@ -137,9 +137,14 @@ func CreateDiary(c *gin.Context) {
 		return
 	}
 
-	defaultColors := "#FFC107,#FF9800,#FF5722"
-	if diary.TagColors == "" {
-		diary.TagColors = defaultColors
+	// defaultColors := "#FFC107,#FF9800,#FF5722"
+	defaultColor1 := "#FFC107"
+	defaultColor2 := "#FF9800"
+	defaultColor3 := "#FF5722"
+	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
+		diary.TagColor1 = defaultColor1
+		diary.TagColor2 = defaultColor2
+		diary.TagColor3 = defaultColor3
 	}
 
 	db := config.DB()
@@ -147,7 +152,11 @@ func CreateDiary(c *gin.Context) {
 	bc := entity.Diaries{
 		Title:         diary.Title,
 		Content:       diary.Content,
-		TagColors:     diary.TagColors,
+		// TagColors:     diary.TagColors,
+		TagColor1:    diary.TagColor1,
+		TagColor2:    diary.TagColor2,
+		TagColor3:    diary.TagColor3,
+		UpdatedAt:    time.Now(),
 		Confirmed:     false,
 		TherapyCaseID: diary.TherapyCaseID,
 	}
@@ -177,9 +186,17 @@ func UpdateDiaryByID(c *gin.Context) {
 		return
 	}
 
-	defaultColors := "#FFC107,#FF9800,#FF5722"
-	if diary.TagColors == "" {
-		diary.TagColors = defaultColors
+	// defaultColors := "#FFC107,#FF9800,#FF5722"
+	// if diary.TagColors == "" {
+	// 	diary.TagColors = defaultColors
+	// }
+	defaultColor1 := "#FFC107"
+	defaultColor2 := "#FF9800"
+	defaultColor3 := "#FF5722"
+	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
+		diary.TagColor1 = defaultColor1
+		diary.TagColor2 = defaultColor2
+		diary.TagColor3 = defaultColor3
 	}
 
 	if diary.Confirmed == false {

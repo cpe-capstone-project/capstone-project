@@ -25,9 +25,9 @@
 }
 
 .toolbar select:disabled {
+  color: #999;    
   cursor: not-allowed;
   pointer-events: none;
-
 }
 
 .toolbar section {

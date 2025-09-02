@@ -8,6 +8,7 @@ import (
 func SetupDiaryRoutes(r *gin.RouterGroup) {
 
 	r.GET("/diary-summary/:id", diary.GetDiarySummaryByID)
+	r.GET("/diary-summary-emotion-stats/:summary_id", diary.DiarySummaryEmotionStatsHandler)
 	r.POST("/diary-summary", diary.SummarizeDiaries)
 
 	r.GET("/diaries", diary.ListDiaries)

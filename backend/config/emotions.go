@@ -221,7 +221,7 @@ func SetupEmotionDatabase(){
 		Score: 			0.06275680661201477,
 		ConfidencePercentage: 6.275680661201477,
 		EmotionAnalysisResultsID:  	1,      	
-		EmotionsID:10,
+		EmotionsID:11,
    	}
 	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{ConfidencePercentage: 6.275680661201477})
 }

@@ -33,19 +33,27 @@ const PatientOverviewChart: React.FC<Props> = ({
   );
   const [modalOpen, setModalOpen] = useState<null | "new" | "in" | "done">(null);
 
-  // สร้าง Set เพื่อเช็ค membership เร็ว ๆ
-  const inSet = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
-  const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
+// สร้าง Set เพื่อเช็ค membership เร็ว ๆ (เดิม)
+const inSet = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
+const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
 
-  // แยกกลุ่มรายชื่อ
-  const lists = useMemo(() => {
-    const done = patients.filter((p) => doneSet.has(p.id));
-    const inTx = patients.filter((p) => inSet.has(p.id) && !doneSet.has(p.id)); // ถ้าเสร็จแล้ว ไม่นับใน in-treatment
-    const newOnes = patients.filter(
-      (p) => !inSet.has(p.id) && !doneSet.has(p.id)
-    ); // สมัครแล้วแต่ยังไม่เริ่มกิจกรรม
-    return { newOnes, inTx, done };
-  }, [patients, inSet, doneSet]);
+// แยกกลุ่มรายชื่อ (แก้เฉพาะที่ผิด)
+const lists = useMemo(() => {
+  // ✅ 1) กรอง id ที่ไม่ valid ออก (id = 0 หรือไม่ใช่ตัวเลข)
+  const valid = (patients || []).filter(p => Number.isFinite(p?.id) && p.id !== 0);
+
+  // ✅ 2) กันรายการซ้ำด้วย Map ตาม id
+  const map = new Map<number, PatientLite>();
+  for (const p of valid) if (!map.has(p.id)) map.set(p.id, p);
+  const unique = Array.from(map.values());
+
+  const done = unique.filter((p) => doneSet.has(p.id));
+  const inTx = unique.filter((p) => inSet.has(p.id) && !doneSet.has(p.id)); // ถ้าเสร็จแล้ว ไม่นับซ้ำใน in-treatment
+  const newOnes = unique.filter((p) => !inSet.has(p.id) && !doneSet.has(p.id));
+
+  return { newOnes, inTx, done };
+}, [patients, inSet, doneSet]);
+
 
   const selectedPatient = useMemo(
     () =>
@@ -80,21 +88,25 @@ const PatientOverviewChart: React.FC<Props> = ({
       {/* Controls */}
       <div className="qewty-chart-controls">
         <label className="qewty-control-label">Patient:</label>
-        <select
-          className="qewty-select"
-          value={selectedPatientId === "ALL" ? "ALL" : String(selectedPatientId)}
-          onChange={(e) => {
-            const v = e.target.value;
-            setSelectedPatientId(v === "ALL" ? "ALL" : Number(v));
-          }}
-        >
-          <option value="ALL">All Patients</option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.first_name} {p.last_name}
-            </option>
-          ))}
-        </select>
+      
+<select
+  className="qewty-select"
+  value={selectedPatientId === "ALL" ? "ALL" : String(selectedPatientId)}
+  onChange={(e) => {
+    const v = e.target.value;
+    setSelectedPatientId(v === "ALL" ? "ALL" : Number(v));
+  }}
+>
+  <option value="ALL">All Patients</option>
+  {patients
+    .filter((p) => Number.isFinite(p?.id) && p.id !== 0) // ✅ กัน id=0
+    .map((p) => (
+      <option key={p.id} value={p.id}>
+        {p.first_name} {p.last_name}
+      </option>
+  ))}
+</select>
+
 
      <div className="qewty-chart-actions">
   <button

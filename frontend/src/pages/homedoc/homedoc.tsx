@@ -168,7 +168,50 @@ const Homedoc: React.FC = () => {
       icon: "https://cdn-icons-png.flaticon.com/128/1828/1828859.png",
     },
   ]);
+function getAuthHeaders(): HeadersInit {
+  const tokenType = localStorage.getItem("token_type") || "Bearer";
+  const token = localStorage.getItem("token") || "";
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers.Authorization = `${tokenType} ${token}`; // เช่น "Bearer xxxxxx"
+  }
+  return headers;
+}
 
+// ===== refs เป็นแหล่งจริงฝั่ง UI =====
+const inSetRef = useRef<Set<number>>(new Set());
+const doneSetRef = useRef<Set<number>>(new Set());
+
+// sync ref -> state
+const flushSetsToState = () => {
+  setInTreatmentIds(Array.from(inSetRef.current));
+  setCompletedIds(Array.from(doneSetRef.current));
+};
+
+// ย้ายทีละคน (mutual exclusive)
+const moveOne = (pid: number, state: "in_treatment" | "completed" | "unknown") => {
+  if (!Number.isFinite(pid) || pid <= 0) return;
+  if (state === "in_treatment") {
+    doneSetRef.current.delete(pid);
+    inSetRef.current.add(pid);
+  } else if (state === "completed") {
+    inSetRef.current.delete(pid);
+    doneSetRef.current.add(pid);
+  }
+};
+
+// ย้ายหลายคน
+const moveMany = (
+  items: Array<{ patient_id: number; state: "in_treatment" | "completed" | "unknown" }>
+) => {
+  for (const it of items || []) {
+    const pid = Number(it.patient_id);
+    if (!Number.isFinite(pid) || pid <= 0) continue;
+    moveOne(pid, it.state);
+  }
+};
 
 useEffect(() => {
   const pid = localStorage.getItem("psych_id") || localStorage.getItem("id");
@@ -218,33 +261,6 @@ useEffect(() => {
     return () => window.removeEventListener("docRequestsUpdated", onRequests);
   }, []);
 
-  /* ===== ดึงข้อมูลผู้ป่วยที่มี activity/ปิดเคส ===== */
-  useEffect(() => {
-    if (!psychId) return;
-
-    // เริ่มทำกิจกรรม (Diary/TR)
-    fetch(`http://localhost:8000/stats/patient-activity?psychologist_id=${psychId}`)
-      .then((res) => (res.ok ? res.json() : Promise.reject("bad res")))
-      .then((data: { diary_patient_ids?: number[]; tr_patient_ids?: number[] }) => {
-        const diaryIds = new Set(data?.diary_patient_ids || []);
-        const trIds = new Set(data?.tr_patient_ids || []);
-        const union = new Set<number>([...diaryIds, ...trIds]);
-        setInTreatmentIds(Array.from(union));
-      })
-      .catch(() => setInTreatmentIds([]));
-
-    // อนุมัติ/ปิดเคส
-    fetch(`http://localhost:8000/therapy-cases/by-psychologist?psychologist_id=${psychId}`)
-      .then((res) => (res.ok ? res.json() : Promise.reject("bad res")))
-      .then((cases: Array<{ patient_id: number; status: string }>) => {
-        const finished = (cases || []).filter(
-          (c) => c.status?.toLowerCase() === "approved" || c.status?.toLowerCase() === "completed"
-        );
-        setCompletedIds(finished.map((c) => c.patient_id));
-      })
-      .catch(() => setCompletedIds([]));
-  }, [psychId]);
-
   /* ===== โหลดผู้ป่วย ===== */
   useEffect(() => {
     const updateTotal = (arr: Patient[]) => {
@@ -266,9 +282,10 @@ useEffect(() => {
       })
       .then((data) => {
         if (!Array.isArray(data)) throw new Error("ข้อมูลผิดรูปแบบ");
-        setPatients(data);
+        const normalized = data.map((p: any) => ({ ...p, id: Number(p.id) || 0 }));
+        setPatients(normalized);
         setLoading(false);
-        updateTotal(data);
+        updateTotal(normalized);
       })
       .catch((err) => {
         console.error("โหลดผู้ป่วยล้มเหลว", err);
@@ -293,9 +310,10 @@ useEffect(() => {
         if (!res.ok) throw new Error("ไม่พบข้อมูล");
         const data = await res.json();
         if (!Array.isArray(data) || isUnmounted) return;
-        setPatients(data);
+        const normalized = data.map((p: any) => ({ ...p, id: Number(p.id) || 0 }));
+        setPatients(normalized);
 
-        const total = data.filter((p: Patient) => p.id && p.id !== 0).length;
+        const total = normalized.filter((p: Patient) => p.id && p.id !== 0).length;
         setStats((prev) =>
           prev.map((s) =>
             s.title === "Total Patients"
@@ -331,21 +349,149 @@ useEffect(() => {
     navigate("/");
   }
 }, [psychId, isLogin, role, navigate]);
+useEffect(() => {
+  if (!psychId) return;
+
+  const applyMsg = (raw: any) => {
+    const msg = raw || {};
+    if (msg.psychologist_id && String(msg.psychologist_id) !== String(psychId)) return;
+
+    let changed = false;
+
+    if (msg?.type === "therapy_status_change") {
+      const pidNum = Number(msg.patient_id);
+      if (!Number.isFinite(pidNum) || pidNum <= 0) return;
+      moveOne(pidNum, msg.state);
+      changed = true;
+    } else if (msg?.type === "therapy_status_batch" && Array.isArray(msg.items)) {
+      moveMany(msg.items);
+      changed = true;
+    } else if (Array.isArray(msg)) {
+      moveMany(msg);
+      changed = true;
+    }
+
+    if (changed) flushSetsToState();
+  };
+
+  let bc: BroadcastChannel | null = null;
+  try {
+    bc = new BroadcastChannel("patient_activity");
+    bc.onmessage = (ev) => applyMsg(ev.data);
+  } catch {}
+
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== "patient_activity_ping" || !e.newValue) return;
+    try { applyMsg(JSON.parse(e.newValue)); } catch {}
+  };
+  window.addEventListener("storage", onStorage);
+
+  try {
+    const last = localStorage.getItem("patient_activity_ping");
+    if (last) applyMsg(JSON.parse(last));
+  } catch {}
+
+  return () => {
+    try { bc?.close(); } catch {}
+    window.removeEventListener("storage", onStorage);
+  };
+}, [psychId]);
+
+useEffect(() => {
+  if (!psychId) return;
+
+ const fetchCases = async () => {
+  try {
+    const res = await fetch(
+      `http://localhost:8000/therapy-case/psyco/${psychId}`,
+     { headers: getAuthHeaders() }
+    );
+    if (res.status === 204) return;        // ไม่มีอะไรใหม่ ก็ไม่ต้องเปลี่ยน
+    if (!res.ok) throw new Error("bad res");
+
+    const cases = await res.json();
+    const { inIds, doneIds } = deriveIdsFromCases(cases || []);
+
+    // ทับสถานะตรง ๆ จากฐานข้อมูล (สแนปช็อต)
+    setInTreatmentIds(inIds);
+    setCompletedIds(doneIds);
+
+    // อัปเดต refs ให้ตรงกับ state ล่าสุด (ถ้ายังใช้ refs ที่อื่น)
+    inSetRef.current = new Set(inIds);
+    doneSetRef.current = new Set(doneIds);
+  } catch (err) {
+    console.warn("poll therapy cases failed:", err);
+    // อย่าล้าง state ตอน error
+  }
+};
+
+  fetchCases();
+  const t = setInterval(fetchCases, 20000);
+  return () => clearInterval(t);
+}, [psychId]);
 
 
-  /* ===== Derived counts ===== */
-  const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
-  const inSet = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
+// ให้ refs เท่ากับค่า state เมื่อ state เปลี่ยนครั้งแรก ๆ
+useEffect(() => {
+  // ทำแบบอ่อน ๆ: อัปเดตทุกครั้งให้ refs ตรงกับ state ล่าสุด
+  inSetRef.current = new Set(inTreatmentIds);
+  doneSetRef.current = new Set(completedIds);
+}, [inTreatmentIds, completedIds]);
 
-  const doneCount = useMemo(
-    () => patients.filter((p) => doneSet.has(p.id)).length,
-    [patients, doneSet]
-  );
-  const inCount = useMemo(
-    () => patients.filter((p) => inSet.has(p.id) && !doneSet.has(p.id)).length,
-    [patients, inSet, doneSet]
-  );
-  const newCount = Math.max(0, patients.length - doneCount - inCount);
+
+function deriveIdsFromCases(cases: Array<any>) {
+  const inSet = new Set<number>();
+  const doneSet = new Set<number>();
+
+  for (const c of cases || []) {
+    const pid = Number(c.patient_id ?? c.PatientID ?? c.patientId) || 0;
+    if (!pid) continue;
+
+    // ดึงเลขสถานะจากฟิลด์ที่ backend อาจคืนมาได้หลายแบบ
+    const sid =
+      Number(
+        c.case_status_id ??
+        c.CaseStatusID ??
+        c.caseStatusId ??
+        c.case_status?.id ??
+        c.CaseStatus?.ID
+      ) || 0;
+
+    if (sid === 2) doneSet.add(pid);
+    else if (sid === 1) inSet.add(pid);
+  }
+
+  return { inIds: Array.from(inSet), doneIds: Array.from(doneSet) };
+}
+
+
+
+
+// แทน validPatients เดิม ด้วยเวอร์ชัน dedupe
+const validPatients = useMemo(() => {
+  const arr = patients.filter((p) => Number.isFinite(p?.id) && p.id !== 0);
+  const map = new Map<number, Patient>();
+  for (const p of arr) if (!map.has(p.id)) map.set(p.id, p);
+  return Array.from(map.values());
+}, [patients]);
+
+
+const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
+const inSet = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
+
+// ✅ เชื่อฐานเคสเป็นหลัก
+const doneCount = useMemo(() => completedIds.length, [completedIds]);
+
+const inCount = useMemo(
+  () => inTreatmentIds.filter((id) => !doneSet.has(id)).length,
+  [inTreatmentIds, doneSet]
+);
+
+// ✅ "ผู้ป่วยใหม่" = อยู่ใน patients แต่ไม่อยู่ทั้ง in/done
+const newCount = useMemo(
+  () => validPatients.filter((p) => !inSet.has(p.id) && !doneSet.has(p.id)).length,
+  [validPatients, inSet, doneSet]
+);
 
   /* ===== UI: View All Requests ===== */
   const handleViewMore = (stat: { title: string }) => {
@@ -548,7 +694,12 @@ useEffect(() => {
               </li>
             </ul>
 
-            <button className="qewty-overlay-btn">View More Information</button>
+            <button
+  className="qewty-overlay-btn"
+  onClick={() => navigate("/psychologist/therapy")}
+>
+  View More Information
+</button>
           </div>
         </div>
       </div>
@@ -627,3 +778,5 @@ useEffect(() => {
 };
 
 export default Homedoc;
+
+

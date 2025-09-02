@@ -275,7 +275,9 @@ useEffect(() => {
     };
 
     if (!psychId) return;
-    fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`)
+    fetch(`http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`, {
+  headers: getAuthHeaders(),
+})
       .then((res) => {
         if (!res.ok) throw new Error("ไม่พบข้อมูล");
         return res.json();
@@ -305,7 +307,8 @@ useEffect(() => {
     const refetchPatients = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`
+          `http://localhost:8000/patients-by-psych?psychologist_id=${psychId}`,
+           { headers: getAuthHeaders() }
         );
         if (!res.ok) throw new Error("ไม่พบข้อมูล");
         const data = await res.json();
@@ -349,30 +352,47 @@ useEffect(() => {
     navigate("/");
   }
 }, [psychId, isLogin, role, navigate]);
+// ✅ รีเซ็ตสถานะทั้งหมดเมื่อเปลี่ยน psychId
+useEffect(() => {
+  setInTreatmentIds([]);
+  setCompletedIds([]);
+  inSetRef.current = new Set();
+  doneSetRef.current = new Set();
+}, [psychId]);
+
 useEffect(() => {
   if (!psychId) return;
 
   const applyMsg = (raw: any) => {
-    const msg = raw || {};
-    if (msg.psychologist_id && String(msg.psychologist_id) !== String(psychId)) return;
+  const msg = raw || {};
 
-    let changed = false;
+  // ถ้ามี psychologist_id ในข้อความและไม่ตรงกับเรา ให้ข้าม
+  if (msg?.psychologist_id && String(msg.psychologist_id) !== String(psychId)) return;
 
-    if (msg?.type === "therapy_status_change") {
-      const pidNum = Number(msg.patient_id);
-      if (!Number.isFinite(pidNum) || pidNum <= 0) return;
-      moveOne(pidNum, msg.state);
-      changed = true;
-    } else if (msg?.type === "therapy_status_batch" && Array.isArray(msg.items)) {
-      moveMany(msg.items);
-      changed = true;
-    } else if (Array.isArray(msg)) {
-      moveMany(msg);
+  let changed = false;
+
+  if (msg?.type === "therapy_status_change") {
+    const pidNum = Number(msg.patient_id);
+    if (!Number.isFinite(pidNum) || pidNum <= 0) return;
+    moveOne(pidNum, msg.state);
+    changed = true;
+  } else if (msg?.type === "therapy_status_batch" && Array.isArray(msg.items)) {
+    moveMany(msg.items);
+    changed = true;
+  } else if (Array.isArray(msg)) {
+    // ✅ รับเฉพาะรายการที่ระบุ psychologist_id ตรงกับเรา
+    const items = (msg as any[]).filter(
+      (it) => it?.psychologist_id && String(it.psychologist_id) === String(psychId)
+    );
+    if (items.length) {
+      moveMany(items);
       changed = true;
     }
+  }
 
-    if (changed) flushSetsToState();
-  };
+  if (changed) flushSetsToState();
+};
+
 
   let bc: BroadcastChannel | null = null;
   try {
@@ -476,23 +496,33 @@ const validPatients = useMemo(() => {
 }, [patients]);
 
 
-const doneSet = useMemo(() => new Set(completedIds), [completedIds]);
-const inSet = useMemo(() => new Set(inTreatmentIds), [inTreatmentIds]);
-
-// ✅ เชื่อฐานเคสเป็นหลัก
-const doneCount = useMemo(() => completedIds.length, [completedIds]);
-
-const inCount = useMemo(
-  () => inTreatmentIds.filter((id) => !doneSet.has(id)).length,
-  [inTreatmentIds, doneSet]
+// ผู้ป่วยที่มีอยู่จริง (dedupe แล้วอยู่แล้วใน validPatients)
+const validIdSet = useMemo(
+  () => new Set(validPatients.map((p) => p.id)),
+  [validPatients]
 );
 
-// ✅ "ผู้ป่วยใหม่" = อยู่ใน patients แต่ไม่อยู่ทั้ง in/done
-const newCount = useMemo(
-  () => validPatients.filter((p) => !inSet.has(p.id) && !doneSet.has(p.id)).length,
-  [validPatients, inSet, doneSet]
+// เอาเฉพาะ id ที่มีอยู่จริง
+const doneIdsShown = useMemo(
+  () => completedIds.filter((id) => validIdSet.has(id)),
+  [completedIds, validIdSet]
 );
 
+const inIdsShown = useMemo(
+  () =>
+    inTreatmentIds.filter(
+      (id) => validIdSet.has(id) && !doneIdsShown.includes(id) // mutual exclusive
+    ),
+  [inTreatmentIds, doneIdsShown, validIdSet]
+);
+
+// นับ
+const doneCount = doneIdsShown.length;
+const inCount   = inIdsShown.length;
+const newCount  = Math.max(
+  0,
+  validPatients.length - doneCount - inCount
+);
   /* ===== UI: View All Requests ===== */
   const handleViewMore = (stat: { title: string }) => {
     if (stat.title !== "All Requests") return;

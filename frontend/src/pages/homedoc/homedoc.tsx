@@ -325,15 +325,13 @@ useEffect(() => {
     }
   }, [psychId]);
 
-  /* ===== Auth guard ===== */
-  useEffect(() => {
-    if (!psychId || !isLogin || role !== "Psychologist") {
-      Swal.fire({ icon: "warning", title: "กรุณาเข้าสู่ระบบด้วยบัญชีนักจิตวิทยา" }).then(() =>
-        navigate("/")
-      );
-      return;
-    }
-  }, [psychId, isLogin, role, navigate]);
+/* ===== Auth guard ===== */
+useEffect(() => {
+  if (!psychId || !isLogin || role !== "Psychologist") {
+    navigate("/");
+  }
+}, [psychId, isLogin, role, navigate]);
+
 
   /* ===== Derived counts ===== */
   const doneSet = useMemo(() => new Set(completedIds), [completedIds]);

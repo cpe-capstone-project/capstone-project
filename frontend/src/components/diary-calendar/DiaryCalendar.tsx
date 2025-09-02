@@ -57,10 +57,10 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
     return (
       <div>
         {listData.map((diary) => {
-          const tagColors =
-            diary.TagColors?.split(",")
-              .map((c) => c.trim().replace(/^"|"$/g, ""))
-              .slice(0, 3) || []; // ✅ เอาแค่ 3 สีแรก
+          // ✅ ใช้ TagColor1, TagColor2, TagColor3 เหมือน DiaryCard
+          const tagColors = [diary.TagColor1, diary.TagColor2, diary.TagColor3].filter(
+            Boolean
+          ); // ตัด null/undefined ออก
 
           return (
             <Tooltip

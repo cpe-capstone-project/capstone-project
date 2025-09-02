@@ -16,8 +16,9 @@ import type { Dayjs } from "dayjs";
 // import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 import "dayjs/locale/th";
-import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
+// import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+import DiarySummaryEmotionChart from "../../components/diary-summary-bar-chart/DiarySummaryEmotionChart";
 // dayjs.locale("th");
 
 function DiarySummary() {
@@ -225,10 +226,11 @@ function DiarySummary() {
 
           <div className="emotion-summary-container">
             <h1>
-              ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่{" "}
+              ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่ทั้งหมด{" "}
               {summaryData?.Diaries ? summaryData.Diaries.length : 0} ฉบับ
             </h1>
-            <DiarySummaryBarChart />
+            <DiarySummaryEmotionChart />
+            {/* <DiarySummaryBarChart /> */}
           </div>
         </div>
       )}

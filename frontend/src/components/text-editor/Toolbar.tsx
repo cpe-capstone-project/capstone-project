@@ -21,7 +21,7 @@ import { AiOutlineUnderline } from "react-icons/ai";
 import { BiHighlight } from "react-icons/bi";
 import { FiAlertTriangle } from "react-icons/fi";
 import "./Toolbar.css";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Tooltip } from "antd";
 
 type ToolbarProps = {
@@ -46,7 +46,7 @@ function Toolbar({
   onToggleFullscreen,
   browserSupportsSpeechRecognition,
   confirmSave,
-    speechLang,
+  speechLang,
   setSpeechLang,
 }: ToolbarProps) {
   const canUndo = editor.can().undo();
@@ -56,14 +56,23 @@ function Toolbar({
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (scrollRef.current) {
-      // ป้องกัน scroll แนวตั้ง
-      e.preventDefault();
-      // แปลงการ scroll แนวตั้ง เป็นแนวนอน
-      scrollRef.current.scrollLeft += e.deltaY;
-    }
-  };
+  // ✅ ใช้ useEffect แทน onWheel prop เพื่อควบคุม passive behavior
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (scrollRef.current && scrollRef.current.contains(e.target as Node)) {
+        e.preventDefault();
+        scrollRef.current.scrollLeft += e.deltaY;
+      }
+    };
+
+    // เพิ่ม event listener แบบ non-passive
+    document.addEventListener('wheel', handleWheel, { passive: false });
+
+    // cleanup
+    return () => {
+      document.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   if (!editor) return null;
   const isAlign = (align: string) =>
@@ -71,7 +80,7 @@ function Toolbar({
     editor.getAttributes("paragraph").textAlign === align;
 
   return (
-    <div className="toolbar" ref={scrollRef} onWheel={handleWheel}>
+    <div className="toolbar" ref={scrollRef}>
       <section className="toolbar-container">
         <div className="fullscreen-container">
           <Tooltip title={fullscreen ? "Exit Fullscreen" : "Fullscreen"}>
@@ -277,21 +286,21 @@ function Toolbar({
               {isRecording && <span className="mic-dot"></span>}
             </button>
           </Tooltip>
-          <hr />
+          {/* <hr /> */}
           {/* Language selector */}
           <div className="language-selector">
-    <select
-      value={speechLang || language}
-      onChange={(e) => {
-        setLanguage(e.target.value);
-        if (setSpeechLang) setSpeechLang(e.target.value);
-      }}
-      disabled={confirmSave}
-    >
-      <option value="th-TH">TH</option>
-      <option value="en-US">EN</option>
-    </select>
-  </div>
+            <select
+              value={speechLang || language}
+              onChange={(e) => {
+                setLanguage(e.target.value);
+                if (setSpeechLang) setSpeechLang(e.target.value);
+              }}
+              disabled={confirmSave}
+            >
+              <option value="th-TH">TH</option>
+              <option value="en-US">EN</option>
+            </select>
+          </div>
         </div>
 
         <Tooltip title="Reset">

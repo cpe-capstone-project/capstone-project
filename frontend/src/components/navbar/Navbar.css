@@ -32,7 +32,6 @@
 .menu li {
   list-style: none;
   cursor: pointer;
-  font-weight: 500;
   color: #333;
   transition: color 0.2s ease;
 }

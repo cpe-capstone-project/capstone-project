@@ -102,7 +102,7 @@ function DiaryList() {
   return (
     <section className="diary-list-container">
       <div className="diary-list-header">
-        <h1 style={{ fontSize: "var(--font-size-2xl)" }}>My Diary</h1>
+        <strong style={{ fontSize: "var(--font-size-2xl)" }}>My Diary</strong>
 
         <div className="diary-list-menu">
           {/* กรองข้อมูล */}
@@ -155,7 +155,7 @@ function DiaryList() {
               style={{ marginBottom: "var(--space-2xl)" }}
             >
               
-              <h2>{label}</h2>
+              <h1>{label}</h1>
               <div className="diary-grid">
                 {items.map((item) => (
                   <div key={item.ID} className="diary-item">

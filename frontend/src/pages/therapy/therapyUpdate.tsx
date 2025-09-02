@@ -112,6 +112,12 @@ export default function EditTherapyCasePage() {
         if (!validateForm()) return;
 
         try {
+            
+    const psychoIdNum = Number(psychoIdStr);
+    if (!Number.isFinite(psychoIdNum)) {
+      alert("ไม่พบ Psychologist ID ที่ถูกต้อง");
+      return;
+    }
             const payload = {
                 case_title: formData.CaseTitle,
                 case_description: formData.CaseDescription,
@@ -125,7 +131,35 @@ export default function EditTherapyCasePage() {
 
             if (!id) return;
             await UpdateTherapyCase(Number(id), payload);
+            
+    const sid = Number(payload.case_status_id);
+    const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown";
 
+    try {
+      const bc = new BroadcastChannel("patient_activity");
+      const msg = {
+        type: "therapy_status_change",
+        state, // "in_treatment" | "completed" | "unknown"
+        patient_id: Number(payload.patient_id),
+        psychologist_id: psychoIdNum, // ✅ ใช้ตัวนอก
+      };
+      bc.postMessage(msg);
+      bc.close();
+
+      // fallback (ให้แท็บอื่น/หน้า Homedoc ที่เปิดทีหลังรับได้)
+      localStorage.setItem("patient_activity_ping", JSON.stringify({ ...msg, ts: Date.now() }));
+    } catch {
+      localStorage.setItem(
+        "patient_activity_ping",
+        JSON.stringify({
+          type: "therapy_status_change",
+          state,
+          patient_id: Number(payload.patient_id),
+          psychologist_id: psychoIdNum,
+          ts: Date.now(),
+        })
+      );
+    }
             alert("แก้ไขข้อมูลเรียบร้อยแล้ว");
             navigate("/psychologist/therapy");
         } catch (error) {

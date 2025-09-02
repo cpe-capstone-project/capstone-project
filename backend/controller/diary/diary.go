@@ -11,13 +11,12 @@ import (
 )
 
 // GET /diaries?sort=updated_at&order=asc
-func ListDiaries(c *gin.Context){
+func ListDiaries(c *gin.Context) {
 	var diaries []entity.Diaries
 	db := config.DB()
 
 	sortField := c.DefaultQuery("sort", "updated_at")
 	order := c.DefaultQuery("order", "desc")
-	
 
 	// ตรวจสอบว่า order มีค่าถูกต้องหรือไม่
 	if order != "asc" && order != "desc" {
@@ -35,7 +34,13 @@ func ListDiaries(c *gin.Context){
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	results := db.Preload("TherapyCase").Preload("Feedbacks.Psychologist").Preload("Feedbacks.FeedbackType").Find(&diaries)
+	results := db.Preload("TherapyCase").
+		Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").
+		Find(&diaries)
+
 	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
@@ -83,8 +88,10 @@ func ListDiariesByPatientAndTherapyCase(c *gin.Context) {
 
 	// Query
 	result := db.Preload("TherapyCase").
-		Preload("Feedbacks.Psychologist").
-		Preload("Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").
 		Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
 		Where("therapy_cases.id = ? AND therapy_cases.patient_id = ?", therapyCaseID, patientID).
 		Find(&diaries)
@@ -97,19 +104,23 @@ func ListDiariesByPatientAndTherapyCase(c *gin.Context) {
 	c.JSON(http.StatusOK, diaries)
 }
 
-
 // GET /diary/:id
-func GetDiaryByID(c *gin.Context){
+func GetDiaryByID(c *gin.Context) {
 	ID := c.Param("id")
 	var diary entity.Diaries
 
 	db := config.DB()
-	results := db.Preload("TherapyCase").Preload("Feedbacks").First(&diary, ID)
-	if results.Error != nil{
+	results := db.Preload("TherapyCase").Preload("FeedbackDiary.Feedbacks.Psychologist").
+		Preload("FeedbackDiary.Feedbacks.Patient").
+		Preload("FeedbackDiary.Feedbacks.FeedbackType").
+		Preload("FeedbackDiary.Feedbacks.FeedbackTime").First(&diary, ID)
+	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
+
 		return
 	}
-	if diary.ID == 0{
+
+	if diary.ID == 0 {
 		c.JSON(http.StatusNoContent, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -117,32 +128,41 @@ func GetDiaryByID(c *gin.Context){
 }
 
 // POST /diary
-func CreateDiary(c *gin.Context){
+func CreateDiary(c *gin.Context) {
 	var diary entity.Diaries
 
 	//bind เข้าตัวแปร diary
-	if err := c.ShouldBindJSON(&diary); err != nil{
+	if err := c.ShouldBindJSON(&diary); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	defaultColors := "#FFC107,#FF9800,#FF5722"
-	if diary.TagColors == "" {
-		diary.TagColors = defaultColors
+	// defaultColors := "#FFC107,#FF9800,#FF5722"
+	defaultColor1 := "#FFC107"
+	defaultColor2 := "#FF9800"
+	defaultColor3 := "#FF5722"
+	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
+		diary.TagColor1 = defaultColor1
+		diary.TagColor2 = defaultColor2
+		diary.TagColor3 = defaultColor3
 	}
 
 	db := config.DB()
 
 	bc := entity.Diaries{
-		Title: diary.Title,
-		Content: diary.Content,
-		TagColors: diary.TagColors,
-		Confirmed: false,
+		Title:         diary.Title,
+		Content:       diary.Content,
+		// TagColors:     diary.TagColors,
+		TagColor1:    diary.TagColor1,
+		TagColor2:    diary.TagColor2,
+		TagColor3:    diary.TagColor3,
+		UpdatedAt:    time.Now(),
+		Confirmed:     false,
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 
 	//บันทึก
-	if err := db.Create(&bc).Error; err != nil{
+	if err := db.Create(&bc).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -150,25 +170,33 @@ func CreateDiary(c *gin.Context){
 }
 
 // PATCH /diary/:id
-func UpdateDiaryByID(c *gin.Context){
+func UpdateDiaryByID(c *gin.Context) {
 	var diary entity.Diaries
 	diaryID := c.Param("id")
 	db := config.DB()
-	
+
 	result := db.First(&diary, diaryID)
-	if result.Error != nil{
+	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&diary); err != nil{
+	if err := c.ShouldBindJSON(&diary); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request, unable to map payload"})
 		return
 	}
 
-	defaultColors := "#FFC107,#FF9800,#FF5722"
-	if diary.TagColors == "" {
-		diary.TagColors = defaultColors
+	// defaultColors := "#FFC107,#FF9800,#FF5722"
+	// if diary.TagColors == "" {
+	// 	diary.TagColors = defaultColors
+	// }
+	defaultColor1 := "#FFC107"
+	defaultColor2 := "#FF9800"
+	defaultColor3 := "#FF5722"
+	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
+		diary.TagColor1 = defaultColor1
+		diary.TagColor2 = defaultColor2
+		diary.TagColor3 = defaultColor3
 	}
 
 	if diary.Confirmed == false {
@@ -176,7 +204,7 @@ func UpdateDiaryByID(c *gin.Context){
 	}
 
 	result = db.Save(&diary)
-	if result.Error != nil{
+	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 		return
 	}
@@ -195,6 +223,7 @@ func DeleteDiary(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Deleted successful"})
 }
+
 // GET /diaries/latest?limit=5
 func ListLatestDiaries(c *gin.Context) {
 	var diaries []entity.Diaries
@@ -254,70 +283,70 @@ func CountDiariesByMonth(c *gin.Context) {
 		"month": int(month),
 	})
 }
+
 // GET /diaries/home?tz=Asia/Bangkok
 func GetHomeDiaries(c *gin.Context) {
-    db := config.DB()
+	db := config.DB()
 
-    tz := c.DefaultQuery("tz", "Asia/Bangkok")
-    loc, err := time.LoadLocation(tz)
-    if err != nil {
-        loc, _ = time.LoadLocation("Asia/Bangkok")
-    }
+	tz := c.DefaultQuery("tz", "Asia/Bangkok")
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		loc, _ = time.LoadLocation("Asia/Bangkok")
+	}
 
-    now := time.Now().In(loc)
+	now := time.Now().In(loc)
 
-    // ====== วันนี้ ======
-    startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
-    endToday := startToday.AddDate(0, 0, 1)
+	// ====== วันนี้ ======
+	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	endToday := startToday.AddDate(0, 0, 1)
 
-    // ====== สัปดาห์ที่ผ่านมา (จันทร์–อาทิตย์ของสัปดาห์ก่อน) ======
-    weekday := int(now.Weekday())
-    if weekday == 0 { // Sunday=0 -> ใช้ 7
-        weekday = 7
-    }
-    // วันจันทร์ของ "สัปดาห์นี้"
-    startThisWeek := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
-    // ช่วงของ "สัปดาห์ที่ผ่านมา"
-    startPrevWeek := startThisWeek.AddDate(0, 0, -7) // จันทร์ที่แล้ว
-    endPrevWeek := startThisWeek                     // ก่อนจันทร์นี้ (ไม่รวม)
+	// ====== สัปดาห์ที่ผ่านมา (จันทร์–อาทิตย์ของสัปดาห์ก่อน) ======
+	weekday := int(now.Weekday())
+	if weekday == 0 { // Sunday=0 -> ใช้ 7
+		weekday = 7
+	}
+	// วันจันทร์ของ "สัปดาห์นี้"
+	startThisWeek := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
+	// ช่วงของ "สัปดาห์ที่ผ่านมา"
+	startPrevWeek := startThisWeek.AddDate(0, 0, -7) // จันทร์ที่แล้ว
+	endPrevWeek := startThisWeek                     // ก่อนจันทร์นี้ (ไม่รวม)
 
-    var todayDiary entity.Diaries
-    var weekDiary entity.Diaries
-    var todayList []entity.Diaries
-    var weekList []entity.Diaries
+	var todayDiary entity.Diaries
+	var weekDiary entity.Diaries
+	var todayList []entity.Diaries
+	var weekList []entity.Diaries
 
-    // ล่าสุดของ "วันนี้"
-    _ = db.
-        Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
-        Order("updated_at DESC").
-        First(&todayDiary).Error
+	// ล่าสุดของ "วันนี้"
+	_ = db.
+		Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
+		Order("updated_at DESC").
+		First(&todayDiary).Error
 
-    // ทั้งหมดของ "วันนี้"
-    _ = db.
-        Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
-        Order("updated_at DESC").
-        Find(&todayList).Error
+	// ทั้งหมดของ "วันนี้"
+	_ = db.
+		Where("updated_at >= ? AND updated_at < ?", startToday, endToday).
+		Order("updated_at DESC").
+		Find(&todayList).Error
 
-    // ล่าสุดของ "สัปดาห์ที่ผ่านมา"
-    _ = db.
-        Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
-        Order("updated_at DESC").
-        First(&weekDiary).Error
+	// ล่าสุดของ "สัปดาห์ที่ผ่านมา"
+	_ = db.
+		Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
+		Order("updated_at DESC").
+		First(&weekDiary).Error
 
-    // ทั้งหมดของ "สัปดาห์ที่ผ่านมา"
-    _ = db.
-        Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
-        Order("updated_at DESC").
-        Find(&weekList).Error
+	// ทั้งหมดของ "สัปดาห์ที่ผ่านมา"
+	_ = db.
+		Where("updated_at >= ? AND updated_at < ?", startPrevWeek, endPrevWeek).
+		Order("updated_at DESC").
+		Find(&weekList).Error
 
-    c.JSON(http.StatusOK, gin.H{
-        "today":      nullIfZeroDiary(todayDiary),
-        "week":       nullIfZeroDiary(weekDiary), // ใช้ key เดิม 'week' ให้ frontend เดิมใช้ได้
-        "today_list": todayList,
-        "week_list":  weekList,
-    })
+	c.JSON(http.StatusOK, gin.H{
+		"today":      nullIfZeroDiary(todayDiary),
+		"week":       nullIfZeroDiary(weekDiary), // ใช้ key เดิม 'week' ให้ frontend เดิมใช้ได้
+		"today_list": todayList,
+		"week_list":  weekList,
+	})
 }
-
 
 // helper: คืน nil ถ้า diary.ID == 0 จะได้ส่ง null ไปหน้าเว็บ
 func nullIfZeroDiary(d entity.Diaries) interface{} {

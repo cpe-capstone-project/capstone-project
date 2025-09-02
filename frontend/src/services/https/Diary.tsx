@@ -86,6 +86,14 @@ async function GetDiarySummaryById(id: number) {
     .then((res) => res)
     .catch((e) => e.response);
 }
+
+async function GetDiarySummaryEmotionStatsById(id: number) {
+  return await axios
+    .get(`${apiUrl}/diary-summary-emotion-stats/${id}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 async function GetDiaryCountThisMonth(year?: number, month?: number) {
   const now = new Date();
   const y = year ?? now.getFullYear();
@@ -113,6 +121,7 @@ export {
   CreateDiary,
   CreateDiarySummary,
   GetDiarySummaryById,
+  GetDiarySummaryEmotionStatsById,
   GetDiaryCountThisMonth,
   GetHomeDiaries,
 };

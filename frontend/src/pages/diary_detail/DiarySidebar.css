@@ -72,103 +72,109 @@
   flex-direction: column;
   gap: var(--space-md);
   padding: 0 var(--padding-patient-home-page);
-}
 
-/* Diary List Item */
-.diary-list-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: var(--space-md);
-
-  background-color: white;
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-
-  /* Badge */
-  .unconfirmed-badge {
-    position: absolute;
-    top: -5%;
-    right: -5%;
-    padding: var(--space-xxs) var(--space-sm);
-    background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
-    color: white;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    text-align: center;
-    line-height: 20px;
+  h1 {
+    font-size: var(--font-size-xl);
     font-weight: bold;
-    z-index: 1;
   }
-}
-
-.diary-list-item:hover {
-  background-color: var(--color-surface);
-}
-
-.diary-list-item.active {
-  background-color: #ddd;
-}
-
-/* Diary Link */
-.left-side-diary {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: var(--space-md);
-  padding: 24px 24px 24px 0;
-  color: black;
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-
-  .left-side-diary-info {
+  
+  /* Diary List Item */
+  .diary-list-item {
+    position: relative;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     width: 100%;
-    /* gap: var(--space-xs); */
-
-    header {
+    gap: var(--space-md);
+  
+    background-color: white;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+  
+    /* Badge */
+    .unconfirmed-badge {
+      position: absolute;
+      top: -5%;
+      right: -5%;
+      padding: var(--space-xxs) var(--space-sm);
+      background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      text-align: center;
+      line-height: 20px;
+      font-weight: bold;
+      z-index: 1;
+    }
+  }
+  
+  .diary-list-item:hover {
+    background-color: var(--color-surface);
+  }
+  
+  .diary-list-item.active {
+    background-color: #ddd;
+  }
+  
+  /* Diary Link */
+  .left-side-diary {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: var(--space-md);
+    padding: 24px 24px 24px 0;
+    color: black;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+  
+    .left-side-diary-info {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-xs);
-
-      h1 {
+      flex-direction: column;
+      width: 100%;
+      /* gap: var(--space-xs); */
+  
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-xs);
+  
+        h1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1; /* จำนวนบรรทัด */
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+  
+          font-size: var(--font-size-md);
+  
+          width: 80%;
+          word-break: break-word;
+        }
+  
+        p {
+          font-size: var(--font-size-sm);
+        }
+      }
+  
+      .content {
         display: -webkit-box;
-        -webkit-line-clamp: 1; /* จำนวนบรรทัด */
+        -webkit-line-clamp: 2; /* จำนวนบรรทัด */
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-
-        font-size: var(--font-size-md);
-
-        width: 80%;
+  
+        font-weight: normal;
+        font-size: var(--font-size-sm);
+        opacity: 0.8;
+  
+        width: 100%;
         word-break: break-word;
       }
-
-      p {
-        font-size: var(--font-size-sm);
-      }
-    }
-
-    .content {
-      display: -webkit-box;
-      -webkit-line-clamp: 2; /* จำนวนบรรทัด */
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-weight: normal;
-      font-size: var(--font-size-sm);
-      opacity: 0.8;
-
-      width: 100%;
-      word-break: break-word;
     }
   }
 }
+
 
 /* Circle Select Button */
 .circle-select-btn {

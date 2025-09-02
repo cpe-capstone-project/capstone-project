@@ -53,7 +53,8 @@
     background-color: var(--color-surface);
   
     h1 {
-      font-size: var(--font-size-md);
+      font-size: var(--font-size-sm);
+      font-weight: bold;
     }
   
     p {

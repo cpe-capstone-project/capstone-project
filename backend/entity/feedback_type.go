@@ -8,6 +8,6 @@ type FeedbackType struct {
   gorm.Model
   FeedbackTypeName string
 
-  Feedback  []Feedback `gorm:"foreignKey:FeedbackTypeID"`
+  Feedbacks []Feedbacks `gorm:"foreignKey:FeedbackTypeID"`
 
 }

@@ -64,6 +64,19 @@ async function DeleteThoughtRecordById(id: number) {
     .catch((e) => e.response);
 }
 
+// ✅ GET /thought_record/therapycase/:id
+async function GetThoughtRecordsByTherapyCaseID(id: number) {
+  try {
+    const res = await axios.get(`${apiUrl}/thoughtrecords/case/${id}`, requestOptions);
+    return res.data;
+  } catch (e: any) {
+    // ถ้า axios มี response แสดง error จาก server ถ้าไม่มีให้แสดง error ทั่วไป
+    return e.response || { error: e.message };
+  }
+}
+
+
+
 export {
   GetThoughtRecords,
   GetLatestThoughtRecords,
@@ -71,4 +84,5 @@ export {
   CreateThoughtRecord,
   UpdateThoughtRecordById,
   DeleteThoughtRecordById,
+  GetThoughtRecordsByTherapyCaseID,
 };

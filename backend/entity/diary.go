@@ -7,18 +7,22 @@ import (
 
 type Diaries struct {
 	gorm.Model
-	Title 			string
-	Content 		string
-	UpdatedAt		time.Time
-	TagColors     	string
-	Confirmed 		bool
+	Title        string
+	Content      string
+	UpdatedAt    time.Time
+	Confirmed    bool
 
-	TherapyCaseID	uint
-	TherapyCase		*TherapyCase 	`gorm:"foreignKey:TherapyCaseID"`
+	// จำกัดแค่ 3 สี
+	TagColor1    string
+	TagColor2    string
+	TagColor3    string
+
+	TherapyCaseID uint
+	TherapyCase   *TherapyCase `gorm:"foreignKey:TherapyCaseID"`
 
 	// many-to-many relationship
-	Summaries 		[]DiarySummary 	`gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
+	Summaries     []DiarySummary  `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
 
 	// One-to-many relationship
-	FeedbackDiary 		[]FeedbackDiary 		`gorm:"foreignKey:DiaryID"`
+	FeedbackDiary []FeedbackDiary `gorm:"foreignKey:DiaryID"`
 }

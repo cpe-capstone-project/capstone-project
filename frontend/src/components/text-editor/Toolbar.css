@@ -20,14 +20,15 @@
   padding: calc(var(--padding-text-editor) / 2);
   font-size: var(--font-size-md);
   background-color: transparent;
+  outline: none;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 .toolbar select:disabled {
+  color: #999;    
   cursor: not-allowed;
   pointer-events: none;
-
 }
 
 .toolbar section {
@@ -114,7 +115,7 @@
 /* speech-to-text */
 .toolbar .speech-to-text-container {
   display: flex;
-  align-items: normal;
+  align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-xxs);
   gap: 0;

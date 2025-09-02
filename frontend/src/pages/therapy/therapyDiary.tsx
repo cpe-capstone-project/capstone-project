@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { GetDiariesByTherapyCaseID } from "../../services/https/TherapyCase";
 import { CreateFeedback, GetFeedbackTime } from "../../services/https/Feedback";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import type { FeedbackTimeInterface } from "../../interfaces/IFeedbackTime";
-import { ArrowLeft, FileText, Calendar, BookOpen, X, Send } from "lucide-react";
+import { ArrowLeft, FileText, BookOpen, X, Send, CalendarDays, MessageCircle, Clock, } from "lucide-react";
 
 export default function DiaryList() {
   const { id } = useParams<{ id: string }>();
   const myID = localStorage.getItem("id");
-  const navigate = useNavigate();
+
 
   const [diaries, setDiaries] = useState<DiaryInterface[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +29,15 @@ export default function DiaryList() {
 
   const [filteredDiaries, setFilteredDiaries] = useState<DiaryInterface[]>([]);
   const [selectedDiaryIDs, setSelectedDiaryIDs] = useState<number[]>([]);
+
+  const [showReadDiaryModal, setShowReadDiaryModal] = useState(false);
+  const [readingDiary, setReadingDiary] = useState<DiaryInterface | null>(null);
+
+  // --- ฟังก์ชันเปิด Modal อ่าน Diary ---
+  const handleOpenReadDiary = (diary: DiaryInterface) => {
+    setReadingDiary(diary);
+    setShowReadDiaryModal(true);
+  };
 
   // โหลด Feedback Time
   useEffect(() => {
@@ -79,10 +88,6 @@ export default function DiaryList() {
   }, [diaries, selectedFeedbackTimeID]);
 
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
-  };
 
   const handleOpenDiaryFeedback = (diaryID: number) => {
     setSelectedDiaryID(diaryID);
@@ -135,155 +140,359 @@ export default function DiaryList() {
     }
   };
 
+  const formatTime = (dateString: any) => {
+    return new Date(dateString).toLocaleTimeString("th-TH", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  // --- helper ฟังก์ชัน grouping ---
+  const groupDiariesByDate = (diaries: DiaryInterface[]) => {
+    return diaries.reduce((groups: Record<string, DiaryInterface[]>, diary) => {
+      if (!diary.CreatedAt) return groups;
+      const date = new Date(diary.CreatedAt).toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(diary);
+      return groups;
+    }, {});
+  };
+
   if (loading) return <div className="!min-h-screen !bg-white !p-8 text-center">กำลังโหลดข้อมูล...</div>;
 
   return (
-    <div className="!min-h-screen !bg-white !p-8">
-      <div className="!max-w-4xl !mx-auto">
+    <div className="!min-h-screen !bg-gradient-to-br !from-white-50 !via-white !to-indigo-50 translate-x-15">
+      <div className="!container !mx-auto !px-4 !py-8 !max-w-7xl">
+        {/* Header Section */}
         <div className="!mb-8">
-          <button onClick={() => navigate(-1)} className="!inline-flex !items-center !mb-6 !text-gray-600 hover:!text-gray-900">
-            <ArrowLeft className="!h-5 !w-5 !mr-2" /> กลับ
+          <button
+            onClick={() => window.history.back()}
+            className="!inline-flex !items-center !mb-6 !text-gray-600 hover:!text-blue-600 !transition-colors !duration-200 !group"
+          >
+            <ArrowLeft className="!h-5 !w-5 !mr-2 group-hover:!-translate-x-1 !transition-transform !duration-200" />
+            กลับ
           </button>
-          <h1 className="!text-4xl !font-bold !text-gray-900 !mb-2 !flex !items-center !justify-center">
-            <BookOpen className="!h-10 !w-10 !mr-3 !text-blue-600" />
-            Diary ทั้งหมด
-          </h1>
-          <p className="!text-gray-600 !text-lg">บันทึกความคิดและความรู้สึกของผู้ป่วย</p>
 
-          {/* ปุ่ม Batch Feedback */}
-          <div className="!mt-4 !flex !justify-center">
+          <div className="!text-center !mb-8">
+            <div className="!inline-flex !items-center !justify-center !w-20 !h-20 !bg-gradient-to-br !from-blue-500 !to-indigo-600 !rounded-full !mb-4 !shadow-lg">
+              <BookOpen className="!h-10 !w-10 !text-white" />
+            </div>
+            <h1 className="!text-4xl !font-bold !text-gray-900 !mb-2">
+              Diary ทั้งหมด
+            </h1>
+            <p className="!text-gray-600 !text-lg !max-w-2xl !mx-auto">
+              บันทึกความคิดและความรู้สึกของผู้ป่วย เพื่อติดตามความคืบหน้าและให้คำแนะนำที่เหมาะสม
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="!flex !justify-center !space-x-4">
             <button
               onClick={() => setShowBatchFeedbackModal(true)}
-              className="!bg-blue-600 hover:!bg-blue-700 !text-white !px-6 !py-2 !rounded-lg"
+              className="!bg-gradient-to-r !from-blue-600 !to-indigo-600 hover:!from-blue-700 hover:!to-indigo-700 !text-white !px-8 !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !transition-all !duration-200 !flex !items-center !space-x-2"
             >
-              ส่ง Feedback แบบต่อช่วงเวลา
+              <MessageCircle className="!h-5 !w-5" />
+              <span>ส่ง Feedback แบบรวม</span>
             </button>
           </div>
         </div>
 
-        {/* Diary List */}
+        {/* Stats Cards */}
+        <div className="!grid !grid-cols-1 md:!grid-cols-2 !gap-6 !mb-8">
+          <div className="!bg-white !rounded-2xl !p-6 !shadow-sm !border !border-gray-100">
+            <div className="!flex !items-center">
+              <div className="!bg-blue-100 !p-3 !rounded-xl">
+                <FileText className="!h-6 !w-6 !text-blue-600" />
+              </div>
+              <div className="!ml-4">
+                <p className="!text-2xl !font-bold !text-gray-900">{diaries.length}</p>
+                <p className="!text-gray-600">รายการทั้งหมด</p>
+              </div>
+            </div>
+          </div>
+          <div className="!bg-white !rounded-2xl !p-6 !shadow-sm !border !border-gray-100">
+            <div className="!flex !items-center">
+              <div className="!bg-green-100 !p-3 !rounded-xl">
+                <Clock className="!h-6 !w-6 !text-green-600" />
+              </div>
+              <div className="!ml-4">
+                <p className="!text-2xl !font-bold !text-gray-900">{filteredDiaries.length}</p>
+                <p className="!text-gray-600">ช่วงเวลาปัจจุบัน</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Diary Content */}
         {diaries.length === 0 ? (
-          <div className="!bg-white !border !border-gray-200 !rounded-lg !p-12 !text-center">
-            <FileText className="!h-16 !w-16 !text-gray-300 !mx-auto !mb-4" />
-            <h3 className="!text-xl !font-medium !text-gray-900 !mb-2">ยังไม่มี Diary</h3>
-            <p className="!text-gray-500">ไม่พบบันทึก Diary สำหรับเคสนี้</p>
+          <div className="!bg-white !rounded-2xl !p-12 !text-center !shadow-sm !border !border-gray-100">
+            <div className="!inline-flex !items-center !justify-center !w-24 !h-24 !bg-gray-100 !rounded-full !mb-6">
+              <FileText className="!h-12 !w-12 !text-gray-400" />
+            </div>
+            <h3 className="!text-2xl !font-semibold !text-gray-900 !mb-2">ยังไม่มี Diary</h3>
+            <p className="!text-gray-500 !text-lg">ไม่พบบันทึก Diary สำหรับเคสนี้</p>
           </div>
         ) : (
-          <div className="!space-y-6">
-            {diaries.map((diary, index) => (
-              <div key={diary.ID} className="!bg-white !border !border-gray-200 !rounded-lg !p-6 !shadow-sm !hover:!shadow-md !transition-shadow">
-                <div className="!flex !items-start !justify-between !mb-2">
-                  <div className="!flex !items-center">
-                    <div className="!bg-blue-100 !p-2 !rounded-lg !mr-3">
-                      <FileText className="!h-5 !w-5 !text-blue-600" />
+          <div className="!space-y-8">
+            {Object.entries(groupDiariesByDate(diaries)).map(([date, diariesOnDate]) => (
+              <div key={date} className="!bg-white !rounded-2xl !shadow-sm !border !border-gray-100 !overflow-hidden">
+                {/* Date Header */}
+                <div className="!bg-gradient-to-r !from-gray-50 !to-gray-100 !px-8 !py-6 !border-b !border-gray-200">
+                  <div className="!flex !items-center !space-x-3">
+                    <div className="!bg-blue-100 !p-2 !rounded-lg">
+                      <CalendarDays className="!h-6 !w-6 !text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="!text-lg !font-semibold !text-gray-900">{diary.Title || `Diary รายการที่ ${index + 1}`}</h3>
-                      <div className="!flex !items-center !text-sm !text-gray-500 !mt-1">
-                        <Calendar className="!h-4 !w-4 !mr-1" />
-                        {diary.CreatedAt ? formatDate(diary.CreatedAt) : "ไม่ระบุวันที่"}
-                      </div>
+                      <h2 className="!text-xl !font-bold !text-gray-900">{date}</h2>
+                      <p className="!text-gray-600">{diariesOnDate.length} รายการ</p>
                     </div>
                   </div>
-                  <button onClick={() => handleOpenDiaryFeedback(diary.ID!)} className="!bg-green-600 hover:!bg-green-700 !text-white !px-3 !py-1 !rounded-lg !inline-flex !items-center">
-                    <Send className="!h-4 !w-4 !mr-1" /> ส่ง Feedback
-                  </button>
                 </div>
-                <p className="!text-gray-700 !line-clamp-2">{diary.Content?.replace(/<[^>]+>/g, '') || "ไม่มีเนื้อหา"}</p>
+
+                {/* Diaries Grid */}
+                <div className="!p-8">
+                  <div className="!grid !grid-cols-1 lg:!grid-cols-2 xl:!grid-cols-3 !gap-6">
+                    {diariesOnDate.map((diary, index) => (
+                      <div
+                        key={diary.ID}
+                        className="!group !bg-gradient-to-br !from-white !to-gray-50 !border !border-gray-200 !rounded-2xl !p-6 hover:!shadow-lg hover:!border-blue-200 !transition-all !duration-300 hover:!-translate-y-1"
+                      >
+                        <div className="!flex !items-start !justify-between !mb-4">
+                          <div className="!flex !items-start !space-x-3 !flex-1">
+                            <div className="!bg-gradient-to-br !from-blue-100 !to-indigo-100 !p-2 !rounded-xl !flex-shrink-0">
+                              <FileText className="!h-5 !w-5 !text-blue-600" />
+                            </div>
+                            <div className="!min-w-0 !flex-1">
+                              <h3 className="!font-semibold !text-gray-900 !mb-1 !line-clamp-2">
+                                {diary.Title || `Diary รายการที่ ${index + 1}`}
+                              </h3>
+                              <div className="!flex !items-center !text-sm !text-gray-500 !space-x-2">
+                                <Clock className="!h-4 !w-4" />
+                                <span>{formatTime(diary.CreatedAt)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="!mb-4">
+                          <p className="!text-gray-700 !line-clamp-3 !text-sm !leading-relaxed">
+                            {diary.Content?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}
+                          </p>
+                        </div>
+
+                        <div className="!flex !items-center !justify-between !pt-4 !border-t !border-gray-100">
+                          <div className="!flex !items-center !text-xs !text-gray-500 !space-x-4">
+                            <span>{diary.Content?.length || 0} ตัวอักษร</span>
+                          </div>
+                          <button
+                            onClick={() => handleOpenReadDiary(diary)}
+                            className="!bg-gray-100 hover:!bg-gray-200 !text-gray-700 !px-3 !py-1 !rounded-lg !text-sm"
+                          >
+                            ดูรายละเอียด
+                          </button>
+                          <button
+                            onClick={() => handleOpenDiaryFeedback(diary.ID!)}
+                            className="!bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 !text-white !px-4 !py-2 !rounded-lg !text-sm !font-medium !inline-flex !items-center !space-x-2 !shadow-sm hover:!shadow-md !transition-all !duration-200"
+                          >
+                            <Send className="!h-4 !w-4" />
+                            <span>ส่ง Feedback</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Diary Feedback Modal */}
+        {/* Individual Diary Feedback Modal */}
         {showDiaryFeedbackModal && (
-          <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center !z-50">
-            <div className="!bg-white !rounded-lg !w-3/4 !max-w-md !p-6 !relative">
-              <button className="!absolute !top-4 !right-4 !text-gray-500 hover:!text-gray-900" onClick={() => setShowDiaryFeedbackModal(false)}>
-                <X className="!h-6 !w-6" />
-              </button>
-              <h2 className="!text-xl !font-bold !mb-4">ส่ง Feedback ต่อ Diary</h2>
-              <input
-                type="text"
-                placeholder="หัวข้อ Feedback"
-                value={feedbackForm.FeedbackTitle}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackTitle: e.target.value })}
-                className="!w-full !border !border-gray-300 !rounded-lg !p-2 !mb-4"
-              />
-              <textarea
-                placeholder="เนื้อหา Feedback"
-                value={feedbackForm.FeedbackContent}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackContent: e.target.value })}
-                className="!w-full !border !border-gray-300 !rounded-lg !p-2 !h-32 !mb-4"
-              />
-              <button onClick={handleSubmitDiaryFeedback} className="!bg-green-600 hover:!bg-green-700 !text-white !px-4 !py-2 !rounded-lg w-full">
-                ส่ง Feedback
-              </button>
+          <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
+            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-8 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
+              <div className="!flex !items-center !justify-between !mb-6">
+                <h2 className="!text-2xl !font-bold !text-gray-900">ส่ง Feedback</h2>
+                <button
+                  className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
+                  onClick={() => setShowDiaryFeedbackModal(false)}
+                >
+                  <X className="!h-6 !w-6" />
+                </button>
+              </div>
+
+              <div className="!space-y-4">
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-2">หัวข้อ Feedback</label>
+                  <input
+                    type="text"
+                    placeholder="ใส่หัวข้อ Feedback ที่ต้องการส่ง"
+                    value={feedbackForm.FeedbackTitle}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackTitle: e.target.value })}
+                    className="!w-full !border !border-gray-300 !rounded-xl !p-3 focus:!ring-2 focus:!ring-blue-500 focus:!border-blue-500 !transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-2">เนื้อหา Feedback</label>
+                  <textarea
+                    placeholder="เขียนข้อเสนอแนะและคำแนะนำสำหรับผู้ป่วย"
+                    value={feedbackForm.FeedbackContent}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackContent: e.target.value })}
+                    className="!w-full !border !border-gray-300 !rounded-xl !p-3 !h-32 !resize-none focus:!ring-2 focus:!ring-blue-500 focus:!border-blue-500 !transition-colors"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSubmitDiaryFeedback}
+                  className="!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !transition-all !duration-200 !flex !items-center !justify-center !space-x-2"
+                >
+                  <Send className="!h-5 !w-5" />
+                  <span>ส่ง Feedback</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* Batch Feedback Modal */}
         {showBatchFeedbackModal && (
-          <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center !z-50">
-            <div className="!bg-white !rounded-lg !w-3/4 !max-w-lg !p-6 !relative">
-              <button className="!absolute !top-4 !right-4 !text-gray-500 hover:!text-gray-900" onClick={() => setShowBatchFeedbackModal(false)}>
-                <X className="!h-6 !w-6" />
-              </button>
-              <h2 className="!text-xl !font-bold !mb-4">ส่ง Feedback แบบต่อช่วงเวลา</h2>
-
-              {feedbackTimes
-                .filter(ft => ft.ID && ft.ID >= 2 && ft.ID <= 4)
-                .map(ft => (
-                  <button
-                    key={ft.ID}
-                    className={`!px-3 !py-1 !rounded-lg ${selectedFeedbackTimeID === ft.ID ? "!bg-blue-600 !text-white" : "!bg-gray-200 !text-gray-800"}`}
-                    onClick={() => setSelectedFeedbackTimeID(ft.ID!)}
-                  >
-                    {ft.FeedbackTimeName}
-                  </button>
-                ))}
-
-              {/* เลือก Diary */}
-              <div className="!max-h-64 !overflow-y-auto !mb-4 !border !border-gray-300 !p-2 !rounded-lg !mt-5">
-                {filteredDiaries.map(d => (
-                  <div key={d.ID} className="!flex !items-center !mb-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedDiaryIDs.includes(d.ID!)}
-                      onChange={(e) => {
-                        if (e.target.checked) setSelectedDiaryIDs([...selectedDiaryIDs, d.ID!]);
-                        else setSelectedDiaryIDs(selectedDiaryIDs.filter(id => id !== d.ID));
-                      }}
-                      className="!mr-2"
-                    />
-                    <span>{d.Title || d.Content?.substring(0, 30) || `Diary ${d.ID}`}</span>
-                  </div>
-                ))}
+          <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
+            <div className="!bg-white !rounded-2xl !max-w-2xl !w-full !p-8 !shadow-2xl !transform !transition-all !duration-300 !scale-100 !max-h-[90vh] !overflow-y-auto">
+              <div className="!flex !items-center !justify-between !mb-6">
+                <h2 className="!text-2xl !font-bold !text-gray-900">ส่ง Feedback แบบรวม</h2>
+                <button
+                  className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
+                  onClick={() => setShowBatchFeedbackModal(false)}
+                >
+                  <X className="!h-6 !w-6" />
+                </button>
               </div>
 
-              <input
-                type="text"
-                placeholder="หัวข้อ Feedback"
-                value={feedbackForm.FeedbackTitle}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackTitle: e.target.value })}
-                className="!w-full !border !border-gray-300 !rounded-lg !p-2 !mb-4"
-              />
+              <div className="!space-y-6">
+                {/* Feedback Time Selection */}
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-3">เลือกช่วงเวลา</label>
+                  <div className="!flex !flex-wrap !gap-2">
+                    {feedbackTimes
+                      .filter(ft => ft.ID && ft.ID >= 2 && ft.ID <= 4)
+                      .map(ft => (
+                        <button
+                          key={ft.ID}
+                          className={`!px-4 !py-2 !rounded-xl !font-medium !transition-all !duration-200 ${selectedFeedbackTimeID === ft.ID
+                            ? "!bg-gradient-to-r !from-blue-600 !to-indigo-600 !text-white !shadow-lg"
+                            : "!bg-gray-100 !text-gray-700 hover:!bg-gray-200"
+                            }`}
+                          onClick={() => setSelectedFeedbackTimeID(ft.ID!)}
+                        >
+                          {ft.FeedbackTimeName}
+                        </button>
+                      ))}
+                  </div>
+                </div>
 
-              <textarea
-                placeholder="เนื้อหา Feedback"
-                value={feedbackForm.FeedbackContent}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackContent: e.target.value })}
-                className="!w-full !border !border-gray-300 !rounded-lg !p-2 !h-32 !mb-4"
-              />
+                {/* Diary Selection */}
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-3">
+                    เลือก Diary ({selectedDiaryIDs.length} จาก {filteredDiaries.length} รายการ)
+                  </label>
+                  <div className="!max-h-48 !overflow-y-auto !border !border-gray-200 !rounded-xl !p-4 !bg-gray-50">
+                    <div className="!space-y-3">
+                      {filteredDiaries.map(d => (
+                        <label key={d.ID} className="!flex !items-start !space-x-3 !cursor-pointer hover:!bg-white !p-2 !rounded-lg !transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={selectedDiaryIDs.includes(d.ID!)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedDiaryIDs([...selectedDiaryIDs, d.ID!]);
+                              } else {
+                                setSelectedDiaryIDs(selectedDiaryIDs.filter(id => id !== d.ID));
+                              }
+                            }}
+                            className="!mt-0.5 !rounded !border-gray-300 !text-blue-600 focus:!ring-blue-500"
+                          />
+                          <div className="!flex-1 !min-w-0">
+                            <p className="!font-medium !text-gray-900 !truncate">
+                              {d.Title || `Diary ${d.ID}`}
+                            </p>
+                            <p className="!text-sm !text-gray-600 !line-clamp-2">
+                              {d.Content?.replace(/<[^>]+>/g, "").substring(0, 100)}...
+                            </p>
+                          </div>
+                        </label>
+                      ))}
+                      {filteredDiaries.length === 0 && (
+                        <p className="!text-gray-500 !text-center !py-4">ไม่มี Diary ในช่วงเวลาที่เลือก</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-              <button onClick={handleSubmitBatchFeedback} className="!bg-green-600 hover:!bg-green-700 !text-white !px-4 !py-2 !rounded-lg w-full">
-                ส่ง Feedback
-              </button>
+                {/* Feedback Form */}
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-2">หัวข้อ Feedback</label>
+                  <input
+                    type="text"
+                    placeholder="ใส่หัวข้อ Feedback รวม"
+                    value={feedbackForm.FeedbackTitle}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackTitle: e.target.value })}
+                    className="!w-full !border !border-gray-300 !rounded-xl !p-3 focus:!ring-2 focus:!ring-blue-500 focus:!border-blue-500 !transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="!block !text-sm !font-medium !text-gray-700 !mb-2">เนื้อหา Feedback</label>
+                  <textarea
+                    placeholder="เขียนข้อเสนอแนะรวมสำหรับ Diary ที่เลือก"
+                    value={feedbackForm.FeedbackContent}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, FeedbackContent: e.target.value })}
+                    className="!w-full !border !border-gray-300 !rounded-xl !p-3 !h-32 !resize-none focus:!ring-2 focus:!ring-blue-500 focus:!border-blue-500 !transition-colors"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSubmitBatchFeedback}
+                  disabled={selectedDiaryIDs.length === 0}
+                  className="!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 disabled:!from-gray-400 disabled:!to-gray-500 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !transition-all !duration-200 !flex !items-center !justify-center !space-x-2 disabled:!cursor-not-allowed"
+                >
+                  <Send className="!h-5 !w-5" />
+                  <span>ส่ง Feedback รวม</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
-
+        {showReadDiaryModal && readingDiary && (
+          <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
+            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-6 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
+              <div className="!flex !items-center !justify-between !mb-4">
+                <h2 className="!text-xl !font-bold !text-gray-900">{readingDiary.Title || "Diary"}</h2>
+                <button
+                  className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
+                  onClick={() => setShowReadDiaryModal(false)}
+                >
+                  <X className="!h-6 !w-6" />
+                </button>
+              </div>
+              <div className="!max-h-96 !overflow-y-auto !text-gray-700 !space-y-4">
+                <p>{readingDiary.Content?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
+              </div>
+              <div className="!mt-4 !flex !justify-end">
+                <button
+                  className="!bg-blue-600 hover:!bg-blue-700 !text-white !px-4 !py-2 !rounded-lg !font-medium"
+                  onClick={() => setShowReadDiaryModal(false)}
+                >
+                  ปิด
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

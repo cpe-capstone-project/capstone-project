@@ -33,7 +33,7 @@ func CreateFeedback(c *gin.Context) {
 	// ตรวจสอบ ThoughtRecord uniqueness
 	if input.ThoughtRecordID != nil {
 		var count int64
-		db.Model(&entity.Feedback{}).
+		db.Model(&entity.Feedbacks{}).
 			Where("thought_record_id = ?", *input.ThoughtRecordID).
 			Count(&count)
 		if count > 0 {
@@ -58,7 +58,7 @@ func CreateFeedback(c *gin.Context) {
 	}
 
 	// สร้าง Feedback
-	feedback := entity.Feedback{
+	feedback := entity.Feedbacks{
 		FeedbackTitle:     input.FeedbackTitle,
 		FeedbackContent:   input.FeedbackContent,
 		PsychologistID:    input.PsychologistID,

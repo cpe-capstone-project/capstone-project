@@ -21,10 +21,13 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
   const [showEdit, setShowEdit] = useState(false);
   const navigate = useNavigate();
 
-  const tagColors =
-    diary.TagColors?.split(",").map((color) =>
-      color.trim().replace(/^"|"$/g, "")
-    ) ?? [];
+  // const tagColors =
+  //   diary.TagColors?.split(",").map((color) =>
+  //     color.trim().replace(/^"|"$/g, "")
+  //   ) ?? [];
+  const tagColors = [diary.TagColor1, diary.TagColor2, diary.TagColor3].filter(
+    Boolean
+  ); // ตัด null/undefined ออก
 
   const stripHtml = (html: string) => {
     const div = document.createElement("div");
@@ -45,7 +48,6 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
         }}
         style={{ cursor: "pointer" }}
       >
-        
         <div className="tag-bar">
           {tagColors.map((color, index) => (
             <div

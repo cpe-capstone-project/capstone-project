@@ -206,7 +206,7 @@ const DiarySidebar = () => {
       </section>
       {Object.entries(grouped).map(([label, items]) => (
         <div key={label} className="diary-group">
-          <h2>{label}</h2>
+          <h1>{label}</h1>
           {items.map((item) => (
             <div
               id={`diary-${item.ID}`}

@@ -74,8 +74,21 @@ async function GetThoughtRecordsByTherapyCaseID(id: number) {
     return e.response || { error: e.message };
   }
 }
+// ✅ GET /patients/:patientId/thought-records?limit=2
+async function GetThoughtRecordsByPatientId(patientId: number, limit = 2) {
+  return await axios
+    .get(`${apiUrl}/patients/${patientId}/thought-records?limit=${limit}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
-
+// ✅ GET /patients/:patientId/thought-records/count
+async function GetThoughtRecordCountByPatientId(patientId: number) {
+  return await axios
+    .get(`${apiUrl}/patients/${patientId}/thought-records/count`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
 
 export {
   GetThoughtRecords,
@@ -85,4 +98,6 @@ export {
   UpdateThoughtRecordById,
   DeleteThoughtRecordById,
   GetThoughtRecordsByTherapyCaseID,
+  GetThoughtRecordsByPatientId,
+  GetThoughtRecordCountByPatientId,
 };

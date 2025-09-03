@@ -69,9 +69,9 @@ func SummarizeDiaries(c *gin.Context) {
 	db := config.DB()
 	var diaries []entity.Diaries
 
-	// fmt.Printf("Querying diaries from %s to %s in TherapyCaseID %d\n", startUTC, endUTC, req.TherapyCaseID)
+	// fmt.Printf("Querying diaries from %s to %s in TherapyCaseID %d\n", startLocal, startLocal, req.TherapyCaseID)
 
-	if err := db.Where("therapy_case_id = ? AND confirmed = 1 AND date(updated_at) BETWEEN ? AND ?",
+	if err := db.Where("therapy_case_id = ? AND confirmed = 1 AND updated_at BETWEEN ? AND ?",
 		req.TherapyCaseID, startLocal, endLocal).
 		Order("updated_at ASC").
 		Find(&diaries).Error; err != nil {
@@ -80,7 +80,7 @@ func SummarizeDiaries(c *gin.Context) {
 	}
 
 	if len(diaries) == 0 {
-		c.JSON(http.StatusOK, gin.H{"message": "No diaries in selected timeframe"})
+		c.JSON(http.StatusOK, gin.H{"message": "ไม่มีข้อมูลไดอารี่ในช่วงเวลาที่ระบุ"})
 		return
 	}
 
@@ -91,7 +91,7 @@ func SummarizeDiaries(c *gin.Context) {
 		fullText += "Title: " + d.Title + "\n" + "Content: " + cleanContent + "\n\n"
 	}
 
-	fmt.Println("Full diary text for summarization:", fullText)
+	// fmt.Println("Full diary text for summarization:", fullText)
 
 	// เตรียมข้อความ prompt เพื่อสรุปด้วย Gemini
 	summaryInput := fmt.Sprintf(`ด้านล่างคือบันทึกประจำวันของผู้ป่วยในการบำบัดด้วย CBT

@@ -355,3 +355,200 @@ func nullIfZeroDiary(d entity.Diaries) interface{} {
 	}
 	return d
 }
+// GET /patients/:patientId/diaries/count?scope=month&tz=Asia/Bangkok&year=2025&month=9
+func CountDiariesByMonthForPatient(c *gin.Context) {
+    db := config.DB()
+
+    // --- patient id ---
+    pidStr := c.Param("patientId")
+    pid, err := strconv.ParseUint(pidStr, 10, 64)
+    if err != nil || pid == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid patient id"})
+        return
+    }
+
+    // --- timezone ---
+    tz := c.DefaultQuery("tz", "Asia/Bangkok")
+    loc, err := time.LoadLocation(tz)
+    if err != nil {
+        loc = time.FixedZone("Asia/Bangkok", 7*3600)
+    }
+
+    // --- scope (day, week, month) ---
+    scope := c.DefaultQuery("scope", "month")
+
+    now := time.Now().In(loc)
+    var start, end time.Time
+
+    switch scope {
+    case "day":
+        start = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+        end = start.AddDate(0, 0, 1)
+    case "week":
+        weekday := int(now.Weekday())
+        if weekday == 0 {
+            weekday = 7
+        }
+        start = time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc) // จันทร์นี้
+        end = start.AddDate(0, 0, 7) // อาทิตย์นี้
+    default: // month
+        year := now.Year()
+        month := now.Month()
+        if y := c.Query("year"); y != "" {
+            if yy, err := strconv.Atoi(y); err == nil {
+                year = yy
+            }
+        }
+        if m := c.Query("month"); m != "" {
+            if mm, err := strconv.Atoi(m); err == nil && mm >= 1 && mm <= 12 {
+                month = time.Month(mm)
+            }
+        }
+        start = time.Date(year, month, 1, 0, 0, 0, 0, loc)
+        end = start.AddDate(0, 1, 0)
+    }
+
+    // convert เป็น UTC ถ้า DB เก็บ UTC
+    startUTC := start.UTC()
+    endUTC := end.UTC()
+
+    var count int64
+    err = db.Model(&entity.Diaries{}).
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startUTC, endUTC).
+        Count(&count).Error
+
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "count": count,
+        "scope": scope,
+        "start": startUTC,
+        "end":   endUTC,
+    })
+}
+
+// GET /api/patients/:patientId/diaries/home?tz=Asia/Bangkok
+func GetHomeDiariesByPatient(c *gin.Context) {
+    db := config.DB()
+
+    // --- patient id ---
+    pidStr := c.Param("patientId")
+    pid, err := strconv.ParseUint(pidStr, 10, 64)
+    if err != nil || pid == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid patient id"})
+        return
+    }
+
+    // --- timezone ---
+    tz := c.DefaultQuery("tz", "Asia/Bangkok")
+    loc, err := time.LoadLocation(tz)
+    if err != nil {
+        loc = time.FixedZone("Asia/Bangkok", 7*3600)
+    }
+
+    now := time.Now().In(loc)
+
+    // ===== ช่วง "วันนี้" (ตามโซน) =====
+    startTodayLocal := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+    endTodayLocal := startTodayLocal.AddDate(0, 0, 1)
+    startTodayUTC := startTodayLocal.UTC()
+    endTodayUTC := endTodayLocal.UTC()
+
+    // ===== ช่วง "สัปดาห์ที่ผ่านมา" =====
+    weekday := int(now.Weekday())
+    if weekday == 0 { weekday = 7 } // Sunday->7
+    startThisWeekLocal := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
+    startPrevWeekLocal := startThisWeekLocal.AddDate(0, 0, -7)
+    endPrevWeekLocal := startThisWeekLocal
+
+    startPrevWeekUTC := startPrevWeekLocal.UTC()
+    endPrevWeekUTC := endPrevWeekLocal.UTC()
+
+    var todayDiary entity.Diaries
+    var weekDiary entity.Diaries
+    var todayList []entity.Diaries
+    var weekList []entity.Diaries
+
+    // ล่าสุดของวันนี้
+    _ = db.
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startTodayUTC, endTodayUTC).
+        Order("diaries.updated_at DESC").
+        First(&todayDiary).Error
+
+    // ทั้งหมดของวันนี้
+    _ = db.
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startTodayUTC, endTodayUTC).
+        Order("diaries.updated_at DESC").
+        Find(&todayList).Error
+
+    // ล่าสุดของสัปดาห์ที่ผ่านมา
+    _ = db.
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeekUTC, endPrevWeekUTC).
+        Order("diaries.updated_at DESC").
+        First(&weekDiary).Error
+
+    // ทั้งหมดของสัปดาห์ที่ผ่านมา
+    _ = db.
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeekUTC, endPrevWeekUTC).
+        Order("diaries.updated_at DESC").
+        Find(&weekList).Error
+
+    c.JSON(http.StatusOK, gin.H{
+        "today":      nullIfZeroDiary(todayDiary), // ถ้าไม่มี -> null
+        "week":       nullIfZeroDiary(weekDiary),
+        "today_list": todayList,
+        "week_list":  weekList,
+    })
+}
+func ListDiariesForPatient(c *gin.Context) {
+    db := config.DB()
+
+    pidStr := c.Param("patientId")
+    pid, err := strconv.ParseUint(pidStr, 10, 64)
+    if err != nil || pid == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid patient id"})
+        return
+    }
+
+    fromStr := c.Query("from")
+    toStr   := c.Query("to")
+
+    q := db.Model(&entity.Diaries{}).
+        Preload("TherapyCase"). // ✅ สำคัญ
+        Select("diaries.*").
+        Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
+        Where("therapy_cases.patient_id = ?", pid).
+        Order("diaries.updated_at DESC")
+
+    if fromStr != "" {
+        if t, err := time.Parse(time.RFC3339, fromStr); err == nil {
+            q = q.Where("diaries.updated_at >= ?", t.UTC())
+        }
+    }
+    if toStr != "" {
+        if t, err := time.Parse(time.RFC3339, toStr); err == nil {
+            q = q.Where("diaries.updated_at < ?", t.UTC())
+        }
+    }
+
+    var out []entity.Diaries
+    if err := q.Find(&out).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, out)
+}

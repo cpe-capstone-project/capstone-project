@@ -110,6 +110,34 @@ async function GetHomeDiaries(tz = "Asia/Bangkok") {
     .then((res) => res)
     .catch((e) => e.response);
 }
+// GET /patients/:patientId/diaries/count?scope=month&tz=Asia/Bangkok&year=YYYY&month=M
+async function GetDiaryCountForPatient(opts: {
+  patientId: number;
+  scope?: "day" | "week" | "month";
+  tz?: string;
+  year?: number;
+  month?: number;
+}) {
+  const { patientId, scope = "month", tz = "Asia/Bangkok", year, month } = opts;
+
+  const qs = new URLSearchParams({ scope, tz });
+  if (year) qs.set("year", String(year));
+  if (month) qs.set("month", String(month));
+
+  return await axios.get(
+    `${apiUrl}/patients/${patientId}/diaries/count?${qs.toString()}`,
+    requestOptions
+  );
+}
+
+// GET /patients/:patientId/diaries/home?tz=Asia/Bangkok
+async function GetHomeDiariesForPatient(patientId: number, tz = "Asia/Bangkok") {
+  return await axios.get(
+    `${apiUrl}/patients/${patientId}/diaries/home?tz=${encodeURIComponent(tz)}`,
+    requestOptions
+  );
+}
+
 
 export {
   GetDiary,
@@ -124,4 +152,6 @@ export {
   GetDiarySummaryEmotionStatsById,
   GetDiaryCountThisMonth,
   GetHomeDiaries,
+  GetDiaryCountForPatient,
+  GetHomeDiariesForPatient,
 };

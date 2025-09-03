@@ -9,14 +9,31 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { format, subDays, subWeeks, subMonths, startOfDay, startOfWeek, startOfMonth, addDays, addWeeks, addMonths, isSameWeek, isSameMonth } from "date-fns";
+import {
+  format,
+  subDays,
+  subWeeks,
+  subMonths,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+  addDays,
+  addWeeks,
+  addMonths,
+  isSameWeek,
+  isSameMonth,
+} from "date-fns";
 import { th } from "date-fns/locale";
 
 // ---- Types ----
-export type DiaryLite = {
+type DiaryLite = {
   ID?: number | string;
   CreatedAt?: string | Date;
   UpdatedAt?: string | Date;
+  created_at?: string;
+  updated_at?: string;
+  TherapyCase?: { PatientID?: number; patient_id?: number }; // ✅ เพิ่ม
+  therapy_case?: { patient_id?: number; id?: number };       // เผื่อเคส snake
 };
 
 type Mode = "daily" | "weekly" | "monthly";
@@ -32,8 +49,37 @@ interface DiaryStatsChartProps {
   className?: string;
 }
 
-// ---- Helpers ----
-const getDate = (d: any) => (d instanceof Date ? d : new Date(d));
+function normalizeDateField(d: any, field: "UpdatedAt" | "CreatedAt"): Date | null {
+  if (!d) return null;
+
+  const candidates = [
+    d[field],
+    d[field.toLowerCase()],
+    d[field === "UpdatedAt" ? "updated_at" : "created_at"],
+    d[field === "UpdatedAt" ? "updatedAt" : "createdAt"],
+  ];
+
+  const raw = candidates.find(Boolean);
+  if (!raw) return null;
+
+  let date: Date | null = null;
+  if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(raw)) {
+    // case "2025-09-03 14:20:00"
+    date = new Date(raw.replace(" ", "T") + "Z");
+  } else {
+    date = new Date(raw);
+  }
+
+  if (!date || isNaN(date.getTime())) {
+    console.warn("❌ parse date fail:", raw);
+    return null;
+  }
+  return date;
+}
+
+
+const isEmptyData = (arr?: Array<{ value?: number }>) =>
+  !arr || arr.length === 0 || arr.every((x) => !x?.value || x.value === 0);
 
 function buildDailyData(diaries: DiaryLite[], field: "UpdatedAt" | "CreatedAt", days = 7) {
   const end = startOfDay(new Date());
@@ -51,8 +97,8 @@ function buildDailyData(diaries: DiaryLite[], field: "UpdatedAt" | "CreatedAt", 
   const counts = buckets.map((b) => ({ label: b.label, value: 0 }));
 
   diaries.forEach((d) => {
-    const base = getDate(d[field]);
-    if (!base || isNaN(base.getTime())) return;
+    const base = normalizeDateField(d, field);
+    if (!base) return;
     const dayKey = format(startOfDay(base), "yyyy-MM-dd");
     const idx = buckets.findIndex((b) => b.key === dayKey);
     if (idx >= 0) counts[idx].value += 1;
@@ -78,8 +124,8 @@ function buildWeeklyData(diaries: DiaryLite[], field: "UpdatedAt" | "CreatedAt",
   const counts = buckets.map((b) => ({ label: b.label, value: 0 }));
 
   diaries.forEach((d) => {
-    const base = getDate(d[field]);
-    if (!base || isNaN(base.getTime())) return;
+    const base = normalizeDateField(d, field);
+    if (!base) return;
     const idx = buckets.findIndex((b) => isSameWeek(base, b.start, { weekStartsOn: 1 }));
     if (idx >= 0) counts[idx].value += 1;
   });
@@ -103,8 +149,8 @@ function buildMonthlyData(diaries: DiaryLite[], field: "UpdatedAt" | "CreatedAt"
   const counts = buckets.map((b) => ({ label: b.label, value: 0 }));
 
   diaries.forEach((d) => {
-    const base = getDate(d[field]);
-    if (!base || isNaN(base.getTime())) return;
+    const base = normalizeDateField(d, field);
+    if (!base) return;
     const idx = buckets.findIndex((b) => isSameMonth(base, b.start));
     if (idx >= 0) counts[idx].value += 1;
   });
@@ -132,11 +178,17 @@ const DiaryStatsChart: React.FC<DiaryStatsChartProps> = ({
         return buildWeeklyData(diaries, dateField, weeklyWeeks);
       case "monthly":
         return buildMonthlyData(diaries, dateField, monthlyMonths);
+      default:
+        return [];
     }
   }, [diaries, mode, dateField, dailyDays, weeklyWeeks, monthlyMonths]);
 
-  const total = useMemo(() => data.reduce((s, d) => s + (d.value || 0), 0), [data]);
-
+  const total = useMemo(() => (data ?? []).reduce((s, d) => s + (d.value || 0), 0), [data]);
+  const showEmpty = !diaries?.length || isEmptyData(data);
+  console.log("📊 diaries length:", diaries?.length);
+  console.log("📊 data after build:", data);
+  console.log("📊 total:", total, " showEmpty:", showEmpty);
+  
   return (
     <Card
       className={className}
@@ -161,33 +213,74 @@ const DiaryStatsChart: React.FC<DiaryStatsChartProps> = ({
         />
       }
     >
-      <div style={{ width: "100%", height: 320 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
-            <defs>
-              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#93c5fd" stopOpacity={0.95} />
-                <stop offset="100%" stopColor="#bfdbfe" stopOpacity={0.7} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} angle={0} height={40} />
-            <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-            <Tooltip
-              formatter={(value: any) => [`${value} รายการ`, "จำนวนบันทึก"]}
-              cursor={{ fill: "rgba(0,0,0,0.04)" }}
-              labelStyle={{ fontWeight: 600 }}
-            />
-            <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="url(#barGradient)" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {showEmpty ? (
+        <div
+          style={{
+            height: 320,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            color: "#6b7280",
+          }}
+        >
+          <img
+            src="https://cdn-icons-png.flaticon.com/128/7486/7486740.png"
+            alt="empty"
+            width={56}
+            height={56}
+            style={{ opacity: 0.8 }}
+          />
+          <div style={{ fontWeight: 600 }}>ยังไม่มีบันทึกของคุณในช่วงเวลานี้</div>
+          <div style={{ fontSize: 12 }}>เริ่มบันทึกไดอารี่วันนี้ เพื่อดูสถิติที่นี่</div>
+        </div>
+      ) : (
+        <>
+          <div style={{ width: "100%", height: 320 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#93c5fd" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#bfdbfe" stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} height={40} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  formatter={(value: any) => [`${value} รายการ`, "จำนวนบันทึก"]}
+                  cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                  labelStyle={{ fontWeight: 600 }}
+                />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="url(#barGradient)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-      {/* Tiny legend / caption */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, color: "#6b7280", fontSize: 12 }}>
-        <div>นับตาม: {dateField === "UpdatedAt" ? "วันที่แก้ไข" : "วันที่สร้าง"}</div>
-        <div>แสดง: {mode === "daily" ? `${dailyDays} วันล่าสุด` : mode === "weekly" ? `${weeklyWeeks} สัปดาห์ล่าสุด` : `${monthlyMonths} เดือนล่าสุด`}</div>
-      </div>
+          {/* Tiny legend / caption */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 8,
+              color: "#6b7280",
+              fontSize: 12,
+            }}
+          >
+            <div>นับตาม: {dateField === "UpdatedAt" ? "วันที่แก้ไข" : "วันที่สร้าง"}</div>
+            <div>
+              แสดง:{" "}
+              {mode === "daily"
+                ? `${dailyDays} วันล่าสุด`
+                : mode === "weekly"
+                ? `${weeklyWeeks} สัปดาห์ล่าสุด`
+                : `${monthlyMonths} เดือนล่าสุด`}
+            </div>
+          </div>
+        </>
+      )}
     </Card>
   );
 };

@@ -53,10 +53,18 @@ func SummarizeDiaries(c *gin.Context) {
 		return
 	}
 
-	// แปลงกลับเป็น UTC ก่อน query
-	startStr := req.StartDate.Format("2006-01-02")
-	endStr := req.EndDate.Format("2006-01-02")
+	// // แปลงกลับเป็น UTC ก่อน query
+	// startStr := req.StartDate.Format("2006-01-02")
+	// endStr := req.EndDate.Format("2006-01-02")
+	loc, err := time.LoadLocation(req.Timezone)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timezone"})
+		return
+	}
 
+	// แปลง StartDate / EndDate ให้ตรง timezone ที่ client ส่งมา
+	startLocal := req.StartDate.In(loc)
+	endLocal := req.EndDate.In(loc)
 
 	db := config.DB()
 	var diaries []entity.Diaries
@@ -64,7 +72,7 @@ func SummarizeDiaries(c *gin.Context) {
 	// fmt.Printf("Querying diaries from %s to %s in TherapyCaseID %d\n", startUTC, endUTC, req.TherapyCaseID)
 
 	if err := db.Where("therapy_case_id = ? AND confirmed = 1 AND date(updated_at) BETWEEN ? AND ?",
-		req.TherapyCaseID, startStr, endStr).
+		req.TherapyCaseID, startLocal, endLocal).
 		Order("updated_at ASC").
 		Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
@@ -128,8 +136,8 @@ func SummarizeDiaries(c *gin.Context) {
 	summary := entity.DiarySummary{
 		TherapyCaseID: req.TherapyCaseID,
 		Timeframe:     req.Timeframe,
-		StartDate:     req.StartDate,
-		EndDate:       req.EndDate,
+		StartDate:     startLocal,
+		EndDate:       endLocal,
 		SummaryText:   summaryText,
 		Keyword:       keywords,
 		Diaries:       diaries,

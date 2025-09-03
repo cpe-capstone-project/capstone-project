@@ -431,7 +431,6 @@ func CountDiariesByMonthForPatient(c *gin.Context) {
         "end":   endUTC,
     })
 }
-
 // GET /api/patients/:patientId/diaries/home?tz=Asia/Bangkok
 func GetHomeDiariesByPatient(c *gin.Context) {
     db := config.DB()
@@ -448,26 +447,26 @@ func GetHomeDiariesByPatient(c *gin.Context) {
     tz := c.DefaultQuery("tz", "Asia/Bangkok")
     loc, err := time.LoadLocation(tz)
     if err != nil {
+        // fallback เป็นเวลาไทย
         loc = time.FixedZone("Asia/Bangkok", 7*3600)
     }
 
     now := time.Now().In(loc)
 
     // ===== ช่วง "วันนี้" (ตามโซน) =====
-    startTodayLocal := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
-    endTodayLocal := startTodayLocal.AddDate(0, 0, 1)
-    startTodayUTC := startTodayLocal.UTC()
-    endTodayUTC := endTodayLocal.UTC()
+    startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+    endToday := startToday.AddDate(0, 0, 1)
 
-    // ===== ช่วง "สัปดาห์ที่ผ่านมา" =====
+    // ===== ช่วง "สัปดาห์ที่ผ่านมา" (จันทร์-อาทิตย์ของ "สัปดาห์ก่อน") =====
     weekday := int(now.Weekday())
-    if weekday == 0 { weekday = 7 } // Sunday->7
-    startThisWeekLocal := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
-    startPrevWeekLocal := startThisWeekLocal.AddDate(0, 0, -7)
-    endPrevWeekLocal := startThisWeekLocal
-
-    startPrevWeekUTC := startPrevWeekLocal.UTC()
-    endPrevWeekUTC := endPrevWeekLocal.UTC()
+    if weekday == 0 { // Sunday -> 7
+        weekday = 7
+    }
+    // จันทร์ของ "สัปดาห์นี้"
+    startThisWeek := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, loc)
+    // ช่วงของ "สัปดาห์ที่ผ่านมา"
+    startPrevWeek := startThisWeek.AddDate(0, 0, -7) // จันทร์สัปดาห์ที่แล้ว
+    endPrevWeek := startThisWeek                     // ก่อนจันทร์นี้ (ไม่รวม)
 
     var todayDiary entity.Diaries
     var weekDiary entity.Diaries
@@ -478,7 +477,7 @@ func GetHomeDiariesByPatient(c *gin.Context) {
     _ = db.
         Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
         Where("therapy_cases.patient_id = ?", pid).
-        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startTodayUTC, endTodayUTC).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startToday, endToday).
         Order("diaries.updated_at DESC").
         First(&todayDiary).Error
 
@@ -486,7 +485,7 @@ func GetHomeDiariesByPatient(c *gin.Context) {
     _ = db.
         Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
         Where("therapy_cases.patient_id = ?", pid).
-        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startTodayUTC, endTodayUTC).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startToday, endToday).
         Order("diaries.updated_at DESC").
         Find(&todayList).Error
 
@@ -494,7 +493,7 @@ func GetHomeDiariesByPatient(c *gin.Context) {
     _ = db.
         Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
         Where("therapy_cases.patient_id = ?", pid).
-        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeekUTC, endPrevWeekUTC).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeek, endPrevWeek).
         Order("diaries.updated_at DESC").
         First(&weekDiary).Error
 
@@ -502,7 +501,7 @@ func GetHomeDiariesByPatient(c *gin.Context) {
     _ = db.
         Joins("JOIN therapy_cases ON therapy_cases.id = diaries.therapy_case_id").
         Where("therapy_cases.patient_id = ?", pid).
-        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeekUTC, endPrevWeekUTC).
+        Where("diaries.updated_at >= ? AND diaries.updated_at < ?", startPrevWeek, endPrevWeek).
         Order("diaries.updated_at DESC").
         Find(&weekList).Error
 
@@ -513,6 +512,7 @@ func GetHomeDiariesByPatient(c *gin.Context) {
         "week_list":  weekList,
     })
 }
+
 func ListDiariesForPatient(c *gin.Context) {
     db := config.DB()
 

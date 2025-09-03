@@ -10,6 +10,9 @@ import type { DiarySummaryInterface } from "../../interfaces/IDiarySummary";
 import loadingAnimation from "../../assets/loading/Material wave loading.json";
 import "./DiarySummary.css";
 
+// เพิ่ม import จาก date-fns
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+
 // ✅ เพิ่ม Ant Design และ Dayjs
 import { DatePicker } from "antd";
 import type { Dayjs } from "dayjs";
@@ -36,48 +39,50 @@ function DiarySummary() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-  const calculateDateRange = (timeframe: string) => {
-    const now = new Date();
-    let startDate = new Date(),
-      endDate = new Date();
+const calculateDateRange = (timeframe: string) => {
+  const now = new Date();
+  let startDate: Date, endDate: Date;
 
-    switch (timeframe) {
-      case "วันนี้":
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case "สัปดาห์นี้": {
-        const day = now.getDay(); // 0 = อาทิตย์, 1 = จันทร์ ... 6 = เสาร์
-        const diffToSunday = -day; // offset ไปวันอาทิตย์
-        startDate = new Date(now);
-        startDate.setDate(now.getDate() + diffToSunday);
-        startDate.setHours(0, 0, 0, 0);
-
-        endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-        endDate.setHours(23, 59, 59, 999);
-        break;
+  switch (timeframe) {
+    case "วันนี้":
+      startDate = startOfDay(now);
+      endDate = endOfDay(now);
+      break;
+      
+    case "สัปดาห์นี้":
+      // date-fns จะเริ่มสัปดาห์จากวันจันทร์ (default)
+      // หากต้องการเริ่มจากวันอาทิตย์ ให้เพิ่ม { weekStartsOn: 0 }
+      startDate = startOfWeek(now, { weekStartsOn: 0 }); // 0 = อาทิตย์
+      endDate = endOfWeek(now, { weekStartsOn: 0 });
+      break;
+      
+    case "เดือนนี้":
+      startDate = startOfMonth(now);
+      endDate = endOfMonth(now);
+      break;
+      
+    case "เลือกวันเอง":
+      if (customRange && customRange[0] && customRange[1]) {
+        startDate = startOfDay(customRange[0].toDate());
+        endDate = endOfDay(customRange[1].toDate());
+      } else {
+        // fallback ถ้าไม่มีการเลือกวัน
+        startDate = startOfDay(now);
+        endDate = endOfDay(now);
       }
+      break;
+      
+    default:
+      startDate = startOfDay(now);
+      endDate = endOfDay(now);
+      break;
+  }
 
-      case "เดือนนี้":
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case "เลือกวันเอง":
-        if (customRange && customRange[0] && customRange[1]) {
-          startDate = new Date(customRange[0].startOf("day").toISOString());
-          endDate = new Date(customRange[1].endOf("day").toISOString());
-        }
-        break;
-    }
-
-    return { startDate, endDate };
+  return { startDate, endDate };
   };
 
   const handleCreateSummary = async () => {
-    localStorage.removeItem("diary_summary_id");
+    // localStorage.removeItem("diary_summary_id");
     setIsLoading(true);
     setError("");
     setSummaryData(null);
@@ -98,10 +103,10 @@ function DiarySummary() {
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      // console.log("Timezone:", timezone);
-      // console.log("Start Date:", startDate.toISOString());
-      // console.log("End Date:", endDate.toISOString());
-      // console.log("Therapy Case ID:", therapyCaseId);
+      console.log("Timezone:", timezone);
+      console.log("Start Date:", startDate.toISOString());
+      console.log("End Date:", endDate.toISOString());
+      console.log("Therapy Case ID:", therapyCaseId);
       // return;
       const response = await CreateDiarySummary({
         TherapyCaseID: therapyCaseId,

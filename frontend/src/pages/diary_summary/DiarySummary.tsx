@@ -22,9 +22,11 @@ import "dayjs/locale/th";
 // import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 import DiarySummaryEmotionChart from "../../components/diary-summary-bar-chart/DiarySummaryEmotionChart";
+import { useDate } from "../../contexts/DateContext";
 // dayjs.locale("th");
 
 function DiarySummary() {
+  const { formatLong } = useDate();
   const { getTherapyCaseByPatient } = useTherapyCase();
   const [therapyCaseId, setTherapyCaseId] = useState<number | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState("วันนี้");
@@ -103,10 +105,10 @@ const calculateDateRange = (timeframe: string) => {
     try {
       const { startDate, endDate } = calculateDateRange(selectedTimeframe);
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      console.log("Timezone:", timezone);
-      console.log("Start Date:", startDate.toISOString());
-      console.log("End Date:", endDate.toISOString());
-      console.log("Therapy Case ID:", therapyCaseId);
+      // console.log("Timezone:", timezone);
+      // console.log("Start Date:", startDate.toISOString());
+      // console.log("End Date:", endDate.toISOString());
+      // console.log("Therapy Case ID:", therapyCaseId);
       // return;
       const response = await CreateDiarySummary({
         TherapyCaseID: therapyCaseId,
@@ -139,7 +141,7 @@ const calculateDateRange = (timeframe: string) => {
     const fetchData = async () => {
       // ดึง therapy cases ของ patient
       const therapyCases = await getTherapyCaseByPatient(patientId);
-      console.log("Fetched therapyCases:", therapyCases);
+      // console.log("Fetched therapyCases:", therapyCases);
 
       if (therapyCases && typeof therapyCases.ID !== "undefined") {
         setTherapyCaseId(therapyCases.ID);
@@ -164,10 +166,10 @@ const calculateDateRange = (timeframe: string) => {
   return (
     <section className="diary-summary-container">
       <div className="diary-summary-header">
-        <h1>Diary Summary</h1>
+        <h1><strong>Diary Summary</strong></h1>
         <p>
           เลือกช่วงเวลาสำหรับการสรุปข้อมูลไดอารี่ของคุณ
-          โดยการสรุปจะสรุปไดอารี่จากไดอารี่ที่ยืนยันแล้ว
+          โดยการสรุปจะสรุปไดอารี่จากไดอารี่ที่ยืนยันแล้ว (สถานะ Confirmed) เท่านั้น
         </p>
 
         <div className="timeframe-container">
@@ -220,7 +222,7 @@ const calculateDateRange = (timeframe: string) => {
           <div className="summary-card">
             <BlurredCirclesBackground />
             <div className="summary-card-content">
-              <h1>AI Diary Summary ({summaryData.Timeframe})</h1>
+              <h1><strong>AI Diary Summary</strong> ({summaryData.Timeframe}) {formatLong(summaryData.StartDate ?? "", "th")} - {formatLong(summaryData.EndDate ?? "", "th")}</h1>
               <p>{summaryData.SummaryText}</p>
             </div>
             <div className="summary-keyword-container">

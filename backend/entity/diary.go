@@ -16,7 +16,7 @@ type Diaries struct {
 	TagColor1    string
 	TagColor2    string
 	TagColor3    string
-
+	
 	TherapyCaseID uint
 	TherapyCase   *TherapyCase `gorm:"foreignKey:TherapyCaseID"`
 

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./tailwind.css";
 //import DiarySummary from "../diary_summary/DiarySummary";
-import { GetDiaryCountThisMonth, GetHomeDiaries } from "../../services/https/Diary";
+//import { GetDiaryCountThisMonth, GetHomeDiaries } from "../../services/https/Diary";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
 import type { DiaryInterface } from "../../interfaces/IDiary";
@@ -19,7 +19,7 @@ import { useMemo } from "react";
 import { GetDiarySummaryById } from "../../services/https/Diary"; // ⬅️ เพิ
 import { GetPatientById } from "../../services/https/Patient";
 import type { PatientInterface } from "../../interfaces/IPatient";
-
+import { GetDiaryCountForPatient, GetHomeDiariesForPatient } from "../../services/https/Diary";
 
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
@@ -51,7 +51,36 @@ const getScopedKey = (base: string) => {
     ""; // fallback
   return `${base}:${role}:${uid}`;
 };
+const newDayState = (): ChecklistState => {
+  const tasks = tasksForToday();
+  return {
+    date: todayKey(),
+    tasks,
+    done: emptyDoneMap(tasks),
+  };
+};
+const pid = Number(localStorage.getItem("patient_id") || 0);
 
+const myDiaries = useMemo(() => {
+  const list = Array.isArray(diaries) ? diaries : [];
+  return list.filter((d: any) => {
+    const owner =
+      d.PatientID ??
+      d.patient_id ??
+      d.PatientId ??
+      d?.TherapyCase?.PatientID ??     // ✅ อ่านจาก TherapyCase (camel)
+      d?.therapy_case?.patient_id ??   // ✅ อ่านจาก TherapyCase (snake)
+      d.patient?.ID ??
+      d.patient?.id;
+
+    return Number(owner) === pid;
+  });
+}, [diaries, pid]);
+console.log("🐞 myDiaries in HomePage:", myDiaries);
+
+console.log("🐞 pid:", pid);
+console.log("🐞 diaries from context:", diaries);
+console.log("🐞 myDiaries after filter:", myDiaries);
 async function postRequestToServer(newItem: RequestItem) {
   try {
     const tokenType = localStorage.getItem("token_type") || "Bearer";
@@ -203,7 +232,6 @@ async function openRequestForm() {
   const helpMeet  = document.getElementById("rqMeetHelp") as HTMLDivElement;
 
   const meetStartEl = document.getElementById("rqMeetStart") as HTMLInputElement;
-
   const type   = (typeEl?.value || "ขอคำปรึกษา") as RequestType;
   const detail = (detailEl?.value || "").trim();
   const other  = (otherEl?.value || "").trim();
@@ -539,20 +567,64 @@ const highlightText = (text?: string | null) => {
     )
   );
 };
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await GetHomeDiaries("Asia/Bangkok");
-        // ใหม่
-if (res?.status === 200) {
-  setToday(res.data.today ?? null);
-  setWeek(res.data.week ?? null);
-}
-      } finally {
-        setLoading(false);
+// จำนวนไดอารี่เดือนนี้ (ผู้ป่วยคนปัจจุบัน)
+useEffect(() => {
+  let isMounted = true;
+  (async () => {
+    try {
+      const pid = Number(localStorage.getItem("patient_id") || 0);
+      if (!pid) {
+        if (isMounted) setMonthCount(0);
+        return;
       }
-    })();
-  }, []);
+      const res = await GetDiaryCountForPatient({
+  patientId: pid,
+  scope: "month",
+  tz: "Asia/Bangkok",
+});
+
+      if (!isMounted) return;
+      if (res?.status === 200) {
+        setMonthCount(Number(res.data?.count ?? 0));
+      } else {
+        setMonthCount(0);
+      }
+    } catch {
+      if (isMounted) setMonthCount(0);
+    }
+  })();
+  return () => { isMounted = false; };
+}, []);
+// today/week ของผู้ป่วยคนนั้น
+useEffect(() => {
+  let isMounted = true;
+  (async () => {
+    setLoading(true);
+    try {
+      const pid = Number(localStorage.getItem("patient_id") || 0);
+      if (!pid) {
+        if (isMounted) { setToday(null); setWeek(null); }
+        return;
+      }
+      const res = await GetHomeDiariesForPatient(pid, "Asia/Bangkok");
+      if (!isMounted) return;
+      if (res?.status === 200) {
+        const data = res.data;
+        setToday(data?.today ?? null);
+        setWeek(data?.week ?? null);
+      } else {
+        setToday(null);
+        setWeek(null);
+      }
+    } catch {
+      if (isMounted) { setToday(null); setWeek(null); }
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  })();
+  return () => { isMounted = false; };
+}, []);
+
 
   const relTime = (iso?: string) =>
     iso ? formatDistanceToNow(new Date(iso), { addSuffix: true, locale: th }) : "";
@@ -646,28 +718,6 @@ const ICON_CHECKED   = "https://cdn-icons-png.flaticon.com/128/2951/2951459.png"
 const emptyDoneMap = (tasks: Task[]): Record<TaskId, boolean> =>
   tasks.reduce((acc, t) => ((acc[t.id] = false), acc), {} as Record<TaskId, boolean>);
  const [monthCount, setMonthCount] = useState(0);
-
-  useEffect(() => {
-    let isMounted = true;
-    GetDiaryCountThisMonth()
-      .then((res) => {
-        if (isMounted && res?.status === 200) {
-          setMonthCount(res.data.count ?? 0);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setMonthCount(0);
-      });
-    return () => { isMounted = false; };
-  }, []);
-const newDayState = (): ChecklistState => {
-  const tasks = tasksForToday();
-  return {
-    date: todayKey(),
-    tasks,
-    done: emptyDoneMap(tasks),
-  };
-};
 // === per-date storage สำหรับ modal ===
 //const STORAGE_KEY_BYDATE = "daily-checklist-bydate-v2";
 const dateKey = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -1267,7 +1317,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
           background: "#fff",
         }}
       >
-        <DiaryStatsChart diaries={diaries} dateField="UpdatedAt" />
+       <DiaryStatsChart diaries={myDiaries} dateField="UpdatedAt" />
       </div>
 
       <p className="aertr-emotion-label">

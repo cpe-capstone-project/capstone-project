@@ -12,12 +12,15 @@ type ThoughtRecord struct {
 	Thoughts         string
 	Behaviors        string
 	AlternateThought string
-	TagColors     	string
+	TagColors        string
 	UpdatedAt        time.Time
-	TherapyCaseID    uint
-	EmotionsID       uint
 
-	// Relation to Feedbacks
-	Feedback []Feedbacks `gorm:"foreignKey:ThoughtRecordID"`
-	TherapyCase TherapyCase `gorm:"foreignKey:TherapyCaseID"`     // many-to-one
+	// FK
+	TherapyCaseID uint
+	EmotionsID    uint
+
+	// Relations
+	Feedback    []Feedbacks  `gorm:"foreignKey:ThoughtRecordID"`
+	TherapyCase TherapyCase  `gorm:"foreignKey:TherapyCaseID"` // many-to-one
+	Emotion     Emotions     `gorm:"foreignKey:EmotionsID"`    // many-to-one (1 TR -> 1 Emotion)
 }

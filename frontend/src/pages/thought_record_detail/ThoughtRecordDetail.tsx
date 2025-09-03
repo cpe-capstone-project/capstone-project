@@ -10,7 +10,7 @@ import {
 import {
   FaRegCommentDots,
   FaRedoAlt,
-  FaBrain,
+  // FaBrain,
 } from "react-icons/fa";
 import { GiDramaMasks } from "react-icons/gi";
 import { MdEvStation } from "react-icons/md";
@@ -74,11 +74,11 @@ function ThoughtRecordDetail() {
         {/* ✅ ปุ่มย้อนกลับแบบ Ant Design */}
         <div style={{ marginBottom: 16 }}>
           <Button
-            type="primary" // เปลี่ยนจาก default เป็น primary
+            type="default" // เปลี่ยนจาก default เป็น primary
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
           >
-            Back
+            ย้อนกลับ
           </Button>
 
         </div>
@@ -86,7 +86,7 @@ function ThoughtRecordDetail() {
         <Card className="main-card">
           <div className="title-section">
             <div className="title-left">
-              <FaBrain className="brain-icon" />
+              {/* <FaBrain className="brain-icon" /> */}
               <Title level={2} className="card-title">บันทึกความคิด</Title>
             </div>
             <Tag className="record-tag">รายการที่ {id}</Tag>
@@ -111,13 +111,13 @@ function ThoughtRecordDetail() {
           <Divider className="timestamp-divider" />
 
           <div className="timestamp-section">
-            <div className="timestamp-item">
+            {/* <div className="timestamp-item">
               <CalendarOutlined className="timestamp-icon" />
               <Text type="secondary">
                 สร้างเมื่อ:{" "}
                 <span className="timestamp-value">{formatDate(record.CreatedAt)}</span>
               </Text>
-            </div>
+            </div> */}
             <div className="timestamp-item">
               <EditOutlined className="timestamp-icon" />
               <Text type="secondary">

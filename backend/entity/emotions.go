@@ -10,4 +10,6 @@ type Emotions struct {
 	Category		string
 	ThaiEmotionsname string
 	EmotionsColor string
+
+	ThoughtRecords []ThoughtRecord `gorm:"foreignKey:EmotionsID"`
 }

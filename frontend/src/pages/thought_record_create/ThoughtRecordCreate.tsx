@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
 import {
@@ -13,28 +13,51 @@ import {
   Row,
   Col,
   Space,
+  Select,
 } from "antd";
 import { ArrowLeftOutlined, BulbOutlined } from "@ant-design/icons";
 import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
 import { GiDramaMasks } from "react-icons/gi";
 import { MdEvStation } from "react-icons/md";
 import GuideButton from "../../components/thought-record-guide/GuideModel";
-import FormGuide from "../../components/thought-record-guide/FormGuide"; // 👈 import หน้าคู่มือ
+import FormGuide from "../../components/thought-record-guide/FormGuide";
 import "./ThoughtRecordCreate.css";
+
+import { GetAllEmotions } from "../../services/https/Emotions";
+import type { EmotionsInterface } from "../../interfaces/IEmotions";
 
 const { Title } = Typography;
 const { TextArea } = Input;
+const { Option } = Select;
 
 function ThoughtRecordCreate() {
   const { createRecord } = useThoughtRecord();
   const [loading, setLoading] = useState(false);
-  const [showGuide, setShowGuide] = useState(false); // 👈 state สลับหน้า
+  const [showGuide, setShowGuide] = useState(false);
+  const [emotions, setEmotions] = useState<EmotionsInterface[]>([]);
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  // preload รายการอารมณ์ (options)
+  useEffect(() => {
+    (async () => {
+      const res = await GetAllEmotions();
+      if (Array.isArray(res)) {
+        const filtered = res.filter((emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3);
+        setEmotions(filtered);
+      }
 
+    })();
+  }, []);
   const onFinish = async (values: any) => {
     setLoading(true);
-    const success = await createRecord(values);
+
+    // ส่ง EmotionsID เป็น number (อันเดียว)
+    const payload = {
+      ...values,
+      EmotionsID: values.EmotionsID ?? null,
+    };
+
+    const success = await createRecord(payload);
     if (success) {
       message.success("สร้างบันทึกความคิดเรียบร้อย ✅");
       navigate("/patient/thought_records");
@@ -61,7 +84,7 @@ function ThoughtRecordCreate() {
         {!showGuide ? (
           <Card className="form-card">
             {/* Header Inside Card */}
-            <div className="header-content" style={{ marginBottom: 16}}>
+            <div className="header-content" style={{ marginBottom: 16 }}>
               <Title level={2} className="page-title">
                 <BulbOutlined className="title-icon" />
                 สร้างบันทึกความคิด
@@ -69,9 +92,9 @@ function ThoughtRecordCreate() {
             </div>
 
             {/* ปุ่มไปหน้าคู่มือ */}
-            <div style={{ textAlign: "left"}}>
+            <div style={{ textAlign: "left" }}>
               <Button type="link" onClick={() => setShowGuide(true)}>
-              📘 คำแนะนำการกรอกฟอร์ม
+                📘 คำแนะนำการกรอกฟอร์ม
               </Button>
             </div>
 
@@ -81,7 +104,10 @@ function ThoughtRecordCreate() {
               layout="vertical"
               onFinish={onFinish}
               className="create-form"
-              initialValues={{ TagColors: "#155fdeff" }}
+              initialValues={{
+                TagColors: "#155fdeff",
+                EmotionsID: undefined, // ค่าเริ่มต้นว่าง (เลือกได้อันเดียว)
+              }}
             >
               {/* Customization Section */}
               <div className="form-section">
@@ -161,6 +187,37 @@ function ThoughtRecordCreate() {
                       />
                     </Form.Item>
                   </Col>
+
+                  {/* Emotion Select (อันเดียว) */}
+                  <Col xs={24}>
+                    <Form.Item
+                      label={
+                        <Space className="field-label">
+                          <span>อารมณ์</span>
+                        </Space>
+                      }
+                      name="EmotionsID"
+                      rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
+                    >
+                      <Select
+                        placeholder="เลือกอารมณ์"
+                        allowClear
+                        // ลบ getPopupContainer หรือเปลี่ยนเป็น trigger => trigger.parentNode
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        style={{ width: '100%' }}
+                        dropdownStyle={{ zIndex: 1050 }} // เพิ่ม zIndex
+                        virtual={false} // ปิด virtual scrolling
+                      >
+                        {emotions.map((emotion) => (
+                          <Option key={emotion.ID} value={emotion.ID}>
+                            <span style={{ color: emotion.EmotionsColor || "#000" }}>
+                              {emotion.ThaiEmotionsname || emotion.Emotionsname}
+                            </span>
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
                 </Row>
               </div>
 
@@ -229,7 +286,7 @@ function ThoughtRecordCreate() {
             </Form>
           </Card>
         ) : (
-          <FormGuide onBack={() => setShowGuide(false)} /> // 👈 แสดงหน้า guide
+          <FormGuide onBack={() => setShowGuide(false)} />
         )}
       </div>
     </section>

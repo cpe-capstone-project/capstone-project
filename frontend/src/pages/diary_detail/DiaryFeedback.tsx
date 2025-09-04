@@ -3,10 +3,15 @@ import { Empty, Flex } from "antd";
 import { useParams } from "react-router-dom";
 import { useDiary } from "../../contexts/DiaryContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
-import "./DiaryFeedback.css";
+import { CloseOutlined } from "@ant-design/icons";
 import { useDate } from "../../contexts/DateContext";
+import "./DiaryFeedback.css";
 
-function DiaryFeedback() {
+interface DiaryFeedbackProps {
+  onClose?: () => void;
+}
+
+function DiaryFeedback({ onClose }: DiaryFeedbackProps) {
   const { id } = useParams<{ id: string }>();
   const { getDiaryById } = useDiary();
   const { formatLong } = useDate();
@@ -22,14 +27,14 @@ function DiaryFeedback() {
   // if (!diary) return <p>No diary found</p>;
 
   // ✅ ดึง feedback จาก FeedbackDiary
-  const feedbacks = diary?.FeedbackDiary?.map(fd => fd.Feedbacks) || [];
+  const feedbacks = diary?.FeedbackDiary?.map((fd) => fd.Feedbacks) || [];
 
-  if (feedbacks.length === 0)
-    return (
-      <div className="no-feedback">
-        <Empty description={"ยังไม่มีคำแนะนำสำหรับไดอารี่ของคุณ"} />
-      </div>
-    );
+  // if (feedbacks.length === 0)
+  //   return (
+  //     <div className="no-feedback">
+  //       <Empty description={"ยังไม่มีคำแนะนำสำหรับไดอารี่ของคุณ"} />
+  //     </div>
+  //   );
 
   // ✅ จัดกลุ่ม feedback ตามนักจิตวิทยา
   const feedbacksByPsy = new Map<number, typeof feedbacks>();
@@ -42,7 +47,21 @@ function DiaryFeedback() {
 
   return (
     <div className="diary-feedback">
-      <h1 style={{ fontSize: "var(--font-size-xl)", fontWeight:"bold" }}>คำแนะนำ</h1>
+      <Flex vertical={false} align="center" justify="space-between">
+        <h1 style={{ fontSize: "var(--font-size-xl)", fontWeight: "bold" }}>
+          คำแนะนำ
+        </h1>
+        <button className="feedback-close-btn" onClick={onClose}>
+          <CloseOutlined />
+        </button>
+      </Flex>
+
+      {feedbacks.length === 0 && (
+        <div className="no-feedback">
+          <Empty description={"ยังไม่มีคำแนะนำสำหรับไดอารี่ของคุณ"} />
+        </div>
+      )}
+      
       {[...feedbacksByPsy.values()].map((fbs) => {
         const psy = fbs[0]?.Psychologist;
 
@@ -69,7 +88,9 @@ function DiaryFeedback() {
               />
               <Flex vertical className="psy-info">
                 <p>นักจิตวิทยา</p>
-                <h1>{psy?.FirstName} {psy?.LastName}</h1>
+                <h1>
+                  {psy?.FirstName} {psy?.LastName}
+                </h1>
               </Flex>
             </Flex>
 
@@ -101,9 +122,6 @@ function DiaryFeedback() {
                     <div className="feedback-text">
                       <h1>{fb?.FeedbackTitle}</h1>
                       <p>{fb?.FeedbackContent}</p>
-                      {/* {fb?.FeedbackType && (
-                        <small>ประเภท: {fb.FeedbackType.FeedbackName}</small>
-                      )} */}
                     </div>
                   </Flex>
                 );

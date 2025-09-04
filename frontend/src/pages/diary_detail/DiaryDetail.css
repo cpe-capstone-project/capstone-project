@@ -1,6 +1,6 @@
 .diary-detail-container {
-    /* display: flex; */
-    width: 100%;
+  /* display: flex; */
+  width: 100%;
 }
 
 .diary-detail-content {
@@ -28,7 +28,7 @@
     .title {
       display: flex;
       align-items: center;
-      width: 100%;
+      flex: 1;
       gap: var(--space-md);
       font-size: var(--font-size-xl);
 
@@ -50,6 +50,28 @@
       input:focus {
         outline: none;
       }
+    }
+
+    .diary-save-btn {
+      background-color: var(--ant-color-primary);
+      color: white;
+      padding: 4px 24px;
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      font-weight: bold;
+      transition: var(--transition-fast);
+    }
+
+    .diary-save-btn:hover {
+      /* opacity: 0.5; */
+    }
+
+    .diary-save-btn:disabled {
+      background-color: var(--background-color-disable);
+      color: var(--color-disable);
+      cursor: not-allowed;
     }
   }
 
@@ -108,30 +130,6 @@
       object-fit: contain;
     }
   }
-
-  .diary-save-btn {
-    align-self: center;
-    text-align: center;
-    background-color: var(--ant-color-primary);
-    color: white;
-    padding: 4px 24px;
-    margin-left: auto;
-    border: none;
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    font-weight: bold;
-    transition: var(--transition-fast);
-  }
-
-  .diary-save-btn:hover {
-    /* opacity: 0.5; */
-  }
-
-  .diary-save-btn:disabled {
-    background-color: var(--background-color-disable);
-    color: var(--color-disable);
-    cursor: not-allowed;
-  }
 }
 
 .diary-float-button {
@@ -140,9 +138,7 @@
 }
 
 .diary-editor.with-feedback {
-  width: calc(
-    100% - var(--diary-sidebar-width) - var(--diary-feedback-width)
-  );
+  width: calc(100% - var(--diary-sidebar-width) - var(--diary-feedback-width));
 }
 
 .diary-editor.fullscreen {
@@ -152,7 +148,6 @@
 .diary-editor.fullscreen.with-feedback {
   width: calc(100% - var(--diary-feedback-width));
 }
-
 
 .diary-feedback-container {
   width: var(--diary-feedback-width);

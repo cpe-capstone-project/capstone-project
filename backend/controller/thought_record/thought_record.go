@@ -33,7 +33,7 @@ func ListThoughtRecord(c *gin.Context){
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	if results := db.Find(&record); results.Error != nil {
+	if results := db.Preload("Emotion").Find(&record); results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -46,8 +46,8 @@ func GetThoughtRecordByID(c *gin.Context){
 	var record entity.ThoughtRecord
 
 	db := config.DB()
-	results := db.First(&record, ID)
-	if results.Error != nil{
+	results := db.Preload("Emotion").First(&record, ID)
+	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -113,7 +113,57 @@ func DeleteThoughtRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Deleted successful"})
 }
 
-// controller/thought_record/thought_record.go
+// GET /thought_record/latest?limit=5
+// GET /thought_record/latest?limit=5
+func ListLatestThoughtRecords(c *gin.Context) {
+	var records []entity.ThoughtRecord
+	db := config.DB()
+
+	// ดึง limit จาก query string
+	limitStr := c.DefaultQuery("limit", "5")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 5
+	}
+
+	// ดึง ThoughtRecord ล่าสุด พร้อม preload Emotion
+	if err := db.Preload("Emotion").
+		Order("updated_at desc").
+		Limit(limit).
+		Find(&records).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, records)
+}
+
+
+func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
+    therapyCaseID := c.Param("id") // รับ TherapyCase ID จาก URL
+
+    var thoughtRecords []entity.ThoughtRecord
+
+    db := config.DB()
+    // ดึง ThoughtRecords ของ TherapyCase ตาม ID พร้อม preload TherapyCase, Patient, CaseStatus
+    result := db.Preload("TherapyCase.Patient").
+                 Preload("TherapyCase.CaseStatus").
+                 Where("therapy_case_id = ?", therapyCaseID).
+                 Find(&thoughtRecords)
+
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
+    }
+
+    if len(thoughtRecords) == 0 {
+        c.JSON(http.StatusNoContent, gin.H{})
+        return
+    }
+
+    c.JSON(http.StatusOK, thoughtRecords)
+}
+
 
 // GET /patients/:patientId/thought-records?limit=1
 func GetLatestThoughtRecordsByPatientID(c *gin.Context) {

@@ -94,51 +94,87 @@ export default function DiaryList() {
     setShowDiaryFeedbackModal(true);
   };
 
-  const handleSubmitDiaryFeedback = async () => {
-    if (!selectedDiaryID) return;
-    try {
-      const payload = {
-        FeedbackTitle: feedbackForm.FeedbackTitle,
-        FeedbackContent: feedbackForm.FeedbackContent,
-        PsychologistID: Number(myID),
-        PatientID: Number(id),
-        FeedbackTypeID: 1,
-        FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
-        DiaryIDs: [selectedDiaryID],
-      };
-      await CreateFeedback(payload);
-      alert("ส่ง Feedback ต่อ Diary สำเร็จ");
-      setShowDiaryFeedbackModal(false);
-      setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
-      setSelectedDiaryID(null);
-    } catch (error) {
-      console.error(error);
-      alert("ส่ง Feedback ไม่สำเร็จ");
-    }
-  };
+ // ⬇️ แก้ในฟังก์ชัน handleSubmitDiaryFeedback
+const handleSubmitDiaryFeedback = async () => {
+  if (!selectedDiaryID) return;
+  try {
+    const payload = {
+      FeedbackTitle: feedbackForm.FeedbackTitle,
+      FeedbackContent: feedbackForm.FeedbackContent,
+      PsychologistID: Number(myID),
+      PatientID: Number(id),
+      FeedbackTypeID: 1,
+      FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
+      DiaryIDs: [selectedDiaryID],
+    };
+    const res = await CreateFeedback(payload);
 
-  const handleSubmitBatchFeedback = async () => {
-    if (selectedDiaryIDs.length === 0) return;
-    try {
-      const payload = {
-        FeedbackTitle: feedbackForm.FeedbackTitle,
-        FeedbackContent: feedbackForm.FeedbackContent,
-        PsychologistID: Number(myID),
-        PatientID: Number(id),
-        FeedbackTypeID: 1,
-        FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
-        DiaryIDs: selectedDiaryIDs,
-      };
-      await CreateFeedback(payload);
-      alert("ส่ง Batch Feedback สำเร็จ");
-      setShowBatchFeedbackModal(false);
-      setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
-      setSelectedDiaryIDs([]);
-    } catch (error) {
-      console.error(error);
-      alert("ส่ง Batch Feedback ไม่สำเร็จ");
+    // เก็บไดอารี่เป้าหมายล่าสุด (ไว้ให้ HomePage โหลดตามไอดี)
+    localStorage.setItem("last_feedback_diary_id", String(selectedDiaryID));
+
+    // ยิง event พร้อมข้อมูลสำคัญ
+    const created = res?.data ?? res; // รองรับทั้ง axios.data หรือเพียวๆ
+    window.dispatchEvent(
+      new CustomEvent("feedback:created", {
+        detail: {
+          diaryIds: [selectedDiaryID],
+          items: Array.isArray(created) ? created : [created],
+          scope: "diary",
+        },
+      })
+    );
+
+    alert("ส่ง Feedback ต่อ Diary สำเร็จ");
+    setShowDiaryFeedbackModal(false);
+    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+    setSelectedDiaryID(null);
+  } catch (error) {
+    console.error(error);
+    alert("ส่ง Feedback ไม่สำเร็จ");
+  }
+};
+
+// ⬇️ แก้ในฟังก์ชัน handleSubmitBatchFeedback
+const handleSubmitBatchFeedback = async () => {
+  if (selectedDiaryIDs.length === 0) return;
+  try {
+    const payload = {
+      FeedbackTitle: feedbackForm.FeedbackTitle,
+      FeedbackContent: feedbackForm.FeedbackContent,
+      PsychologistID: Number(myID),
+      PatientID: Number(id),
+      FeedbackTypeID: 1,
+      FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
+      DiaryIDs: selectedDiaryIDs,
+    };
+    const res = await CreateFeedback(payload);
+
+    // ใช้ diary ตัวแรกเป็น "ล่าสุด"
+    if (selectedDiaryIDs[0]) {
+      localStorage.setItem("last_feedback_diary_id", String(selectedDiaryIDs[0]));
     }
-  };
+
+    const created = res?.data ?? res;
+    window.dispatchEvent(
+      new CustomEvent("feedback:created", {
+        detail: {
+          diaryIds: selectedDiaryIDs,
+          items: Array.isArray(created) ? created : [created],
+          scope: "diary",
+        },
+      })
+    );
+
+    alert("ส่ง Batch Feedback สำเร็จ");
+    setShowBatchFeedbackModal(false);
+    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+    setSelectedDiaryIDs([]);
+  } catch (error) {
+    console.error(error);
+    alert("ส่ง Batch Feedback ไม่สำเร็จ");
+  }
+};
+
 
   const formatTime = (dateString: any) => {
     return new Date(dateString).toLocaleTimeString("th-TH", {

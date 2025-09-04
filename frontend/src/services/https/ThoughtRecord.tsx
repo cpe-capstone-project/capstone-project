@@ -74,20 +74,31 @@ async function GetThoughtRecordsByTherapyCaseID(id: number) {
     return e.response || { error: e.message };
   }
 }
-// ✅ GET /patients/:patientId/thought-records?limit=2
-async function GetThoughtRecordsByPatientId(patientId: number, limit = 2) {
-  return await axios
-    .get(`${apiUrl}/patients/${patientId}/thought-records?limit=${limit}`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+
+// ✅ GET /patients/:patientId/thought-records?limit=1
+async function GetThoughtRecordsByPatientId(patientId: number, limit = 1, nocache = false) {
+  const params: any = { limit };
+  if (nocache) params._ = Date.now(); // กัน cache
+  return axios
+    .get(`${apiUrl}/patients/${patientId}/thought-records`, {
+      ...requestOptions,
+      params,
+    })
+    .then(res => res)
+    .catch(e => e.response);
 }
 
 // ✅ GET /patients/:patientId/thought-records/count
-async function GetThoughtRecordCountByPatientId(patientId: number) {
-  return await axios
-    .get(`${apiUrl}/patients/${patientId}/thought-records/count`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+async function GetThoughtRecordCountByPatientId(patientId: number, nocache = false) {
+  const params: any = {};
+  if (nocache) params._ = Date.now();
+  return axios
+    .get(`${apiUrl}/patients/${patientId}/thought-records/count`, {
+      ...requestOptions,
+      params,
+    })
+    .then(res => res)
+    .catch(e => e.response);
 }
 
 export {

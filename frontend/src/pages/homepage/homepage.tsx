@@ -20,6 +20,13 @@ import { GetDiarySummaryById } from "../../services/https/Diary"; // ⬅️ เ�
 import { GetPatientById } from "../../services/https/Patient";
 import type { PatientInterface } from "../../interfaces/IPatient";
 import { GetDiaryCountForPatient, GetHomeDiariesForPatient } from "../../services/https/Diary";
+import {
+  GetThoughtRecordsByPatientId,
+  GetThoughtRecordCountByPatientId
+} from "../../services/https/ThoughtRecord";
+import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord";
+
+
 
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
@@ -29,6 +36,26 @@ function HomePage() {
   const [week, setWeek] = useState<DiaryInterface | null>(null);
   const [loading, setLoading] = useState(true);
   const [, setMe] = useState<PatientInterface | null>(null);
+  // ใกล้ ๆ state อื่น ๆ
+const [trRecent, setTrRecent] = useState<ThoughtRecordInterface[]>([]);
+const [trCount, setTrCount] = useState<number>(0);
+const [trLoading, setTrLoading] = useState<boolean>(true);
+
+
+// สำหรับเลื่อนรายการ TR
+const [trIndex, setTrIndex] = useState(0);
+const openTR = (tr: any) => {
+  const id = tr?.id ?? tr?.ID;
+  if (!id) return;
+  navigate(`/patient/thought_records/${id}`);
+};
+
+// รีเซ็ต/จัดระเบียบ index เมื่อโหลดรายการเสร็จหรือจำนวนเปลี่ยน
+useEffect(() => {
+  if (trIndex >= trRecent.length) setTrIndex(0);
+}, [trRecent.length]);
+
+
 // ---- Requests (one-way) ----
 type RequestType = "ขอคำปรึกษา" | "ขอนัดพบ" | "อื่นๆ";
 type RequestItem = {
@@ -131,6 +158,41 @@ const saveRequests = (list: RequestItem[]) => {
 // === Requests state ===
 const [recentRequests, setRecentRequests] = useState<RequestItem[]>([]);
 const [requestCount, setRequestCount] = useState<number>(0); // ⬅️ เพิ่ม
+// วางไว้ใน useEffect โซน data fetching อื่น ๆ
+useEffect(() => {
+  (async () => {
+    try {
+      setTrLoading(true);
+      const pid = Number(localStorage.getItem("patient_id") || 0);
+      if (!pid) {
+        setTrRecent([]);
+        setTrCount(0);
+        setTrLoading(false);
+        return;
+      }
+
+      const [listRes, countRes] = await Promise.all([
+        GetThoughtRecordsByPatientId(pid, 1),
+         GetThoughtRecordCountByPatientId(pid),
+      ]);
+
+      // รองรับได้ทั้งกรณี backend ส่ง {items: []} หรือส่ง [] ตรง ๆ
+      const items =
+        listRes?.data?.items ??
+        listRes?.data?.data ??
+        listRes?.data ??
+        [];
+
+      setTrRecent(Array.isArray(items) ? items : []);
+      setTrCount(Number(countRes?.data?.count ?? 0));
+    } catch {
+      setTrRecent([]);
+      setTrCount(0);
+    } finally {
+      setTrLoading(false);
+    }
+  })();
+}, []);
 useEffect(() => {
   return scheduleMidnightReset(async () => {
     try {
@@ -140,6 +202,7 @@ useEffect(() => {
     }
   });
 }, []);
+
 
 useEffect(() => {
   const all = loadRequests()
@@ -1050,16 +1113,17 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
         </div>
       </div>
 
-      <div className="diorr-card3">
-        <div className="diorr-card-header">
-          <div className="diorr-card-title">
-            <h3>Thought Records</h3>
-            <img src="https://cdn-icons-png.flaticon.com/128/109/109827.png" alt="Thought Records Icon" className="diorr-icon" />
-          </div>
-          <span className="diorr-stat-text">8</span>
-          <span className="diorr-stat-subtext">This week</span>
-        </div>
-      </div>
+     {/* เดิม diorr-card3: แก้ส่วนตัวเลข/ข้อความ */}
+<div className="diorr-card3">
+  <div className="diorr-card-header">
+    <div className="diorr-card-title">
+      <h3>Thought Records</h3>
+      <img src="https://cdn-icons-png.flaticon.com/128/109/109827.png" alt="Thought Records Icon" className="diorr-icon" />
+    </div>
+    <span className="diorr-stat-text">{trCount}</span>
+    <span className="diorr-stat-subtext">Total</span>
+  </div>
+</div>
      <div className="diorr-card4">
   <div className="diorr-card-header">
     <div className="diorr-card-title">
@@ -1202,44 +1266,201 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
     View More
   </button>
 </div>
+{/* ===== Thought Record card (single) ===== */}
+<div className="deer-tiger-card">
+  <div className="hior-title">
+    <img
+      src="https://cdn-icons-png.flaticon.com/128/109/109827.png"
+      alt="Thought Record Icon"
+      className="frio-icon"
+    />
+    <h3>Thought Record</h3>
+  </div>
+  <p className="deer-tiger-subtext">Cognitive behavioral therapy tracking</p>
 
-
-  {/* Thought Record */}
-  <div className="deer-tiger-card">
-     <div className="hior-title">
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/109/109827.png"
-        alt="Thought Record Icon"
-        className="frio-icon"
-      />
-      <h3>Thought Record</h3>
+  {trLoading ? (
+    // skeleton: โชว์แค่ 1 อัน
+    <div
+      className="deer-tiger-thought-entry"
+      style={{
+        padding: 10, border: "1px solid #eee", borderRadius: 10, background: "#fff",
+        display: "grid", gap: 6
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <div style={{height: 12, width: "45%", background: "#f1f5f9", borderRadius: 6}} />
+        <span style={{height: 20, width: 64, background: "#e5e7eb", borderRadius: 999}} />
+      </div>
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{height: 10, background: "#f1f5f9", borderRadius: 6}} />
+        <div style={{height: 10, background: "#f1f5f9", borderRadius: 6, width: "70%"}} />
+      </div>
     </div>
-      <p className="deer-tiger-subtext">Cognitive behavioral therapy tracking</p>
-  <div className="deer-tiger-thought-entry">
-  <div className="deer-tiger-thought-header">
-    <strong>Work Anxiety</strong>
-    <span className="deer-tiger-tag high">High</span>
-  </div>
-  <p className="deer-tiger-thought-sub">Situation: Big presentation tomorrow</p>
-</div>
+  ) : trCount === 0 ? (
+    // empty
+    <div
+      className="deer-tiger-thought-entry"
+      style={{ padding: 10, border: "1px dashed #e5e7eb", borderRadius: 10, background: "#fcfcfd" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <strong>—</strong>
+        <span style={{ background: "#e5e7eb", color: "#111", borderColor: "#e5e7eb", border: "1px solid", borderRadius: 999, padding: "2px 8px", fontSize: 11 }}>—</span>
+      </div>
+      <p style={{ marginTop: 6, color: "#64748b", fontSize: 13 }}>ยังไม่มี Thought Record</p>
+    </div>
+  ) : (
+    (() => {
+      const tr: any = trRecent[0]; // ✅ โชว์รายการแรกอันเดียว
 
-<div className="deer-tiger-thought-entry">
-  <div className="deer-tiger-thought-header">
-    <strong>Social Worry</strong>
-    <span className="deer-tiger-tag medium">Medium</span>
-  </div>
-  <p className="deer-tiger-thought-sub">Situation: Meeting new people at event</p>
-</div>
+      const firstNonEmpty = (...vals: any[]) =>
+        vals.find(v => typeof v === "string" && v.trim().length > 0) || undefined;
 
+      const getEmotionName = (row: any) =>
+        firstNonEmpty(
+          row?.emotion?.Name, row?.Emotion?.Name, row?.emotion_name,
+          row?.EmotionName, row?.emotion, row?.Emotion
+        );
 
-    <button
-  className="deer-tiger-btn"
-  onClick={() => navigate("/patient/thought_records")}
+      const getTagColor = (row: any) =>
+        firstNonEmpty(row?.tag_colors, row?.TagColors, row?.tagColor, row?.TagColor);
+
+      const idealTextColor = (bg?: string) => {
+        if (!bg) return "#fff";
+        let hex = bg.trim();
+        if (hex.startsWith("var(")) return "#fff";
+        if (hex.startsWith("#")) hex = hex.slice(1);
+        if (hex.length === 3) hex = hex.split("").map(c => c + c).join("");
+        const r = parseInt(hex.slice(0,2) || "0", 16);
+        const g = parseInt(hex.slice(2,4) || "0", 16);
+        const b = parseInt(hex.slice(4,6) || "0", 16);
+        const yiq = (r*299 + g*587 + b*114) / 1000;
+        return yiq >= 128 ? "#111" : "#fff";
+      };
+
+      const situation =
+        tr?.Situation ?? tr?.situation ?? tr?.event ?? tr?.Event ?? tr?.Topic ?? tr?.title ?? "—";
+      const thoughts =
+        tr?.Thoughts ?? tr?.thoughts ?? tr?.AlternateThought ?? tr?.alternate_thought ?? "—";
+      const altThought = tr?.AlternateThought ?? tr?.alternate_thought ?? "—";
+      const behaviors = tr?.Behaviors ?? tr?.behaviors ?? "—";
+      const emotionName = getEmotionName(tr) ?? "Emotion";
+      const tagColor = getTagColor(tr) ?? "#6B7280";
+
+      return (
+        <div
+  role="button"
+  tabIndex={0}
+  onClick={() => openTR(tr)}
+  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openTR(tr)}
+  className="deer-tiger-thought-entry"
+  style={{
+    padding: 10,
+    border: "1px solid #eee",
+    borderRadius: 12,
+    background: "#fff",
+    display: "grid",
+    gap: 6,
+    cursor: "pointer",
+    boxShadow: "0 1px 2px rgba(16,24,40,.04)", // คงเงาอ่อนๆ ถ้าต้องการ
+    borderColor: "#eee",
+  }}
 >
-  View More
-</button>
+          {/* header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <strong
+              title={situation}
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: 14,
+                lineHeight: 1.3,
+                flex: 1,
+              }}
+            >
+              {situation}
+            </strong>
 
-  </div>
+            <span
+              style={{
+                backgroundColor: tagColor,
+                color: idealTextColor(tagColor),
+                borderColor: tagColor,
+                borderWidth: 1,
+                borderStyle: "solid",
+                padding: "2px 8px",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+              title={emotionName}
+            >
+              {emotionName}
+            </span>
+          </div>
+
+          {/* rows */}
+          <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
+            <span style={{ fontWeight: 700, color: "#0f172a" }}>🧠 Thoughts:</span>{" "}
+            <span
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+              title={typeof thoughts === "string" ? thoughts : ""}
+            >
+              {thoughts}
+            </span>
+          </p>
+
+          <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
+            <span style={{ fontWeight: 700, color: "#0f172a" }}>💡 Alternate:</span>{" "}
+            <span
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+              title={typeof altThought === "string" ? altThought : ""}
+            >
+              {altThought}
+            </span>
+          </p>
+
+          <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
+            <span style={{ fontWeight: 700, color: "#0f172a" }}>🧭 Behaviors:</span>{" "}
+            <span
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+              title={typeof behaviors === "string" ? behaviors : ""}
+            >
+              {behaviors}
+            </span>
+          </p>
+        </div>
+      );
+    })()
+  )}
+
+  <button
+    className="deer-tiger-btn"
+    onClick={() => navigate("/patient/thought_records")}
+  >
+    View More
+  </button>
+</div>
+
+
 <div className="deer-tiger-card">
   <div className="hior-title">
     <img

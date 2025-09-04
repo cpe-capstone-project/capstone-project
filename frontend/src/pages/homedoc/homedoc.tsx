@@ -757,19 +757,19 @@ const newCount  = Math.max(
               <li>
                 <span className="qewty-status-left">ผู้ป่วยบำบัดเรียบร้อยแล้ว :</span>
                 <span className="qewty-status-right">
-                  <strong>{doneCount.toLocaleString()} คน</strong>
+                 {doneCount.toLocaleString()} คน
                 </span>
               </li>
               <li>
                 <span className="qewty-status-left">ผู้ป่วยที่รักษาอยู่ :</span>
                 <span className="qewty-status-right">
-                  <strong>{inCount.toLocaleString()} คน</strong>
+                  {inCount.toLocaleString()} คน
                 </span>
               </li>
               <li>
                 <span className="qewty-status-left">ผู้ป่วยใหม่ :</span>
                 <span className="qewty-status-right">
-                  <strong>{newCount.toLocaleString()} คน</strong>
+                  {newCount.toLocaleString()} คน
                 </span>
               </li>
             </ul>

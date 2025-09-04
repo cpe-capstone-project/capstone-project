@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./tailwind.css";
 //import DiarySummary from "../diary_summary/DiarySummary";
@@ -159,6 +159,41 @@ const saveRequests = (list: RequestItem[]) => {
 const [recentRequests, setRecentRequests] = useState<RequestItem[]>([]);
 const [requestCount, setRequestCount] = useState<number>(0); // ⬅️ เพิ่ม
 // วางไว้ใน useEffect โซน data fetching อื่น ๆ
+const location = useLocation();
+
+useEffect(() => {
+  (async () => {
+    try {
+      setTrLoading(true);
+      const pid = Number(localStorage.getItem("patient_id") || 0);
+      if (!pid) {
+        setTrRecent([]);
+        setTrCount(0);
+        setTrLoading(false);
+        return;
+      }
+
+      const [listRes, countRes] = await Promise.all([
+        GetThoughtRecordsByPatientId(pid, 1, true),  // ⬅️ กัน cache
+        GetThoughtRecordCountByPatientId(pid, true), // ⬅️ กัน cache
+      ]);
+
+      const items =
+        listRes?.data?.items ??
+        listRes?.data?.data ??
+        listRes?.data ??
+        [];
+
+      setTrRecent(Array.isArray(items) ? items : []);
+      setTrCount(Number(countRes?.data?.count ?? 0));
+    } catch {
+      setTrRecent([]);
+      setTrCount(0);
+    } finally {
+      setTrLoading(false);
+    }
+  })();
+}, [location.key]);  // ⬅️ เหลืออันเดียวพอ
 useEffect(() => {
   (async () => {
     try {

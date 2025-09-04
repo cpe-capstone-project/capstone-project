@@ -27,7 +27,6 @@ import {
 import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord";
 
 
-
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
   const { diaries } = useDiary();
@@ -251,7 +250,7 @@ async function openRequestForm() {
   const html = `
   <style>
     .rq-row{ margin:10px 0; text-align:left }
-    .rq-label{ font-weight:700; margin-bottom:6px; display:block }
+    .rq-label{ font-weight:500; margin-bottom:6px; display:block }
     .rq-input, .rq-select, .rq-textarea{
       width:100%; padding:10px 12px; border:1px solid #e5e7eb;
       border-radius:10px; background:#fff; box-sizing:border-box;
@@ -448,7 +447,7 @@ function handleViewAllRequests() {
     <style>
       .rq-card{background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid #eee}
       .rq-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
-      .rq-type{font-weight:700}
+      .rq-type{font-weight:500}
       .rq-time{color:#6b7280;font-size:12px}
       .rq-detail{color:#374151;margin-top:6px}
       .rq-meet{margin-top:6px;padding:8px 10px;border:1px dashed #d1d5db;border-radius:10px;background:#f9fafb}
@@ -1057,7 +1056,7 @@ function openChecklistModal(startDate?: Date) {
       <div style="text-align:left">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
           <button id="prevDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">◀ Yesterday</button>
-          <div style="font-weight:700">${current.toLocaleDateString()}</div>
+          <div style="font-weight:500">${current.toLocaleDateString()}</div>
           <button id="nextDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">Tomorrow ▶</button>
         </div>
 
@@ -1428,7 +1427,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
                 padding: "2px 8px",
                 borderRadius: 999,
                 fontSize: 11,
-                fontWeight: 700,
+                fontWeight: 500,
                 whiteSpace: "nowrap",
               }}
               title={emotionName}
@@ -1439,7 +1438,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
 
           {/* rows */}
           <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
-            <span style={{ fontWeight: 700, color: "#0f172a" }}>🧠 Thoughts:</span>{" "}
+            <span style={{ fontWeight: 500, color: "#0f172a" }}>🧠 Thoughts:</span>{" "}
             <span
               style={{
                 display: "-webkit-box",
@@ -1454,7 +1453,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
           </p>
 
           <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
-            <span style={{ fontWeight: 700, color: "#0f172a" }}>💡 Alternate:</span>{" "}
+            <span style={{ fontWeight: 500, color: "#0f172a" }}>💡 Alternate:</span>{" "}
             <span
               style={{
                 display: "-webkit-box",
@@ -1469,7 +1468,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
           </p>
 
           <p style={{ margin: 0, color: "#334155", fontSize: 13 }}>
-            <span style={{ fontWeight: 700, color: "#0f172a" }}>🧭 Behaviors:</span>{" "}
+            <span style={{ fontWeight: 500, color: "#0f172a" }}>🧭 Behaviors:</span>{" "}
             <span
               style={{
                 display: "-webkit-box",
@@ -1576,28 +1575,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
        <DiaryStatsChart diaries={myDiaries} dateField="UpdatedAt" />
       </div>
 
-      <p className="aertr-emotion-label">
-        Current Emotion
-      </p>
-
-      <div className="aertr-emotion-legend">
-        {TAGS.map((t) => {
-          const key = norm(t);
-          const active = detectedEmotions.map(norm).includes(key);
-          const icon = EMOJI[key] || "🙂";
-          return (
-            <span
-              key={t}
-              className={`aertr-emotion ${toClass(t)} ${
-                active ? "active" : ""
-              }`}
-              title={t}
-            >
-              {icon} {t}
-            </span>
-          );
-        })}
-      </div>
+     
     </div>
 
     {/* Right */}
@@ -1648,7 +1626,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
               background: "#fff",
             }}
           >
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>
+            <div style={{ fontWeight: 500, marginBottom: 6 }}>
               {statTab === "daily"
                 ? "สรุปวันนี้"
                 : statTab === "weekly"
@@ -1685,17 +1663,8 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
       </p>
       <button className="aertr-feedback-btn">View More</button>
     </div>
+
          
-    {/* Previous Entries */}
-    <div className="aertr-previous-card">
-      <h4>Previous Entries</h4>
-      <div className="aertr-previous-entry">
-        <p className="aertr-entry-date">July 31, 2024</p>
-        <p className="aertr-entry-text">
-          Today was a busy day at work. Had several meetings, and then spent the afternoon debugging a tricky issue in the new feature...
-        </p>
- </div>
-      </div>
       
     </div>
     
@@ -1706,7 +1675,7 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
 <div className="qewty-summary-container">
   {/* Left Section: Pie Chart and Emotions */}
   <div className="qewty-summary-left">
-  <h3 className="qewty-summary-title">Summary Thought Record (Emotional)</h3>
+  <h3 className="qewty-summary-title">Emotional</h3>
 
   {/* Pie Chart + Legend side-by-side */}
   <div className="qewty-chart-legend-row">
@@ -1728,16 +1697,28 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
     </div>
   </div>
 
-  {/* Chips below */}
-  <div className="qewty-emotions">
-    <span className="qewty-chip happy">😊 Happy</span>
-    <span className="qewty-chip sad">😢 Sad</span>
-    <span className="qewty-chip neutral">😐 Neutral</span>
-    <span className="qewty-chip angry">😠 Angry</span>
-    <span className="qewty-chip excited">🤩 Excited</span>
-    <span className="qewty-chip anxious">😰 Anxious</span>
-    <span className="qewty-chip grateful">💖 Grateful</span>
-  </div>
+   <p className="aertr-emotion-label">
+        Current Emotion
+      </p>
+
+      <div className="aertr-emotion-legend">
+        {TAGS.map((t) => {
+          const key = norm(t);
+          const active = detectedEmotions.map(norm).includes(key);
+          const icon = EMOJI[key] || "🙂";
+          return (
+            <span
+              key={t}
+              className={`aertr-emotion ${toClass(t)} ${
+                active ? "active" : ""
+              }`}
+              title={t}
+            >
+              {icon} {t}
+            </span>
+          );
+        })}
+      </div>
 
 
 

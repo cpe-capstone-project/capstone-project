@@ -33,7 +33,7 @@ func ListThoughtRecord(c *gin.Context){
 	}
 	db = db.Order(sortColumn + " " + order)
 
-	if results := db.Find(&record); results.Error != nil {
+	if results := db.Preload("Emotion").Find(&record); results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -46,8 +46,8 @@ func GetThoughtRecordByID(c *gin.Context){
 	var record entity.ThoughtRecord
 
 	db := config.DB()
-	results := db.First(&record, ID)
-	if results.Error != nil{
+	results := db.Preload("Emotion").First(&record, ID)
+	if results.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
 		return
 	}
@@ -114,23 +114,30 @@ func DeleteThoughtRecord(c *gin.Context) {
 }
 
 // GET /thought_record/latest?limit=5
+// GET /thought_record/latest?limit=5
 func ListLatestThoughtRecords(c *gin.Context) {
 	var records []entity.ThoughtRecord
 	db := config.DB()
 
+	// ดึง limit จาก query string
 	limitStr := c.DefaultQuery("limit", "5")
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit < 1 {
 		limit = 5
 	}
 
-	if err := db.Order("updated_at desc").Limit(limit).Find(&records).Error; err != nil {
+	// ดึง ThoughtRecord ล่าสุด พร้อม preload Emotion
+	if err := db.Preload("Emotion").
+		Order("updated_at desc").
+		Limit(limit).
+		Find(&records).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, records)
 }
+
 
 func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
     therapyCaseID := c.Param("id") // รับ TherapyCase ID จาก URL
@@ -156,6 +163,4 @@ func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
 
     c.JSON(http.StatusOK, thoughtRecords)
 }
-
-
 

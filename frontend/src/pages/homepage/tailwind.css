@@ -220,7 +220,12 @@
   border-radius: 12px;
   font-size: 0.8em;
 }
-
+.fb-body {
+    color: #374151;
+    margin-top: 6px;
+    line-height: 1.55;
+    text-align: left;
+}
 .deer-tiger-status.pending {
   background-color: #e0e0e0;
   color: #555;
@@ -361,7 +366,7 @@
   padding: 24px;
   border-radius: 18px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  min-width: 600px;
+  min-width: 1300px;
   margin-bottom: 1px;
 }
 

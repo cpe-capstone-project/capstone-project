@@ -25,8 +25,9 @@ import {
   GetThoughtRecordCountByPatientId
 } from "../../services/https/ThoughtRecord";
 import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord";
-
-
+import type { FeedBackInterface } from "../../interfaces/IFeedback";
+//import { GetFeedbacksByPatient } from "../../services/https/Feedback";
+import { GetFeedbacksByDiary } from "../../services/https/Feedback";
 function HomePage() {
   // ใส่ไว้ในฟังก์ชัน HomePage() ด้านบน ๆ ใกล้ ๆ state อื่น ๆ
   const { diaries } = useDiary();
@@ -40,7 +41,103 @@ const [trRecent, setTrRecent] = useState<ThoughtRecordInterface[]>([]);
 const [trCount, setTrCount] = useState<number>(0);
 const [trLoading, setTrLoading] = useState<boolean>(true);
 
+// ===== แทนที่/เพิ่ม state ใกล้ ๆ fb state =====
+const [feedbackDiaryId, setFeedbackDiaryId] = useState<number | null>(null);
+const [latestDiaryFeedbacks, setLatestDiaryFeedbacks] = useState<FeedBackInterface[]>([]);
+const [fbLoading, setFbLoading] = useState<boolean>(true);
 
+// ===== helper เหมือนเดิม =====
+const getFeedbackId = (fb: any) =>
+  fb?.ID ?? fb?.Id ?? fb?.id ?? fb?.FeedbackID ?? fb?.feedback_id ?? null;
+
+const safeText = (v: any) => (typeof v === "string" ? v : (v ?? "") + "");
+const stripHtml = (s?: string | null) =>
+  s ? s.toString().replace(/<[^>]*>?/gm, "") : "";
+
+// ===== โหลดตาม diaryId เป้าหมาย (เรียกตอน mount และเมื่อ today เปลี่ยน) =====
+useEffect(() => {
+  let alive = true;
+
+  async function loadForDiary(diaryId: number) {
+    try {
+      setFbLoading(true);
+      // ถ้ามี endpoint ให้ใช้แบบนี้:
+      const res = await GetFeedbacksByDiary(diaryId, 2, true);
+      const items =
+        res?.data?.items ??  // {items: [...]}
+        res?.data?.data ??   // {data: [...]}
+        res?.data ??         // [...]
+        [];
+      if (alive) setLatestDiaryFeedbacks(Array.isArray(items) ? items : []);
+    } catch {
+      if (alive) setLatestDiaryFeedbacks([]);
+    } finally {
+      if (alive) setFbLoading(false);
+    }
+  }
+
+  // เลือก diary เป้าหมาย: last_feedback_diary_id > today.ID > null
+  const last = Number(localStorage.getItem("last_feedback_diary_id") || 0) || null;
+  const todayId = (today as any)?.ID ?? (today as any)?.id ?? null;
+  const preferred = last || todayId || null;
+
+  setFeedbackDiaryId(preferred);
+
+  if (preferred) {
+    loadForDiary(preferred);
+  } else {
+    setLatestDiaryFeedbacks([]);
+    setFbLoading(false);
+  }
+
+  return () => { alive = false; };
+}, [today?.ID]);  // เมื่อไดอารี่วันนี้เปลี่ยน ลองรีโหลด
+
+// ===== ฟัง event: feedback:created → ตั้ง diaryId และรีโหลด =====
+useEffect(() => {
+  let alive = true;
+
+  const onCreated = async (e: any) => {
+    try {
+      if (!alive) return;
+      const detail = e?.detail || {};
+      const target = Number(detail?.diaryIds?.[0] || 0) || feedbackDiaryId;
+
+      if (target) {
+        // เก็บเป็นค่า default ต่อไป
+        localStorage.setItem("last_feedback_diary_id", String(target));
+        setFeedbackDiaryId(target);
+      }
+
+      // 1) ถ้ามี items กลับมาจากหน้า Create → ใช้เลย (ไม่ต้องยิง API)
+      const items = Array.isArray(detail?.items) ? detail.items : [];
+      if (items.length) {
+        setLatestDiaryFeedbacks(items.slice(0, 3));
+        setFbLoading(false);
+        return;
+      }
+
+      // 2) ถ้าไม่มี items → ยิงโหลดจากฐาน (ตาม diaryId)
+      if (target) {
+        setFbLoading(true);
+        const res = await GetFeedbacksByDiary(target, 3, true);
+        const fetched =
+          res?.data?.items ?? res?.data?.data ?? res?.data ?? [];
+        setLatestDiaryFeedbacks(Array.isArray(fetched) ? fetched : []);
+      }
+    } catch {
+      setLatestDiaryFeedbacks([]);
+    } finally {
+      setFbLoading(false);
+    }
+  };
+
+  window.addEventListener("feedback:created", onCreated as any);
+  return () => {
+    alive = false;
+    window.removeEventListener("feedback:created", onCreated as any);
+  };
+}, [feedbackDiaryId]);
 // สำหรับเลื่อนรายการ TR
 const [trIndex, setTrIndex] = useState(0);
 const openTR = (tr: any) => {
@@ -86,6 +183,7 @@ const newDayState = (): ChecklistState => {
   };
 };
 const pid = Number(localStorage.getItem("patient_id") || 0);
+
 
 const myDiaries = useMemo(() => {
   const list = Array.isArray(diaries) ? diaries : [];
@@ -159,6 +257,9 @@ const [recentRequests, setRecentRequests] = useState<RequestItem[]>([]);
 const [requestCount, setRequestCount] = useState<number>(0); // ⬅️ เพิ่ม
 // วางไว้ใน useEffect โซน data fetching อื่น ๆ
 const location = useLocation();
+
+
+
 
 useEffect(() => {
   (async () => {
@@ -559,6 +660,98 @@ function handleViewAllRequests() {
       });
     },
   });
+}
+async function openAllDiaryFeedbacks() {
+  try {
+    if (!feedbackDiaryId) {
+      await Swal.fire("ยังไม่มีไดอารี่เป้าหมาย", "ไม่มีข้อมูลไดอารี่สำหรับดึง Feedback", "info");
+      return;
+    }
+
+    // ดึง “ทั้งหมด” ของไดอารี่เป้าหมาย
+    // ถ้า backend รองรับ limit=null/undefined ให้ส่งแบบนี้เพื่อเอามาทั้งหมด
+    const res = await GetFeedbacksByDiary(feedbackDiaryId as number, undefined as any, true);
+
+    const list: any[] =
+      res?.data?.items ??
+      res?.data?.data ??
+      res?.data ??
+      [];
+
+    // fallback ถ้าไม่มีอะไรเลย
+    const items = Array.isArray(list) ? list : [];
+
+    const getId = (fb: any) =>
+      fb?.ID ?? fb?.Id ?? fb?.id ?? fb?.FeedbackID ?? fb?.feedback_id ?? null;
+
+    const getTitle = (fb: any) =>
+      typeof fb?.FeedbackTitle === "string"
+        ? fb.FeedbackTitle
+        : typeof fb?.title === "string"
+        ? fb.title
+        : "Feedback";
+
+    const getBody = (fb: any) => {
+      const raw =
+        typeof fb?.FeedbackContent === "string"
+          ? fb.FeedbackContent
+          : typeof fb?.content === "string"
+          ? fb.content
+          : "";
+      return (raw || "").toString().replace(/<[^>]*>?/gm, ""); // stripHtml เบา ๆ
+    };
+
+    const getWhen = (fb: any) =>
+      fb?.CreatedAt ?? fb?.created_at ?? fb?.UpdatedAt ?? fb?.updated_at ?? null;
+
+    const fmtTH = (iso?: string | null) =>
+      iso ? new Date(iso).toLocaleString("th-TH", { hour12: false }) : "";
+
+    const html = `
+      <style>
+        .fb-list{max-height:60vh;overflow:auto}
+        .fb-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px;margin:10px 0}
+        .fb-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+        .fb-title{font-weight:600}
+        .fb-when{color:#6b7280;font-size:12px;white-space:nowrap}
+        .fb-body{color:#374151;margin-top:6px;line-height:1.55}
+        .fb-empty{color:#777;text-align:center;padding:16px 0}
+      </style>
+      <div class="fb-list">
+        ${
+          items.length === 0
+            ? `<div class="fb-empty">— ยังไม่มี Feedback —</div>`
+            : items
+                .map((fb, i) => {
+                  const title = getTitle(fb);
+                  const body = getBody(fb);
+                  const when = fmtTH(getWhen(fb));
+                  return `
+                    <div class="fb-card" data-key="${getId(fb) ?? i}">
+                      <div class="fb-head">
+                        <div class="fb-title">${title}</div>
+                        <div class="fb-when">${when}</div>
+                      </div>
+                      <div class="fb-body">${(body || "—").replace(/</g, "&lt;")}</div>
+                    </div>
+                  `;
+                })
+                .join("")
+        }
+      </div>
+    `;
+
+    await Swal.fire({
+      title: "Feedback ทั้งหมดของไดอารี่นี้",
+      html,
+      width: 720,
+      confirmButtonText: "ปิด",
+      showCloseButton: true,
+    });
+  } catch (e) {
+    console.error(e);
+    await Swal.fire("ดึงข้อมูลไม่สำเร็จ", "โปรดลองใหม่อีกครั้ง", "error");
+  }
 }
 
 
@@ -1117,7 +1310,7 @@ function openChecklistModal(startDate?: Date) {
 
   render();
 }
-const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
+
    return (
   <div className="dash-frame">
   <div className="dash-content">
@@ -1643,28 +1836,86 @@ const stripHtml = (s?: string | null) => (s ? s.replace(/<[^>]*>?/gm, "") : "");
       </div>
     </div>
      <div className="aertr-side-panel">
-    {/* AI Feedback */}
-    <div className="aertr-feedback-card">
-      <h4 className="aertr-feedback-title">
+<div className="aertr-feedback-card">
+  <h4 className="aertr-feedback-title">
     <img
       src="https://cdn-icons-png.flaticon.com/128/11213/11213138.png"
       alt="Feedback Icon"
       className="aertr-feedback-icon"
     />
-    Diary Feedback
+    Diary Feedback{feedbackDiaryId ? ` ` : ""}
   </h4>
-      <p className="aertr-feedback-positive">
-        <strong>Positive Trend Detected</strong><br />
-        Your entries show increased gratitude mentions this week
-      </p>
-      <p className="aertr-feedback-suggestion">
-        <strong>Suggestion</strong><br />
-        Consider exploring stress management techniques
-      </p>
-      <button className="aertr-feedback-btn">View More</button>
-    </div>
+{/* content */}
+{fbLoading ? (
+  <div className="gmk space-y-6 mt-3">
+    {[...Array(2)].map((_, i) => (
+      <div
+        key={i}
+        className="animate-pulse rounded-xl border border-slate-400 bg-white p-4"
+      >
+        <div className="h-4 w-36 bg-slate-200 rounded"></div>
+        <div className="mt-3 h-3 w-5/6 bg-slate-200 rounded"></div>
+      </div>
+    ))}
+  </div>
+) : latestDiaryFeedbacks.length === 0 ? (
+  <p className="text-slate-400 text-sm mt-3">ยังไม่มี Feedback</p>
+) : (
+  <div className="gmk flex flex-col gap-y-6 mt-3">
+    {latestDiaryFeedbacks.slice(0, 2).map((fb, idx) => {
+      const id = getFeedbackId(fb);
+      const title = safeText(
+        (fb as any)?.FeedbackTitle ?? (fb as any)?.title ?? "Feedback"
+      );
+      const bodyPlain = stripHtml(
+        safeText((fb as any)?.FeedbackContent ?? (fb as any)?.content ?? "")
+      );
+      const when =
+        (fb as any)?.CreatedAt ??
+        (fb as any)?.created_at ??
+        (fb as any)?.UpdatedAt ??
+        (fb as any)?.updated_at ??
+        null;
 
-         
+      const key =
+        id != null ? String(id) : `${title}-${when ?? ""}-${idx}`;
+
+      return (
+        <article
+          key={key}
+          className="rounded-xl border border-slate-400 bg-white p-4"
+        >
+          {/* header */}
+          <div className="flex items-center justify-between mb-3">
+            <h5 className="text-slate-900 font-semibold text-base">{title}</h5>
+            {when ? (
+              <time className="text-[12px] text-slate-500">
+                {new Date(when).toLocaleString("th-TH")}
+              </time>
+            ) : null}
+          </div>
+
+          {/* body */}
+          <p className="text-sm text-slate-700 leading-relaxed">
+            {bodyPlain}
+          </p>
+        </article>
+      );
+    })}
+  </div>
+)}
+
+
+
+ <button
+  className="aertr-feedback-btn"
+  onClick={openAllDiaryFeedbacks}
+>
+  View More
+</button>
+
+</div>
+
       
     </div>
     

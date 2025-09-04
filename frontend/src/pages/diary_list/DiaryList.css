@@ -1,6 +1,6 @@
 .diary-list-container {
   position: relative;
-  padding: var(--padding-patient-home-page);
+  padding: var(--space-sm) var(--space-lg);
 }
 
 .diary-list-header {
@@ -15,8 +15,22 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
+
+    .diary-list-create-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background-color: var(--ant-color-primary);
+      color: white;
+      padding: 4px 20px;
+      border: none;
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: var(--transition-fast);
+    }
   }
 }
+            
 
 .diary-list {
   h1 {

@@ -4,7 +4,7 @@ import { useDiary } from "../../contexts/DiaryContext";
 // import { useDate } from "../../contexts/DateContext";
 import { th } from "date-fns/locale";
 import { groupByDate } from "../../utils/GroupByDate";
-import { Button, Select, Tooltip } from "antd";
+import { Select, Tooltip } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { LuCircleAlert } from 'react-icons/lu';
 import { usePath } from "../../contexts/PathContext";
@@ -133,14 +133,15 @@ function DiaryList() {
             dataOff="รายการ"
           />
 
-          <Button
-            type="primary"
+          <button
+            // type="primary"
+            className="diary-list-create-btn"
             style={{ borderRadius: "var(--radius-full)" }}
             onClick={handleCreateDiary}
           >
             <FaPlus />
-            สร้างไดอารี่
-          </Button>
+            <p>สร้างไดอารี่</p>
+          </button>
         </div>
       </div>
 

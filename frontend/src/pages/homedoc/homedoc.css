@@ -147,7 +147,6 @@
 .qewty-status-title {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
   font-size: 1rem;
   margin: 0;
 }
@@ -594,7 +593,6 @@
 }
 
 .qewty-link {
-  font-weight: 600;
   text-decoration: none;
 }
 

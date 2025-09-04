@@ -329,7 +329,7 @@ function DiaryDetail() {
                 !editor.getText().trim()
               }
             >
-              {diary.Confirmed ? "confirmed" : "save"}
+              {diary.Confirmed ? "ยืนยันแล้ว" : "บันทึก"}
             </button>
             <Modal
               title="ยืนยันการบันทึก"

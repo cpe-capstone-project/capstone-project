@@ -164,3 +164,48 @@ func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
     c.JSON(http.StatusOK, thoughtRecords)
 }
 
+
+// GET /patients/:patientId/thought-records?limit=1
+func GetLatestThoughtRecordsByPatientID(c *gin.Context) {
+    pid := c.Param("patientId")
+    limitStr := c.DefaultQuery("limit", "1")
+    limit, _ := strconv.Atoi(limitStr)
+    if limit < 1 { limit = 1 }
+
+    var items []entity.ThoughtRecord
+    db := config.DB()
+
+    // ถ้า ThoughtRecord มี therapy_case_id และ TherapyCase มี patient_id
+    q := db.Model(&entity.ThoughtRecord{}).
+        Joins("JOIN therapy_cases tc ON tc.id = thought_records.therapy_case_id").
+        Where("tc.patient_id = ?", pid).
+        Order("thought_records.updated_at DESC").
+        Limit(limit)
+
+    if err := q.Preload("TherapyCase.Patient").Preload("TherapyCase.CaseStatus").Find(&items).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    // ส่งแบบยืดหยุ่น: [] ตรง ๆ ก็ได้ หรือ {items:[...]}
+    c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+// GET /patients/:patientId/thought-records/count
+func GetThoughtRecordCountByPatientID(c *gin.Context) {
+    pid := c.Param("patientId")
+    db := config.DB()
+
+    var cnt int64
+    // นับผ่าน join เดียวกัน
+    if err := db.Model(&entity.ThoughtRecord{}).
+        Joins("JOIN therapy_cases tc ON tc.id = thought_records.therapy_case_id").
+        Where("tc.patient_id = ?", pid).
+        Count(&cnt).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"count": cnt})
+}
+

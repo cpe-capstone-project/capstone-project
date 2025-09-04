@@ -243,3 +243,32 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 } */
 
+.emotions { 
+  background: linear-gradient(135deg, #fff0f6 0%, #ffe6f0 100%);
+}
+.emotions::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #e91e63; /* สีขอบซ้าย */
+}
+
+.emotion-tag {
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 4px 12px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  display: inline-block;
+  box-shadow: 0 2px 6px rgba(233, 30, 99, 0.3);
+}
+
+@media (max-width: 480px) {
+  .emotion-tag {
+    padding: 3px 10px;
+    font-size: 14px;
+  }
+}

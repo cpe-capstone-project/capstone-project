@@ -39,7 +39,7 @@ function ThoughtRecordList() {
     <section
       style={{
         padding: "32px",
-        backgroundColor: "#f0f2f5",
+        backgroundColor: "#ffffffff",
         minHeight: "100vh",
       }}
     >
@@ -169,9 +169,31 @@ function ThoughtRecordList() {
                       </div>
                     </Space>
                   </div>
-
-                  <Divider style={{ margin: "8px 0" }} />
-
+                  {record.Emotions && record.Emotions.length > 0 && (
+                    <div className="emotion-box">
+                      {record.Emotions.slice(0, record.Emotions.length > 4 ? 3 : 4).map((emotion: any) => (
+                        <span
+                          key={emotion.ID}
+                          className="emotion-tag"
+                          style={{
+                            background: emotion.EmotionsColor || "#519bf1", // ใช้สีทึบจาก EmotionsColor
+                          }}
+                          title={emotion.ThaiEmotionsname || emotion.Emotionsname}
+                        >
+                          {emotion.ThaiEmotionsname || emotion.Emotionsname}
+                        </span>
+                      ))}
+                      {record.Emotions.length > 4 && (
+                        <span
+                          className="emotion-tag indicator"
+                          title={`และอีก ${record.Emotions.length - 3} อารมณ์`}
+                        >
+                          +{record.Emotions.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <Divider style={{ margin: "12px 0" }} />
                   <Text type="secondary" style={{ fontSize: "12px", marginTop: "auto" }}>
                     สร้างเมื่อ:{" "}
                     {record.UpdatedAt

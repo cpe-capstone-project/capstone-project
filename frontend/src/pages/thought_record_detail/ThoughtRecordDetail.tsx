@@ -55,12 +55,12 @@ function ThoughtRecordDetail() {
   const formatDate = (date: string) =>
     date
       ? new Date(date).toLocaleString("th-TH", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
       : "ไม่ทราบ";
 
   return (
@@ -101,30 +101,36 @@ function ThoughtRecordDetail() {
           ))}
 
           {/* แสดง Emotion */}
-          {record.Emotion ? (
+          {record.Emotions && record.Emotions.length > 0 ? (
             <div className="content-item emotions">
               <div className="content-header">
                 <GiDramaMasks className="content-icon" />
                 <Text className="content-label">อารมณ์</Text>
               </div>
-              <div className="content-body" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                <Tag
-                  key={record.Emotion.ID}
-                  className="emotion-tag"
-                  style={{
-                    background: record.Emotion.EmotionsColor
-                      ? `linear-gradient(135deg, ${record.Emotion.EmotionsColor}33, ${record.Emotion.EmotionsColor}88)`
-                      : "#519bf133",
-                    color: "#fff",
-                  }}
-                >
-                  {record.Emotion.ThaiEmotionsname || record.Emotion.Emotionsname}
-                </Tag>
+              <div
+                className="content-body"
+                style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
+              >
+                {record.Emotions.map((emotion: any) => (
+                  <Tag
+                    key={emotion.ID}
+                    className="emotion-tag"
+                    style={{
+                      background: emotion.EmotionsColor || "#519bf1", // ใช้สีจาก EmotionsColor หรือ fallback
+                      color: "#fff",
+                    }}
+                    title={emotion.ThaiEmotionsname || emotion.Emotionsname}
+                  >
+                    {emotion.ThaiEmotionsname || emotion.Emotionsname}
+                  </Tag>
+                ))}
+
               </div>
             </div>
           ) : (
             <Paragraph className="content-text">ไม่ได้ระบุอารมณ์</Paragraph>
           )}
+
 
           <Divider className="timestamp-divider" />
 

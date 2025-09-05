@@ -11,6 +11,5 @@ export interface ThoughtRecordInterface {
   AlternateThought?: string;
   UpdatedAt?: string;
   TherapyCaseID?: number;
-  EmotionsID?: number;
-  Emotions?: EmotionsInterface;
+  Emotions?: EmotionsInterface[]; // ✅ เปลี่ยนจาก singular เป็น array
 }

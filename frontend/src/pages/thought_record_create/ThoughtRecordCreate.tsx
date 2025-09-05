@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
-import { useTherapyCase } from "../../contexts/TherapyCaseContext"; // ✅ เพิ่ม
+import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 import {
   Card,
   Typography,
@@ -15,6 +15,7 @@ import {
   Col,
   Space,
   Select,
+  Tag,
 } from "antd";
 import { ArrowLeftOutlined, BulbOutlined } from "@ant-design/icons";
 import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
@@ -26,7 +27,7 @@ import "./ThoughtRecordCreate.css";
 
 import { GetAllEmotions } from "../../services/https/Emotions";
 import type { EmotionsInterface } from "../../interfaces/IEmotions";
-import type { TherapyCaseInterface } from "../../interfaces/ITherapyCase"; // ✅ เพิ่ม
+import type { TherapyCaseInterface } from "../../interfaces/ITherapyCase";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -34,9 +35,8 @@ const { Option } = Select;
 
 function ThoughtRecordCreate() {
   const { createRecord } = useThoughtRecord();
-  const { getTherapyCaseByPatient } = useTherapyCase(); // ✅ ใช้ context
+  const { getTherapyCaseByPatient } = useTherapyCase();
   const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(null);
-
   const [loading, setLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [emotions, setEmotions] = useState<EmotionsInterface[]>([]);
@@ -48,29 +48,22 @@ function ThoughtRecordCreate() {
     (async () => {
       const res = await GetAllEmotions();
       if (Array.isArray(res)) {
-        const filtered = res.filter(
-          (emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3
-        );
+        const filtered = res.filter((emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3);
         setEmotions(filtered);
       }
     })();
   }, []);
 
-  // โหลด TherapyCase ของ patient ที่ login
+  // โหลด TherapyCase ของ patient
   useEffect(() => {
     const fetchTherapyCase = async () => {
       try {
-        const patientId = Number(localStorage.getItem("patient_id")); // 👈 สมมติว่าเก็บ patient_id
+        const patientId = Number(localStorage.getItem("patient_id"));
         if (patientId) {
           const tc = await getTherapyCaseByPatient(patientId);
-          if (tc) {
-            setTherapyCase(tc);
-          } else {
-            message.error("ไม่พบ TherapyCase ของผู้ใช้ ❌");
-          }
-        } else {
-          message.error("ไม่พบ patient_id ในระบบ ❌");
-        }
+          if (tc) setTherapyCase(tc);
+          else message.error("ไม่พบ TherapyCase ของผู้ใช้ ❌");
+        } else message.error("ไม่พบ patient_id ในระบบ ❌");
       } catch (err) {
         console.error(err);
         message.error("เกิดข้อผิดพลาดในการโหลด TherapyCase ❌");
@@ -82,12 +75,19 @@ function ThoughtRecordCreate() {
   const onFinish = async (values: any) => {
     setLoading(true);
 
-    // ✅ ส่ง TherapyCaseID อัตโนมัติไปใน payload
+    // แก้ให้ส่ง EmotionsID เป็น array
     const payload = {
       ...values,
-      EmotionsID: values.EmotionsID ?? null,
+      EmotionsID: Array.isArray(values.EmotionsID)
+        ? values.EmotionsID
+        : values.EmotionsID
+          ? [values.EmotionsID]
+          : [],
       TherapyCaseID: therapyCase?.ID ?? null,
     };
+
+    // ✅ Debug payload ก่อนส่ง
+    console.log("Payload to API:", payload);
 
     const success = await createRecord(payload);
     if (success) {
@@ -99,10 +99,26 @@ function ThoughtRecordCreate() {
     setLoading(false);
   };
 
+
+  // แสดงสี tag ของ Multi-Select
+  const tagRender = (props: any) => {
+    const { label, value, closable, onClose } = props;
+    const emotion = emotions.find((e) => e.ID === value);
+    return (
+      <Tag
+        color={emotion?.EmotionsColor || "default"}
+        closable={closable}
+        onClose={onClose}
+        style={{ marginRight: 3 }}
+      >
+        {label}
+      </Tag>
+    );
+  };
+
   return (
     <section className="thought-record-create">
       <div className="container">
-        {/* ปุ่มกลับ */}
         <Button
           type="default"
           icon={<ArrowLeftOutlined />}
@@ -112,10 +128,8 @@ function ThoughtRecordCreate() {
           {showGuide ? "กลับไปหน้าฟอร์ม" : "ย้อนกลับ"}
         </Button>
 
-        {/* เงื่อนไขแสดงหน้า */}
         {!showGuide ? (
           <Card className="form-card">
-            {/* Header Inside Card */}
             <div className="header-content" style={{ marginBottom: 16 }}>
               <Title level={2} className="page-title">
                 <BulbOutlined className="title-icon" />
@@ -123,14 +137,12 @@ function ThoughtRecordCreate() {
               </Title>
             </div>
 
-            {/* ปุ่มไปหน้าคู่มือ */}
             <div style={{ textAlign: "left" }}>
               <Button type="link" onClick={() => setShowGuide(true)}>
                 📘 คำแนะนำการกรอกฟอร์ม
               </Button>
             </div>
 
-            {/* ฟอร์ม */}
             <Form
               form={form}
               layout="vertical"
@@ -138,13 +150,14 @@ function ThoughtRecordCreate() {
               className="create-form"
               initialValues={{
                 TagColors: "#155fdeff",
-                EmotionsID: undefined,
+                EmotionsID: [],
               }}
             >
-              {/* Customization Section */}
               <div className="form-section">
                 <div className="section-header">
-                  <Title level={4} className="section-title">การปรับแต่ง</Title>
+                  <Title level={4} className="section-title">
+                    การปรับแต่ง
+                  </Title>
                   <Divider className="section-divider" />
                 </div>
 
@@ -170,10 +183,11 @@ function ThoughtRecordCreate() {
                 </Row>
               </div>
 
-              {/* Core Information Section */}
               <div className="form-section">
                 <div className="section-header">
-                  <Title level={4} className="section-title">ข้อมูลหลัก</Title>
+                  <Title level={4} className="section-title">
+                    ข้อมูลหลัก
+                  </Title>
                   <Divider className="section-divider" />
                 </div>
 
@@ -210,7 +224,7 @@ function ThoughtRecordCreate() {
                     </Form.Item>
                   </Col>
 
-                  {/* Emotion Select */}
+                  {/* Multi Emotion */}
                   <Col xs={24}>
                     <Form.Item
                       label={<Space className="field-label"><span>อารมณ์</span></Space>}
@@ -218,18 +232,18 @@ function ThoughtRecordCreate() {
                       rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
                     >
                       <Select
+                        mode="multiple"
                         placeholder="เลือกอารมณ์"
                         allowClear
                         getPopupContainer={(trigger) => trigger.parentNode}
                         style={{ width: "100%" }}
                         dropdownStyle={{ zIndex: 1050 }}
                         virtual={false}
+                        tagRender={tagRender} // ✅ แสดงสีใน tag
                       >
                         {emotions.map((emotion) => (
                           <Option key={emotion.ID} value={emotion.ID}>
-                            <span style={{ color: emotion.EmotionsColor || "#000" }}>
-                              {emotion.ThaiEmotionsname || emotion.Emotionsname}
-                            </span>
+                            {emotion.ThaiEmotionsname || emotion.Emotionsname}
                           </Option>
                         ))}
                       </Select>
@@ -238,10 +252,11 @@ function ThoughtRecordCreate() {
                 </Row>
               </div>
 
-              {/* Response & Analysis Section */}
               <div className="form-section">
                 <div className="section-header">
-                  <Title level={4} className="section-title">การตอบสนองและวิเคราะห์</Title>
+                  <Title level={4} className="section-title">
+                    การตอบสนองและวิเคราะห์
+                  </Title>
                   <Divider className="section-divider" />
                 </div>
 
@@ -278,7 +293,6 @@ function ThoughtRecordCreate() {
                 </Row>
               </div>
 
-              {/* Form Actions */}
               <div className="form-actions">
                 <Button type="default" onClick={() => navigate(-1)}>ยกเลิก</Button>
                 <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto" }}>

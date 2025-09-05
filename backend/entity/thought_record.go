@@ -17,10 +17,9 @@ type ThoughtRecord struct {
 
 	// FK
 	TherapyCaseID uint
-	EmotionsID    uint
 
 	// Relations
 	Feedback    []Feedbacks  `gorm:"foreignKey:ThoughtRecordID"`
-	TherapyCase   *TherapyCase `gorm:"foreignKey:TherapyCaseID"`
-	Emotion     Emotions     `gorm:"foreignKey:EmotionsID"`    // many-to-one (1 TR -> 1 Emotion)
+	TherapyCase *TherapyCase `gorm:"foreignKey:TherapyCaseID"`
+	Emotions    []Emotions   `gorm:"many2many:thoughtrecord_emotions;"` // many-to-many
 }

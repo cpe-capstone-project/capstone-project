@@ -147,7 +147,6 @@
 .qewty-status-title {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
   font-size: 1rem;
   margin: 0;
 }
@@ -552,4 +551,65 @@
   object-fit: cover;   /* ✅ ให้ภาพกินเต็มทั้งกรอบ */
   border-radius: 16px; /* ✅ ขอบโค้งพอดี */
   display: block;
+}
+.qewty-research-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qewty-research-title-icon {
+  width: 22px;
+  height: 22px;
+  opacity: 0.9;
+}
+
+.qewty-research-list {
+  margin: 10px 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.qewty-research-item + .qewty-research-item {
+  margin-top: 10px;
+}
+
+.qewty-research-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qewty-link-icon,
+.qewty-ext-icon,
+.qewty-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.qewty-ext-icon {
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+.qewty-link {
+  text-decoration: none;
+}
+
+.qewty-link:hover {
+  text-decoration: underline;
+}
+
+.qewty-source {
+  display: inline-block;
+  margin-left: 28px; /* เยื้องให้ใต้บรรทัดลิงก์พอดี */
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ปุ่มลิงก์ไป Scholar */
+.qewty-feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }

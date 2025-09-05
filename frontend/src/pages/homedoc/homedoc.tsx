@@ -5,6 +5,16 @@ import "./Homedoc.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { k, KEYS } from "../../unid/storageKeys";
 import PatientOverviewChart from "../../components/PatientOverviewChart/PatientOverviewChart";
+// เพิ่มต่อจาก import อื่น ๆ ด้านบน
+import {
+  BookOpen,
+  GraduationCap,
+  FlaskConical,
+  FileText,
+  ExternalLink,
+  Link as LinkIcon,
+  Search,
+} from "lucide-react";
 
 /* ======================== Helpers (Scoped Keys / Storage) ======================== */
 const getScopedKey = (base: string) => {
@@ -155,10 +165,10 @@ const Homedoc: React.FC = () => {
       icon: "https://cdn-icons-png.flaticon.com/128/747/747376.png",
     },
     {
-      title: "Feedback",
-      value: "12",
-      subtitle: "5 this week",
-      icon: "https://cdn-icons-png.flaticon.com/128/11213/11213138.png",
+      title: "บทความวิจัย",
+    value: "5",
+    subtitle: "CBT/Depression references",
+    icon: "https://cdn-icons-png.flaticon.com/128/5403/5403820.png",
     },
     // ⬇️ ใช้ All Requests แทน Recent Activities
     {
@@ -501,6 +511,46 @@ const validIdSet = useMemo(
   () => new Set(validPatients.map((p) => p.id)),
   [validPatients]
 );
+// แทนที่ของเดิมตรง ResearchLink / researchLinks
+type ResearchLink = {
+  title: string;
+  href: string;
+  source?: string;
+  Icon?: React.ElementType; // <- เพิ่ม
+};
+
+const researchLinks: ResearchLink[] = [
+  {
+    title: "Cognitive Therapy of Depression (บทความรีวิว)",
+    href: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3584580/",
+    source: "NCBI / PMC",
+    Icon: BookOpen,
+  },
+  {
+    title: "แนวทางและข้อเท็จจริงเรื่องโรคซึมเศร้า",
+    href: "https://www.who.int/news-room/fact-sheets/detail/depression",
+    source: "WHO",
+    Icon: FileText,
+  },
+  {
+    title: "CBT สำหรับโรคซึมเศร้า: หลักฐานเชิงประจักษ์",
+    href: "https://pubmed.ncbi.nlm.nih.gov/28368347/",
+    source: "PubMed",
+    Icon: GraduationCap,
+  },
+  {
+    title: "การใช้ Thought Record ในการบำบัด CBT",
+    href: "https://pubmed.ncbi.nlm.nih.gov/25705912/",
+    source: "PubMed",
+    Icon: FlaskConical,
+  },
+  {
+    title: "แนวทางออกแบบงานวิจัยคลินิกด้านภาวะซึมเศร้า",
+    href: "https://www.nimh.nih.gov/health/topics/depression",
+    source: "NIMH",
+    Icon: LinkIcon,
+  },
+];
 
 // เอาเฉพาะ id ที่มีอยู่จริง
 const doneIdsShown = useMemo(
@@ -707,19 +757,19 @@ const newCount  = Math.max(
               <li>
                 <span className="qewty-status-left">ผู้ป่วยบำบัดเรียบร้อยแล้ว :</span>
                 <span className="qewty-status-right">
-                  <strong>{doneCount.toLocaleString()} คน</strong>
+                 {doneCount.toLocaleString()} คน
                 </span>
               </li>
               <li>
                 <span className="qewty-status-left">ผู้ป่วยที่รักษาอยู่ :</span>
                 <span className="qewty-status-right">
-                  <strong>{inCount.toLocaleString()} คน</strong>
+                  {inCount.toLocaleString()} คน
                 </span>
               </li>
               <li>
                 <span className="qewty-status-left">ผู้ป่วยใหม่ :</span>
                 <span className="qewty-status-right">
-                  <strong>{newCount.toLocaleString()} คน</strong>
+                  {newCount.toLocaleString()} คน
                 </span>
               </li>
             </ul>
@@ -733,77 +783,51 @@ const newCount  = Math.max(
           </div>
         </div>
       </div>
+<div className="qewty-feedback-section">
+  <div className="qewty-feedback-card">
+    <h4 className="qewty-research-title">
+      <BookOpen className="qewty-research-title-icon" aria-hidden />
+      บทความวิจัย: การทำวิจัยผู้ป่วยโรคซึมเศร้า
+    </h4>
 
-      {/* Right Feedback Section */}
-      <div className="qewty-feedback-section">
-        <div className="qewty-feedback-card">
-          <h4>Feedback Thought Record</h4>
-          <p className="qewty-subtext">Recent feedback on thought records.</p>
-          <p>
-            <strong>Patient I - Feedback (2025-08-02)</strong>
-            <br />
-            "Identifying automatic thoughts has been a game-changer for me."
-          </p>
-          <p>
-            <strong>Patient J - Feedback (2025-08-01)</strong>
-            <br />
-            "The alternative thoughts section helps me reframe negative thinking."
-          </p>
-          <button className="qewty-feedback-btn">View More</button>
-        </div>
+    <p className="qewty-subtext">
+      รวมแหล่งอ้างอิงด้านการวิจัยโรคซึมเศร้าและการประเมินผลการรักษา
+     สำหรับใช้ออกแบบวิธีวิจัยและทบทวนวรรณกรรม
+    </p>
 
-        <div className="qewty-feedback-card">
-          <h4>Feedback Diary</h4>
-          <p className="qewty-subtext">Recent feedback from patient diary entries.</p>
-          <p>
-            <strong>Patient G - Feedback (2025-08-04)</strong>
-            <br />
-            "The journaling prompts were very helpful in processing my emotions."
-          </p>
-          <p>
-            <strong>Patient H - Feedback (2025-08-03)</strong>
-            <br />
-            "I appreciate the space to reflect on my day without judgment."
-          </p>
-          <button className="qewty-feedback-btn">View More</button>
-        </div>
-      </div>
-
-      {/* Emotion Distribution Section */}
-      <div className="qewty-emotion-distribution">
-        <div className="qewty-emotion-header">
-          <h4>🕒 Emotion Distribution from Thought Records</h4>
-          <div className="qewty-emotion-filters">
-            <select>
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-            </select>
-            <select>
-              <option>All Patients</option>
-              <option>Patient A</option>
-              <option>Patient B</option>
-            </select>
+    <ul className="qewty-research-list">
+      {researchLinks.map(({ title, href, source, Icon }, idx) => (
+        <li key={idx} className="qewty-research-item">
+          <div className="qewty-research-row">
+            {Icon ? <Icon className="qewty-link-icon" aria-hidden /> : <LinkIcon className="qewty-link-icon" aria-hidden />}
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="qewty-link"
+              title={title}
+            >
+              {title}
+            </a>
+            <ExternalLink className="qewty-ext-icon" aria-label="เปิดลิงก์ภายนอก" />
           </div>
-        </div>
+          {source && <span className="qewty-source">— {source}</span>}
+        </li>
+      ))}
+    </ul>
 
-        <p className="qewty-emotion-subtext">
-          Breakdown of emotions identified in patient thought record entries, filtered by
-          time and patient.
-        </p>
-
-        <div className="qewty-piechart-holder">[Pie Chart Placeholder]</div>
-
-        <div className="qewty-emotion-legend">
-          <span className="legend-item anxiety">🔴 Anxiety</span>
-          <span className="legend-item sadness">🌸 Sadness</span>
-          <span className="legend-item anger">🟧 Anger</span>
-          <span className="legend-item joy">🟩 Joy</span>
-          <span className="legend-item neutral">🟨 Neutral</span>
-        </div>
-      </div>
-
-      <div className="qewty-appointment-resources"></div>
-    </div>
+    <a
+      className="qewty-feedback-btn"
+      href="https://scholar.google.com/scholar?q=depression+CBT+%22thought+record%22+study"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Search className="qewty-btn-icon" aria-hidden />
+      ค้นหาเพิ่มเติม
+    </a>
+  </div>
+</div>
+     </div>
   );
 };
 

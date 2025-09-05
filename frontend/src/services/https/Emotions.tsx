@@ -1,8 +1,7 @@
-import axios from "axios";
+import axios from "axios"; 
 import type { EmotionsInterface } from "../../interfaces/IEmotions";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
 const Authorization = localStorage.getItem("token");
 const Bearer = localStorage.getItem("token_type");
 

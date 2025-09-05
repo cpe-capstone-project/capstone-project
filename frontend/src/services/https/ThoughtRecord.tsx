@@ -18,50 +18,68 @@ async function GetThoughtRecords(
   sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
   order: "asc" | "desc" = "desc"
 ) {
-  return await axios
-    .get(`${apiUrl}/thought_records?sort=${sort}&order=${order}`, requestOptions) // แก้ตรงนี้ /thought_records (plural)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.get(`${apiUrl}/thought_records`, {
+      ...requestOptions,
+      params: { sort, order },
+    });
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ GET /thought_record/latest?limit=5
 async function GetLatestThoughtRecords(limit = 5) {
-  return await axios
-    .get(`${apiUrl}/thought_record/latest?limit=${limit}`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.get(`${apiUrl}/thought_record/latest`, {
+      ...requestOptions,
+      params: { limit },
+    });
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ GET /thought_record/:id
 async function GetThoughtRecordById(id: number) {
-  return await axios
-    .get(`${apiUrl}/thought_record/${id}`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.get(`${apiUrl}/thought_record/${id}`, requestOptions);
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ POST /thought_record
 async function CreateThoughtRecord(data: ThoughtRecordInterface) {
-  return await axios
-    .post(`${apiUrl}/thought_record`, data, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.post(`${apiUrl}/thought_record`, data, requestOptions);
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ PATCH /thought_record/:id
 async function UpdateThoughtRecordById(id: number, data: ThoughtRecordInterface) {
-  return await axios
-    .patch(`${apiUrl}/thought_record/${id}`, data, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.patch(`${apiUrl}/thought_record/${id}`, data, requestOptions);
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ DELETE /thought_record/:id
 async function DeleteThoughtRecordById(id: number) {
-  return await axios
-    .delete(`${apiUrl}/thought_record/${id}`, requestOptions)
-    .then((res) => res)
-    .catch((e) => e.response);
+  try {
+    const res = await axios.delete(`${apiUrl}/thought_record/${id}`, requestOptions);
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ GET /thought_record/therapycase/:id
@@ -70,35 +88,38 @@ async function GetThoughtRecordsByTherapyCaseID(id: number) {
     const res = await axios.get(`${apiUrl}/thoughtrecords/case/${id}`, requestOptions);
     return res.data;
   } catch (e: any) {
-    // ถ้า axios มี response แสดง error จาก server ถ้าไม่มีให้แสดง error ทั่วไป
     return e.response || { error: e.message };
   }
 }
 
 // ✅ GET /patients/:patientId/thought-records?limit=1
 async function GetThoughtRecordsByPatientId(patientId: number, limit = 1, nocache = false) {
-  const params: any = { limit };
-  if (nocache) params._ = Date.now(); // กัน cache
-  return axios
-    .get(`${apiUrl}/patients/${patientId}/thought-records`, {
+  try {
+    const params: any = { limit };
+    if (nocache) params._ = Date.now();
+    const res = await axios.get(`${apiUrl}/patients/${patientId}/thought-records`, {
       ...requestOptions,
       params,
-    })
-    .then(res => res)
-    .catch(e => e.response);
+    });
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 // ✅ GET /patients/:patientId/thought-records/count
 async function GetThoughtRecordCountByPatientId(patientId: number, nocache = false) {
-  const params: any = {};
-  if (nocache) params._ = Date.now();
-  return axios
-    .get(`${apiUrl}/patients/${patientId}/thought-records/count`, {
+  try {
+    const params: any = {};
+    if (nocache) params._ = Date.now();
+    const res = await axios.get(`${apiUrl}/patients/${patientId}/thought-records/count`, {
       ...requestOptions,
       params,
-    })
-    .then(res => res)
-    .catch(e => e.response);
+    });
+    return res;
+  } catch (e: any) {
+    return e.response;
+  }
 }
 
 export {

@@ -7,22 +7,18 @@ import (
 
 type Diaries struct {
 	gorm.Model
-	Title        string
-	Content      string
-	UpdatedAt    time.Time
-	Confirmed    bool
+	Title        string    `valid:"required~Title is required"`
+	Content      string    `valid:"required~Content is required"`
+	UpdatedAt    time.Time `valid:"required~UpdatedAt is required"`
+	Confirmed    bool      `valid:"-"`
 
-	// จำกัดแค่ 3 สี
-	TagColor1    string
-	TagColor2    string
-	TagColor3    string
-	
-	TherapyCaseID uint
-	TherapyCase   *TherapyCase `gorm:"foreignKey:TherapyCaseID"`
+	TagColor1    string    `valid:"hexcolor~TagColor1 must be a valid hex color"`
+	TagColor2    string    `valid:"hexcolor~TagColor2 must be a valid hex color"`
+	TagColor3    string    `valid:"hexcolor~TagColor3 must be a valid hex color"`
 
-	// many-to-many relationship
-	Summaries     []DiarySummary  `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID"`
+	TherapyCaseID uint         `valid:"required~TherapyCaseID is required"`
+	TherapyCase   *TherapyCase `gorm:"foreignKey:TherapyCaseID" valid:"-"`
 
-	// One-to-many relationship
-	FeedbackDiary []FeedbackDiary `gorm:"foreignKey:DiaryID"`
+	Summaries     []DiarySummary  `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID" valid:"-"`
+	FeedbackDiary []FeedbackDiary `gorm:"foreignKey:DiaryID" valid:"-"`
 }

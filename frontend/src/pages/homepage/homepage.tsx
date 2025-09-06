@@ -50,8 +50,7 @@ function HomePage() {
     FeedBackInterface[]
   >([]);
   const [fbLoading, setFbLoading] = useState<boolean>(true);
-
-  // ===== helper เหมือนเดิม =====
+  const [monthCount, setMonthCount] = useState(0);
   const getFeedbackId = (fb: any) =>
     fb?.ID ?? fb?.Id ?? fb?.id ?? fb?.FeedbackID ?? fb?.feedback_id ?? null;
 
@@ -848,33 +847,7 @@ function HomePage() {
     })();
   }, []);
 
-  const [summarizedTabs, setSummarizedTabs] = useState<{
-    daily?: boolean;
-    weekly?: boolean;
-    monthly?: boolean;
-  }>({});
-  const onTab = async (tab: "daily" | "weekly" | "monthly") => {
-    setStatTab(tab);
-    if (!summarizedTabs[tab] && !isSummarizingStats) {
-      try {
-        await summarize(tab);
-        setSummarizedTabs((prev) => ({ ...prev, [tab]: true }));
-      } catch (e) {
-        // optional: แจ้ง error หรือ Swal.alert ก็ได้
-        console.error(e);
-      }
-    }
-  };
-  const [statTab, setStatTab] = useState<"daily" | "weekly" | "monthly">(
-    "daily"
-  );
-  const {
-    isLoading: isSummarizingStats,
-    summaryText,
-    detectedEmotions,
-    currentEmotion,
-    summarize,
-  } = useDiarySummary();
+ const { detectedEmotions, currentEmotion } = useDiarySummary();
   // ✅ รวมคีย์เวิร์ดที่จะไฮไลต์ (อาจเพิ่มคำอื่น ๆ ได้เอง)
   const HIGHLIGHT_WORDS = useMemo(() => {
     const arr = [
@@ -1088,9 +1061,7 @@ function HomePage() {
       (acc, t) => ((acc[t.id] = false), acc),
       {} as Record<TaskId, boolean>
     );
-  const [monthCount, setMonthCount] = useState(0);
-  // === per-date storage สำหรับ modal ===
-  //const STORAGE_KEY_BYDATE = "daily-checklist-bydate-v2";
+
   const dateKey = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
   const addDays = (d: Date, n: number) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
@@ -2006,9 +1977,7 @@ function HomePage() {
             {/* ===== Summary Diary Text (aertr) ===== */}
             <div className="aertr-overall-container">
               <div className="aertr-summary-card">
-                {/* Left */}
                 <div className="aertr-summary-left">
-                  <h3 className="aertr-summary-title">Summary Diary Text</h3>
                   <div
                     style={{
                       marginTop: 12,
@@ -2027,80 +1996,6 @@ function HomePage() {
 
                 {/* Right */}
                 <div className="aertr-summary-right">
-                  <div className="aertr-trend-box">
-                    <div className="aertr-tab-buttons">
-                      <button
-                        className={`aertr-tab ${
-                          statTab === "daily" ? "active" : ""
-                        }`}
-                        onClick={() => onTab("daily")}
-                        disabled={isSummarizingStats}
-                      >
-                        {isSummarizingStats && statTab === "daily"
-                          ? "Loading…"
-                          : "Daily"}
-                      </button>
-
-                      <button
-                        className={`aertr-tab ${
-                          statTab === "weekly" ? "active" : ""
-                        }`}
-                        onClick={() => onTab("weekly")}
-                        disabled={isSummarizingStats}
-                      >
-                        {isSummarizingStats && statTab === "weekly"
-                          ? "Loading…"
-                          : "Weekly"}
-                      </button>
-
-                      <button
-                        className={`aertr-tab ${
-                          statTab === "monthly" ? "active" : ""
-                        }`}
-                        onClick={() => onTab("monthly")}
-                        disabled={isSummarizingStats}
-                      >
-                        {isSummarizingStats && statTab === "monthly"
-                          ? "Loading…"
-                          : "Monthly"}
-                      </button>
-                    </div>
-
-                    <div className="aertr-trend-content">
-                      <h4>
-                        {statTab === "daily"
-                          ? "Daily"
-                          : statTab === "weekly"
-                          ? "This Week"
-                          : "This Month"}
-                      </h4>
-
-                      <div
-                        style={{
-                          marginTop: 12,
-                          padding: "12px 14px",
-                          border: "1px solid #eee",
-                          borderRadius: 12,
-                          background: "#fff",
-                        }}
-                      >
-                        <div style={{ fontWeight: 500, marginBottom: 6 }}>
-                          {statTab === "daily"
-                            ? "สรุปวันนี้"
-                            : statTab === "weekly"
-                            ? "สรุปรายสัปดาห์"
-                            : "สรุปรายเดือน"}
-                        </div>
-                        <div style={{ color: "#374151", lineHeight: 1.6 }}>
-                          {isSummarizingStats
-                            ? "กำลังสรุปข้อมูล…"
-                            : highlightText(summaryText)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="aertr-side-panel">
                   <div className="aertr-feedback-card">
                     <h4 className="aertr-feedback-title">
                       <img

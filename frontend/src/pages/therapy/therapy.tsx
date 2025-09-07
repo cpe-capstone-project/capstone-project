@@ -17,54 +17,58 @@ export default function TherapyCaseManagement() {
 
   const [loading, setLoading] = useState(true);
   const psychoIdStr = localStorage.getItem('id');
+  const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState<{ message: string, success: boolean } | null>(null);
   const navigate = useNavigate()
 
   useEffect(() => {
-  if (!psychoIdStr) return;
+    if (!psychoIdStr) return;
 
-  setLoading(true);
-  GetTherapyCaseByPsychologisId(Number(psychoIdStr))
-    .then(async (res) => {
-      const data = res.data as TherapyInterface[];
-      setCases(data);
+    setLoading(true);
+    GetTherapyCaseByPsychologisId(Number(psychoIdStr))
+      .then(async (res) => {
+        const data = res.data as TherapyInterface[];
+        setCases(data);
 
-      // 🔥 เช็ค Diaries และ ThoughtRecord วันนี้สำหรับทุกเคส
-      const diaryMap: Record<number, boolean> = {};
-      const thoughtMap: Record<number, boolean> = {};
+        // 🔥 เช็ค Diaries และ ThoughtRecord วันนี้สำหรับทุกเคส
+        const diaryMap: Record<number, boolean> = {};
+        const thoughtMap: Record<number, boolean> = {};
 
-      for (const c of data) {
-        if (c.ID) {
-          try {
-            const resDiary = await GetDiariesByTherapyCaseID(c.ID);
-            diaryMap[c.ID] = resDiary?.written_today || false;
-          } catch {
-            diaryMap[c.ID] = false;
-          }
+        for (const c of data) {
+          if (c.ID) {
+            try {
+              const resDiary = await GetDiariesByTherapyCaseID(c.ID);
+              diaryMap[c.ID] = resDiary?.written_today || false;
+            } catch {
+              diaryMap[c.ID] = false;
+            }
 
-          try {
-            const resThought = await GetThoughtRecordsByTherapyCaseID(c.ID);
-            thoughtMap[c.ID] = resThought?.written_today || false;
-          } catch {
-            thoughtMap[c.ID] = false;
+            try {
+              const resThought = await GetThoughtRecordsByTherapyCaseID(c.ID);
+              thoughtMap[c.ID] = resThought?.written_today || false;
+            } catch {
+              thoughtMap[c.ID] = false;
+            }
           }
         }
-      }
 
-      setDiaryStatus(diaryMap);
-      setThoughtStatus(thoughtMap);
-    })
-    .catch((err) => {
-      console.error("Error fetching therapy cases:", err);
-      setCases([]);
-    })
-    .finally(() => setLoading(false));
-}, [psychoIdStr]);
+        setDiaryStatus(diaryMap);
+        setThoughtStatus(thoughtMap);
+      })
+      .catch((err) => {
+        console.error("Error fetching therapy cases:", err);
+        setCases([]);
+      })
+      .finally(() => setLoading(false));
+  }, [psychoIdStr]);
 
-  const filteredCases = cases.filter(case_ =>
-    case_.CaseTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    case_.Patient?.FirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    case_.Patient?.LastName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCases = Array.isArray(cases)
+    ? cases.filter(case_ =>
+      case_.CaseTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      case_.Patient?.FirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      case_.Patient?.LastName?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    : [];
 
   const handleCreateNew = () => {
     navigate("/psychologist/therapyCreate")
@@ -80,17 +84,16 @@ export default function TherapyCaseManagement() {
 
   const handleDelete = async (id?: number) => {
     if (!id) return;
+    setNotification({ message: "ลบไม่สำเร็จ", success: false });
     try {
-      const confirmed = window.confirm("คุณต้องการลบเคสนี้หรือไม่?");
-      if (!confirmed) return;
 
       await DeleteTherapyCase(id);
       setCases((prev) => prev.filter((item) => item.ID !== id));
+      setNotification({ message: "ลบสำเร็จ", success: true });
 
-      alert("ลบเคสสำเร็จ!");
     } catch (error) {
+      setNotification({ message: "ลบไม่สำเร็จ", success: false });
       console.error("เกิดข้อผิดพลาดในการลบเคส:", error);
-      alert("ไม่สามารถลบเคสได้");
     }
   };
 
@@ -156,8 +159,17 @@ export default function TherapyCaseManagement() {
               </div>
               รายการเคสการบำบัด
             </h2>
-
-            {filteredCases.length === 0 ? (
+            {cases.length === 0 ? (
+              <div className="!text-center !py-12">
+                <div className="!w-12 !h-12 !bg-gray-100 !rounded-full !flex !items-center !justify-center !mx-auto !mb-4">
+                  <Search className="!h-6 !w-6 !text-gray-400" />
+                </div>
+                <div className="!text-gray-500 !text-lg !font-medium">ยังไม่มีเคสการบำบัด</div>
+                <div className="!text-gray-400 !text-sm !mt-1">
+                  คุณสามารถสร้างเคสใหม่ได้โดยกดปุ่ม "เพิ่มเคสใหม่"
+                </div>
+              </div>
+            ) : filteredCases.length === 0 ? (
               <div className="!text-center !py-12">
                 <div className="!w-12 !h-12 !bg-gray-100 !rounded-full !flex !items-center !justify-center !mx-auto !mb-4">
                   <Search className="!h-6 !w-6 !text-gray-400" />
@@ -235,29 +247,47 @@ export default function TherapyCaseManagement() {
                       </div>
 
                       <div className="!flex !items-center !space-x-2 !ml-4">
-                        <button 
-                          onClick={() => handleEdit(case_.ID)} 
-                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-gray-900 !bg-gray-100 !hover:bg-gray-200 !rounded-lg !transition-colors !duration-200 cursor-pointer" 
+                        <button
+                          onClick={() => handleEdit(case_.ID)}
+                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-gray-900 !bg-gray-100 !hover:bg-gray-200 !rounded-lg !transition-colors !duration-200 cursor-pointer"
                           title="แก้ไข"
                         >
                           <Edit className="!h-4 !w-4" />
                         </button>
-                        <button 
-                          onClick={() => handleView(case_.ID)} 
-                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-gray-900 !bg-gray-100 !hover:bg-gray-200 !rounded-lg !transition-colors !duration-200 cursor-pointer" 
+                        <button
+                          onClick={() => handleView(case_.ID)}
+                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-gray-900 !bg-gray-100 !hover:bg-gray-200 !rounded-lg !transition-colors !duration-200 cursor-pointer"
                           title="ดูรายละเอียด"
                         >
                           <List className="!h-4 !w-4" />
                         </button>
-                        <button 
-                          onClick={() => handleDelete(case_.ID)} 
-                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-red-600 !bg-gray-100 !hover:bg-red-50 !rounded-lg !transition-colors !duration-200 cursor-pointer" 
+                        <button
+                          onClick={() => setShowModal(true)}
+                          className="!inline-flex !items-center !px-3 !py-2 !text-sm !font-medium !text-gray-600 !hover:text-red-600 !bg-gray-100 !hover:bg-red-50 !rounded-lg !transition-colors !duration-200 cursor-pointer"
                           title="ลบ"
                         >
                           <Trash2 className="!h-4 !w-4" />
                         </button>
                       </div>
                     </div>
+                    {showModal && (
+                      <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center">
+                        <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+                          <h2 className="!text-xl !font-bold">ยืนยันการแก้เคส</h2>
+                          <p>คุณต้องการลบเคส "{case_.CaseTitle}" ใช่หรือไม่?</p>
+                          <div className="!flex !justify-end !gap-3">
+                            <button onClick={() => setShowModal(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+                            <button onClick={() => { handleDelete(case_.ID); setShowModal(false); }} className="!px-4 !py-2 !bg-red-600 !text-white !rounded">ยืนยัน</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {notification && (
+                      <div className={`!fixed !bottom-5 !right-5 !px-4 !py-3 !rounded-lg !shadow-lg ${notification.success ? '!bg-green-500' : '!bg-red-500'} !text-white`}>
+                        {notification.message}
+                        <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

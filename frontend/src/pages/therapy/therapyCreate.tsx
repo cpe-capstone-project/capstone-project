@@ -22,6 +22,8 @@ export default function CreateTherapyCasePage() {
   const [patient, setPatient] = useState<PatientTherapyInterface[]>([]);
   const [casesStatus, setCasesStatus] = useState<CaseStatusInterface[]>([]);
   const psychoIdStr = localStorage.getItem('id');
+  const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState<{ message: string, success: boolean } | null>(null);
 
   type FormErrors = Partial<Record<keyof TherapyInterface, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
@@ -41,6 +43,15 @@ export default function CreateTherapyCasePage() {
 
     fetchStatuses();
   }, []);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000); // 3000ms = 3 วินาที
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   useEffect(() => {
     if (!psychoIdStr) return;
@@ -96,67 +107,57 @@ export default function CreateTherapyCasePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitForm = async () => {
     if (!validateForm()) {
       console.log("❌ validateForm failed");
       return;
     }
 
     try {
-      // ดึงค่า PsychologistID จาก localStorage
-
       if (!psychoIdStr) {
-        alert("ไม่พบ Psychologist ID ในระบบ");
+        setNotification({ message: "กรอกข้อมูลไม่ครบ", success: false });
         return;
       }
 
-      // รวมข้อมูล formData กับ PsychologistID ที่ดึงมา
       const payload = {
         case_title: formData.CaseTitle,
         case_description: formData.CaseDescription,
         case_start_date: formData.CaseStartDate,
         patient_id: Number(formData.PatientID),
         psychologist_id: Number(psychoIdStr),
-        case_status_id: Number(formData.CaseStatusID), // แปลงเป็น number
-      } as any;;
-      console.log("render formData", formData);
-      console.log("payload", payload)
+        case_status_id: Number(formData.CaseStatusID),
+      } as any;
 
-      // เรียก API จริง
       await CreateTherapyCase(payload);
 
-const sid = Number(payload.case_status_id);
-const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown"
+      const sid = Number(payload.case_status_id);
+      const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown";
 
-try {
-  const bc = new BroadcastChannel("patient_activity");
-  const msg = {
-    type: "therapy_status_change",
-    state, // "in_treatment" | "completed" | "unknown"
-    patient_id: Number(payload.patient_id),
-    psychologist_id: Number(psychoIdStr), // <- ใช้ตัวนอกได้เลย (ผ่าน null-check ไปแล้วด้านบน)
-  };
-  bc.postMessage(msg);
-  bc.close();
-  localStorage.setItem("patient_activity_ping", JSON.stringify({ ...msg, ts: Date.now() }));
-} catch {
-  localStorage.setItem(
-    "patient_activity_ping",
-    JSON.stringify({
-      type: "therapy_status_change",
-      state,
-      patient_id: Number(payload.patient_id),
-      psychologist_id: Number(psychoIdStr),
-      ts: Date.now(),
-    })
-  );
-}
-      alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-      navigate("/psychologist/therapy");
+      try {
+        const bc = new BroadcastChannel("patient_activity");
+        bc.postMessage({
+          type: "therapy_status_change",
+          state,
+          patient_id: Number(payload.patient_id),
+          psychologist_id: Number(psychoIdStr),
+        });
+        bc.close();
+        localStorage.setItem(
+          "patient_activity_ping",
+          JSON.stringify({ type: "therapy_status_change", state, patient_id: Number(payload.patient_id), psychologist_id: Number(psychoIdStr), ts: Date.now() })
+        );
+      } catch {
+        localStorage.setItem(
+          "patient_activity_ping",
+          JSON.stringify({ type: "therapy_status_change", state, patient_id: Number(payload.patient_id), psychologist_id: Number(psychoIdStr), ts: Date.now() })
+        );
+      }
+      setNotification({ message: `บันทึกไขเคส สำเร็จ`, success: true });
+      setTimeout(() => {
+        navigate("/psychologist/therapy");
+      }, 1500);
     } catch (error) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };
 
@@ -184,7 +185,10 @@ try {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();  // ป้องกัน form submit ปกติ
+            setShowModal(true);  // เปิด modal
+          }}
           className="!w-full !bg-white !border !border-gray-200 !rounded-lg !p-8 !space-y-8"
         >
           {/* Case Info */}
@@ -301,6 +305,28 @@ try {
           </div>
         </form>
       </div>
+      {/* Modal ยืนยัน */}
+      {showModal && (
+        <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center">
+          <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+            <h2 className="!text-xl !font-bold">ยืนยันการสร้างเคส</h2>
+            <p>คุณต้องการบันทึกเคส ใช่หรือไม่?</p>
+            <div className="!flex !justify-end !gap-3">
+              <button onClick={() => setShowModal(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+              <button onClick={() => { submitForm(); setShowModal(false); }} className="!px-4 !py-2 !bg-blue-600 !text-white !rounded">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {notification && (
+        <div
+          className={`!absolute  !top-5 !left-1/2 !transform !-translate-x-1/2 !px-4 !py-3 !rounded-lg !shadow-lg ${notification.success ? '!bg-green-500' : '!bg-red-500'} !text-white !flex !items-center !justify-between !max-w-sm !transition-opacity !duration-500`}
+          style={{ opacity: notification ? 1 : 0 }}
+        >
+          <span>{notification.message}</span>
+          <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
+        </div>
+      )}
     </div>
   );
 }

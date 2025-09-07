@@ -250,31 +250,75 @@ export default function ThoughtRecordList() {
         {/* Detail Modal */}
         {showDetailModal && selectedRecordDetail && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
-            <div className="!bg-white !rounded-2xl !max-w-2xl !w-full !p-8 !shadow-2xl !overflow-y-auto !max-h-[90vh]">
-              <div className="!flex !items-center !justify-between !mb-6">
-                <h2 className="!text-2xl !font-bold !text-gray-900">รายละเอียด Thought Record</h2>
-                <button
-                  className="!text-gray-400 hover:!text-gray-600 !p-2 hover:!bg-gray-100 !rounded-lg"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  <X className="!h-6 !w-6" />
-                </button>
+            <div className="!bg-white !rounded-2xl !max-w-2xl !w-full !shadow-xl !overflow-hidden !max-h-[90vh] !flex !flex-col">
+              {/* Header */}
+              <div className="!px-6 !py-5 !border-b !border-gray-200">
+                <div className="!flex !items-center !justify-between">
+                  <h2 className="!text-xl !font-semibold !text-gray-900">รายละเอียด Thought Record</h2>
+                  <button
+                    className="!text-gray-400 hover:!text-gray-600 !p-2 hover:!bg-gray-100 !rounded-lg !transition-colors"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    <X className="!h-5 !w-5" />
+                  </button>
+                </div>
               </div>
 
-              <div className="!space-y-4">
-                <p><strong>Situation:</strong> {selectedRecordDetail.Situation || "ไม่ระบุ"}</p>
-                <p><strong>Thoughts:</strong> {selectedRecordDetail.Thoughts?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
-                <p><strong>Behaviors:</strong> {selectedRecordDetail.Behaviors?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
-                <p><strong>Alternate Thought:</strong> {selectedRecordDetail.AlternateThought?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
+              {/* Content */}
+              <div className="!flex-1 !overflow-y-auto !p-6">
+                <div className="!space-y-6">
+                  {/* Situation */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">สถานการณ์</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Situation || "ไม่ได้ระบุสถานการณ์"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Thoughts */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">ความคิด</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Thoughts?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกความคิด"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Behaviors */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">พฤติกรรม</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Behaviors?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกพฤติกรรม"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Alternate Thought */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">ความคิดทางเลือก</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.AlternateThought?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกความคิดทางเลือก"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="!mt-6 !flex !justify-end">
-                <button
-                  className="!bg-gray-200 hover:!bg-gray-300 !text-gray-800 !px-4 !py-2 !rounded-lg"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  ปิด
-                </button>
+              {/* Footer */}
+              <div className="!px-6 !py-4 !border-t !border-gray-200">
+                <div className="!flex !justify-end">
+                  <button
+                    className="!bg-gray-600 hover:!bg-gray-700 !text-white !px-4 !py-2 !rounded-lg !font-medium !transition-colors"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    ปิด
+                  </button>
+                </div>
               </div>
             </div>
           </div>

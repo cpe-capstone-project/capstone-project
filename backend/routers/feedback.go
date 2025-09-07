@@ -9,5 +9,7 @@ func SetupFeedbackRoutes(r *gin.RouterGroup) {
 
 	r.POST("/feedback/create", feedback.CreateFeedback)
 	r.GET("/feedback-time", feedback.GetFeedbackTime)
+	r.GET("/patient/feedback/diary/:patient_id", feedback.GetDiaryFeedbackByPatient)
+	r.GET("/patient/feedback/thought/:patient_id", feedback.GetThoughtFeedbackByPatient)
 }
 

@@ -411,6 +411,9 @@ const out = () => {
         <li>
           <a onClick={() => handleNavigate("thought_records")}>Thought Record</a>
         </li>
+        <li>
+          <a onClick={() => handleNavigate("feedback")}>Feedback</a>
+        </li>
    <li style={{ position: "relative" }}>
   <img
     src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"

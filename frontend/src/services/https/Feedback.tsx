@@ -34,7 +34,31 @@ async function GetFeedbackTime(): Promise<FeedbackTimeInterface[]> {
   }
 }
 
+// ดึง Diary Feedback ของผู้ป่วย
+ async function GetDiaryFeedback(patientId: number) {
+  try {
+    const res = await axios.get(`${apiUrl}/patient/feedback/diary/${patientId}`,requestOptions);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching diary feedback:", error);
+    return [];
+  }
+}
+
+// ดึง Thought Feedback ของผู้ป่วย
+ async function GetThoughtFeedback(patientId: number) {
+  try {
+    const res = await axios.get(`${apiUrl}/patient/feedback/thought/${patientId}`,requestOptions);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching thought feedback:", error);
+    return [];
+  }
+}
+
 export { 
     CreateFeedback,
-    GetFeedbackTime
+    GetFeedbackTime,
+    GetDiaryFeedback,
+    GetThoughtFeedback
  };

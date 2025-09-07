@@ -1,5 +1,5 @@
 import type { EmotionsInterface } from "./IEmotions";
-
+import type { SituationTagInterface } from "./ISituationTag";
 export interface ThoughtRecordInterface {
   ID?: number;
   CreatedAt?: string;
@@ -10,6 +10,11 @@ export interface ThoughtRecordInterface {
   TagColors?: string; 
   AlternateThought?: string;
   UpdatedAt?: string;
-  TherapyCaseID?: number;
-  Emotions?: EmotionsInterface[]; // ✅ เปลี่ยนจาก singular เป็น array
+
+  TherapyCaseID?: number | null;
+  Emotions?: EmotionsInterface[];
+  SituationTagID?: number;
+  SituationTag?: SituationTagInterface;
 }
+
+

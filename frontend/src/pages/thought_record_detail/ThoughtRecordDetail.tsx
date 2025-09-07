@@ -83,23 +83,22 @@ function ThoughtRecordDetail() {
             </div>
             <Tag className="record-tag">รายการที่ {id}</Tag>
           </div>
-
           <Divider className="custom-divider" />
-
           {contentItems.map(({ key, label, icon: Icon, className }) => (
             <div key={key} className={`content-item ${className}`}>
               <div className="content-header">
-                <Icon className="content-icon" />
+                <Icon className={`content-icon ${className}-icon`} /> {/* เพิ่ม className */}
                 <Text className="content-label">{label}</Text>
               </div>
               <div className="content-body">
-                <Paragraph className={`content-text ${key === "AlternateThought" ? "alternative-text" : ""}`}>
+                <Paragraph
+                  className={`content-text ${key === "AlternateThought" ? "alternative-text" : ""}`}
+                >
                   {record[key] || "ไม่ได้ระบุ"}
                 </Paragraph>
               </div>
             </div>
           ))}
-
           {/* แสดง Emotion */}
           {record.Emotions && record.Emotions.length > 0 ? (
             <div className="content-item emotions">

@@ -134,10 +134,18 @@
   margin-bottom: 16px;
 }
 
+/* Default */
 .content-icon {
   font-size: 20px;
-  color: #519bf1;
 }
+
+/* สีแยกตาม type */
+.situation-icon { color: #ff9500; }       /* ส้ม */
+.thoughts-icon { color: #519bf1; }        /* ฟ้า */
+.behaviors-icon { color: #9c5bf1; }       /* ม่วง */
+.alternative-icon { color: #22c55e; }     /* เขียว */
+.emotions .content-icon { color: #e91e63; } /* ชมพู */
+
 
 .content-label {
   font-size: 18px;

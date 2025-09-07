@@ -506,7 +506,7 @@ const handleSubmitBatchFeedback = async () => {
         {showReadDiaryModal && readingDiary && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
             <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-6 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
-              <div className="!flex !items-center !justify-between !mb-4">
+              <div className="!flex !items-center !justify-between !mb-4 !border-gray-200 !border-b-2">
                 <h2 className="!text-xl !font-bold !text-gray-900">{readingDiary.Title || "Diary"}</h2>
                 <button
                   className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
@@ -515,7 +515,7 @@ const handleSubmitBatchFeedback = async () => {
                   <X className="!h-6 !w-6" />
                 </button>
               </div>
-              <div className="!max-h-96 !overflow-y-auto !text-gray-700 !space-y-4">
+              <div className="!max-h-96 !overflow-y-auto !text-gray-700 !space-y-4 !bg-gray-50 !rounded-lg !p-4">
                 <p>{readingDiary.Content?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
               </div>
               <div className="!mt-4 !flex !justify-end">

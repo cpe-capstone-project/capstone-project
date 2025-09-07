@@ -17,14 +17,21 @@ import {
   Select,
   Tag,
 } from "antd";
-import { ArrowLeftOutlined, BulbOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  BulbOutlined,
+  TagsOutlined,
+  SmileOutlined,
+  BgColorsOutlined,
+} from "@ant-design/icons";
 import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
 import { GiDramaMasks } from "react-icons/gi";
 import { MdEvStation } from "react-icons/md";
 import GuideButton from "../../components/thought-record-guide/GuideModel";
 import FormGuide from "../../components/thought-record-guide/FormGuide";
+import SituationTagSelect from "../../components/situation-tag/SituationTagSelect";
+import ThoughtRecordSubmit from "../../components/thought_record-submit/ThoughtRecordSubmit";
 import "./ThoughtRecordCreate.css";
-
 import { GetAllEmotions } from "../../services/https/Emotions";
 import type { EmotionsInterface } from "../../interfaces/IEmotions";
 import type { TherapyCaseInterface } from "../../interfaces/ITherapyCase";
@@ -33,22 +40,41 @@ const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
+interface ThoughtRecordFormValues {
+  TagColors: string;
+  Situation: string;
+  Thoughts: string;
+  EmotionsID: number[];
+  SituationTagID: number;
+  Behaviors: string;
+  AlternateThought: string;
+}
+
 function ThoughtRecordCreate() {
   const { createRecord } = useThoughtRecord();
   const { getTherapyCaseByPatient } = useTherapyCase();
-  const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(null);
+
+  const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [emotions, setEmotions] = useState<EmotionsInterface[]>([]);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [pendingValues, setPendingValues] =
+    useState<ThoughtRecordFormValues | null>(null);
+
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
-  // preload รายการอารมณ์ (options)
+  // preload รายการอารมณ์
   useEffect(() => {
     (async () => {
       const res = await GetAllEmotions();
       if (Array.isArray(res)) {
-        const filtered = res.filter((emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3);
+        const filtered = res.filter(
+          (emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3
+        );
         setEmotions(filtered);
       }
     })();
@@ -72,23 +98,30 @@ function ThoughtRecordCreate() {
     fetchTherapyCase();
   }, [getTherapyCaseByPatient]);
 
-  const onFinish = async (values: any) => {
-    setLoading(true);
+  // แสดง Modal ยืนยัน
+  const showConfirmModal = (values: ThoughtRecordFormValues) => {
+    setPendingValues(values);
+    setConfirmModalVisible(true);
+  };
 
-    // แก้ให้ส่ง EmotionsID เป็น array
+  // บันทึกจริง
+  const handleConfirmSave = async () => {
+    if (!pendingValues) return;
+
+    setLoading(true);
+    setConfirmModalVisible(false);
+
     const payload = {
-      ...values,
-      EmotionsID: Array.isArray(values.EmotionsID)
-        ? values.EmotionsID
-        : values.EmotionsID
-          ? [values.EmotionsID]
-          : [],
+      ...pendingValues,
+      EmotionsID: Array.isArray(pendingValues.EmotionsID)
+        ? pendingValues.EmotionsID
+        : pendingValues.EmotionsID
+        ? [pendingValues.EmotionsID]
+        : [],
       TherapyCaseID: therapyCase?.ID ?? null,
     };
 
-    // ✅ Debug payload ก่อนส่ง
     console.log("Payload to API:", payload);
-
     const success = await createRecord(payload);
     if (success) {
       message.success("สร้างบันทึกความคิดเรียบร้อย ✅");
@@ -97,10 +130,13 @@ function ThoughtRecordCreate() {
       message.error("ไม่สามารถสร้างบันทึกความคิดได้ ❌");
     }
     setLoading(false);
+    setPendingValues(null);
   };
 
+  const onFinish = async (values: ThoughtRecordFormValues) => {
+    showConfirmModal(values);
+  };
 
-  // แสดงสี tag ของ Multi-Select
   const tagRender = (props: any) => {
     const { label, value, closable, onClose } = props;
     const emotion = emotions.find((e) => e.ID === value);
@@ -132,11 +168,9 @@ function ThoughtRecordCreate() {
           <Card className="form-card">
             <div className="header-content" style={{ marginBottom: 16 }}>
               <Title level={2} className="page-title">
-                <BulbOutlined className="title-icon" />
-                สร้างบันทึกความคิด
+                <BulbOutlined className="title-icon" /> สร้างบันทึกความคิด
               </Title>
             </div>
-
             <div style={{ textAlign: "left" }}>
               <Button type="link" onClick={() => setShowGuide(true)}>
                 📘 คำแนะนำการกรอกฟอร์ม
@@ -148,23 +182,21 @@ function ThoughtRecordCreate() {
               layout="vertical"
               onFinish={onFinish}
               className="create-form"
-              initialValues={{
-                TagColors: "#155fdeff",
-                EmotionsID: [],
-              }}
+              initialValues={{ TagColors: "#155fdeff", EmotionsID: [] }}
             >
+              {/* การปรับแต่ง */}
               <div className="form-section">
-                <div className="section-header">
-                  <Title level={4} className="section-title">
-                    การปรับแต่ง
-                  </Title>
-                  <Divider className="section-divider" />
-                </div>
-
+                <Title level={4}>การปรับแต่ง</Title>
+                <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      label="สีหัวข้อบันทึก"
+                      label={
+                        <Space>
+                          <BgColorsOutlined style={{ color: "#1677ff" }} />
+                          <span>สีหัวข้อบันทึก</span>
+                        </Space>
+                      }
                       name="TagColors"
                       rules={[{ required: true, message: "กรุณาเลือกสี" }]}
                     >
@@ -172,30 +204,24 @@ function ThoughtRecordCreate() {
                         showText
                         size="large"
                         format="hex"
-                        onChange={(color) => {
-                          form.setFieldsValue({
-                            TagColors: color.toHexString(),
-                          });
-                        }}
+                        onChange={(color) =>
+                          form.setFieldsValue({ TagColors: color.toHexString() })
+                        }
                       />
                     </Form.Item>
                   </Col>
                 </Row>
               </div>
 
+              {/* ข้อมูลหลัก */}
               <div className="form-section">
-                <div className="section-header">
-                  <Title level={4} className="section-title">
-                    ข้อมูลหลัก
-                  </Title>
-                  <Divider className="section-divider" />
-                </div>
-
+                <Title level={4}>ข้อมูลหลัก</Title>
+                <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24}>
                     <Form.Item
                       label={
-                        <Space className="field-label">
+                        <Space>
                           <MdEvStation className="field-icon situation" />
                           <span>สถานการณ์</span>
                           <GuideButton type="situation" />
@@ -204,14 +230,14 @@ function ThoughtRecordCreate() {
                       name="Situation"
                       rules={[{ required: true, message: "กรุณากรอกสถานการณ์" }]}
                     >
-                      <TextArea rows={4} placeholder="อธิบายสถานการณ์..." className="textarea-field" />
+                      <TextArea rows={4} placeholder="อธิบายสถานการณ์..." />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24}>
                     <Form.Item
                       label={
-                        <Space className="field-label">
+                        <Space>
                           <FaRegCommentDots className="field-icon thoughts" />
                           <span>ความคิด</span>
                           <GuideButton type="thoughts" />
@@ -220,14 +246,18 @@ function ThoughtRecordCreate() {
                       name="Thoughts"
                       rules={[{ required: true, message: "กรุณากรอกความคิด" }]}
                     >
-                      <TextArea rows={4} placeholder="บันทึกความคิด..." className="textarea-field" />
+                      <TextArea rows={4} placeholder="บันทึกความคิด..." />
                     </Form.Item>
                   </Col>
 
-                  {/* Multi Emotion */}
                   <Col xs={24}>
                     <Form.Item
-                      label={<Space className="field-label"><span>อารมณ์</span></Space>}
+                      label={
+                        <Space>
+                          <SmileOutlined style={{ color: "#f59e0b" }} />
+                          <span>อารมณ์</span>
+                        </Space>
+                      }
                       name="EmotionsID"
                       rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
                     >
@@ -239,7 +269,7 @@ function ThoughtRecordCreate() {
                         style={{ width: "100%" }}
                         dropdownStyle={{ zIndex: 1050 }}
                         virtual={false}
-                        tagRender={tagRender} // ✅ แสดงสีใน tag
+                        tagRender={tagRender}
                       >
                         {emotions.map((emotion) => (
                           <Option key={emotion.ID} value={emotion.ID}>
@@ -249,53 +279,71 @@ function ThoughtRecordCreate() {
                       </Select>
                     </Form.Item>
                   </Col>
+
+                  <Col xs={24}>
+                    <Form.Item
+                      label={
+                        <Space>
+                          <TagsOutlined style={{ color: "#3b82f6" }} />
+                          <span>Tag</span>
+                        </Space>
+                      }
+                      name="SituationTagID"
+                      rules={[{ required: true, message: "กรุณาเลือก Tag" }]}
+                    >
+                      <SituationTagSelect
+                        value={form.getFieldValue("SituationTagID")}
+                        onChange={(id) => form.setFieldsValue({ SituationTagID: id })}
+                      />
+                    </Form.Item>
+                  </Col>
                 </Row>
               </div>
 
+              {/* การตอบสนองและวิเคราะห์ */}
               <div className="form-section">
-                <div className="section-header">
-                  <Title level={4} className="section-title">
-                    การตอบสนองและวิเคราะห์
-                  </Title>
-                  <Divider className="section-divider" />
-                </div>
-
+                <Title level={4}>การตอบสนองและวิเคราะห์</Title>
+                <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24} lg={12}>
                     <Form.Item
                       label={
-                        <Space className="field-label">
+                        <Space>
                           <GiDramaMasks className="field-icon behaviors" />
                           <span>พฤติกรรม</span>
                           <GuideButton type="behaviors" />
                         </Space>
                       }
                       name="Behaviors"
+                      rules={[{ required: true, message: "กรุณากรอกพฤติกรรม" }]}
                     >
-                      <TextArea rows={3} placeholder="สิ่งที่คุณทำ..." className="textarea-field" />
+                      <TextArea rows={3} placeholder="สิ่งที่คุณทำ..." />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24} lg={12}>
                     <Form.Item
                       label={
-                        <Space className="field-label">
+                        <Space>
                           <FaRedoAlt className="field-icon alternate" />
                           <span>ความคิดทางเลือก</span>
                           <GuideButton type="alternate" />
                         </Space>
                       }
                       name="AlternateThought"
+                      rules={[{ required: true, message: "กรุณากรอกความคิดทางเลือก" }]}
                     >
-                      <TextArea rows={3} placeholder="ความคิดทางเลือก..." className="textarea-field" />
+                      <TextArea rows={3} placeholder="ความคิดทางเลือก..." />
                     </Form.Item>
                   </Col>
                 </Row>
               </div>
 
               <div className="form-actions">
-                <Button type="default" onClick={() => navigate(-1)}>ยกเลิก</Button>
-                <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto" }}>
+                <Button type="default" onClick={() => navigate(-1)}>
+                  ยกเลิก
+                </Button>
+                <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto", minWidth: 120 }}>
                   บันทึก
                 </Button>
               </div>
@@ -304,6 +352,19 @@ function ThoughtRecordCreate() {
         ) : (
           <FormGuide onBack={() => setShowGuide(false)} />
         )}
+
+        {/* ใช้ component แยกสำหรับ Modal ยืนยัน */}
+        <ThoughtRecordSubmit
+          visible={confirmModalVisible}
+          loading={loading}
+          pendingValues={pendingValues}
+          emotions={emotions}
+          onConfirm={handleConfirmSave}
+          onCancel={() => {
+            setConfirmModalVisible(false);
+            setPendingValues(null);
+          }}
+        />
       </div>
     </section>
   );

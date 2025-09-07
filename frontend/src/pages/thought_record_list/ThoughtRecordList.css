@@ -119,10 +119,10 @@
 .emotion-box {
   display: grid;
   grid-template-columns: 1fr 1fr; /* 2 คอลัมน์ */
-  grid-template-rows: 1fr 1fr; /* 2 แถว */
+  grid-template-rows: 1fr; /* 2 แถว */
   gap: 8px;
   margin-top: 8px;
-  height: 56px;
+  height: 35px;
   align-content: start;
   padding: 4px 0;
 }

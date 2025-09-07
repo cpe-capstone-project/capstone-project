@@ -32,7 +32,10 @@ func ListThoughtRecord(c *gin.Context) {
 		sortColumn = "updated_at"
 	}
 
-	if err := db.Preload("Emotions").Order(sortColumn + " " + order).Find(&records).Error; err != nil {
+	if err := db.Preload("Emotions").
+		Preload("SituationTag").
+		Order(sortColumn + " " + order).
+		Find(&records).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -48,7 +51,9 @@ func GetThoughtRecordByID(c *gin.Context) {
 	var record entity.ThoughtRecord
 
 	db := config.DB()
-	if err := db.Preload("Emotions").First(&record, id).Error; err != nil {
+	if err := db.Preload("Emotions").
+		Preload("SituationTag").
+		First(&record, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
 		return
 	}
@@ -67,6 +72,7 @@ type ThoughtRecordInput struct {
 	TagColors        string `json:"TagColors" binding:"required"`
 	TherapyCaseID    uint   `json:"TherapyCaseID"`
 	EmotionsID       []uint `json:"EmotionsID"`
+	SituationTagID   uint   `json:"SituationTagID" binding:"required"`
 }
 
 func CreateThoughtRecord(c *gin.Context) {
@@ -94,6 +100,7 @@ func CreateThoughtRecord(c *gin.Context) {
 		AlternateThought: input.AlternateThought,
 		TagColors:        input.TagColors,
 		TherapyCaseID:    input.TherapyCaseID,
+		SituationTagID:   input.SituationTagID,
 		Emotions:         emotions,
 	}
 
@@ -101,6 +108,9 @@ func CreateThoughtRecord(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// preload ให้ response คืนมี SituationTag
+	db.Preload("Emotions").Preload("SituationTag").First(&record, record.ID)
 
 	c.JSON(http.StatusCreated, record)
 }
@@ -113,7 +123,9 @@ func UpdateThoughtRecordByID(c *gin.Context) {
 	var record entity.ThoughtRecord
 	db := config.DB()
 
-	if err := db.Preload("Emotions").First(&record, id).Error; err != nil {
+	if err := db.Preload("Emotions").
+		Preload("SituationTag").
+		First(&record, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
 		return
 	}
@@ -132,6 +144,7 @@ func UpdateThoughtRecordByID(c *gin.Context) {
 		"AlternateThought": input.AlternateThought,
 		"TagColors":        input.TagColors,
 		"TherapyCaseID":    input.TherapyCaseID,
+		"SituationTagID":   input.SituationTagID,
 	}
 
 	if err := db.Model(&record).Updates(updateData).Error; err != nil {
@@ -152,7 +165,10 @@ func UpdateThoughtRecordByID(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "update successful"})
+	// reload พร้อม relations
+	db.Preload("Emotions").Preload("SituationTag").First(&record, record.ID)
+
+	c.JSON(http.StatusOK, record)
 }
 
 // ---------------------------
@@ -183,7 +199,11 @@ func ListLatestThoughtRecords(c *gin.Context) {
 		limit = 5
 	}
 
-	if err := db.Preload("Emotions").Order("updated_at desc").Limit(limit).Find(&records).Error; err != nil {
+	if err := db.Preload("Emotions").
+		Preload("SituationTag").
+		Order("updated_at desc").
+		Limit(limit).
+		Find(&records).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -202,6 +222,7 @@ func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
 	if err := db.Preload("TherapyCase.Patient").
 		Preload("TherapyCase.CaseStatus").
 		Preload("Emotions").
+		Preload("SituationTag").
 		Where("therapy_case_id = ?", therapyCaseID).
 		Find(&records).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -235,7 +256,11 @@ func GetLatestThoughtRecordsByPatientID(c *gin.Context) {
 		Order("thought_records.updated_at DESC").
 		Limit(limit)
 
-	if err := q.Preload("TherapyCase.Patient").Preload("TherapyCase.CaseStatus").Preload("Emotions").Find(&items).Error; err != nil {
+	if err := q.Preload("TherapyCase.Patient").
+		Preload("TherapyCase.CaseStatus").
+		Preload("Emotions").
+		Preload("SituationTag").
+		Find(&items).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

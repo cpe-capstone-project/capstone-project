@@ -12,6 +12,7 @@ func SetupThoughtRecordDatabase() {
 	db.AutoMigrate(
 		&entity.ThoughtRecord{},
 		&entity.Emotions{},
+		&entity.SituationTag{},
 	)
 
 	// ตัวอย่าง ThoughtRecord
@@ -24,6 +25,7 @@ func SetupThoughtRecordDatabase() {
 			TagColors:        "#1890ff", // 🔵 ฟ้า
 			UpdatedAt:        time.Now(),
 			TherapyCaseID:    1,
+			SituationTagID:   1,
 			Emotions: []entity.Emotions{ // ตัวอย่างใส่หลายอารมณ์
 				{Model: gorm.Model{ID: 24}},
 				{Model: gorm.Model{ID: 18}},

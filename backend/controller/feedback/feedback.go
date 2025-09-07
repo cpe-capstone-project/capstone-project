@@ -116,6 +116,120 @@ func GetFeedbackTime(c *gin.Context) {
 
 	c.JSON(http.StatusOK, feedbackTimes)
 }
+
+
+// ---- Diary Feedback ----
+func GetDiaryFeedbackByPatient(c *gin.Context) {
+	patientID := c.Param("patient_id")
+	db := config.DB()
+
+	var feedbacks []entity.Feedbacks
+
+	// ดึงเฉพาะ FeedbackType = Diary
+	if err := db.
+		Preload("FeedbackDiary.Diary").
+		Preload("FeedbackTime").
+		Preload("Psychologist").
+		Joins("JOIN feedback_types ON feedback_types.id = feedbacks.feedback_type_id").
+		Where("feedbacks.patient_id = ? AND feedback_types.feedback_type_name = ?", patientID, "Diary").
+		Find(&feedbacks).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	var response []map[string]interface{}
+	for _, f := range feedbacks {
+		// เก็บชื่อ Diary ทั้งหมดของ Feedback นี้
+		diaryTitles := []string{}
+		for _, fd := range f.FeedbackDiary {
+			if fd.Diary != nil {
+				diaryTitles = append(diaryTitles, fd.Diary.Title)
+			}
+		}
+
+		response = append(response, map[string]interface{}{
+			"ID":              f.ID,
+			"FeedbackTitle":   f.FeedbackTitle,
+			"FeedbackContent": f.FeedbackContent,
+			"PsychologistFirstName": func() string {
+				if f.Psychologist != nil {
+					return f.Psychologist.FirstName
+				}
+				return ""
+			}(),
+			"PsychologistLastName": func() string {
+				if f.Psychologist != nil {
+					return f.Psychologist.LastName
+				}
+				return ""
+			}(),
+			"CreatedAt":       f.CreatedAt,
+			"FeedbackTimeName": func() string {
+				if f.FeedbackTime != nil {
+					return f.FeedbackTime.FeedbackTimeName
+				}
+				return ""
+			}(),
+			"Diaries": diaryTitles,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// ---- Thought Feedback ----
+func GetThoughtFeedbackByPatient(c *gin.Context) {
+	patientID := c.Param("patient_id")
+	db := config.DB()
+
+	var feedbacks []entity.Feedbacks
+
+	// ดึงเฉพาะ FeedbackType = Thought Record
+	if err := db.
+		Preload("ThoughtRecord").
+		Preload("Psychologist").
+		Joins("JOIN feedback_types ON feedback_types.id = feedbacks.feedback_type_id").
+		Where("feedbacks.patient_id = ? AND feedback_types.feedback_type_name = ?", patientID, "Thought Record").
+		Find(&feedbacks).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	var response []map[string]interface{}
+	for _, f := range feedbacks {
+		if f.ThoughtRecord != nil {
+			response = append(response, map[string]interface{}{
+				"ID":              f.ID,
+				"FeedbackTitle":   f.FeedbackTitle,
+				"FeedbackContent": f.FeedbackContent,
+				"Situation":       f.ThoughtRecord.Situation,
+				"PsychologistFirstName": func() string {
+					if f.Psychologist != nil {
+						return f.Psychologist.FirstName
+					}
+					return ""
+				}(),
+				"PsychologistLastName": func() string {
+					if f.Psychologist != nil {
+						return f.Psychologist.LastName
+					}
+					return ""
+				}(),
+				"CreatedAt": f.CreatedAt,
+				"FeedbackTimeName": func() string {
+					if f.FeedbackTime != nil {
+						return f.FeedbackTime.FeedbackTimeName
+					}
+					return ""
+				}(),
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
 func GetFeedbacksByPatient(c *gin.Context) {
   db := config.DB()
   pid := c.Param("patientId")
@@ -179,3 +293,63 @@ func GetFeedbacksByDiary(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"items": list})
 }
+
+
+// 🔹 GET /diaries/:diaryId/feedbacks
+func GetFeedbackByDiaryID(c *gin.Context) {
+	diaryID := c.Param("id")
+	db := config.DB()
+
+	var feedbacks []entity.Feedbacks
+
+	// join feedbacks ผ่าน feedback_diaries
+	if err := db.Joins("JOIN feedback_diaries fd ON fd.feedback_id = feedbacks.id").
+		Where("fd.diary_id = ?", diaryID).
+		Preload("Psychologist").
+		Preload("Patient").
+		Preload("FeedbackType").
+		Preload("FeedbackTime").
+		Order("feedbacks.created_at DESC").
+		Find(&feedbacks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(feedbacks) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ยังไม่มี Feedback สำหรับ Diary นี้",
+			"data":    []entity.Feedbacks{},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": feedbacks})
+}
+
+// GetFeedbackByThoughtID ดึง Feedback ทั้งหมดที่เกี่ยวข้องกับ ThoughtRecord
+func GetFeedbackByThoughtID(c *gin.Context) {
+	db := config.DB()
+
+	thoughtIDStr := c.Param("id")
+	thoughtID, err := strconv.Atoi(thoughtIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid thought ID"})
+		return
+	}
+
+	var feedbacks []entity.Feedbacks
+
+	// ดึง feedback ตาม ThoughtRecordID
+	if err := db.Preload("Psychologist").
+		Preload("Patient").
+		Preload("FeedbackTime").
+		Where("thought_record_id = ?", thoughtID).
+		Find(&feedbacks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get feedback"})
+		return
+	}
+
+	c.JSON(http.StatusOK, feedbacks)
+}
+
+

@@ -44,6 +44,39 @@ async function GetFeedbackTime(): Promise<FeedbackTimeInterface[]> {
   }
 }
 
+// 🔹 ดึง Feedback ทั้งหมดของ Diary ตาม diaryId
+async function GetFeedbackByDiaryID(id: number): Promise<FeedBackInterface[]> { 
+  try {
+    const res = await axios.get(`${apiUrl}/feedback/diary/${id}`, getRequestOptions());
+    // รองรับทั้งรูปแบบ {data: []} หรือ [] ตรงๆ
+    return res.data?.data ?? res.data ?? [];
+  } catch (e: any) {
+    console.error("Error fetching FeedbackByDiaryID:", e);
+    return [];
+  }
+}
+
+export const GetFeedbackByThoughtID = async (id: number): Promise<FeedBackInterface[]> => {
+  try {
+    const res = await axios.get(`${apiUrl}/feedback/thought/${id}`,getRequestOptions());
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch feedback by thought ID:", error);
+    return [];
+  }
+};
+
+
+// ดึง Diary Feedback ของผู้ป่วย
+ async function GetDiaryFeedback(patientId: number) {
+  try {
+    const res = await axios.get(`${apiUrl}/patient/feedback/diary/${patientId}`,getRequestOptions());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching diary feedback:", error);
+    return [];
+  }
+}
 /* ----------------- เพิ่มฟังก์ชันดึงฟีดแบ็กตามไดอารี่ ----------------- */
 
 // ✅ GET /diary/:diaryId/feedbacks?limit=3
@@ -58,6 +91,18 @@ async function GetFeedbacksForDiary(diaryId: number, limit = 3, bustCache = fals
     return (res?.data?.items ?? res?.data?.data ?? res?.data ?? []) as FeedBackInterface[];
   } catch (e: any) {
     console.error("GetFeedbacksForDiary error:", e);
+    return [];
+  }
+}
+
+
+// ดึง Thought Feedback ของผู้ป่วย
+ async function GetThoughtFeedback(patientId: number) {
+  try {
+    const res = await axios.get(`${apiUrl}/patient/feedback/thought/${patientId}`,getRequestOptions());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching thought feedback:", error);
     return [];
   }
 }
@@ -89,10 +134,16 @@ async function GetFeedbacksByPatient(patientId: number, limit = 10, bustCache = 
 }
 
 
-export {
-  CreateFeedback,
-  GetFeedbackTime,
-  GetFeedbacksForDiary,
-  GetFeedbacksByDiary,   // (ออปชั่น)
-  GetFeedbacksByPatient,    // (ออปชั่น)
-};
+export { 
+    CreateFeedback,
+    GetFeedbackTime,
+    GetDiaryFeedback,
+    GetThoughtFeedback,
+    GetFeedbacksForDiary,
+    GetFeedbacksByDiary,   // (ออปชั่น)
+    GetFeedbacksByPatient,
+    GetFeedbackByDiaryID,
+ };
+
+
+

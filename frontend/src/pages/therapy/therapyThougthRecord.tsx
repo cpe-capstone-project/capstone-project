@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
-import { ArrowLeft, FileText, Brain, X, Send, Clock, CalendarDays } from "lucide-react";
+import { useParams, useNavigate } from "react-router";
+import { ArrowLeft, FileText, Brain, X, Send, Clock, CalendarDays, MessageSquare } from "lucide-react";
 
 import { GetThoughtRecordsByTherapyCaseID } from "../../services/https/ThoughtRecord";
 import { CreateFeedback } from "../../services/https/Feedback";
@@ -10,6 +10,7 @@ import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord";
 export default function ThoughtRecordList() {
   const { id } = useParams<{ id: string }>();
   const myID = localStorage.getItem("id");
+  const navigate = useNavigate();
 
   const [records, setRecords] = useState<ThoughtRecordInterface[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,8 @@ export default function ThoughtRecordList() {
   // Feedback Modal
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedRecordID, setSelectedRecordID] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState<{ message: string, success: boolean } | null>(null);
   const [feedbackForm, setFeedbackForm] = useState({
     FeedbackTitle: "",
     FeedbackContent: "",
@@ -63,8 +66,18 @@ export default function ThoughtRecordList() {
     setShowFeedbackModal(true);
   };
 
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000); // 3000ms = 3 วินาที
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   const handleSubmitFeedback = async () => {
     if (!selectedRecordID) return;
+    setNotification({ message: `ส่งFeedback ไม่สำเร็จ`, success: false });
     try {
       const payload = {
         FeedbackTitle: feedbackForm.FeedbackTitle,
@@ -76,13 +89,13 @@ export default function ThoughtRecordList() {
         ThoughtRecordID: selectedRecordID
       };
       await CreateFeedback(payload);
-      alert("ส่ง Feedback สำเร็จ");
+      setNotification({ message: `ส่งFeedback สำเร็จ`, success: true });
       setShowFeedbackModal(false);
       setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
       setSelectedRecordID(null);
     } catch (error) {
       console.error(error);
-      alert("ส่ง Feedback ไม่สำเร็จ");
+      setNotification({ message: `ส่งFeedback ไม่สำเร็จ`, success: false });
     }
   };
 
@@ -177,19 +190,28 @@ export default function ThoughtRecordList() {
                         </p>
                       </div>
 
-                      <div className="!flex !justify-between !pt-4 !border-t !border-gray-100">
+                      <div className="!flex !flex-wrap !gap-2 !pt-4 !border-t !border-gray-100">
                         <button
                           onClick={() => handleOpenDetail(record)}
-                          className="!bg-gray-200 hover:!bg-gray-300 !text-black !px-4 !py-2 !rounded-lg !text-sm !font-medium !ml-2"
+                          className="!bg-gray-200 hover:!bg-gray-300 !text-black !px-4 !py-2 !rounded-lg !text-sm !font-medium !mr-20"
                         >
                           ดูรายละเอียด
                         </button>
+
                         <button
                           onClick={() => handleOpenFeedback(record.ID!)}
                           className="!bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 !text-white !px-4 !py-2 !rounded-lg !text-sm !font-medium !inline-flex !items-center !space-x-2 !shadow-sm hover:!shadow-md !transition-all !duration-200"
                         >
                           <Send className="!h-4 !w-4" />
                           <span>ส่ง Feedback</span>
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/psychologist/thought/patient/feedback-history/${record.ID}`)}
+                          className="!bg-gray-400 !hover:bg-white !text-white !px-4 !py-2 !rounded-lg !text-sm !flex !items-center !gap-2 !cursor-pointer !w-full"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          ดู Feedback ที่เคยส่ง
                         </button>
                       </div>
                     </div>
@@ -203,12 +225,15 @@ export default function ThoughtRecordList() {
         {/* Feedback Modal */}
         {showFeedbackModal && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
-            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-8 !shadow-2xl">
+            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-8 !shadow-2xl !max-h-[90vh] !overflow-y-auto">
               <div className="!flex !items-center !justify-between !mb-6">
                 <h2 className="!text-2xl !font-bold !text-gray-900">ส่ง Feedback</h2>
                 <button
                   className="!text-gray-400 hover:!text-gray-600 !p-2 hover:!bg-gray-100 !rounded-lg"
-                  onClick={() => setShowFeedbackModal(false)}
+                  onClick={() => {
+                    setShowFeedbackModal(false);
+                    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" }); // เคลียร์ข้อมูล
+                  }}
                 >
                   <X className="!h-6 !w-6" />
                 </button>
@@ -237,8 +262,13 @@ export default function ThoughtRecordList() {
                 </div>
 
                 <button
-                  onClick={handleSubmitFeedback}
-                  className="!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !flex !items-center !justify-center !space-x-2"
+                  onClick={() => {
+                    setShowModal(true);
+                  }}
+                  disabled={!feedbackForm.FeedbackTitle.trim() || !feedbackForm.FeedbackContent.trim()} // ปิดปุ่มถ้าว่าง
+                  className={`!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg !flex !items-center !justify-center !space-x-2
+            ${!feedbackForm.FeedbackTitle.trim() || !feedbackForm.FeedbackContent.trim() ? "opacity-50 cursor-not-allowed" : "hover:!from-green-700 hover:!to-emerald-700 hover:!shadow-xl"}
+          `}
                 >
                   <Send className="!h-5 !w-5" />
                   <span>ส่ง Feedback</span>
@@ -250,36 +280,101 @@ export default function ThoughtRecordList() {
         {/* Detail Modal */}
         {showDetailModal && selectedRecordDetail && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
-            <div className="!bg-white !rounded-2xl !max-w-2xl !w-full !p-8 !shadow-2xl !overflow-y-auto !max-h-[90vh]">
-              <div className="!flex !items-center !justify-between !mb-6">
-                <h2 className="!text-2xl !font-bold !text-gray-900">รายละเอียด Thought Record</h2>
-                <button
-                  className="!text-gray-400 hover:!text-gray-600 !p-2 hover:!bg-gray-100 !rounded-lg"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  <X className="!h-6 !w-6" />
-                </button>
+            <div className="!bg-white !rounded-2xl !max-w-2xl !w-full !shadow-xl !overflow-hidden !max-h-[90vh] !flex !flex-col">
+              {/* Header */}
+              <div className="!px-6 !py-5 !border-b !border-gray-200">
+                <div className="!flex !items-center !justify-between">
+                  <h2 className="!text-xl !font-semibold !text-gray-900">รายละเอียด Thought Record</h2>
+                  <button
+                    className="!text-gray-400 hover:!text-gray-600 !p-2 hover:!bg-gray-100 !rounded-lg !transition-colors"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    <X className="!h-5 !w-5" />
+                  </button>
+                </div>
               </div>
 
-              <div className="!space-y-4">
-                <p><strong>Situation:</strong> {selectedRecordDetail.Situation || "ไม่ระบุ"}</p>
-                <p><strong>Thoughts:</strong> {selectedRecordDetail.Thoughts?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
-                <p><strong>Behaviors:</strong> {selectedRecordDetail.Behaviors?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
-                <p><strong>Alternate Thought:</strong> {selectedRecordDetail.AlternateThought?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
+              {/* Content */}
+              <div className="!flex-1 !overflow-y-auto !p-6">
+                <div className="!space-y-6">
+                  {/* Situation */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">สถานการณ์</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Situation || "ไม่ได้ระบุสถานการณ์"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Thoughts */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">ความคิด</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Thoughts?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกความคิด"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Behaviors */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">พฤติกรรม</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.Behaviors?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกพฤติกรรม"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Alternate Thought */}
+                  <div>
+                    <h3 className="!text-sm !font-medium !text-gray-700 !mb-2">ความคิดทางเลือก</h3>
+                    <div className="!bg-gray-50 !rounded-lg !p-4">
+                      <p className="!text-gray-900 !leading-relaxed">
+                        {selectedRecordDetail.AlternateThought?.replace(/<[^>]+>/g, "") || "ไม่มีการบันทึกความคิดทางเลือก"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="!mt-6 !flex !justify-end">
-                <button
-                  className="!bg-gray-200 hover:!bg-gray-300 !text-gray-800 !px-4 !py-2 !rounded-lg"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  ปิด
-                </button>
+              {/* Footer */}
+              <div className="!px-6 !py-4 !border-t !border-gray-200">
+                <div className="!flex !justify-end">
+                  <button
+                    className="!bg-gray-600 hover:!bg-gray-700 !text-white !px-4 !py-2 !rounded-lg !font-medium !transition-colors"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    ปิด
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center !z-60">
+          <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+            <h2 className="!text-xl !font-bold">ยืนยันการส่ง Feedback </h2>
+            <p>คุณต้องการส่ง Feedback ใช่หรือไม่?</p>
+            <div className="!flex !justify-end !gap-3">
+              <button onClick={() => setShowModal(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+              <button onClick={() => { handleSubmitFeedback(); setShowModal(false); }} className="!px-4 !py-2 !bg-blue-600 !text-white !rounded">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {notification && (
+        <div
+          className={`!absolute  !top-5 !left-1/2 !transform !-translate-x-1/2 !px-4 !py-3 !rounded-lg !shadow-lg ${notification.success ? '!bg-green-500' : '!bg-red-500'} !text-white !flex !items-center !justify-between !max-w-sm !transition-opacity !duration-500 !z-60`}
+          style={{ opacity: notification ? 1 : 0 }}
+        >
+          <span>{notification.message}</span>
+          <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
+        </div>
+      )}
     </div>
   );
 }

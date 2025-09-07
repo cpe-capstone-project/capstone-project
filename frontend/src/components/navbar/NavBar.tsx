@@ -6,7 +6,7 @@ import healthImage from "../../assets/med5.png";
 import { k, KEYS } from "../../unid/storageKeys";
 const NOTI_KEY = k(KEYS.NOTI);
 const NOTICE_FLAG_KEY = k(KEYS.NOTICE_FLAG);
-const PROFILE_KEY = k(KEYS.PROFILE);
+const PROFILE_KEY = k(KEYS.PROFILE_PATIENT);
 const CAL_KEY = k(KEYS.CAL);    
 // ✅ เพิ่ม global function
 declare global {
@@ -24,6 +24,35 @@ const [, setNoticeList] = useState(() => {
   const stored = localStorage.getItem(NOTI_KEY);
   return stored ? JSON.parse(stored) : [];
 });
+const normalizeImageUrl = (img?: string) => {
+  if (!img) return "";
+  if (img.startsWith("data:")) return img;
+  if (img.startsWith("http://") || img.startsWith("https://")) return img;
+  return `http://localhost:8000/${img.replace(/^\/?/, "")}`;
+};
+
+const normalizePatientProfile = (raw: any) => {
+  const first_name =
+    raw.first_name ?? raw.firstName ?? raw.FirstName ?? raw.first_name_th ?? raw.First_Name ?? "";
+  const last_name  =
+    raw.last_name  ?? raw.lastName  ?? raw.LastName  ?? raw.last_name_th  ?? raw.Last_Name  ?? "";
+  const gender =
+    raw.gender ?? raw.gender_id ?? raw.genderId ?? raw.GenderID ?? raw.Gender ?? "";
+  const address =
+    raw.address ?? raw.Address ?? raw.addr ?? "";
+  const birthday =
+    raw.birthday ?? raw.date_of_birth ?? raw.dateOfBirth ?? raw.dob ?? raw.Birthday ?? "";
+  const phone =
+    raw.phone ?? raw.tel ?? raw.Phone ?? raw.mobile ?? "";
+  const email =
+    raw.email ?? raw.Email ?? "";
+  const imageRaw =
+    raw.image ?? raw.profile_image ?? raw.profileImage ?? raw.avatar ?? raw.Avatar ?? "";
+
+  const image = normalizeImageUrl(imageRaw);
+  return { first_name, last_name, gender, address, birthday, phone, email, image };
+};
+
 
   // ✅ อัปเดตทุกวินาทีเพื่อตรวจ flag ใหม่
   useEffect(() => {
@@ -44,6 +73,10 @@ const getProfileImage = () => {
   const p = getProfileFromLS();
   return p.image || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png";
 };
+useEffect(() => {
+  // โหลดโปรไฟล์ตั้งแต่เปิดหน้า
+  fetchProfileAndUpdateStorage();
+}, []);
 
 useEffect(() => {
   window.confirmAppointment = async (id: string, status: string) => {
@@ -163,22 +196,38 @@ localStorage.setItem(NOTICE_FLAG_KEY, "true");
       },
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
-      localStorage.setItem("first_name", data.first_name);
-      localStorage.setItem("last_name", data.last_name);
-      localStorage.setItem("gender", data.gender.toString());
-      localStorage.setItem("address", data.address);
-      localStorage.setItem("birthday", data.birthday);
-      localStorage.setItem("phone", data.phone);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("profile_image", data.image);
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+      // คลี่ data/profile/result ถ้ามี
+      const src = (data && (data.data || data.profile || data.result)) ?? data ?? {};
+      const p = normalizePatientProfile(src);
+
+      // เก็บ generic (เผื่อคอมโพเนนท์อื่นยังใช้)
+      localStorage.setItem("first_name", p.first_name || "");
+      localStorage.setItem("last_name",  p.last_name  || "");
+      localStorage.setItem("gender",     String(p.gender ?? ""));
+      localStorage.setItem("address",    p.address || "");
+      localStorage.setItem("birthday",   p.birthday || "");
+      localStorage.setItem("phone",      p.phone || "");
+      localStorage.setItem("email",      p.email || "");
+      localStorage.setItem("profile_image", p.image || "");
+
+      // เก็บ cache หลักที่ NavBar อ่าน
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+
+      // debug ชั่วคราว
+      console.log("[PAT] api raw:", data);
+      console.log("[PAT] src used:", src);
+      console.log("[PAT] normalized:", p);
+      console.log("[PAT] saved under:", PROFILE_KEY, localStorage.getItem(PROFILE_KEY));
+    } else {
+      console.error("patient/profile failed", data);
     }
   } catch (error) {
-    console.error("โหลดโปรไฟล์ล้มเหลว", error);
+    console.error("โหลดโปรไฟล์ผู้ป่วยล้มเหลว", error);
   }
 };
+
 
   const genderMap: Record<string, string> = {
   "1": "ชาย",
@@ -195,7 +244,22 @@ const handleEditProfile = async () => {
   setShowMenu(false);
   await fetchProfileAndUpdateStorage();
     const raw = localStorage.getItem(PROFILE_KEY);
-  const p = raw ? JSON.parse(raw) : {};
+let p = raw ? JSON.parse(raw) : {};
+
+// 🔁 fallback ถ้า cache ยังว่าง
+if (!p || Object.keys(p).length === 0) {
+  p = {
+    first_name: localStorage.getItem("first_name") || "",
+    last_name:  localStorage.getItem("last_name")  || "",
+    gender:     localStorage.getItem("gender")     || "",
+    address:    localStorage.getItem("address")    || "",
+    birthday:   localStorage.getItem("birthday")   || "",
+    phone:      localStorage.getItem("phone")      || "",
+    email:      localStorage.getItem("email")      || "",
+    image:      localStorage.getItem("profile_image") || "",
+  };
+}
+
 
   const profile = {
     first_name: p.first_name || "-",
@@ -410,6 +474,9 @@ const out = () => {
         </li>
         <li>
           <a onClick={() => handleNavigate("thought_records")}>Thought Record</a>
+        </li>
+        <li>
+          <a onClick={() => handleNavigate("feedback")}>Feedback</a>
         </li>
    <li style={{ position: "relative" }}>
   <img

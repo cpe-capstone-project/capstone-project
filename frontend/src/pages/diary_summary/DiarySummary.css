@@ -1,8 +1,11 @@
 .diary-summary-container {
   display: flex;
   flex-direction: column;
-  /* padding: 24px 128px; */
+  width: 100%;
+  padding: 24px;
   gap: var(--space-lg);
+      border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .diary-summary-header {

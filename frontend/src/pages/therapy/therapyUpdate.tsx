@@ -15,7 +15,9 @@ export default function EditTherapyCasePage() {
     const { id } = useParams(); // รับ id จาก path
     const psychoIdStr = localStorage.getItem("id");
     const [casesStatus, setCasesStatus] = useState<CaseStatusInterface[]>([]);
-    console.log("casesStatus",casesStatus)
+    const [showModal, setShowModal] = useState(false);
+    const [notification, setNotification] = useState<{ message: string, success: boolean } | null>(null);
+    console.log("casesStatus", casesStatus)
 
     const [formData, setFormData] = useState<TherapyInterface>({
         CaseTitle: "",
@@ -28,6 +30,15 @@ export default function EditTherapyCasePage() {
 
     type FormErrors = Partial<Record<keyof TherapyInterface, string>>;
     const [errors, setErrors] = useState<FormErrors>({});
+
+    useEffect(() => {
+        if (notification) {
+            const timer = setTimeout(() => {
+                setNotification(null);
+            }, 3000); // 3000ms = 3 วินาที
+            return () => clearTimeout(timer);
+        }
+    }, [notification]);
 
     useEffect(() => {
         const fetchStatuses = async () => {
@@ -107,17 +118,15 @@ export default function EditTherapyCasePage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if (!validateForm()) return;
-
+        setNotification({ message: "กรอกข้อมูลไม่ครบ", success: false });
         try {
-            
-    const psychoIdNum = Number(psychoIdStr);
-    if (!Number.isFinite(psychoIdNum)) {
-      alert("ไม่พบ Psychologist ID ที่ถูกต้อง");
-      return;
-    }
+
+            const psychoIdNum = Number(psychoIdStr);
+            if (!Number.isFinite(psychoIdNum)) {
+                return;
+            }
             const payload = {
                 case_title: formData.CaseTitle,
                 case_description: formData.CaseDescription,
@@ -131,40 +140,41 @@ export default function EditTherapyCasePage() {
 
             if (!id) return;
             await UpdateTherapyCase(Number(id), payload);
-            
-    const sid = Number(payload.case_status_id);
-    const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown";
 
-    try {
-      const bc = new BroadcastChannel("patient_activity");
-      const msg = {
-        type: "therapy_status_change",
-        state, // "in_treatment" | "completed" | "unknown"
-        patient_id: Number(payload.patient_id),
-        psychologist_id: psychoIdNum, // ✅ ใช้ตัวนอก
-      };
-      bc.postMessage(msg);
-      bc.close();
+            const sid = Number(payload.case_status_id);
+            const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown";
 
-      // fallback (ให้แท็บอื่น/หน้า Homedoc ที่เปิดทีหลังรับได้)
-      localStorage.setItem("patient_activity_ping", JSON.stringify({ ...msg, ts: Date.now() }));
-    } catch {
-      localStorage.setItem(
-        "patient_activity_ping",
-        JSON.stringify({
-          type: "therapy_status_change",
-          state,
-          patient_id: Number(payload.patient_id),
-          psychologist_id: psychoIdNum,
-          ts: Date.now(),
-        })
-      );
-    }
-            alert("แก้ไขข้อมูลเรียบร้อยแล้ว");
-            navigate("/psychologist/therapy");
+            try {
+                const bc = new BroadcastChannel("patient_activity");
+                const msg = {
+                    type: "therapy_status_change",
+                    state, // "in_treatment" | "completed" | "unknown"
+                    patient_id: Number(payload.patient_id),
+                    psychologist_id: psychoIdNum, // ✅ ใช้ตัวนอก
+                };
+                bc.postMessage(msg);
+                bc.close();
+
+                // fallback (ให้แท็บอื่น/หน้า Homedoc ที่เปิดทีหลังรับได้)
+                localStorage.setItem("patient_activity_ping", JSON.stringify({ ...msg, ts: Date.now() }));
+            } catch {
+                localStorage.setItem(
+                    "patient_activity_ping",
+                    JSON.stringify({
+                        type: "therapy_status_change",
+                        state,
+                        patient_id: Number(payload.patient_id),
+                        psychologist_id: psychoIdNum,
+                        ts: Date.now(),
+                    })
+                );
+            }
+            setNotification({ message: `แก้ไขเคส "${formData.CaseTitle}" สำเร็จ`, success: true });
+            setTimeout(() => {
+                navigate("/psychologist/therapy");
+            }, 1500);
         } catch (error) {
             console.error(error);
-            alert("เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
         }
     };
 
@@ -194,7 +204,10 @@ export default function EditTherapyCasePage() {
                 </div>
 
                 <form
-                    onSubmit={handleSubmit}
+                    onSubmit={(e) => {
+                        e.preventDefault();  // ป้องกัน form submit ปกติ
+                        setShowModal(true);  // เปิด modal
+                    }}
                     className="!w-full !bg-white !border !border-gray-200 !rounded-lg !p-8 !space-y-8"
                 >
 
@@ -316,6 +329,24 @@ export default function EditTherapyCasePage() {
                     </div>
                 </form>
             </div>
+            {showModal && (
+                <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center">
+                    <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+                        <h2 className="!text-xl !font-bold">ยืนยันการแก้เคส</h2>
+                        <p>คุณต้องการบันทึกเคส "{formData.CaseTitle}" ใช่หรือไม่?</p>
+                        <div className="!flex !justify-end !gap-3">
+                            <button onClick={() => setShowModal(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+                            <button onClick={() => { handleSubmit(); setShowModal(false); }} className="!px-4 !py-2 !bg-blue-600 !text-white !rounded">ยืนยัน</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {notification && (
+                <div className={`!fixed !bottom-5 !right-5 !px-4 !py-3 !rounded-lg !shadow-lg ${notification.success ? '!bg-green-500' : '!bg-red-500'} !text-white`}>
+                    {notification.message}
+                    <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,8 +1,11 @@
 .diary-summary-container {
   display: flex;
   flex-direction: column;
-  /* padding: 24px 128px; */
+  width: 100%;
+  padding: 24px;
   gap: var(--space-lg);
+      border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .diary-summary-header {
@@ -87,7 +90,7 @@
   flex-direction: column;
   width: 100%;
   gap: var(--space-sm);
-  
+
   z-index: 1; /* ให้เนื้อหาอยู่บน background เบลอ */
 
   h1 {
@@ -112,11 +115,13 @@
 /* Keyword */
 .summary-keyword-container {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: var(--space-xs);
-  border-radius: var(--radius-lg);
-    z-index: 1;
+  z-index: 1;
+
+  h1 {
+    font-weight: bold;
+  }
 }
 
 /* Emotion */
@@ -127,6 +132,10 @@
   padding: var(--space-2xl);
   border-radius: var(--radius-lg);
   background-color: var(--color-surface);
+
+  h1 {
+    font-size: var(--font-size-lg);
+  }
 }
 
 .tags-container {

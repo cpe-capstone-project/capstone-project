@@ -4,6 +4,7 @@
   transition: width 0.4s;
   will-change: width;
 }
+
 .sidebar-anim.hide {
   width: 0;
   pointer-events: none;
@@ -34,12 +35,10 @@
   justify-content: space-between;
   top: 0;
   gap: var(--space-sm);
-  padding: var(--padding-text-editor) var(--padding-patient-home-page) 0
-    var(--padding-patient-home-page);
+  padding: var(--padding-text-editor) var(--padding-patient-home-page) 0 var(--padding-patient-home-page);
   background-color: var(--color-grey);
   z-index: 2;
 
-  /* Control Bar */
   .control {
     display: flex;
     justify-content: space-between;
@@ -72,100 +71,96 @@
   flex-direction: column;
   gap: var(--space-md);
   padding: 0 var(--padding-patient-home-page);
-}
 
-/* Diary List Item */
-.diary-list-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: var(--space-md);
-
-  background-color: white;
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-
-  /* Badge */
-  .unconfirmed-badge {
-    position: absolute;
-    top: -5%;
-    right: -5%;
-    padding: var(--space-xxs) var(--space-sm);
-    background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
-    color: white;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    text-align: center;
-    line-height: 20px;
+  h1 {
+    font-size: var(--font-size-xl);
     font-weight: bold;
-    z-index: 1;
   }
-}
-
-.diary-list-item:hover {
-  background-color: var(--color-surface);
-}
-
-.diary-list-item.active {
-  background-color: #ddd;
-}
-
-/* Diary Link */
-.left-side-diary {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: var(--space-md);
-  padding: 24px 24px 24px 0;
-  color: black;
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-
-  .left-side-diary-info {
+  
+  .diary-list-item {
+    position: relative;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     width: 100%;
-    /* gap: var(--space-xs); */
+    gap: var(--space-md);
+    background-color: white;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
 
-    header {
+    .unconfirmed-badge {
+      position: absolute;
+      top: -5%;
+      right: -5%;
+      padding: var(--space-xxs) var(--space-sm);
+      background-color: var(--color-yellow-alert);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      text-align: center;
+      line-height: 20px;
+      font-weight: bold;
+      z-index: 1;
+    }
+  }
+  
+  .diary-list-item:hover {
+    background-color: var(--color-surface);
+  }
+  
+  .diary-list-item.active {
+    background-color: #ddd;
+  }
+  
+  .left-side-diary {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: var(--space-md);
+    padding: 24px 24px 24px 0;
+    color: black;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+  
+    .left-side-diary-info {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-xs);
-
-      h1 {
+      flex-direction: column;
+      width: 100%;
+  
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-xs);
+  
+        h1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: var(--font-size-md);
+          width: 80%;
+          word-break: break-word;
+        }
+  
+        p {
+          font-size: var(--font-size-sm);
+        }
+      }
+  
+      .content {
         display: -webkit-box;
-        -webkit-line-clamp: 1; /* จำนวนบรรทัด */
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-
-        font-size: var(--font-size-md);
-
-        width: 80%;
+        font-weight: normal;
+        font-size: var(--font-size-sm);
+        opacity: 0.8;
+        width: 100%;
         word-break: break-word;
       }
-
-      p {
-        font-size: var(--font-size-sm);
-      }
-    }
-
-    .content {
-      display: -webkit-box;
-      -webkit-line-clamp: 2; /* จำนวนบรรทัด */
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-weight: normal;
-      font-size: var(--font-size-sm);
-      opacity: 0.8;
-
-      width: 100%;
-      word-break: break-word;
     }
   }
 }
@@ -184,7 +179,9 @@
   cursor: pointer;
   transition: var(--transition-fast);
   background-color: white;
+  flex-shrink: 0;
 }
+
 .circle-select-btn.selected {
   border-radius: 50%;
   border: 2px solid var(--ant-color-primary);
@@ -192,10 +189,10 @@
 }
 
 .circle-select-btn.confirmed {
-  background-color: #ccc; /* สีจาง */
-  cursor: not-allowed; /* เม้าส์เป็นสัญลักษณ์ห้าม */
-  opacity: 0.6; /* ทำให้จางลง */
-  pointer-events: none; /* กันไม่ให้คลิกได้ */
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .menu-item {
@@ -226,7 +223,6 @@
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
   height: 0;
-  /* opacity: 0; */
   overflow: hidden;
 
   .action-buttons {
@@ -304,5 +300,95 @@
 
   .delete-selected-btn:hover {
     background-color: var(--color-red-hover);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .left-side {
+    width: 100%;
+    /* height: 100vh; */
+    
+    .left-side-header {
+      /* padding: 16px 20px 0 20px; */
+      
+      .control {
+        .back-container {
+          font-size: var(--font-size-lg);
+          gap: 8px;
+        }
+      }
+    }
+  }
+
+  .diary-group {
+    /* padding: 0 20px; */
+    
+    h1 {
+      font-size: var(--font-size-lg);
+    }
+    
+    .diary-list-item {
+      gap: var(--space-sm);
+      
+      .left-side-diary {
+        padding: 16px 16px 16px 0;
+        
+        .left-side-diary-info {
+          header {
+            h1 {
+              font-size: var(--font-size-sm);
+              width: 70%;
+            }
+            
+            p {
+              font-size: 12px;
+            }
+          }
+          
+          .content {
+            p {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+/* 
+  .circle-select-btn {
+    width: 18px;
+    height: 18px;
+    margin: 16px 0 16px 16px;
+  }
+
+  .delete-selected-container {
+    padding: 0 20px;
+  }
+
+  .delete-selected-container.active {
+    padding: 16px 20px;
+    height: 60px;
+  } */
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .left-side {
+    width: 300px;
+  }
+  
+  .diary-group {
+    .diary-list-item {
+      .left-side-diary {
+        .left-side-diary-info {
+          header {
+            h1 {
+              font-size: var(--font-size-sm);
+            }
+          }
+        }
+      }
+    }
   }
 }

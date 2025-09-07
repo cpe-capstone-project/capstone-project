@@ -243,3 +243,43 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 } */
 
+.emotions { 
+  background: linear-gradient(135deg, #fff0f6 0%, #ffe6f0 100%);
+}
+.emotions::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #e91e63; /* สีขอบซ้าย */
+}
+
+.emotion-tag {
+  background: #519bf1; /* default */
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  line-height: 1.2;
+  cursor: default;
+}
+
+
+@media (max-width: 480px) {
+  .emotion-tag {
+    padding: 3px 10px;
+    font-size: 14px;
+  }
+}

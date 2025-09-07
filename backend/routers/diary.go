@@ -8,6 +8,7 @@ import (
 func SetupDiaryRoutes(r *gin.RouterGroup) {
 
 	r.GET("/diary-summary/:id", diary.GetDiarySummaryByID)
+	r.GET("/diary-summary-emotion-stats/:summary_id", diary.DiarySummaryEmotionStatsHandler)
 	r.POST("/diary-summary", diary.SummarizeDiaries)
 
 	r.GET("/diaries", diary.ListDiaries)
@@ -19,5 +20,7 @@ func SetupDiaryRoutes(r *gin.RouterGroup) {
 	r.DELETE("/diary/:id", diary.DeleteDiary)
 	r.GET("/diaries/count", diary.CountDiariesByMonth)
 	r.GET("/diaries/home", diary.GetHomeDiaries)
+	r.GET("/patients/:patientId/diaries/count", diary.CountDiariesByMonthForPatient)
+    r.GET("/patients/:patientId/diaries/home", diary.GetHomeDiariesByPatient)
 
 }

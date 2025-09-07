@@ -4,6 +4,7 @@ import (
 	"capstone-project/config"
 	"capstone-project/entity"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -116,6 +117,7 @@ func GetFeedbackTime(c *gin.Context) {
 	c.JSON(http.StatusOK, feedbackTimes)
 }
 
+
 // ---- Diary Feedback ----
 func GetDiaryFeedbackByPatient(c *gin.Context) {
 	patientID := c.Param("patient_id")
@@ -225,5 +227,70 @@ func GetThoughtFeedbackByPatient(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+
+func GetFeedbacksByPatient(c *gin.Context) {
+  db := config.DB()
+  pid := c.Param("patientId")
+  limitStr := c.DefaultQuery("limit", "10")
+
+  limit := 10
+  if v, err := strconv.Atoi(limitStr); err == nil && v > 0 {
+    limit = v
+  }
+
+  var list []entity.Feedbacks
+  // ใช้ DISTINCT กันซ้ำในกรณี feedback ผูกหลายไดอารี่
+  if err := db.
+    Table("feedbacks f").
+    Joins("LEFT JOIN feedback_diaries fd ON fd.feedback_id = f.id").
+    Joins("LEFT JOIN diaries d ON d.id = fd.diary_id").
+    Where("f.patient_id = ? OR d.patient_id = ?", pid, pid).
+    Order("f.created_at DESC").
+    Limit(limit).
+    Select("DISTINCT f.*").
+    Preload("Psychologist").
+    Preload("FeedbackTime").
+    Preload("FeedbackType").
+    Find(&list).Error; err != nil {
+      c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+      return
+  }
+
+  c.JSON(http.StatusOK, gin.H{"items": list})
+}
+
+// GET /diaries/:diaryId/feedbacks?limit=3
+func GetFeedbacksByDiary(c *gin.Context) {
+	db := config.DB()
+
+	diaryID := c.Param("diaryId")
+	limitStr := c.DefaultQuery("limit", "3")
+	limit := 3
+	if v, err := strconv.Atoi(limitStr); err == nil && v > 0 {
+		limit = v
+	}
+
+	var list []entity.Feedbacks
+	if err := db.
+		Table("feedbacks f").
+		Joins("JOIN feedback_diaries fd ON fd.feedback_id = f.id").
+		Where("fd.diary_id = ?", diaryID).
+		Order("f.created_at DESC").
+		Limit(limit).
+		Select("DISTINCT f.*").
+		Preload("Psychologist").
+		Preload("Patient").
+		Preload("FeedbackType").
+		Preload("FeedbackTime").
+		Preload("ThoughtRecord").
+		Preload("FeedbackDiary.Diary").
+		Find(&list).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"items": list})
 }
 

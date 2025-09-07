@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -52,33 +53,34 @@ func SummarizeDiaries(c *gin.Context) {
 		return
 	}
 
-	// 1️⃣ โหลด timezone ของผู้ใช้
+	// // แปลงกลับเป็น UTC ก่อน query
+	// startStr := req.StartDate.Format("2006-01-02")
+	// endStr := req.EndDate.Format("2006-01-02")
 	loc, err := time.LoadLocation(req.Timezone)
 	if err != nil {
-		loc = time.UTC
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timezone"})
+		return
 	}
 
-	// 2️⃣ แปลง start / end เป็นเวลาของ timezone ที่ผู้ใช้เลือก
-	start := req.StartDate.In(loc)
-	end := req.EndDate.In(loc)
-
-	// 3️⃣ แปลงเป็น UTC ก่อนส่งเข้า SQL (ถ้า DB เก็บ timestamp with timezone)
-	startUTC := start.UTC()
-	endUTC := end.UTC()
+	// แปลง StartDate / EndDate ให้ตรง timezone ที่ client ส่งมา
+	startLocal := req.StartDate.In(loc)
+	endLocal := req.EndDate.In(loc)
 
 	db := config.DB()
 	var diaries []entity.Diaries
 
-	if err := db.Where("therapy_case_id = ? AND confirmed = ? AND updated_at BETWEEN ? AND ?", req.TherapyCaseID, true, startUTC, endUTC).
-		Order("updated_at ASC").Find(&diaries).Error; err != nil {
+	// fmt.Printf("Querying diaries from %s to %s in TherapyCaseID %d\n", startLocal, startLocal, req.TherapyCaseID)
+
+	if err := db.Where("therapy_case_id = ? AND confirmed = 1 AND updated_at BETWEEN ? AND ?",
+		req.TherapyCaseID, startLocal, endLocal).
+		Order("updated_at ASC").
+		Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query diaries"})
 		return
 	}
 
-	
-
 	if len(diaries) == 0 {
-		c.JSON(http.StatusOK, gin.H{"message": "No diaries in selected timeframe"})
+		c.JSON(http.StatusOK, gin.H{"message": "ไม่มีข้อมูลไดอารี่ในช่วงเวลาที่ระบุ"})
 		return
 	}
 
@@ -89,8 +91,7 @@ func SummarizeDiaries(c *gin.Context) {
 		fullText += "Title: " + d.Title + "\n" + "Content: " + cleanContent + "\n\n"
 	}
 
-	fmt.Println("Full diary text for summarization:", fullText)
-	
+	// fmt.Println("Full diary text for summarization:", fullText)
 
 	// เตรียมข้อความ prompt เพื่อสรุปด้วย Gemini
 	summaryInput := fmt.Sprintf(`ด้านล่างคือบันทึกประจำวันของผู้ป่วยในการบำบัดด้วย CBT
@@ -135,8 +136,8 @@ func SummarizeDiaries(c *gin.Context) {
 	summary := entity.DiarySummary{
 		TherapyCaseID: req.TherapyCaseID,
 		Timeframe:     req.Timeframe,
-		StartDate:     req.StartDate,
-		EndDate:       req.EndDate,
+		StartDate:     startLocal,
+		EndDate:       endLocal,
 		SummaryText:   summaryText,
 		Keyword:       keywords,
 		Diaries:       diaries,
@@ -150,49 +151,98 @@ func SummarizeDiaries(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"summary": summary})
 }
 
+// Struct สำหรับส่งออก
 type EmotionCount struct {
-	EmotionName string  `json:"emotion"`
+	EmotionName string  `json:"emotion_name"`
+	Color       string  `json:"color"`
 	Count       int     `json:"count"`
 	Percentage  float64 `json:"percentage"`
 }
 
+// Service: ดึงสถิติอารมณ์ของ DiarySummary
 func GetDiarySummaryEmotionStats(summaryID uint) ([]EmotionCount, error) {
 	var totalCount int64
 	var results []struct {
 		EmotionName string
+		Color       string
 		Count       int64
 	}
 
 	db := config.DB()
-	// นับจำนวนทั้งหมดของอารมณ์ใน DiarySummary นี้
-	db.Table("emotion_analysis_results").
-		Joins("JOIN diaries ON diaries.id = emotion_analysis_results.diary_id").
-		Joins("JOIN diary_summary_entries ON diary_summary_entries.diary_id = diaries.id").
-		Joins("JOIN diary_summaries ON diary_summaries.id = diary_summary_entries.diary_summary_id").
-		Joins("JOIN emotions ON emotions.id = emotion_analysis_results.emotions_id").
-		Where("diary_summaries.id = ?", summaryID).
-		Count(&totalCount)
 
-	// นับตามอารมณ์
-	db.Table("emotion_analysis_results").
-		Select("emotions.name as emotion_name, COUNT(*) as count").
-		Joins("JOIN diaries ON diaries.id = emotion_analysis_results.diary_id").
-		Joins("JOIN diary_summary_entries ON diary_summary_entries.diary_id = diaries.id").
-		Joins("JOIN diary_summaries ON diary_summaries.id = diary_summary_entries.diary_summary_id").
-		Joins("JOIN emotions ON emotions.id = emotion_analysis_results.emotions_id").
-		Where("diary_summaries.id = ?", summaryID).
-		Group("emotions.name").
-		Scan(&results)
+	// ✅ นับจำนวนทั้งหมดของ sub_emotion_analyses ที่เกี่ยวข้องกับ summaryID
+	err := db.Table("sub_emotion_analyses").
+		Joins("JOIN emotion_analysis_results ear ON ear.id = sub_emotion_analyses.emotion_analysis_results_id").
+		Joins("JOIN diaries d ON d.id = ear.diary_id").
+		Joins("JOIN diary_summary_entries dse ON dse.diary_id = d.id").
+		Joins("JOIN diary_summaries ds ON ds.id = dse.diary_summary_id").
+		Where("ds.id = ?", summaryID).
+		Count(&totalCount).Error
+	if err != nil {
+		return nil, err
+	}
 
-	// แปลงเป็นเปอร์เซ็นต์
+	// ✅ ดึงข้อมูลอารมณ์ + สี + count
+	err = db.Table("sub_emotion_analyses").
+		Select("e.emotionsname as emotion_name, e.emotions_color as color, COUNT(*) as count").
+		Joins("JOIN emotions e ON e.id = sub_emotion_analyses.emotions_id").
+		Joins("JOIN emotion_analysis_results ear ON ear.id = sub_emotion_analyses.emotion_analysis_results_id").
+		Joins("JOIN diaries d ON d.id = ear.diary_id").
+		Joins("JOIN diary_summary_entries dse ON dse.diary_id = d.id").
+		Joins("JOIN diary_summaries ds ON ds.id = dse.diary_summary_id").
+		Where("ds.id = ?", summaryID).
+		Group("e.emotionsname, e.emotions_color").
+		Scan(&results).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// ✅ คำนวณเปอร์เซ็นต์
 	var stats []EmotionCount
 	for _, r := range results {
 		stats = append(stats, EmotionCount{
 			EmotionName: r.EmotionName,
+			Color:       r.Color,
 			Count:       int(r.Count),
 			Percentage:  (float64(r.Count) / float64(totalCount)) * 100,
 		})
 	}
 
 	return stats, nil
+}
+
+// Handler: GET /diary-summary-emotion-stats?summary_id=1
+func DiarySummaryEmotionStatsHandler(c *gin.Context) {
+	// รับ summary_id จาก path param
+	summaryIDStr := c.Param("summary_id")
+	if summaryIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "summary_id is required"})
+		return
+	}
+
+	// แปลงเป็น uint
+	summaryID, err := strconv.ParseUint(summaryIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid summary_id"})
+		return
+	}
+
+	// เรียก service
+	stats, err := GetDiarySummaryEmotionStats(uint(summaryID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// เช็คว่ามีข้อมูลหรือไม่
+	if len(stats) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no data found for this summary_id"})
+		return
+	}
+
+	// ตอบกลับ JSON
+	c.JSON(http.StatusOK, gin.H{
+		"summary_id": summaryID,
+		"emotions":   stats,
+	})
 }

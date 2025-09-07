@@ -15,6 +15,7 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CORSMiddleware())
 	r.Static("/uploads", "./uploads")
+	
 	// Public Routes
 	SetupWebSocketRoute(r)
 	SetupAuthenticationRoutes(r)
@@ -30,10 +31,10 @@ func SetupRouter() *gin.Engine {
 	SetupThoughtRecordRoutes(private)
 	SetupTherapyCaseRoutes(private)
 	SetupFeedbackRoutes(private)
+	SetupEmotionsRoutes(private)
 	
 
 	r.GET("/patient/profile", middlewares.Authorizes(), patient.GetProfile)
-	
 	private.PUT("/patient/update-profile", patient.UpdateProfile)
 	
 	r.GET("/", func(c *gin.Context) {

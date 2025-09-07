@@ -71,7 +71,6 @@
   padding: 0.65rem 1rem;
   width: 100%;
   border-radius: 14px;
-  font-weight: 500;
   font-size: 15px;
   color: #333;
   cursor: pointer;
@@ -85,9 +84,7 @@
 }
 
 .sidebar-item.active {
-  background-color: #cbe9ff;
   color: #004466;
-  box-shadow: inset 0 0 0 1.5px #50bdf7;
 }
 
 .sidebar-item img {

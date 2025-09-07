@@ -1,6 +1,6 @@
 .diary-list-container {
   position: relative;
-  padding: var(--padding-patient-home-page);
+  padding: var(--space-sm) var(--space-lg);
 }
 
 .diary-list-header {
@@ -15,36 +15,57 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
-  }
-}
 
-.diary-grid {
-  margin-top: 24px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 340px));
-  column-gap: 45px;
-  row-gap: 45px;
-
-  .diary-item {
-    position: relative;
-    text-decoration: none;
-    width: 360px;
-    height: 180px;
-    color: black;
-
-    .unconfirmed-badge {
-      position: absolute;
+    .diary-list-create-btn {
       display: flex;
       align-items: center;
-      justify-content: center;
-      top: -5%;
-      right: -3%;
-      padding: var(--space-xxs);
-      background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+      gap: var(--space-xs);
+      background-color: var(--ant-color-primary);
       color: white;
-      font-size: var(--font-size-lg);
-      border-radius: var(--radius-full);
-      z-index: 1;
+      padding: 4px 20px;
+      border: none;
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: var(--transition-fast);
+    }
+  }
+}
+            
+
+.diary-list {
+  h1 {
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+  }
+  
+  .diary-grid {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 340px));
+    column-gap: 45px;
+    row-gap: 45px;
+  
+    .diary-item {
+      position: relative;
+      text-decoration: none;
+      width: 360px;
+      height: 180px;
+      color: black;
+  
+      .unconfirmed-badge {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: -5%;
+        right: -3%;
+        padding: var(--space-xxs);
+        background-color: var(--color-yellow-alert); /* สีแดงแจ้งเตือน */
+        color: white;
+        font-size: var(--font-size-lg);
+        border-radius: var(--radius-full);
+        z-index: 1;
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ import type { PatientTherapyInterface } from "./IPatientTherapy";
 import type { PsychologistInterface } from "./IPsychologist";
 import type { FeedbackTimeInterface } from "./IFeedbackTime";
 import type { FeedbackTypeInterface } from "./IFeedbackType";
+import type { ThoughtRecordInterface } from "./IThoughtRecord";
 
 export interface FeedBackInterface {
     ID?: number;
@@ -9,7 +10,7 @@ export interface FeedBackInterface {
     FeedbackContent?: string;
 
     ThoughtRecordID?: number; // สำหรับเชื่อมกับ ThoughtRecord
-    ThoughtRecord?: any;      // สามารถใส่ interface ของ ThoughtRecord ได้
+    ThoughtRecord?: ThoughtRecordInterface;      // สามารถใส่ interface ของ ThoughtRecord ได้
 
     PsychologistID?: number;
     Psychologist?: PsychologistInterface;

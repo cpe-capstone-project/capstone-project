@@ -125,6 +125,33 @@ export default function CreateTherapyCasePage() {
 
       // เรียก API จริง
       await CreateTherapyCase(payload);
+
+const sid = Number(payload.case_status_id);
+const state = sid === 2 ? "completed" : sid === 1 ? "in_treatment" : "unknown"
+
+try {
+  const bc = new BroadcastChannel("patient_activity");
+  const msg = {
+    type: "therapy_status_change",
+    state, // "in_treatment" | "completed" | "unknown"
+    patient_id: Number(payload.patient_id),
+    psychologist_id: Number(psychoIdStr), // <- ใช้ตัวนอกได้เลย (ผ่าน null-check ไปแล้วด้านบน)
+  };
+  bc.postMessage(msg);
+  bc.close();
+  localStorage.setItem("patient_activity_ping", JSON.stringify({ ...msg, ts: Date.now() }));
+} catch {
+  localStorage.setItem(
+    "patient_activity_ping",
+    JSON.stringify({
+      type: "therapy_status_change",
+      state,
+      patient_id: Number(payload.patient_id),
+      psychologist_id: Number(psychoIdStr),
+      ts: Date.now(),
+    })
+  );
+}
       alert("บันทึกข้อมูลเรียบร้อยแล้ว");
       navigate("/psychologist/therapy");
     } catch (error) {

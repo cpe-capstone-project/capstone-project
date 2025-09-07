@@ -79,20 +79,6 @@
 }
 
 .field-box {
-  padding: 5px 5px;
-  background-color: #f5faff;
-  border-radius: 10px;
-  border-left: 4px solid #59afff;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease;
-}
-
-.card-hover-wrapper:hover .field-box {
-  background-color: #e6f7ff;
-  border-left-color: #40a9ff;
-}
-
-.field-box {
   padding: 8px 12px;
   background-color: #f9f9fb;
   border-radius: 10px;
@@ -107,4 +93,63 @@
   background-color: #f0f5f9;
 }
 
+/* จัดการ icon และข้อความใน field-box ให้อยู่บรรทัดเดียวกัน */
+.field-box .ant-typography {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  line-height: 1.4;
+}
 
+.field-box .ant-typography p {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ปรับ icon ใน field-box ให้จัดแนวกับข้อความ */
+.field-box svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-top: -1px; /* ปรับตำแหน่ง icon ให้อยู่กึ่งกลางกับข้อความ */
+}
+
+/* Emotion Box */
+.emotion-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 คอลัมน์ */
+  grid-template-rows: 1fr 1fr; /* 2 แถว */
+  gap: 8px;
+  margin-top: 8px;
+  height: 56px;
+  align-content: start;
+  padding: 4px 0;
+}
+
+/* Emotion Tag */
+.emotion-tag {
+  background: #519bf1; /* เปลี่ยนเป็นสีฟ้าเรียบ */
+  color: #fff; /* ตัวอักษรสีขาว */
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  line-height: 1.2;
+  cursor: default;
+}
+
+/* Emotion Tag สำหรับ indicator +x */
+.emotion-tag.indicator {
+  background: #3366ff; /* สีน้ำเงินเข้มสำหรับ +x */
+  cursor: pointer;
+}

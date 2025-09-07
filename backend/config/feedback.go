@@ -61,5 +61,14 @@ func SetupFeedbackDatabase() {
 		Assign(feedback).
 		FirstOrCreate(&feedback)
 
+	feedbackDiary := entity.FeedbackDiary{
+		DiaryID:    1,
+		FeedbackID: feedback.ID,
+	}
+
+	db.Where(entity.FeedbackDiary{DiaryID: feedbackDiary.DiaryID, FeedbackID: feedbackDiary.FeedbackID}).
+		Assign(feedbackDiary).
+		FirstOrCreate(&feedbackDiary)
+
 	fmt.Println("Feedback data has been added to the database.")
 }

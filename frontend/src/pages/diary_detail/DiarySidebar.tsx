@@ -21,9 +21,14 @@ const stripHtml = (html: string) => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-const DiarySidebar = () => {
+const DiarySidebar = ({
+  onSelectDiary,
+}: {
+  onSelectDiary?: (id: number) => void;
+}) => {
   const { id } = useParams<{ id: string }>();
-  const { diaries, fetchDiariesByPatientAndTherapyCase, deleteDiary } = useDiary();
+  const { diaries, fetchDiariesByPatientAndTherapyCase, deleteDiary } =
+    useDiary();
   const { getTherapyCaseByPatient } = useTherapyCase();
   const { basePath, getBackPath } = usePath();
   const { formatShort } = useDate();
@@ -42,20 +47,24 @@ const DiarySidebar = () => {
 
   useEffect(() => {
     const patientId = Number(localStorage.getItem("id"));
-  
+
     const fetchData = async () => {
       // ดึง therapy cases ของ patient
       const therapyCases = await getTherapyCaseByPatient(patientId);
-  
+
       if (therapyCases && typeof therapyCases.ID !== "undefined") {
         const therapyCaseId = therapyCases.ID;
-        fetchDiariesByPatientAndTherapyCase(patientId, therapyCaseId, sortField, sortOrder);
+        fetchDiariesByPatientAndTherapyCase(
+          patientId,
+          therapyCaseId,
+          sortField,
+          sortOrder
+        );
       }
     };
-  
+
     fetchData();
   }, [sortField, sortOrder]);
-  
 
   useEffect(() => {
     localStorage.setItem("diary_sortOrder", sortOrder);
@@ -206,7 +215,7 @@ const DiarySidebar = () => {
       </section>
       {Object.entries(grouped).map(([label, items]) => (
         <div key={label} className="diary-group">
-          <h2>{label}</h2>
+          <h1>{label}</h1>
           {items.map((item) => (
             <div
               id={`diary-${item.ID}`}
@@ -227,9 +236,8 @@ const DiarySidebar = () => {
               />
 
               <Link
-                // id={`diary-${item.ID}`}
-                key={item.ID}
                 to={`${basePath}/${item.ID}`}
+                onClick={() => onSelectDiary?.(item.ID!)}
                 className={`left-side-diary`}
               >
                 <div className="left-side-diary-info">

@@ -11,7 +11,7 @@ function Sidebar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const PROFILE_KEY = k(KEYS.PROFILE);
+  const PROFILE_KEY = k(KEYS.PROFILE_PSYCH);
 
 const getProfileFromLS = () => {
   try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); }
@@ -21,7 +21,41 @@ const getProfileFromLS = () => {
     const basePath = location.pathname.split("/")[1];
     navigate(`/${basePath}/${path}`);
   };
- const fetchProfileAndUpdateStorage = async () => {
+const normalizeImageUrl = (img?: string) => {
+  if (!img) return "";
+  // ถ้าเป็น data URL ให้ใช้ตรง ๆ
+  if (img.startsWith("data:")) return img;
+  // ถ้าเป็น absolute URL แล้ว ให้ใช้เลย
+  if (img.startsWith("http://") || img.startsWith("https://")) return img;
+  // ถ้าเป็น path สั้นจาก backend ให้เติมโฮสต์
+  return `http://localhost:8000/${img.replace(/^\/?/, "")}`;
+};
+
+const normalizePsychProfile = (raw: any) => {
+  // รองรับ snake_case / camelCase / PascalCase
+  const first_name =
+    raw.first_name ?? raw.firstName ?? raw.FirstName ?? "";
+  const last_name  =
+    raw.last_name  ?? raw.lastName  ?? raw.LastName  ?? "";
+  const gender =
+    raw.gender ?? raw.gender_id ?? raw.genderId ?? raw.GenderID ?? raw.Gender ?? "";
+  const address =
+    raw.address ?? raw.Address ?? "";
+  const birthday =
+    raw.birthday ?? raw.date_of_birth ?? raw.dob ?? raw.Birthday ?? "";
+  const phone =
+    raw.phone ?? raw.tel ?? raw.Phone ?? "";
+  const email =
+    raw.email ?? raw.Email ?? "";
+  const imageRaw =
+    raw.image ?? raw.profile_image ?? raw.license_image ?? raw.licenseImage ?? raw.LicenseImage ?? "";
+
+  const image = normalizeImageUrl(imageRaw);
+
+  return { first_name, last_name, gender, address, birthday, phone, email, image };
+};
+
+const fetchProfileAndUpdateStorage = async () => {
   try {
     const res = await fetch("http://localhost:8000/psychologist/profile", {
       method: "GET",
@@ -30,22 +64,42 @@ const getProfileFromLS = () => {
       },
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+
     if (res.ok) {
-      localStorage.setItem("first_name", data.first_name);
-      localStorage.setItem("last_name", data.last_name);
-      localStorage.setItem("gender", data.gender.toString());
-      localStorage.setItem("address", data.address);
-      localStorage.setItem("birthday", data.birthday);
-      localStorage.setItem("phone", data.phone);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("profile_image", data.image);
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+      // 🔹 รองรับกรณี backend ห่อข้อมูล
+      const src =
+        (data && (data.data || data.profile || data.result)) ?? data ?? {};
+
+      const p = normalizePsychProfile(src);
+
+      // เก็บ generic (เผื่อคอมโพเนนท์เก่าใช้)
+      localStorage.setItem("first_name", p.first_name || "");
+      localStorage.setItem("last_name",  p.last_name  || "");
+      localStorage.setItem("gender",     String(p.gender ?? ""));
+      localStorage.setItem("address",    p.address || "");
+      localStorage.setItem("birthday",   p.birthday || "");
+      localStorage.setItem("phone",      p.phone || "");
+      localStorage.setItem("email",      p.email || "");
+      localStorage.setItem("profile_image", p.image || "");
+
+      // ✅ เก็บ cache หลัก
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+
+      // (แนะนำ) debug ชั่วคราว
+      console.log("[PSY] api raw:", data);
+      console.log("[PSY] src used:", src);
+      console.log("[PSY] normalized:", p);
+      console.log("[PSY] saved under:", PROFILE_KEY, localStorage.getItem(PROFILE_KEY));
+    } else {
+      console.error("fetch profile failed", data);
     }
   } catch (error) {
     console.error("โหลดโปรไฟล์ล้มเหลว", error);
   }
 };
+
+
 
   const genderMap: Record<string, string> = {
   "1": "ชาย",
@@ -60,9 +114,24 @@ const genderReverseMap: Record<string, number> = {
 };
 const Exchangeprofile = async () => {
   setShowMenu(false);
- await fetchProfileAndUpdateStorage();
+  await fetchProfileAndUpdateStorage();
 
-  const p = getProfileFromLS();   // อ่านจาก namespaced key
+  let p = getProfileFromLS();
+
+  // 🔹 ถ้ายังว่างมาก ๆ ลอง fallback ไปยัง generic keys
+  if (!p || Object.keys(p).length === 0) {
+    p = {
+      first_name: localStorage.getItem("first_name") || "",
+      last_name:  localStorage.getItem("last_name")  || "",
+      gender:     localStorage.getItem("gender")     || "",
+      address:    localStorage.getItem("address")    || "",
+      birthday:   localStorage.getItem("birthday")   || "",
+      phone:      localStorage.getItem("phone")      || "",
+      email:      localStorage.getItem("email")      || "",
+      image:      localStorage.getItem("profile_image") || "",
+    };
+  }
+
   const profile = {
     first_name: p.first_name || "-",
     last_name:  p.last_name  || "-",
@@ -73,6 +142,7 @@ const Exchangeprofile = async () => {
     image:      p.image || "https://cdn-icons-png.flaticon.com/128/1430/1430402.png",
     gender:     genderMap[String(p.gender)] || "-",
   };
+
 
   const { value: formValues } = await Swal.fire({
     title: `<h3 style="margin-bottom: 1rem;">โปรไฟล์ของคุณ</h3>`,

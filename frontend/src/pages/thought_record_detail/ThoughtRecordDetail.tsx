@@ -2,16 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
 import { Card, Typography, Spin, Alert, Button, Tag, Divider } from "antd";
-import {
-  ArrowLeftOutlined,
-  CalendarOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
-import {
-  FaRegCommentDots,
-  FaRedoAlt,
-  FaBrain,
-} from "react-icons/fa";
+import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
+import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
 import { GiDramaMasks } from "react-icons/gi";
 import { MdEvStation } from "react-icons/md";
 import "./ThoughtRecordDetail.css";
@@ -36,7 +28,11 @@ function ThoughtRecordDetail() {
   useEffect(() => {
     if (id) {
       getRecordById(Number(id))
-        .then((data) => (data ? setRecord(data) : setError("ไม่พบข้อมูลบันทึกความคิดนี้")))
+        .then((data) => {
+          console.log("ดึง ThoughtRecord มาแล้ว:", data);
+          if (data) setRecord(data);
+          else setError("ไม่พบข้อมูลบันทึกความคิดนี้");
+        })
         .catch(() => setError("เกิดข้อผิดพลาดในการโหลดข้อมูล"))
         .finally(() => setLoading(false));
     }
@@ -70,23 +66,19 @@ function ThoughtRecordDetail() {
   return (
     <section className="thought-record-detail">
       <div className="container">
-
-        {/* ✅ ปุ่มย้อนกลับแบบ Ant Design */}
         <div style={{ marginBottom: 16 }}>
           <Button
-            type="primary" // เปลี่ยนจาก default เป็น primary
+            type="default"
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
           >
-            Back
+            ย้อนกลับ
           </Button>
-
         </div>
 
         <Card className="main-card">
           <div className="title-section">
             <div className="title-left">
-              <FaBrain className="brain-icon" />
               <Title level={2} className="card-title">บันทึกความคิด</Title>
             </div>
             <Tag className="record-tag">รายการที่ {id}</Tag>
@@ -108,16 +100,41 @@ function ThoughtRecordDetail() {
             </div>
           ))}
 
+          {/* แสดง Emotion */}
+          {record.Emotions && record.Emotions.length > 0 ? (
+            <div className="content-item emotions">
+              <div className="content-header">
+                <GiDramaMasks className="content-icon" />
+                <Text className="content-label">อารมณ์</Text>
+              </div>
+              <div
+                className="content-body"
+                style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
+              >
+                {record.Emotions.map((emotion: any) => (
+                  <Tag
+                    key={emotion.ID}
+                    className="emotion-tag"
+                    style={{
+                      background: emotion.EmotionsColor || "#519bf1", // ใช้สีจาก EmotionsColor หรือ fallback
+                      color: "#fff",
+                    }}
+                    title={emotion.ThaiEmotionsname || emotion.Emotionsname}
+                  >
+                    {emotion.ThaiEmotionsname || emotion.Emotionsname}
+                  </Tag>
+                ))}
+
+              </div>
+            </div>
+          ) : (
+            <Paragraph className="content-text">ไม่ได้ระบุอารมณ์</Paragraph>
+          )}
+
+
           <Divider className="timestamp-divider" />
 
           <div className="timestamp-section">
-            <div className="timestamp-item">
-              <CalendarOutlined className="timestamp-icon" />
-              <Text type="secondary">
-                สร้างเมื่อ:{" "}
-                <span className="timestamp-value">{formatDate(record.CreatedAt)}</span>
-              </Text>
-            </div>
             <div className="timestamp-item">
               <EditOutlined className="timestamp-icon" />
               <Text type="secondary">

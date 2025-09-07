@@ -6,20 +6,18 @@ import (
 	"net/http"
 	"strconv"
 
-
 	"github.com/gin-gonic/gin"
 )
 
+// ---------------------------
 // GET /thought_record?sort=updated_at&order=asc
-func ListThoughtRecord(c *gin.Context){
-	var record []entity.ThoughtRecord
+// ---------------------------
+func ListThoughtRecord(c *gin.Context) {
+	var records []entity.ThoughtRecord
 	db := config.DB()
 
 	sortField := c.DefaultQuery("sort", "updated_at")
 	order := c.DefaultQuery("order", "desc")
-	
-
-	// ตรวจสอบว่า order มีค่าถูกต้องหรือไม่
 	if order != "asc" && order != "desc" {
 		order = "desc"
 	}
@@ -31,102 +29,135 @@ func ListThoughtRecord(c *gin.Context){
 	case "UpdatedAt":
 		sortColumn = "updated_at"
 	default:
-		sortColumn = "updated_at" // fallback
+		sortColumn = "updated_at"
 	}
-	db = db.Order(sortColumn + " " + order)
 
-	results := db.Find(&record)
-	if results.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
+	if err := db.Preload("Emotions").Order(sortColumn + " " + order).Find(&records).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, record)
+
+	c.JSON(http.StatusOK, records)
 }
 
-// GET /diary/:id
-func GetThoughtRecordByID(c *gin.Context){
-	ID := c.Param("id")
+// ---------------------------
+// GET /thought_record/:id
+// ---------------------------
+func GetThoughtRecordByID(c *gin.Context) {
+	id := c.Param("id")
 	var record entity.ThoughtRecord
 
 	db := config.DB()
-	results := db.First(&record, ID)
-	if results.Error != nil{
-		c.JSON(http.StatusNotFound, gin.H{"error": results.Error.Error()})
+	if err := db.Preload("Emotions").First(&record, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
 		return
 	}
-	if record.ID == 0{
-		c.JSON(http.StatusNoContent, gin.H{"error": results.Error.Error()})
-		return
-	}
+
 	c.JSON(http.StatusOK, record)
 }
 
-// POST /diary
-func CreateThoughtRecord(c *gin.Context){
-	var record entity.ThoughtRecord
+// ---------------------------
+// POST /thought_record
+// ---------------------------
+type ThoughtRecordInput struct {
+	Situation        string `json:"Situation" binding:"required"`
+	Thoughts         string `json:"Thoughts" binding:"required"`
+	Behaviors        string `json:"Behaviors"`
+	AlternateThought string `json:"AlternateThought"`
+	TagColors        string `json:"TagColors" binding:"required"`
+	TherapyCaseID    uint   `json:"TherapyCaseID"`
+	EmotionsID       []uint `json:"EmotionsID"`
+}
 
-	//bind เข้าตัวแปร diary
-	if err := c.ShouldBindJSON(&record); err != nil{
+func CreateThoughtRecord(c *gin.Context) {
+	var input ThoughtRecordInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
-	// if diary.TagColors == "" {
-	// 	diary.TagColors = defaultColors
-	// }
-
 	db := config.DB()
 
-	bc := entity.ThoughtRecord{
-		Situation: record.Situation,
-		Thoughts: record.Thoughts,
-		Behaviors: record.Behaviors,
-		AlternateThought: record.AlternateThought,
-		TherapyCaseID: record.TherapyCaseID,
-		EmotionsID: record.EmotionsID,
+	// Map EmotionsID ไปหา Emotions objects
+	var emotions []entity.Emotions
+	if len(input.EmotionsID) > 0 {
+		if err := db.Where("id IN ?", input.EmotionsID).Find(&emotions).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid emotions"})
+			return
+		}
 	}
 
+	record := entity.ThoughtRecord{
+		Situation:        input.Situation,
+		Thoughts:         input.Thoughts,
+		Behaviors:        input.Behaviors,
+		AlternateThought: input.AlternateThought,
+		TagColors:        input.TagColors,
+		TherapyCaseID:    input.TherapyCaseID,
+		Emotions:         emotions,
+	}
 
-	//บันทึก
-	if err := db.Create(&bc).Error; err != nil{
+	if err := db.Create(&record).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, bc)
+
+	c.JSON(http.StatusCreated, record)
 }
 
-// PATCH /diary/:id
-func UpdateThoughtRecordByID(c *gin.Context){
+// ---------------------------
+// PATCH /thought_record/:id
+// ---------------------------
+func UpdateThoughtRecordByID(c *gin.Context) {
+	id := c.Param("id")
 	var record entity.ThoughtRecord
-	recordID := c.Param("id")
 	db := config.DB()
-	
-	result := db.First(&record, recordID)
-	if result.Error != nil{
-		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
+
+	if err := db.Preload("Emotions").First(&record, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&record); err != nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request, unable to map payload"})
+	var input ThoughtRecordInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
-	// if record.TagColors == "" {
-	// 	record.TagColors = defaultColors
-	// }
+	// อัปเดต fields
+	updateData := map[string]interface{}{
+		"Situation":        input.Situation,
+		"Thoughts":         input.Thoughts,
+		"Behaviors":        input.Behaviors,
+		"AlternateThought": input.AlternateThought,
+		"TagColors":        input.TagColors,
+		"TherapyCaseID":    input.TherapyCaseID,
+	}
 
-	result = db.Save(&record)
-	if result.Error != nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+	if err := db.Model(&record).Updates(updateData).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update successful"})
+
+	// อัปเดต Emotions associations
+	if len(input.EmotionsID) > 0 {
+		var emotions []entity.Emotions
+		if err := db.Where("id IN ?", input.EmotionsID).Find(&emotions).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid emotions"})
+			return
+		}
+		if err := db.Model(&record).Association("Emotions").Replace(emotions); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "update successful"})
 }
 
-// DELETE /diary/:id
+// ---------------------------
+// DELETE /thought_record/:id
+// ---------------------------
 func DeleteThoughtRecord(c *gin.Context) {
 	id := c.Param("id")
 	db := config.DB()
@@ -136,22 +167,23 @@ func DeleteThoughtRecord(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Deleted successful"})
+	c.JSON(http.StatusOK, gin.H{"message": "deleted successful"})
 }
 
+// ---------------------------
 // GET /thought_record/latest?limit=5
+// ---------------------------
 func ListLatestThoughtRecords(c *gin.Context) {
-	var records []entity.ThoughtRecord
 	db := config.DB()
+	var records []entity.ThoughtRecord
 
 	limitStr := c.DefaultQuery("limit", "5")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
+	limit, _ := strconv.Atoi(limitStr)
+	if limit < 1 {
 		limit = 5
 	}
 
-	// เรียงตามเวลาที่อัปเดตล่าสุด
-	if err := db.Order("updated_at desc").Limit(limit).Find(&records).Error; err != nil {
+	if err := db.Preload("Emotions").Order("updated_at desc").Limit(limit).Find(&records).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -159,30 +191,73 @@ func ListLatestThoughtRecords(c *gin.Context) {
 	c.JSON(http.StatusOK, records)
 }
 
+// ---------------------------
+// GET /thoughtrecords/case/:id
+// ---------------------------
 func GetThoughtRecordsByTherapyCaseID(c *gin.Context) {
-    therapyCaseID := c.Param("id") // รับ TherapyCase ID จาก URL
+	therapyCaseID := c.Param("id")
+	db := config.DB()
+	var records []entity.ThoughtRecord
 
-    var thoughtRecords []entity.ThoughtRecord
+	if err := db.Preload("TherapyCase.Patient").
+		Preload("TherapyCase.CaseStatus").
+		Preload("Emotions").
+		Where("therapy_case_id = ?", therapyCaseID).
+		Find(&records).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
-    db := config.DB()
-    // ดึง ThoughtRecords ของ TherapyCase ตาม ID พร้อม preload TherapyCase, Patient, CaseStatus
-    result := db.Preload("TherapyCase.Patient").
-                 Preload("TherapyCase.CaseStatus").
-                 Where("therapy_case_id = ?", therapyCaseID).
-                 Find(&thoughtRecords)
+	if len(records) == 0 {
+		c.JSON(http.StatusNoContent, gin.H{})
+		return
+	}
 
-    if result.Error != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
-        return
-    }
-
-    if len(thoughtRecords) == 0 {
-        c.JSON(http.StatusNoContent, gin.H{})
-        return
-    }
-
-    c.JSON(http.StatusOK, thoughtRecords)
+	c.JSON(http.StatusOK, records)
 }
 
+// ---------------------------
+// GET /patients/:patientId/thought-records?limit=1
+// ---------------------------
+func GetLatestThoughtRecordsByPatientID(c *gin.Context) {
+	pid := c.Param("patientId")
+	db := config.DB()
+	limitStr := c.DefaultQuery("limit", "1")
+	limit, _ := strconv.Atoi(limitStr)
+	if limit < 1 {
+		limit = 1
+	}
 
+	var items []entity.ThoughtRecord
+	q := db.Model(&entity.ThoughtRecord{}).
+		Joins("JOIN therapy_cases tc ON tc.id = thought_records.therapy_case_id").
+		Where("tc.patient_id = ?", pid).
+		Order("thought_records.updated_at DESC").
+		Limit(limit)
 
+	if err := q.Preload("TherapyCase.Patient").Preload("TherapyCase.CaseStatus").Preload("Emotions").Find(&items).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+// ---------------------------
+// GET /patients/:patientId/thought-records/count
+// ---------------------------
+func GetThoughtRecordCountByPatientID(c *gin.Context) {
+	pid := c.Param("patientId")
+	db := config.DB()
+
+	var cnt int64
+	if err := db.Model(&entity.ThoughtRecord{}).
+		Joins("JOIN therapy_cases tc ON tc.id = thought_records.therapy_case_id").
+		Where("tc.patient_id = ?", pid).
+		Count(&cnt).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"count": cnt})
+}

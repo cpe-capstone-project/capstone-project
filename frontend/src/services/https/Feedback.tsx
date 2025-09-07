@@ -44,6 +44,28 @@ async function GetFeedbackTime(): Promise<FeedbackTimeInterface[]> {
   }
 }
 
+// 🔹 ดึง Feedback ทั้งหมดของ Diary ตาม diaryId
+async function GetFeedbackByDiaryID(id: number): Promise<FeedBackInterface[]> { 
+  try {
+    const res = await axios.get(`${apiUrl}/feedback/diary/${id}`, getRequestOptions());
+    // รองรับทั้งรูปแบบ {data: []} หรือ [] ตรงๆ
+    return res.data?.data ?? res.data ?? [];
+  } catch (e: any) {
+    console.error("Error fetching FeedbackByDiaryID:", e);
+    return [];
+  }
+}
+
+export const GetFeedbackByThoughtID = async (id: number): Promise<FeedBackInterface[]> => {
+  try {
+    const res = await axios.get(`${apiUrl}/feedback/thought/${id}`,getRequestOptions());
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch feedback by thought ID:", error);
+    return [];
+  }
+};
+
 
 // ดึง Diary Feedback ของผู้ป่วย
  async function GetDiaryFeedback(patientId: number) {
@@ -120,6 +142,7 @@ export {
     GetFeedbacksForDiary,
     GetFeedbacksByDiary,   // (ออปชั่น)
     GetFeedbacksByPatient,
+    GetFeedbackByDiaryID,
  };
 
 

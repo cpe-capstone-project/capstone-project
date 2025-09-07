@@ -24,6 +24,8 @@ export interface FeedBackInterface {
     FeedbackTimeID?: number;
     FeedbackTime?: FeedbackTimeInterface;
 
+    CreatedAt?: string;
+
     // สำหรับส่ง Diary หลายตัว
     DiaryIDs?: number[];
 }

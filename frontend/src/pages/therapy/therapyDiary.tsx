@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { GetDiariesByTherapyCaseID } from "../../services/https/TherapyCase";
 import { CreateFeedback, GetFeedbackTime } from "../../services/https/Feedback";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import type { FeedbackTimeInterface } from "../../interfaces/IFeedbackTime";
-import { ArrowLeft, FileText, BookOpen, X, Send, CalendarDays, MessageCircle, Clock, } from "lucide-react";
+import { ArrowLeft, FileText, BookOpen, X, Send, CalendarDays, MessageCircle, Clock, MessageSquare } from "lucide-react";
 
 export default function DiaryList() {
   const { id } = useParams<{ id: string }>();
   const myID = localStorage.getItem("id");
+  const navigate = useNavigate();
 
 
   const [diaries, setDiaries] = useState<DiaryInterface[]>([]);
@@ -33,6 +34,10 @@ export default function DiaryList() {
   const [showReadDiaryModal, setShowReadDiaryModal] = useState(false);
   const [readingDiary, setReadingDiary] = useState<DiaryInterface | null>(null);
 
+  const [showModal, setShowModal] = useState(false);
+  const [showModalBatch, setShowModalBatch] = useState(false);
+  const [notification, setNotification] = useState<{ message: string, success: boolean } | null>(null);
+
   // --- ฟังก์ชันเปิด Modal อ่าน Diary ---
   const handleOpenReadDiary = (diary: DiaryInterface) => {
     setReadingDiary(diary);
@@ -50,6 +55,15 @@ export default function DiaryList() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000); // 3000ms = 3 วินาที
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   // โหลด Diary ของเคส
   useEffect(() => {
@@ -94,86 +108,87 @@ export default function DiaryList() {
     setShowDiaryFeedbackModal(true);
   };
 
- // ⬇️ แก้ในฟังก์ชัน handleSubmitDiaryFeedback
-const handleSubmitDiaryFeedback = async () => {
-  if (!selectedDiaryID) return;
-  try {
-    const payload = {
-      FeedbackTitle: feedbackForm.FeedbackTitle,
-      FeedbackContent: feedbackForm.FeedbackContent,
-      PsychologistID: Number(myID),
-      PatientID: Number(id),
-      FeedbackTypeID: 1,
-      FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
-      DiaryIDs: [selectedDiaryID],
-    };
-    const res = await CreateFeedback(payload);
+  // ⬇️ แก้ในฟังก์ชัน handleSubmitDiaryFeedback
+  const handleSubmitDiaryFeedback = async () => {
+    if (!selectedDiaryID) return;
+    setNotification({ message: "ส่งไม่สำเร็จ", success: false });
+    try {
+      const payload = {
+        FeedbackTitle: feedbackForm.FeedbackTitle,
+        FeedbackContent: feedbackForm.FeedbackContent,
+        PsychologistID: Number(myID),
+        PatientID: Number(id),
+        FeedbackTypeID: 1,
+        FeedbackTimeID: 1,
+        DiaryIDs: [Number(selectedDiaryID)],
+      };
+      const res = await CreateFeedback(payload);
 
-    // เก็บไดอารี่เป้าหมายล่าสุด (ไว้ให้ HomePage โหลดตามไอดี)
-    localStorage.setItem("last_feedback_diary_id", String(selectedDiaryID));
+      // เก็บไดอารี่เป้าหมายล่าสุด (ไว้ให้ HomePage โหลดตามไอดี)
+      localStorage.setItem("last_feedback_diary_id", String(selectedDiaryID));
 
-    // ยิง event พร้อมข้อมูลสำคัญ
-    const created = res?.data ?? res; // รองรับทั้ง axios.data หรือเพียวๆ
-    window.dispatchEvent(
-      new CustomEvent("feedback:created", {
-        detail: {
-          diaryIds: [selectedDiaryID],
-          items: Array.isArray(created) ? created : [created],
-          scope: "diary",
-        },
-      })
-    );
+      // ยิง event พร้อมข้อมูลสำคัญ
+      const created = res?.data ?? res; // รองรับทั้ง axios.data หรือเพียวๆ
+      window.dispatchEvent(
+        new CustomEvent("feedback:created", {
+          detail: {
+            diaryIds: [selectedDiaryID],
+            items: Array.isArray(created) ? created : [created],
+            scope: "diary",
+          },
+        })
+      );
 
-    alert("ส่ง Feedback ต่อ Diary สำเร็จ");
-    setShowDiaryFeedbackModal(false);
-    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
-    setSelectedDiaryID(null);
-  } catch (error) {
-    console.error(error);
-    alert("ส่ง Feedback ไม่สำเร็จ");
-  }
-};
-
-// ⬇️ แก้ในฟังก์ชัน handleSubmitBatchFeedback
-const handleSubmitBatchFeedback = async () => {
-  if (selectedDiaryIDs.length === 0) return;
-  try {
-    const payload = {
-      FeedbackTitle: feedbackForm.FeedbackTitle,
-      FeedbackContent: feedbackForm.FeedbackContent,
-      PsychologistID: Number(myID),
-      PatientID: Number(id),
-      FeedbackTypeID: 1,
-      FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
-      DiaryIDs: selectedDiaryIDs,
-    };
-    const res = await CreateFeedback(payload);
-
-    // ใช้ diary ตัวแรกเป็น "ล่าสุด"
-    if (selectedDiaryIDs[0]) {
-      localStorage.setItem("last_feedback_diary_id", String(selectedDiaryIDs[0]));
+      setNotification({ message: "ส่งFeedback สำเร็จ", success: true });
+      setShowDiaryFeedbackModal(false);
+      setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+      setSelectedDiaryID(null);
+    } catch (error) {
+      console.error(error);
+      setNotification({ message: "ส่งไม่สำเร็จ", success: false });
     }
+  };
 
-    const created = res?.data ?? res;
-    window.dispatchEvent(
-      new CustomEvent("feedback:created", {
-        detail: {
-          diaryIds: selectedDiaryIDs,
-          items: Array.isArray(created) ? created : [created],
-          scope: "diary",
-        },
-      })
-    );
+  // ⬇️ แก้ในฟังก์ชัน handleSubmitBatchFeedback
+  const handleSubmitBatchFeedback = async () => {
+    if (selectedDiaryIDs.length === 0) return;
+    try {
+      const payload = {
+        FeedbackTitle: feedbackForm.FeedbackTitle,
+        FeedbackContent: feedbackForm.FeedbackContent,
+        PsychologistID: Number(myID),
+        PatientID: Number(id),
+        FeedbackTypeID: 1,
+        FeedbackTimeID: selectedFeedbackTimeID ?? undefined,
+        DiaryIDs: selectedDiaryIDs,
+      };
+      const res = await CreateFeedback(payload);
 
-    alert("ส่ง Batch Feedback สำเร็จ");
-    setShowBatchFeedbackModal(false);
-    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
-    setSelectedDiaryIDs([]);
-  } catch (error) {
-    console.error(error);
-    alert("ส่ง Batch Feedback ไม่สำเร็จ");
-  }
-};
+      // ใช้ diary ตัวแรกเป็น "ล่าสุด"
+      if (selectedDiaryIDs[0]) {
+        localStorage.setItem("last_feedback_diary_id", String(selectedDiaryIDs[0]));
+      }
+
+      const created = res?.data ?? res;
+      window.dispatchEvent(
+        new CustomEvent("feedback:created", {
+          detail: {
+            diaryIds: selectedDiaryIDs,
+            items: Array.isArray(created) ? created : [created],
+            scope: "diary",
+          },
+        })
+      );
+
+      setNotification({ message: "ส่งFeedback รวมสำเร็จ", success: true });
+      setShowBatchFeedbackModal(false);
+      setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+      setSelectedDiaryIDs([]);
+    } catch (error) {
+      console.error(error);
+      setNotification({ message: "ส่งFeedback รวมไม่สำเร็จ", success: false });
+    }
+  };
 
 
   const formatTime = (dateString: any) => {
@@ -201,7 +216,7 @@ const handleSubmitBatchFeedback = async () => {
   if (loading) return <div className="!min-h-screen !bg-white !p-8 text-center">กำลังโหลดข้อมูล...</div>;
 
   return (
-    <div className="!min-h-screen !bg-gradient-to-br !from-white-50 !via-white !to-indigo-50 translate-x-15">
+    <div className="!relative !min-h-screen !bg-gradient-to-br !from-white-50 !via-white !to-indigo-50 translate-x-15">
       <div className="!container !mx-auto !px-4 !py-8 !max-w-7xl">
         {/* Header Section */}
         <div className="!mb-8">
@@ -314,7 +329,7 @@ const handleSubmitBatchFeedback = async () => {
                           </div>
                         </div>
 
-                        <div className="!mb-4">
+                        <div className="!mb-4 !h-15">
                           <p className="!text-gray-700 !line-clamp-3 !text-sm !leading-relaxed">
                             {diary.Content?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}
                           </p>
@@ -338,6 +353,13 @@ const handleSubmitBatchFeedback = async () => {
                             <span>ส่ง Feedback</span>
                           </button>
                         </div>
+                        <button
+                          onClick={() => navigate(`/psychologist/diary/patient/feedback-history/${diary.ID}`)}
+                          className="!bg-gray-400 !hover:bg-white !text-white !px-4 !py-2 !rounded-lg !text-sm !flex !items-center !gap-2 !w-full !mt-2 cursor-pointer"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          ดู Feedback ที่เคยส่ง
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -349,13 +371,16 @@ const handleSubmitBatchFeedback = async () => {
 
         {/* Individual Diary Feedback Modal */}
         {showDiaryFeedbackModal && (
-          <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
-            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-8 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
+          <div className="!absolute !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
+            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-8 !shadow-2xl !transform !transition-all !duration-300 !scale-100 !max-h-[90vh] !overflow-y-auto">
               <div className="!flex !items-center !justify-between !mb-6">
                 <h2 className="!text-2xl !font-bold !text-gray-900">ส่ง Feedback</h2>
                 <button
                   className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
-                  onClick={() => setShowDiaryFeedbackModal(false)}
+                  onClick={() => {
+                    setShowDiaryFeedbackModal(false);
+                    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" }); // เคลียร์ form
+                  }}
                 >
                   <X className="!h-6 !w-6" />
                 </button>
@@ -384,8 +409,13 @@ const handleSubmitBatchFeedback = async () => {
                 </div>
 
                 <button
-                  onClick={handleSubmitDiaryFeedback}
-                  className="!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !transition-all !duration-200 !flex !items-center !justify-center !space-x-2"
+                  onClick={() => {
+                    setShowModal(true);
+                  }}
+                  disabled={!feedbackForm.FeedbackTitle.trim() || !feedbackForm.FeedbackContent.trim()}
+                  className={`!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg !flex !items-center !justify-center !space-x-2
+            ${!feedbackForm.FeedbackTitle.trim() || !feedbackForm.FeedbackContent.trim() ? "opacity-50 cursor-not-allowed" : "hover:!from-green-700 hover:!to-emerald-700 hover:!shadow-xl"}
+          `}
                 >
                   <Send className="!h-5 !w-5" />
                   <span>ส่ง Feedback</span>
@@ -394,7 +424,6 @@ const handleSubmitBatchFeedback = async () => {
             </div>
           </div>
         )}
-
         {/* Batch Feedback Modal */}
         {showBatchFeedbackModal && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
@@ -403,7 +432,12 @@ const handleSubmitBatchFeedback = async () => {
                 <h2 className="!text-2xl !font-bold !text-gray-900">ส่ง Feedback แบบรวม</h2>
                 <button
                   className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
-                  onClick={() => setShowBatchFeedbackModal(false)}
+                  onClick={() => {
+                    setShowBatchFeedbackModal(false);
+                    setSelectedDiaryIDs([]);
+                    setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+                    setSelectedFeedbackTimeID(null);
+                  }}
                 >
                   <X className="!h-6 !w-6" />
                 </button>
@@ -423,7 +457,11 @@ const handleSubmitBatchFeedback = async () => {
                             ? "!bg-gradient-to-r !from-blue-600 !to-indigo-600 !text-white !shadow-lg"
                             : "!bg-gray-100 !text-gray-700 hover:!bg-gray-200"
                             }`}
-                          onClick={() => setSelectedFeedbackTimeID(ft.ID!)}
+                          onClick={() => {
+                            setSelectedFeedbackTimeID(ft.ID!);
+                            setSelectedDiaryIDs([]);
+                            setFeedbackForm({ FeedbackTitle: "", FeedbackContent: "" });
+                          }}
                         >
                           {ft.FeedbackTimeName}
                         </button>
@@ -492,9 +530,21 @@ const handleSubmitBatchFeedback = async () => {
                 </div>
 
                 <button
-                  onClick={handleSubmitBatchFeedback}
-                  disabled={selectedDiaryIDs.length === 0}
-                  className="!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 hover:!from-green-700 hover:!to-emerald-700 disabled:!from-gray-400 disabled:!to-gray-500 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !transition-all !duration-200 !flex !items-center !justify-center !space-x-2 disabled:!cursor-not-allowed"
+                  onClick={() => {
+                    setShowModalBatch(true);
+                  }}
+                  disabled={
+                    !selectedFeedbackTimeID ||
+                    selectedDiaryIDs.length === 0 ||
+                    !feedbackForm.FeedbackTitle.trim() ||
+                    !feedbackForm.FeedbackContent.trim()
+                  }
+                  className={`!w-full !bg-gradient-to-r !from-green-600 !to-emerald-600 !text-white !py-3 !rounded-xl !font-semibold !shadow-lg !flex !items-center !justify-center !space-x-2
+    ${!selectedFeedbackTimeID || selectedDiaryIDs.length === 0 || !feedbackForm.FeedbackTitle.trim() || !feedbackForm.FeedbackContent.trim()
+                      ? "disabled:!from-gray-400 disabled:!to-gray-500 disabled:!cursor-not-allowed opacity-50"
+                      : "hover:!from-green-700 hover:!to-emerald-700 hover:!shadow-xl"
+                    }
+  `}
                 >
                   <Send className="!h-5 !w-5" />
                   <span>ส่ง Feedback รวม</span>
@@ -505,9 +555,12 @@ const handleSubmitBatchFeedback = async () => {
         )}
         {showReadDiaryModal && readingDiary && (
           <div className="!fixed !inset-0 !bg-black/50 !backdrop-blur-sm !flex !items-center !justify-center !z-50 !p-4">
-            <div className="!bg-white !rounded-2xl !max-w-md !w-full !p-6 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
+            <div className="!bg-white !rounded-2xl !max-w-lg !w-full !p-6 !shadow-2xl !transform !transition-all !duration-300 !scale-100">
+              {/* Header */}
               <div className="!flex !items-center !justify-between !mb-4 !border-gray-200 !border-b-2">
-                <h2 className="!text-xl !font-bold !text-gray-900">{readingDiary.Title || "Diary"}</h2>
+                <h2 className="!text-xl !font-bold !text-gray-900">
+                  {readingDiary.Title || "Diary"}
+                </h2>
                 <button
                   className="!text-gray-400 hover:!text-gray-600 !transition-colors !p-2 hover:!bg-gray-100 !rounded-lg"
                   onClick={() => setShowReadDiaryModal(false)}
@@ -515,13 +568,25 @@ const handleSubmitBatchFeedback = async () => {
                   <X className="!h-6 !w-6" />
                 </button>
               </div>
-              <div className="!max-h-96 !overflow-y-auto !text-gray-700 !space-y-4 !bg-gray-50 !rounded-lg !p-4">
-                <p>{readingDiary.Content?.replace(/<[^>]+>/g, "") || "ไม่มีเนื้อหา"}</p>
+
+              {/* Content */}
+              <div className="!space-y-4">
+                <div className="!text-sm !text-gray-500">
+                  <Clock className="!h-4 !w-4 !inline-block !mr-1" />
+                  {new Date(readingDiary.CreatedAt!).toLocaleString("th-TH")}
+                </div>
+
+                <div
+                  className="!prose !max-w-none !text-gray-800"
+                  dangerouslySetInnerHTML={{ __html: readingDiary.Content || "<p>ไม่มีเนื้อหา</p>" }}
+                />
               </div>
-              <div className="!mt-4 !flex !justify-end">
+
+              {/* Footer */}
+              <div className="!mt-6 !flex !justify-end">
                 <button
-                  className="!bg-blue-600 hover:!bg-blue-700 !text-white !px-4 !py-2 !rounded-lg !font-medium"
                   onClick={() => setShowReadDiaryModal(false)}
+                  className="!bg-gray-100 hover:!bg-gray-200 !text-gray-700 !px-4 !py-2 !rounded-lg !text-sm"
                 >
                   ปิด
                 </button>
@@ -530,6 +595,39 @@ const handleSubmitBatchFeedback = async () => {
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center !z-60">
+          <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+            <h2 className="!text-xl !font-bold">ยืนยันการส่ง Feedback </h2>
+            <p>คุณต้องการส่ง Feedback ใช่หรือไม่?</p>
+            <div className="!flex !justify-end !gap-3">
+              <button onClick={() => setShowModal(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+              <button onClick={() => { handleSubmitDiaryFeedback(); setShowModal(false); }} className="!px-4 !py-2 !bg-blue-600 !text-white !rounded">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showModalBatch && (
+        <div className="!fixed !inset-0 !bg-black/50 !flex !items-center !justify-center !z-60">
+          <div className="!bg-white !p-6 !rounded-lg !max-w-md !w-full !space-y-4">
+            <h2 className="!text-xl !font-bold">ยืนยันการส่ง Feedback รวม</h2>
+            <p>คุณต้องการส่ง Feedback รวมใช่หรือไม่?</p>
+            <div className="!flex !justify-end !gap-3">
+              <button onClick={() => setShowModalBatch(false)} className="!px-4 !py-2 !bg-gray-200 !rounded">ยกเลิก</button>
+              <button onClick={() => { handleSubmitBatchFeedback(); setShowModalBatch(false); }} className="!px-4 !py-2 !bg-blue-600 !text-white !rounded">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {notification && (
+        <div
+          className={`!absolute  !top-5 !left-1/2 !transform !-translate-x-1/2 !px-4 !py-3 !rounded-lg !shadow-lg ${notification.success ? '!bg-green-500' : '!bg-red-500'} !text-white !flex !items-center !justify-between !max-w-sm !transition-opacity !duration-500 !z-60`}
+          style={{ opacity: notification ? 1 : 0 }}
+        >
+          <span>{notification.message}</span>
+          <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
+        </div>
+      )}
     </div>
   );
 }

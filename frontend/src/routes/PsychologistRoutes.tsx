@@ -8,6 +8,9 @@ import TherapyUpdate from "../pages/therapy/therapyUpdate"
 import TherapyDetail from "../pages/therapy/therapyDetail"
 import TherapyDiaryList from "../pages/therapy/therapyDiary"
 import TherapyThougthRecord from "../pages/therapy/therapyThougthRecord"
+import HistoryFeedbackDiary from "../pages/feedback/history_feedback_diary"
+import HistoryFeedbackThought from "../pages/feedback/history_feedback_thought"
+
 
 
 const PsychologistRoutes = {
@@ -26,6 +29,8 @@ const PsychologistRoutes = {
     { path: "therapyDetail/:id", element: <TherapyDetail /> },
     { path: "diary/patient/:id", element: <TherapyDiaryList /> },
     { path: "thoughtrecord/patient/:id", element: <TherapyThougthRecord /> },
+    { path: "diary/patient/feedback-history/:id", element: <HistoryFeedbackDiary /> },
+    { path: "thought/patient/feedback-history/:id", element: <HistoryFeedbackThought /> },
   ],
 };
 

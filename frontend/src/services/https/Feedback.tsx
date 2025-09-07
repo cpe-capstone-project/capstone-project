@@ -116,7 +116,7 @@ export {
     CreateFeedback,
     GetFeedbackTime,
     GetDiaryFeedback,
-    GetThoughtFeedback
+    GetThoughtFeedback,
     GetFeedbacksForDiary,
     GetFeedbacksByDiary,   // (ออปชั่น)
     GetFeedbacksByPatient,

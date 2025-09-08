@@ -116,8 +116,8 @@ function ThoughtRecordCreate() {
       EmotionsID: Array.isArray(pendingValues.EmotionsID)
         ? pendingValues.EmotionsID
         : pendingValues.EmotionsID
-        ? [pendingValues.EmotionsID]
-        : [],
+          ? [pendingValues.EmotionsID]
+          : [],
       TherapyCaseID: therapyCase?.ID ?? null,
     };
 
@@ -171,12 +171,14 @@ function ThoughtRecordCreate() {
                 <BulbOutlined className="title-icon" /> สร้างบันทึกความคิด
               </Title>
             </div>
-            <div style={{ textAlign: "left" }}>
-              <Button type="link" onClick={() => setShowGuide(true)}>
-                📘 คำแนะนำการกรอกฟอร์ม
-              </Button>
-            </div>
-
+            {/* ปุ่มคำแนะนำ */}
+            <Row>
+              <Col xs={24} sm={24} md={24} lg={24}>
+                <Button type="link" onClick={() => setShowGuide(true)} className="guide-button">
+                  📘 คำแนะนำการกรอกฟอร์ม
+                </Button>
+              </Col>
+            </Row>
             <Form
               form={form}
               layout="vertical"
@@ -343,7 +345,7 @@ function ThoughtRecordCreate() {
                 <Button type="default" onClick={() => navigate(-1)}>
                   ยกเลิก
                 </Button>
-                <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto", minWidth: 120 }}>
+                <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto", minWidth: 20 }}>
                   บันทึก
                 </Button>
               </div>

@@ -143,13 +143,20 @@ export default function SituationTagSelect({ value, onChange }: Props) {
         okText="บันทึก"
       >
         <Form form={form} layout="vertical" initialValues={{ Color: "#1890ff" }}>
-          <Form.Item label="เลือกสี" name="Color" rules={[{ required: true, message: "กรุณาเลือกสี" }]}>
+          <Form.Item
+            label="เลือกสี"
+            name="Color"
+            rules={[{ required: true, message: "กรุณาเลือกสี" }]}
+            valuePropName="value"
+            getValueFromEvent={(color) => color.toHexString()} // ให้ form เก็บค่าเป็น string
+          >
             <ColorPicker
               open={colorOpen}
               onOpenChange={setColorOpen}
               showText={(color) => <span>{color.toHexString()}</span>}
             />
           </Form.Item>
+
           <Form.Item label="ชื่อ Tag" name="Name" rules={[{ required: true, message: "กรุณากรอกชื่อ Tag" }]}>
             <Input />
           </Form.Item>

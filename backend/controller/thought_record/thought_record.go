@@ -5,6 +5,7 @@ import (
 	"capstone-project/entity"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ func ListThoughtRecord(c *gin.Context) {
 	var records []entity.ThoughtRecord
 	db := config.DB()
 
+	// ดึงค่า sort และ order จาก query parameter
 	sortField := c.DefaultQuery("sort", "updated_at")
 	order := c.DefaultQuery("order", "desc")
 	if order != "asc" && order != "desc" {
@@ -32,17 +34,51 @@ func ListThoughtRecord(c *gin.Context) {
 		sortColumn = "updated_at"
 	}
 
-	if err := db.Preload("Emotions").
-		Preload("SituationTag").
-		Order(sortColumn + " " + order).
-		Find(&records).Error; err != nil {
+	// ดึงค่าจาก query parameter
+	date := c.Query("date")   // format: yyyy-mm-dd
+	month := c.Query("month") // format: yyyy-mm
+	week := c.Query("week")   // format: yyyy-mm-dd -> วันใดก็ได้ในสัปดาห์นั้น
+	year := c.Query("year")   // format: yyyy
+
+	query := db.Preload("Emotions").Preload("SituationTag").Order(sortColumn + " " + order)
+	loc := time.FixedZone("UTC+7", 7*3600)
+
+	// กรองตามลำดับ priority: date > week > month > year
+	if date != "" {
+		// parse วันที่ใน UTC+7
+		start, err := time.ParseInLocation("2006-01-02", date, loc)
+		if err == nil {
+			end := start.AddDate(0, 0, 1)
+			query = query.Where("updated_at >= ? AND updated_at < ?", start, end)
+		}
+	} else if week != "" {
+		refDate, err := time.ParseInLocation("2006-01-02", week, loc)
+		if err == nil {
+			// คำนวณวันเริ่มต้นของสัปดาห์ (วันจันทร์เป็นวันแรก)
+			offset := (int(refDate.Weekday()) + 6) % 7
+			weekStart := refDate.AddDate(0, 0, -offset)
+			weekEnd := weekStart.AddDate(0, 0, 7)
+			query = query.Where("updated_at >= ? AND updated_at < ?", weekStart, weekEnd)
+		}
+	} else if month != "" {
+		start, err := time.ParseInLocation("2006-01", month, loc)
+		if err == nil {
+			end := start.AddDate(0, 1, 0)
+			query = query.Where("updated_at >= ? AND updated_at < ?", start, end)
+		}
+	} else if year != "" {
+		start, err := time.ParseInLocation("2006", year, loc)
+		if err == nil {
+			end := start.AddDate(1, 0, 0)
+			query = query.Where("updated_at >= ? AND updated_at < ?", start, end)
+		}
+	}
+	if err := query.Find(&records).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, records)
 }
-
 // ---------------------------
 // GET /thought_record/:id
 // ---------------------------

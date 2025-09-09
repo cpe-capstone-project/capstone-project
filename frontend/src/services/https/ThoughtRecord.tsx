@@ -13,15 +13,24 @@ const requestOptions = {
   },
 };
 
+interface ThoughtRecordFilter {
+  date?: string;   // yyyy-mm-dd
+  week?: string;   // yyyy-mm-dd
+  month?: string;  // yyyy-mm
+  year?: string;   // yyyy
+}
+
 // ✅ GET /thought_records?sort=UpdatedAt&order=desc
 async function GetThoughtRecords(
   sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
-  order: "asc" | "desc" = "desc"
+  order: "asc" | "desc" = "desc",
+  filter?: ThoughtRecordFilter
 ) {
   try {
+    const params: any = { sort, order, ...filter };
     const res = await axios.get(`${apiUrl}/thought_records`, {
       ...requestOptions,
-      params: { sort, order },
+      params,
     });
     return res;
   } catch (e: any) {
@@ -82,7 +91,7 @@ async function DeleteThoughtRecordById(id: number) {
   }
 }
 
-// ✅ GET /thought_record/therapycase/:id
+// ✅ GET /thoughtrecords/case/:id
 async function GetThoughtRecordsByTherapyCaseID(id: number) {
   try {
     const res = await axios.get(`${apiUrl}/thoughtrecords/case/${id}`, requestOptions);

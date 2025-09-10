@@ -349,6 +349,8 @@ if (!p || Object.keys(p).length === 0) {
     showCancelButton: true,
     confirmButtonText: "บันทึก",
     cancelButtonText: "ยกเลิก",
+    showClass: { popup: "" }, // ปิด animation ตอนเปิด
+    hideClass: { popup: "" }, // ปิด animation ตอนปิด
    didOpen: () => {
   // toggle tabs
   document.querySelectorAll(".xbn-profile-sidebar-edit li").forEach(li => {
@@ -463,9 +465,6 @@ const out = () => {
         <img className="logo" src={healthImage} alt="Health Logo" />
       </a>
       <ul className="menu">
-        <li>
-          <a onClick={() => handleNavigate("")}>Dashboard</a>
-        </li>
         <li>
           <a onClick={() => handleNavigate("home")}>Main Menu</a>
         </li>

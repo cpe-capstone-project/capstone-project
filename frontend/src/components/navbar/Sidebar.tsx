@@ -222,6 +222,8 @@ const Exchangeprofile = async () => {
     showCancelButton: true,
     confirmButtonText: "บันทึก",
     cancelButtonText: "ยกเลิก",
+    showClass: { popup: "" }, // ปิด animation ตอนเปิด
+    hideClass: { popup: "" }, // ปิด animation ตอนปิด
     didOpen: () => {
       // toggle tab
       document.querySelectorAll(".xbn-profile-sidebar-edit li").forEach((li) => {

@@ -1,4 +1,3 @@
-
 .diary-tooltip {
   display: flex;
   flex-direction: column;
@@ -18,7 +17,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-xxs);
-    color:  var(--color-yellow-alert);
+    color: var(--color-yellow-alert);
   }
 }
 
@@ -50,14 +49,23 @@
   display: flex;
   align-items: center;
   gap: var(--space-xxs);
-  
+  padding: 2px 4px;
+
+  .emotion-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 4px;
+    display: inline-block;
+  }
+
   /* tag-color */
   .tag-color-strip {
     display: flex;
     border-radius: var(--radius-md);
     overflow: hidden;
   }
-  
+
   .tag-color-dot {
     width: 8px;
     height: 8px;
@@ -74,6 +82,11 @@
     font-size: var(--font-size-sm);
     border-radius: var(--radius-full);
   }
+}
+
+.diary-calendar-item:hover {
+  background-color: var(--color-grey-hover);
+  cursor: pointer;
 }
 
 /* calendar-confirm */

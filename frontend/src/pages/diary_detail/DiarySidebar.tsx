@@ -4,7 +4,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
 import { RiSortDesc, RiCheckFill, RiDeleteBin6Line } from "react-icons/ri";
 
 import { th } from "date-fns/locale";
-import { Dropdown, Popconfirm } from "antd";
+import { Dropdown, Flex, Popconfirm } from "antd";
 import type { MenuProps } from "antd";
 
 import { usePath } from "../../contexts/PathContext";
@@ -14,6 +14,7 @@ import { groupByDate } from "../../utils/GroupByDate";
 
 import "./DiarySidebar.css";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+import EmotionDisplay from "../../components/emotion-display/EmotionDisplay";
 
 const stripHtml = (html: string) => {
   const tmp = document.createElement("div");
@@ -227,29 +228,44 @@ const DiarySidebar = ({
               {!item.Confirmed && (
                 <div className="unconfirmed-badge">ยังไม่บันทึก</div>
               )}
-              <button
-                className={`circle-select-btn${
-                  item.Confirmed ? " confirmed" : ""
-                }${selectedIds.includes(item.ID!) ? " selected" : ""}`}
-                onClick={() => handleAddDeleteList(item.ID!)}
-                disabled={item.Confirmed}
-              />
-
-              <Link
-                to={`${basePath}/${item.ID}`}
-                onClick={() => onSelectDiary?.(item.ID!)}
-                className={`left-side-diary`}
+              <Flex
+                gap="var(--space-md)"
+                align="center"
+                className="left-side-diary-container"
               >
-                <div className="left-side-diary-info">
-                  <header>
-                    <h1>{item.Title}</h1>
-                    <p>{formatShort(item[sortField] ?? "")}</p>
-                  </header>
-                  <div className="content">
-                    <p>{stripHtml(item.Content ?? "")}</p>
+                <button
+                  className={`circle-select-btn${
+                    item.Confirmed ? " confirmed" : ""
+                  }${selectedIds.includes(item.ID!) ? " selected" : ""}`}
+                  onClick={() => handleAddDeleteList(item.ID!)}
+                  disabled={item.Confirmed}
+                />
+
+                <Link
+                  to={`${basePath}/${item.ID}`}
+                  onClick={() => onSelectDiary?.(item.ID!)}
+                  className={`left-side-diary`}
+                >
+                  <div className="left-side-diary-info">
+                    <header>
+                      <h1>{item.Title}</h1>
+                      <p>{formatShort(item[sortField] ?? "")}</p>
+                    </header>
+                    <div className="content">
+                      <p>{stripHtml(item.Content ?? "")}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </Flex>
+              <Flex
+                align="flex-start"
+                className="left-side-diary-emotion-container"
+              >
+                <EmotionDisplay
+                  emotionAnalysisResults={item.EmotionAnalysisResults || []}
+                  maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                />
+              </Flex>
             </div>
           ))}
         </div>

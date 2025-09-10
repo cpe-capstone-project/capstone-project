@@ -7,6 +7,8 @@ import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import EditDiaryModal from "../edit-diary-modal/EditDiaryModal";
 import "./DiaryCard.css";
+import EmotionDisplay from "../emotion-display/EmotionDisplay";
+import { Flex } from "antd";
 
 interface DiaryCardProps {
   diary: DiaryInterface;
@@ -76,6 +78,12 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
           </div>
 
           <p className="card-text">{stripHtml(diary.Content || "")}</p>
+          <Flex align="flex-start" style={{ marginTop: "8px" }}>
+            <EmotionDisplay
+              emotionAnalysisResults={diary.EmotionAnalysisResults || []}
+              maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+            />
+          </Flex>
 
           {menuOpen && !diary.Confirmed && (
             <div className="options-menu">

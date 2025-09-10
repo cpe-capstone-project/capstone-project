@@ -14,6 +14,7 @@ import ToggleSwitch from "../../components/togle-switch/ToggleSwitch";
 import DiaryCalendar from "../../components/diary-calendar/DiaryCalendar";
 import DiaryCard from "../../components/diary-card/DiaryCard";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+import NoData from "../../assets/no data.jpg"
 import "./DiaryList.css";
 
 function DiaryList() {
@@ -99,84 +100,106 @@ function DiaryList() {
     fetchData();
   }, [sortField, sortOrder]);
 
-  return (
-    <section className="diary-list-container">
-      <div className="diary-list-header">
-        <strong style={{ fontSize: "var(--font-size-2xl)" }}>My Diary</strong>
+return (
+  <section className="diary-list-container">
+    <div className="diary-list-header">
+      <strong style={{ fontSize: "var(--font-size-2xl)" }}>My Diary</strong>
 
-        <div className="diary-list-menu">
-          {/* กรองข้อมูล */}
-          <Select
-            value={sortField}
-            style={{ width: 120, marginRight: 8 }}
-            onChange={(value) => setSortField(value)}
-            options={[
-              { value: "UpdatedAt", label: "วันที่แก้ไข" },
-              { value: "CreatedAt", label: "วันที่สร้าง" },
-            ]}
-          />
-          <Select
-            value={sortOrder}
-            style={{ width: 100 }}
-            onChange={(value) => setSortOrder(value)}
-            options={[
-              { value: "desc", label: "ล่าสุด" },
-              { value: "asc", label: "เก่าสุด" },
-            ]}
-          />
+      <div className="diary-list-menu">
+        {/* กรองข้อมูล */}
+        <Select
+          value={sortField}
+          style={{ width: 120, marginRight: 8 }}
+          onChange={(value) => setSortField(value)}
+          options={[
+            { value: "UpdatedAt", label: "วันที่แก้ไข" },
+            { value: "CreatedAt", label: "วันที่สร้าง" },
+          ]}
+        />
+        <Select
+          value={sortOrder}
+          style={{ width: 100 }}
+          onChange={(value) => setSortOrder(value)}
+          options={[
+            { value: "desc", label: "ล่าสุด" },
+            { value: "asc", label: "เก่าสุด" },
+          ]}
+        />
 
-          {/* Switch สลับ Mode การแสดงผล */}
-          <ToggleSwitch
-            checked={viewMode === "date"}
-            onChange={handleToggle}
-            dataOn="วันที่"
-            dataOff="รายการ"
-          />
+        {/* Switch สลับ Mode การแสดงผล */}
+        <ToggleSwitch
+          checked={viewMode === "date"}
+          onChange={handleToggle}
+          dataOn="วันที่"
+          dataOff="รายการ"
+        />
 
-          <button
-            // type="primary"
-            className="diary-list-create-btn"
-            style={{ borderRadius: "var(--radius-full)" }}
-            onClick={handleCreateDiary}
-          >
-            <FaPlus />
-            <p>สร้างไดอารี่</p>
-          </button>
-        </div>
+        <button
+          className="diary-list-create-btn"
+          style={{ borderRadius: "var(--radius-full)" }}
+          onClick={handleCreateDiary}
+        >
+          <FaPlus />
+          <p>สร้างไดอารี่</p>
+        </button>
       </div>
+    </div>
 
-      {viewMode === "list" ? (
-        // แสดงเฉพาะเมื่อ viewMode เป็น list
-        <>
-          {Object.entries(grouped).map(([label, items]) => (
-            
-            <div
-              key={label}
-              className="diary-list"
-              style={{ marginBottom: "var(--space-2xl)" }}
-            >
-              
-              <h1>{label}</h1>
-              <div className="diary-grid">
-                {items.map((item) => (
-                  <div key={item.ID} className="diary-item">
-                    {!item.Confirmed && (
-                      <Tooltip title="ยังไม่บันทึก">
-                        <div className="unconfirmed-badge"><LuCircleAlert/></div>
-                      </Tooltip>
-                    )}
-                    <DiaryCard diary={item} sortField={sortField} />
-                  </div>
-                ))}
-              </div>
+    {diaries.length === 0 ? (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        {/* ใส่กราฟ placeholder หรือ component กราฟของคุณ */}
+        <div className="no-data-image">
+          <img src={NoData} alt="" />
+          <p>ยังไม่มีไดอารี่</p>
+        </div>
+
+        {/* <button
+          className="diary-list-create-btn"
+          onClick={handleCreateDiary}
+          style={{ borderRadius: "var(--radius-full)" }}
+        >
+          <FaPlus /> สร้างไดอารี่ใหม่
+        </button> */}
+      </div>
+    ) : viewMode === "list" ? (
+      // แสดงเฉพาะเมื่อ viewMode เป็น list
+      <>
+        {Object.entries(grouped).map(([label, items]) => (
+          <div
+            key={label}
+            className="diary-list"
+            style={{ marginBottom: "var(--space-2xl)" }}
+          >
+            <h1>{label}</h1>
+            <div className="diary-grid">
+              {items.map((item) => (
+                <div key={item.ID} className="diary-item">
+                  {!item.Confirmed && (
+                    <Tooltip title="ยังไม่บันทึก">
+                      <div className="unconfirmed-badge"><LuCircleAlert/></div>
+                    </Tooltip>
+                  )}
+                  <DiaryCard diary={item} sortField={sortField} />
+                </div>
+              ))}
             </div>
-          ))}
-        </>
-      ) : (
-        <DiaryCalendar diaries={diaries} dateField={sortField} />
-      )}
-    </section>
-  );
+          </div>
+        ))}
+      </>
+    ) : (
+      <DiaryCalendar diaries={diaries} dateField={sortField} />
+    )}
+  </section>
+);
+
 }
 
 export default DiaryList;

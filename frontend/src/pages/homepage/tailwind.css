@@ -14,22 +14,34 @@
 }
 
 
-/* Card 1 */
 .diorr-card1 {
   background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.1);
-  padding: 25px;                 /* padding มากขึ้นให้โปร่ง */
-  flex: 0 0 275px;               /* ✅ กำหนดความกว้างคงที่ */
-  min-width: 275px;              /* ✅ กันบีบ */
-  max-width: 320px;              /* กันล้น */
+  padding: 25px;
+  flex: 0 0 275px;
+  min-width: 275px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: -20px;
-  border-top: 4px solid #4CAF50;
   margin-left: 20px;
+
+  /* Box shadow ทำให้นูน */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Border top gradient */
+  border-top: 4px solid transparent;
+  background-image: 
+    linear-gradient(white, white), 
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
+
+
 
 /* Card 2 */
 .diorr-card2 {
@@ -44,8 +56,19 @@
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: -20px;
-  border-top: 4px solid #2196F3;
-  /*margin-left: 15px;*/
+  
+  /* Box shadow ทำให้นูน */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Border top gradient */
+  border-top: 4px solid transparent;
+  background-image: 
+    linear-gradient(white, white), 
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 /* Card 3 */
@@ -61,7 +84,19 @@
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: -20px;
-  border-top: 4px solid #FF9800;
+  
+  /* Box shadow ทำให้นูน */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Border top gradient */
+  border-top: 4px solid transparent;
+  background-image: 
+    linear-gradient(white, white), 
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   margin-right: -10px;
 }
 
@@ -78,7 +113,19 @@
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: -20px;
-  border-top: 4px solid #9C27B0;
+  
+  /* Box shadow ทำให้นูน */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Border top gradient */
+  border-top: 4px solid transparent;
+  background-image: 
+    linear-gradient(white, white), 
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   margin-right: 25px;
 }
 
@@ -87,7 +134,7 @@
 .diorr-card-header h3 {
   font-size: 1.2em;
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 /* Diorr Progress Bar */
@@ -182,19 +229,76 @@
   margin-bottom: 70px;
 }
 
-
-/* Deer-Tiger Card Styling */
+/* ===================== Deer-Tiger Card Beautify + Smooth Gradient Border ===================== */
 .deer-tiger-card {
- background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  flex: 1 1 180px; /* Adjusted width */
+  background: rgba(255, 255, 255, 0.9); /* โปร่งเล็กน้อย */
+  border-radius: 24px;                   /* ✅ ขอบมนมากขึ้น */
+  padding: 28px;                          /* ✅ เพิ่ม padding รอบขอบ */
+
+  flex: 1 1 180px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 260px; /* Increased minimum width */
+  min-width: 260px;
+
+  /* Shadow */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+
+  /* Gradient Border แบบ smooth */
+  border: 3px solid transparent; 
+  border-radius: 24px; /* ✅ ทำให้ขอบมนไปกับ border */
+  background-image: linear-gradient(white, white), 
+                    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  /* Glass Effect */
+  backdrop-filter: blur(10px);            
+  -webkit-backdrop-filter: blur(10px);
+
+  /* Hover Effect */
+  transition: all 0.3s ease;
 }
+
+
+/* Header ของการ์ด */
+.deer-tiger-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+/* Thought / Diary Entries */
+.deer-tiger-diary-entry,
+.deer-tiger-thought-entry {
+  background: rgba(249, 250, 251, 0.75); 
+  border-radius: 16px; /* ✅ ขอบมน */
+  padding: 14px 18px;  /* ✅ padding รอบขอบ */
+  margin-bottom: 14px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Tags */
+.deer-tiger-tag {
+  padding: 5px 12px;
+  border-radius: 16px; /* ✅ ขอบมน */
+  font-size: 0.8em;
+  font-weight: 500;
+  margin-right: 6px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+.deer-tiger-tag.high {
+  background-color: #f87171;
+  color: #fff;
+}
+.deer-tiger-tag.medium {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
 
 /* Checklist list */
 .deer-tiger-checklist {
@@ -355,19 +459,35 @@
   flex-direction: column;
   gap: 20px;
 }
-
-/* === Combined Card === */
+/* === Aertr Summary Card (Full Border Gradient) === */
 .aertr-summary-card {
   flex: 2;
   display: flex;
   gap: 24px;
-  background-color: #fff;
+
+  /* พื้นหลังสีขาว */
+  background-color: #ffffff;
   padding: 24px;
-  border-radius: 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  min-width: 1300px;
-  margin-bottom: 1px;
+  border-radius: 12px;
+
+  /* นูนสวยแบบ Diorr Card 1 */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15),
+              0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* กรอบรอบการ์ดเป็น gradient */
+  border: 3.5px solid transparent;
+  background-image: 
+    linear-gradient(#ffffff, #ffffff), /* พื้นหลังสีขาว */
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0); /* gradient รอบกรอบ */
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  position: relative;
+  overflow: hidden;
 }
+
+
 
 
 /* === Left Panel: Chart === */
@@ -375,7 +495,6 @@
   flex: 2;
   min-width: 320px;
   padding: 20px;
-  background-color: #fff;
 }
 
 .aertr-summary-title {

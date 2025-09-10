@@ -58,9 +58,11 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
       <div>
         {listData.map((diary) => {
           // ✅ ใช้ TagColor1, TagColor2, TagColor3 เหมือน DiaryCard
-          const tagColors = [diary.TagColor1, diary.TagColor2, diary.TagColor3].filter(
-            Boolean
-          ); // ตัด null/undefined ออก
+          const tagColors = [
+            diary.TagColor1,
+            diary.TagColor2,
+            diary.TagColor3,
+          ].filter(Boolean); // ตัด null/undefined ออก
 
           return (
             <Tooltip
@@ -70,10 +72,9 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
                   <div className="diary-tooltip-info">
                     {!diary.Confirmed && (
                       <div className="unconfirmed-badge">
-                        <LuCircleAlert /> 
+                        <LuCircleAlert />
                         <p>ยังไม่บันทึก</p>
                       </div>
-
                     )}
                     <strong>{diary.Title || "No Title"}</strong>
                     <br />
@@ -88,20 +89,22 @@ const DiaryCalendar: React.FC<DiaryCalendarProps> = ({
                       {stripHtml(diary.Content || "")}
                     </span>
                   </div>
-                  {/* <div className="diary-tooltip-actions">
-                    <button
+                  <div className="diary-tooltip-actions">
+                    {/* <button
                       className="diary-tooltip-btn-edit"
                       onClick={() => setEditingDiary(diary)}
                     >
                       แก้ไข
-                    </button>
-                    <button
-                      className="diary-tooltip-btn-delete"
-                      onClick={() => setDeletingDiary(diary)}
-                    >
-                      ลบ
-                    </button>
-                  </div> */}
+                    </button> */}
+                    {!diary.Confirmed && (
+                      <button
+                        className="diary-tooltip-btn-delete"
+                        onClick={() => setDeletingDiary(diary)}
+                      >
+                        ลบ
+                      </button>
+                    )}
+                  </div>
                 </section>
               }
               placement="topLeft"

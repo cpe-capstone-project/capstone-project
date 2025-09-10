@@ -96,14 +96,14 @@ function DiaryFeedback({ onClose }: DiaryFeedbackProps) {
 
             <div className="feedback-content-list">
               {fbs.map((fb, index) => {
-                const createdAt = new Date(fb?.CreatedAt);
+                const createdAt = new Date(fb?.CreatedAt ?? "");
                 const dayString = createdAt.toDateString();
-                const formattedTime = formatLong(fb?.CreatedAt, "th");
+                const formattedTime = formatLong(fb?.CreatedAt ?? "", "th");
 
                 // ✅ เช็คว่าจะแสดงเวลาไหม
                 let showTime = true;
                 if (index > 0) {
-                  const prevCreatedAt = new Date(fbs[index - 1].CreatedAt);
+                  const prevCreatedAt = new Date(fbs[index - 1]?.CreatedAt ?? "");
                   if (prevCreatedAt.toDateString() === dayString) {
                     showTime = false;
                   }

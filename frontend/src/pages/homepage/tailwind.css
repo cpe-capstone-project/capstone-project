@@ -109,8 +109,7 @@
 
 /* Diorr Text Inside Card */
 .diorr-stat-text {
-  font-size: 2em;
-  font-weight: bold;
+  font-size: 1.5rem;
   color: #333;
   margin-top: -20px;
   margin-bottom: 5px;
@@ -245,7 +244,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 600;
+  font-weight: 300;
   margin-bottom: 2px;
 }
 

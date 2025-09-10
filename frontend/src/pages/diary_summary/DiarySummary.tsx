@@ -166,7 +166,7 @@ const calculateDateRange = (timeframe: string) => {
   return (
     <section className="diary-summary-container">
       <div className="diary-summary-header">
-        <h1><strong>Diary Summary</strong></h1>
+        <h1>Diary Summary</h1>
         <p>
           เลือกช่วงเวลาสำหรับการสรุปข้อมูลไดอารี่ของคุณ
           โดยการสรุปจะสรุปไดอารี่จากไดอารี่ที่ยืนยันแล้ว (สถานะ Confirmed) เท่านั้น

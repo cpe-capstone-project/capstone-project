@@ -1557,14 +1557,14 @@ function openChecklistModal(startDate?: Date) {
                 <>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Today’s Entry</strong>
+                      Today’s Entry
                       <span className="diary-entry-time">กำลังโหลด…</span>
                     </span>
                     <span className="diary-entry-content"> </span>
                   </p>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Yesterday</strong>
+                      Yesterday
                       <span className="diary-entry-time">กำลังโหลด…</span>
                     </span>
                     <span className="diary-entry-content"> </span>
@@ -1574,7 +1574,7 @@ function openChecklistModal(startDate?: Date) {
                 <>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Today’s Entry</strong>
+                      Today’s Entry
                       <span className="diary-entry-time">
                         {today?.UpdatedAt ? relTime(today.UpdatedAt) : "—"}
                       </span>
@@ -1592,7 +1592,7 @@ function openChecklistModal(startDate?: Date) {
 
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Last Week</strong>
+                      Last Week
                       <span className="diary-entry-time">
                         {week?.UpdatedAt ? relTime(week.UpdatedAt) : "—"}
                       </span>
@@ -1814,27 +1814,27 @@ function openChecklistModal(startDate?: Date) {
                     >
                       {/* header */}
                       <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <strong
-                          title={situation}
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            fontSize: 14,
-                            lineHeight: 1.3,
-                            flex: 1,
-                          }}
-                        >
-                          {situation}
-                        </strong>
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  }}
+>
+  <div
+    title={situation}
+    style={{
+      display: "-webkit-box",
+      WebkitLineClamp: 1,
+      WebkitBoxOrient: "vertical",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      fontSize: 14,
+      lineHeight: 1.3,
+      flex: 1,
+    }}
+  >
+    {situation}
+  </div>
 
                         <span
                           style={{
@@ -1960,10 +1960,10 @@ function openChecklistModal(startDate?: Date) {
                       style={{ marginTop: 8 }}
                     >
                       <div className="appointment-header">
-                        <strong>
+                        
                           {rq.type}
                           {rq.other ? ` • ${rq.other}` : ""}
-                        </strong>
+                      
                         <span className="appointment-date">{dateText}</span>
                       </div>
                       <p className="appointment-detail">{rq.detail || "—"}</p>

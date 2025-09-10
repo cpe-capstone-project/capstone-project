@@ -30,7 +30,20 @@
     }
   }
 }
-            
+
+.no-data-image {
+   max-width: 500px;
+    height: auto;
+  img {
+    object-fit: cover;
+  }
+  p {
+    font-size: var(--font-size-lg);
+    font-weight: bold;
+    color: #888;
+    text-align: center;
+  }
+}
 
 .diary-list {
   h1 {
@@ -49,7 +62,7 @@
       position: relative;
       text-decoration: none;
       width: 360px;
-      height: 180px;
+      min-height: 180px;
       color: black;
   
       .unconfirmed-badge {

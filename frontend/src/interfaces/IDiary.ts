@@ -1,4 +1,5 @@
 import type { FeedbackDiaryInterface } from "./IFeedbackDiary";
+import type { TherapyInterface } from "./ITherapy";
 
 export interface DiaryInterface {
   ID?: number;
@@ -13,7 +14,11 @@ export interface DiaryInterface {
   TagColor3?: string;
 
   Confirmed?: boolean;
+  
   TherapyCaseID?: number;
+  TherapyCase?: TherapyInterface
 
   FeedbackDiary?: FeedbackDiaryInterface[];
+
+  // EmotionAnalysisResults?: EmotionAnalysisResult[];
 }

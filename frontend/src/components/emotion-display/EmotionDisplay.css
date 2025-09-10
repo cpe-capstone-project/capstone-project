@@ -1,0 +1,22 @@
+.emotion-diary-container {
+    display: flex;
+    padding: var(--space-xxs) var(--space-sm);
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-full);
+    p {
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        margin-right: 8px;
+    }
+    
+    span {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 4px;
+        border: 2px solid white;
+    }
+}

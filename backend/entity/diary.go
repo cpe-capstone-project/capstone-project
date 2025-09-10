@@ -21,4 +21,5 @@ type Diaries struct {
 
 	Summaries     []DiarySummary  `gorm:"many2many:diary_summary_entries;joinForeignKey:DiaryID;joinReferences:DiarySummaryID" valid:"-"`
 	FeedbackDiary []FeedbackDiary `gorm:"foreignKey:DiaryID" valid:"-"`
+	EmotionAnalysisResults []EmotionAnalysisResults `gorm:"foreignKey:DiaryID" valid:"-"`
 }

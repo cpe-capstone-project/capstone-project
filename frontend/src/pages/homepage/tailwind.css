@@ -664,6 +664,19 @@
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
   margin-top: 30px;
+  
+  /* Box shadosssssw ทำให้นูน */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08),
+              0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Border top gradient */
+  border-top: 4px solid transparent;
+  background-image: 
+    linear-gradient(white, white), 
+    linear-gradient(135deg, #4CAF50, #2196F3, #FF9800, #9C27B0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 .aertr-feedback-card h4 {

@@ -54,6 +54,16 @@ function Toolbar({
 
   const [language, setLanguage] = useState("th-TH");
 
+  // หยุดอัดเสียงถ้าเปลี่ยนภาษา ระหว่างที่กำลังอัดอยู่
+useEffect(() => {
+  if (isRecording) {
+    // เรียก stop โดยไม่ toggle start/stop
+    if (onSpeechToText) {
+      onSpeechToText("stop"); // ส่งสัญญาณให้ stop โดยตรง
+    }
+  }
+}, [language]);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // ✅ ใช้ useEffect แทน onWheel prop เพื่อควบคุม passive behavior
@@ -73,11 +83,13 @@ function Toolbar({
       document.removeEventListener('wheel', handleWheel);
     };
   }, []);
+  
 
   if (!editor) return null;
   const isAlign = (align: string) =>
     editor.getAttributes("heading").textAlign === align ||
     editor.getAttributes("paragraph").textAlign === align;
+    
 
   return (
     <div className="toolbar" ref={scrollRef}>
@@ -266,7 +278,7 @@ function Toolbar({
             <button
               onClick={() => {
                 if (!browserSupportsSpeechRecognition) return;
-                if (onSpeechToText) onSpeechToText(language);
+                if (onSpeechToText) onSpeechToText(isRecording ? "stop" : language);
               }}
               className={isRecording ? "recording" : ""}
               style={isRecording ? { color: "red" } : {}}

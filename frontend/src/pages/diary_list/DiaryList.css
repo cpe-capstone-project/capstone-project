@@ -64,7 +64,7 @@
         color: white;
         font-size: var(--font-size-lg);
         border-radius: var(--radius-full);
-        z-index: 1;
+        z-index: 10;
       }
     }
   }

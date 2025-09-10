@@ -10,11 +10,11 @@ import { LuCircleAlert } from 'react-icons/lu';
 import { usePath } from "../../contexts/PathContext";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 // import CoverBook from "../../assets/book cover/cover1.jpg";
-import "./DiaryList.css";
 import ToggleSwitch from "../../components/togle-switch/ToggleSwitch";
 import DiaryCalendar from "../../components/diary-calendar/DiaryCalendar";
 import DiaryCard from "../../components/diary-card/DiaryCard";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+import "./DiaryList.css";
 
 function DiaryList() {
   const patientId = Number(localStorage.getItem("id"));

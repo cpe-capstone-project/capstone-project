@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -145,22 +146,19 @@ func CreateDiary(c *gin.Context) {
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
 	defaultColor1 := "#FFC107"
 	defaultColor2 := "#FF9800"
 	defaultColor3 := "#FF5722"
+
 	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
 		diary.TagColor1 = defaultColor1
 		diary.TagColor2 = defaultColor2
 		diary.TagColor3 = defaultColor3
 	}
 
-	db := config.DB()
-
 	bc := entity.Diaries{
-		Title:   diary.Title,
-		Content: diary.Content,
-		// TagColors:     diary.TagColors,
+		Title:         diary.Title,
+		Content:       diary.Content,
 		TagColor1:     diary.TagColor1,
 		TagColor2:     diary.TagColor2,
 		TagColor3:     diary.TagColor3,
@@ -169,6 +167,13 @@ func CreateDiary(c *gin.Context) {
 		TherapyCaseID: diary.TherapyCaseID,
 	}
 
+	// ✅ Validate struct
+	if ok, err := govalidator.ValidateStruct(bc); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := config.DB()
 	//บันทึก
 	if err := db.Create(&bc).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -194,13 +199,10 @@ func UpdateDiaryByID(c *gin.Context) {
 		return
 	}
 
-	// defaultColors := "#FFC107,#FF9800,#FF5722"
-	// if diary.TagColors == "" {
-	// 	diary.TagColors = defaultColors
-	// }
 	defaultColor1 := "#FFC107"
 	defaultColor2 := "#FF9800"
 	defaultColor3 := "#FF5722"
+
 	if diary.TagColor1 == "" && diary.TagColor2 == "" && diary.TagColor3 == "" {
 		diary.TagColor1 = defaultColor1
 		diary.TagColor2 = defaultColor2
@@ -209,6 +211,12 @@ func UpdateDiaryByID(c *gin.Context) {
 
 	if diary.Confirmed == false {
 		diary.Confirmed = true
+	}
+
+	// ✅ Validate struct
+	if ok, err := govalidator.ValidateStruct(diary); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	result = db.Save(&diary)

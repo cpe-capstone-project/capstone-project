@@ -260,8 +260,8 @@ function ThoughtRecordCreate() {
                           <span>อารมณ์</span>
                         </Space>
                       }
-                      name="EmotionsID"
-                      rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
+                      // name="EmotionsID"
+                      // rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
                     >
                       <Select
                         mode="multiple"

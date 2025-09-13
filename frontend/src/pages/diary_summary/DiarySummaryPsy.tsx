@@ -8,10 +8,17 @@ import {
 import type { DiarySummaryInterface } from "../../interfaces/IDiarySummary";
 // import AILoading from "../../assets/loading/Ai loading model.gif"
 import loadingAnimation from "../../assets/loading/Material wave loading.json";
-import "./DiarySummary.css";
+import "./DiarySummaryPsy.css";
 
 // เพิ่ม import จาก date-fns
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 
 // ✅ เพิ่ม Ant Design และ Dayjs
 import { DatePicker } from "antd";
@@ -20,15 +27,19 @@ import type { Dayjs } from "dayjs";
 const { RangePicker } = DatePicker;
 import "dayjs/locale/th";
 // import DiarySummaryBarChart from "../../components/diary-summary-bar-chart/DiarySummaryBarChart";
-import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+// import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 import DiarySummaryEmotionChart from "../../components/diary-summary-bar-chart/DiarySummaryEmotionChart";
 import { useDate } from "../../contexts/DateContext";
-// dayjs.locale("th");
+import { FileSearch2 } from "lucide-react";
 
-function DiarySummary() {
+interface DiarySummaryPsyProps {
+  therapyCaseId: number | null;
+}
+
+function DiarySummaryPsy({ therapyCaseId }: DiarySummaryPsyProps) {
   const { formatLong } = useDate();
-  const { getTherapyCaseByPatient } = useTherapyCase();
-  const [therapyCaseId, setTherapyCaseId] = useState<number | null>(null);
+  // const { getTherapyCaseByPatient } = useTherapyCase();
+  // const [therapyCaseId, setTherapyCaseId] = useState<number | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState("วันนี้");
   const [summaryData, setSummaryData] = useState<DiarySummaryInterface | null>(
     null
@@ -41,46 +52,46 @@ function DiarySummary() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-const calculateDateRange = (timeframe: string) => {
-  const now = new Date();
-  let startDate: Date, endDate: Date;
+  const calculateDateRange = (timeframe: string) => {
+    const now = new Date();
+    let startDate: Date, endDate: Date;
 
-  switch (timeframe) {
-    case "วันนี้":
-      startDate = startOfDay(now);
-      endDate = endOfDay(now);
-      break;
-      
-    case "สัปดาห์นี้":
-      // date-fns จะเริ่มสัปดาห์จากวันจันทร์ (default)
-      // หากต้องการเริ่มจากวันอาทิตย์ ให้เพิ่ม { weekStartsOn: 0 }
-      startDate = startOfWeek(now, { weekStartsOn: 0 }); // 0 = อาทิตย์
-      endDate = endOfWeek(now, { weekStartsOn: 0 });
-      break;
-      
-    case "เดือนนี้":
-      startDate = startOfMonth(now);
-      endDate = endOfMonth(now);
-      break;
-      
-    case "เลือกวันเอง":
-      if (customRange && customRange[0] && customRange[1]) {
-        startDate = startOfDay(customRange[0].toDate());
-        endDate = endOfDay(customRange[1].toDate());
-      } else {
-        // fallback ถ้าไม่มีการเลือกวัน
+    switch (timeframe) {
+      case "วันนี้":
         startDate = startOfDay(now);
         endDate = endOfDay(now);
-      }
-      break;
-      
-    default:
-      startDate = startOfDay(now);
-      endDate = endOfDay(now);
-      break;
-  }
+        break;
 
-  return { startDate, endDate };
+      case "สัปดาห์นี้":
+        // date-fns จะเริ่มสัปดาห์จากวันจันทร์ (default)
+        // หากต้องการเริ่มจากวันอาทิตย์ ให้เพิ่ม { weekStartsOn: 0 }
+        startDate = startOfWeek(now, { weekStartsOn: 0 }); // 0 = อาทิตย์
+        endDate = endOfWeek(now, { weekStartsOn: 0 });
+        break;
+
+      case "เดือนนี้":
+        startDate = startOfMonth(now);
+        endDate = endOfMonth(now);
+        break;
+
+      case "เลือกวันเอง":
+        if (customRange && customRange[0] && customRange[1]) {
+          startDate = startOfDay(customRange[0].toDate());
+          endDate = endOfDay(customRange[1].toDate());
+        } else {
+          // fallback ถ้าไม่มีการเลือกวัน
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+        }
+        break;
+
+      default:
+        startDate = startOfDay(now);
+        endDate = endOfDay(now);
+        break;
+    }
+
+    return { startDate, endDate };
   };
 
   const handleCreateSummary = async () => {
@@ -134,22 +145,21 @@ const calculateDateRange = (timeframe: string) => {
     }
   };
 
-  useEffect(() => {
-    const patientId = Number(localStorage.getItem("id"));
+  // useEffect(() => {
+  //   const patientId = Number(localStorage.getItem("id"));
 
+  //   const fetchData = async () => {
+  //     // ดึง therapy cases ของ patient
+  //     const therapyCases = await getTherapyCaseByPatient(patientId);
+  //     // console.log("Fetched therapyCases:", therapyCases);
 
-    const fetchData = async () => {
-      // ดึง therapy cases ของ patient
-      const therapyCases = await getTherapyCaseByPatient(patientId);
-      // console.log("Fetched therapyCases:", therapyCases);
+  //     if (therapyCases && typeof therapyCases.ID !== "undefined") {
+  //       setTherapyCaseId(therapyCases.ID);
+  //     }
+  //   };
 
-      if (therapyCases && typeof therapyCases.ID !== "undefined") {
-        setTherapyCaseId(therapyCases.ID);
-      }
-    };
-
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   useEffect(() => {
     const loadFromStorage = async () => {
@@ -164,12 +174,18 @@ const calculateDateRange = (timeframe: string) => {
   }, []);
 
   return (
-    <section className="diary-summary-container">
-      <div className="diary-summary-header">
-        <h1>Diary Summary</h1>
-        <p>
+    <section className="diary-summary-psy-container">
+      <div className="diary-summary-psy-header">
+        <h3 className="!text-xl !font-semibold !text-gray-900 !mb-1 !flex !items-center">
+          <div className="!bg-gradient-to-br !from-blue-500 !to-indigo-500 !p-2 !rounded-xl !flex-shrink-0 !mr-3">
+            <FileSearch2 className="!text-white" />
+          </div>
+          สรุปไดอารี่ผู้ป่วย
+        </h3>
+        <p className="!text-base !text-black !mt-1">
           เลือกช่วงเวลาสำหรับการสรุปข้อมูลไดอารี่ของคุณ
-          โดยการสรุปจะสรุปไดอารี่จากไดอารี่ที่ยืนยันแล้ว (สถานะ Confirmed) เท่านั้น
+          โดยการสรุปจะสรุปไดอารี่จากไดอารี่ที่ยืนยันแล้ว (สถานะ Confirmed)
+          เท่านั้น
         </p>
 
         <div className="timeframe-container">
@@ -222,17 +238,21 @@ const calculateDateRange = (timeframe: string) => {
           <div className="summary-card">
             <BlurredCirclesBackground />
             <div className="summary-card-content">
-              <h1><strong>AI Diary Summary</strong> ({summaryData.Timeframe}) {formatLong(summaryData.StartDate ?? "", "th")} - {formatLong(summaryData.EndDate ?? "", "th")}</h1>
-              <p>{summaryData.SummaryText}</p>
+              <h1  className="!text-base !font-medium !text-white z-1">
+                <strong>AI Diary Summary</strong> ({summaryData.Timeframe}){" "}
+                {formatLong(summaryData.StartDate ?? "", "th")} -{" "}
+                {formatLong(summaryData.EndDate ?? "", "th")}
+              </h1>
+              <p className="!text-base !font-medium !text-white z-1 ">{summaryData.SummaryText}</p>
             </div>
-            <div className="summary-keyword-container">
+            <div className="!flex !flex-row !text-base !gap-1 !font-medium !text-white z-1">
               <h1>Keyword: </h1>
               <p>{summaryData.Keyword}</p>
             </div>
           </div>
 
           <div className="emotion-summary-container">
-            <h1>
+            <h1 className="!text-base !font-semibold  z-1 ">
               ภาพรวมอารมณ์ – อ้างอิงจากไดอารี่ทั้งหมด{" "}
               {summaryData?.Diaries ? summaryData.Diaries.length : 0} ฉบับ
             </h1>
@@ -242,11 +262,11 @@ const calculateDateRange = (timeframe: string) => {
         </div>
       )}
 
-      <div className="summary-button-container">
+      <div className="!flex !items-center !justify-center ">
         <button
           onClick={handleCreateSummary}
           disabled={isLoading}
-          className="summary-button"
+          className="!cursor-pointer !px-24 !py-2 !rounded-full !text-sm !font-medium !text-white !bg-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           {isLoading ? "กำลังสรุปข้อมูลโปรดรอสักครู่" : "เริ่มสรุปไดอารี่"}
         </button>
@@ -255,4 +275,4 @@ const calculateDateRange = (timeframe: string) => {
   );
 }
 
-export default DiarySummary;
+export default DiarySummaryPsy;

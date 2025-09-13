@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -141,6 +142,12 @@ func SummarizeDiaries(c *gin.Context) {
 		SummaryText:   summaryText,
 		Keyword:       keywords,
 		Diaries:       diaries,
+	}
+
+	// ✅ Validate struct
+	if ok, err := govalidator.ValidateStruct(summary); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	if err := db.Create(&summary).Error; err != nil {

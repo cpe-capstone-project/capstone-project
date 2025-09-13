@@ -400,6 +400,8 @@ function HomePage() {
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "ส่งคำร้อง",
+       showClass: { popup: "" }, // ปิด animation ตอนเปิด
+  hideClass: { popup: "" }, // ปิด animation ตอนปิด
       didOpen: () => {
         const typeEl = document.getElementById("rqType") as HTMLSelectElement;
         const otherEl = document.getElementById("rqOther") as HTMLInputElement;
@@ -615,6 +617,8 @@ function HomePage() {
       width: 640,
       showCloseButton: true,
       showConfirmButton: false,
+       showClass: { popup: "" }, // ปิด animation ตอนเปิด
+        hideClass: { popup: "" }, // ปิด animation ตอนปิด
       didOpen: () => {
         const listEl = document.getElementById("reqList");
         const toggleBtn = document.getElementById(
@@ -700,14 +704,17 @@ function HomePage() {
   }
   async function openAllDiaryFeedbacks() {
     try {
-      if (!feedbackDiaryId) {
-        await Swal.fire(
-          "ยังไม่มีไดอารี่เป้าหมาย",
-          "ไม่มีข้อมูลไดอารี่สำหรับดึง Feedback",
-          "info"
-        );
-        return;
-      }
+  if (!feedbackDiaryId) {
+    await Swal.fire({
+      title: "ยังไม่มีไดอารี่เป้าหมาย",
+      text: "ไม่มีข้อมูลไดอารี่สำหรับดึง Feedback",
+      icon: "info",
+      showClass: { popup: "" }, // ปิด animation ตอนเปิด
+      hideClass: { popup: "" }, // ปิด animation ตอนปิด
+    });
+    return;
+  }
+
 
       // ดึง “ทั้งหมด” ของไดอารี่เป้าหมาย
       // ถ้า backend รองรับ limit=null/undefined ให้ส่งแบบนี้เพื่อเอามาทั้งหมด
@@ -796,7 +803,10 @@ function HomePage() {
         width: 720,
         confirmButtonText: "ปิด",
         showCloseButton: true,
-      });
+        showClass: { popup: "" }, // ปิด animation ตอนเปิด
+        hideClass: { popup: "" }, // ปิด animation ตอนปิด
+});
+
     } catch (e) {
       console.error(e);
       await Swal.fire("ดึงข้อมูลไม่สำเร็จ", "โปรดลองใหม่อีกครั้ง", "error");
@@ -1305,39 +1315,60 @@ function HomePage() {
       });
     }
   }, [navigate]);
+function openChecklistModal(startDate?: Date) {
+  let current = startDate ? new Date(startDate) : new Date();
 
-  function openChecklistModal(startDate?: Date) {
-    let current = startDate ? new Date(startDate) : new Date();
 
-    const render = () => {
-      const state = loadDay(current);
-      const progress = (() => {
+  const html = `
+    <div style="text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
+        <button id="prevDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">◀ Yesterday</button>
+        <div id="currentDate" style="font-weight:500">${current.toLocaleDateString()}</div>
+        <button id="nextDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">Tomorrow ▶</button>
+      </div>
+
+      <div style="margin:8px 0 14px;font-size:0.95rem;color:#555">
+        Progress: <b id="progressPercent">0%</b>
+        <div style="height:8px;background:#eee;border-radius:9999px;margin-top:6px;overflow:hidden">
+          <div id="progressBar" style="height:100%;width:0%;background:#3b82f6"></div>
+        </div>
+      </div>
+
+      <ul id="checklistUl" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px"></ul>
+    </div>
+  `;
+
+  Swal.fire({
+    title: "Checklist วันนี้",
+    html,
+    width: 620,
+    showConfirmButton: false,
+    showCloseButton: true,
+    showClass: { popup: "" },
+    hideClass: { popup: "" },
+    didOpen: () => {
+      const prev = document.getElementById("prevDay")!;
+      const next = document.getElementById("nextDay")!;
+      const dateEl = document.getElementById("currentDate")!;
+      const progressPercent = document.getElementById("progressPercent")!;
+      const progressBar = document.getElementById("progressBar")!;
+      const checklistUl = document.getElementById("checklistUl")!;
+
+      const renderDay = () => {
+        const state = loadDay(current);
         const total = state.tasks.length;
         const done = Object.values(state.done).filter(Boolean).length;
-        return total ? Math.round((done / total) * 100) : 0;
-      })();
+        const progress = total ? Math.round((done / total) * 100) : 0;
 
-      // HTML ภายใน Swal
-      const html = `
-      <div style="text-align:left">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
-          <button id="prevDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">◀ Yesterday</button>
-          <div style="font-weight:500">${current.toLocaleDateString()}</div>
-          <button id="nextDay" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">Tomorrow ▶</button>
-        </div>
+        dateEl.innerText = current.toLocaleDateString();
+        progressPercent.innerText = `${progress}%`;
+        progressBar.style.width = `${progress}%`;
 
-        <div style="margin:8px 0 14px;font-size:0.95rem;color:#555">
-          Progress: <b>${progress}%</b>
-          <div style="height:8px;background:#eee;border-radius:9999px;margin-top:6px;overflow:hidden">
-            <div style="height:100%;width:${progress}%;background:#3b82f6"></div>
-          </div>
-        </div>
-
-        <ul id="checklistUl" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
-          ${state.tasks
-            .map((t) => {
-              const checked = state.done[t.id] ? "checked" : "";
-              return `
+        // render checklist
+        checklistUl.innerHTML = state.tasks
+          .map((t) => {
+            const checked = state.done[t.id] ? "checked" : "";
+            return `
               <li style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid #eee;border-radius:10px;background:#f9fafb">
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1">
                   <input type="checkbox" data-task="${t.id}" ${checked} />
@@ -1349,53 +1380,35 @@ function HomePage() {
                   ${state.done[t.id] ? "Completed" : "Incomplete"}
                 </span>
               </li>
-             `;
-            })
-            .join("")}
-        </ul>
-      </div>
-     `;
+            `;
+          })
+          .join("");
 
-      Swal.fire({
-        title: "Checklist วันนี้",
-        html,
-        width: 620,
-        showConfirmButton: false,
-        showCloseButton: true,
-        didOpen: () => {
-          // ปุ่มเปลี่ยนวัน
-          const prev = document.getElementById("prevDay");
-          const next = document.getElementById("nextDay");
-          prev?.addEventListener("click", () => {
-            current = addDays(current, -1);
-            render();
+        // add checkbox listener
+        checklistUl.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((cb) => {
+          cb.addEventListener("change", () => {
+            const id = cb.getAttribute("data-task") as TaskId;
+            const st = loadDay(current);
+            st.done[id] = cb.checked;
+            saveDay(st);
+            renderDay(); // update progress & status
           });
-          next?.addEventListener("click", () => {
-            current = addDays(current, 1);
-            render();
-          });
+        });
+      };
 
-          // เช็คบ็อกซ์
-          document
-            .querySelectorAll<HTMLInputElement>(
-              "#checklistUl input[type=checkbox]"
-            )
-            .forEach((cb) => {
-              cb.addEventListener("change", () => {
-                const id = cb.getAttribute("data-task") as TaskId;
-                const st = loadDay(current);
-                st.done[id] = cb.checked;
-                saveDay(st);
-                // re-render เพื่ออัปเดตสถานะ/แถบ progress
-                render();
-              });
-            });
-        },
+      prev.addEventListener("click", () => {
+        current = addDays(current, -1);
+        renderDay();
       });
-    };
+      next.addEventListener("click", () => {
+        current = addDays(current, 1);
+        renderDay();
+      });
 
-    render();
-  }
+      renderDay(); // render วันแรก
+    },
+  });
+}
 
   return (
     <div className="dash-frame">
@@ -1544,14 +1557,14 @@ function HomePage() {
                 <>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Today’s Entry</strong>
+                      Today’s Entry
                       <span className="diary-entry-time">กำลังโหลด…</span>
                     </span>
                     <span className="diary-entry-content"> </span>
                   </p>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Yesterday</strong>
+                      Yesterday
                       <span className="diary-entry-time">กำลังโหลด…</span>
                     </span>
                     <span className="diary-entry-content"> </span>
@@ -1561,7 +1574,7 @@ function HomePage() {
                 <>
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Today’s Entry</strong>
+                      Today’s Entry
                       <span className="diary-entry-time">
                         {today?.UpdatedAt ? relTime(today.UpdatedAt) : "—"}
                       </span>
@@ -1579,7 +1592,7 @@ function HomePage() {
 
                   <p className="deer-tiger-diary-entry">
                     <span className="diary-entry-header">
-                      <strong>Last Week</strong>
+                      Last Week
                       <span className="diary-entry-time">
                         {week?.UpdatedAt ? relTime(week.UpdatedAt) : "—"}
                       </span>
@@ -1801,27 +1814,27 @@ function HomePage() {
                     >
                       {/* header */}
                       <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <strong
-                          title={situation}
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            fontSize: 14,
-                            lineHeight: 1.3,
-                            flex: 1,
-                          }}
-                        >
-                          {situation}
-                        </strong>
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  }}
+>
+  <div
+    title={situation}
+    style={{
+      display: "-webkit-box",
+      WebkitLineClamp: 1,
+      WebkitBoxOrient: "vertical",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      fontSize: 14,
+      lineHeight: 1.3,
+      flex: 1,
+    }}
+  >
+    {situation}
+  </div>
 
                         <span
                           style={{
@@ -1947,10 +1960,10 @@ function HomePage() {
                       style={{ marginTop: 8 }}
                     >
                       <div className="appointment-header">
-                        <strong>
+                        
                           {rq.type}
                           {rq.other ? ` • ${rq.other}` : ""}
-                        </strong>
+                      
                         <span className="appointment-date">{dateText}</span>
                       </div>
                       <p className="appointment-detail">{rq.detail || "—"}</p>

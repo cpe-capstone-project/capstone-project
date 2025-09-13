@@ -214,6 +214,12 @@ const handleRegisterClick = () => {
     customClass: {
       popup: "swal2-border-radius",
     },
+    showClass: {
+      popup: "",
+    },
+    hideClass: {
+      popup: "",
+    },
     didOpen: () => {
       const patientDiv = Swal.getPopup()?.querySelector("#patient-role");
       const psychologyDiv = Swal.getPopup()?.querySelector("#psychology-role");

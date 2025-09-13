@@ -84,14 +84,14 @@ func TestDiariesValidation(t *testing.T) {
 		g.Expect(err.Error()).To(ContainSubstring("UpdatedAt is required"))
 	})
 
-	// ❌ Case 5: Invalid TagColor1 (not hex)
+	// ❌ Case 5.1: Invalid TagColor1 (not hex)
 	t.Run("should fail when TagColor1 is not a hex color", func(t *testing.T) {
 		diary := entity.Diaries{
 			Title:        "Bad Color",
 			Content:      "Color format invalid",
 			UpdatedAt:    time.Now(),
 			TherapyCaseID: 1,
-			TagColor1:    "red", // invalid hex
+			TagColor1:    "red", 		// invalid hex
 			TagColor2:    "#00FF00",
 			TagColor3:    "#0000FF",
 		}
@@ -100,6 +100,42 @@ func TestDiariesValidation(t *testing.T) {
 		g.Expect(ok).To(BeFalse())
 		g.Expect(err).To(HaveOccurred())
 		g.Expect(err.Error()).To(ContainSubstring("TagColor1 must be a valid hex color"))
+	})
+
+	// ❌ Case 5.2: Invalid TagColor2 (not hex)
+	t.Run("should fail when TagColor1 is not a hex color", func(t *testing.T) {
+		diary := entity.Diaries{
+			Title:        "Bad Color",
+			Content:      "Color format invalid",
+			UpdatedAt:    time.Now(),
+			TherapyCaseID: 1,
+			TagColor1:    "#FF0000", 	// invalid hex
+			TagColor2:    "green",
+			TagColor3:    "#0000FF",
+		}
+
+		ok, err := govalidator.ValidateStruct(diary)
+		g.Expect(ok).To(BeFalse())
+		g.Expect(err).To(HaveOccurred())
+		g.Expect(err.Error()).To(ContainSubstring("TagColor2 must be a valid hex color"))
+	})
+
+	// ❌ Case 5.3: Invalid TagColor3 (not hex)
+	t.Run("should fail when TagColor1 is not a hex color", func(t *testing.T) {
+		diary := entity.Diaries{
+			Title:        "Bad Color",
+			Content:      "Color format invalid",
+			UpdatedAt:    time.Now(),
+			TherapyCaseID: 1,
+			TagColor1:    "#FF0000", 
+			TagColor2:    "#00FF00",
+			TagColor3:    "blue",		// invalid hex
+		}
+
+		ok, err := govalidator.ValidateStruct(diary)
+		g.Expect(ok).To(BeFalse())
+		g.Expect(err).To(HaveOccurred())
+		g.Expect(err.Error()).To(ContainSubstring("TagColor3 must be a valid hex color"))
 	})
 
 	// ❌ Case 6: TherapyCaseID missing

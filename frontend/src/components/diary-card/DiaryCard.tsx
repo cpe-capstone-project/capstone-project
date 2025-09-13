@@ -3,10 +3,12 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 import { useDate } from "../../contexts/DateContext";
 import { useDiary } from "../../contexts/DiaryContext";
 // import { AiFillEdit } from "react-icons/ai";
-// import { FaTrash } from "react-icons/fa6";
+import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import EditDiaryModal from "../edit-diary-modal/EditDiaryModal";
 import "./DiaryCard.css";
+import EmotionDisplay from "../emotion-display/EmotionDisplay";
+import { Flex } from "antd";
 
 interface DiaryCardProps {
   diary: DiaryInterface;
@@ -16,7 +18,7 @@ interface DiaryCardProps {
 const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
   const { formatShort } = useDate();
   const { deleteDiary } = useDiary();
-  // const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const navigate = useNavigate();
@@ -39,8 +41,8 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
     <>
       <div
         className="diary-card"
-        // onMouseEnter={() => setMenuOpen(true)}
-        // onMouseLeave={() => setMenuOpen(false)}
+        onMouseEnter={() => setMenuOpen(true)}
+        onMouseLeave={() => setMenuOpen(false)}
         onClick={() => {
           if (!showConfirm) {
             navigate(`/patient/diary/detail/${diary.ID}`);
@@ -76,12 +78,16 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
           </div>
 
           <p className="card-text">{stripHtml(diary.Content || "")}</p>
+          <Flex align="flex-start" style={{ marginTop: "8px" }}>
+            <EmotionDisplay
+              emotionAnalysisResults={diary.EmotionAnalysisResults || []}
+              maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+            />
+          </Flex>
 
-          {/* {menuOpen && (
-             
-
+          {menuOpen && !diary.Confirmed && (
             <div className="options-menu">
-              <button
+              {/* <button
                 className="options-menu-item edit"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -90,7 +96,7 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
                 }}
               >
                 <AiFillEdit />
-              </button>
+              </button> */}
 
               <button
                 className="options-menu-item delete"
@@ -103,8 +109,8 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
                 <FaTrash />
               </button>
             </div>
-             </section>
-          )} */}
+            //  </section>
+          )}
         </div>
         {showConfirm && (
           <div className="confirm-overlay">

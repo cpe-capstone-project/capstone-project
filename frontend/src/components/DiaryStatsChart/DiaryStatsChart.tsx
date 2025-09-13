@@ -195,7 +195,7 @@ const DiaryStatsChart: React.FC<DiaryStatsChartProps> = ({
       styles={{ body: { padding: 16 } }}
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 18, fontWeight: 700 }}>สรุปการจดบันทึก Diary</span>
+          <span style={{ fontSize: 18, fontWeight: 300 }}>สรุปการจดบันทึก Diary</span>
           <AntdTooltip title="เลือกช่วงเวลาที่ต้องการดูสถิติ">
             <span style={{ fontSize: 12, color: "#6b7280" }}>(รวม {total} รายการ)</span>
           </AntdTooltip>

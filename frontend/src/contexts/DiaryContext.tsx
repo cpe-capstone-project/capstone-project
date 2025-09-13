@@ -41,43 +41,57 @@ export const DiaryContextProvider = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDiaries = (
-    sortBy: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
-    order: "asc" | "desc" = "desc"
-  ) => {
-    setLoading(true);
-    GetDiary(sortBy, order)
-      .then((res) => {
-        if (res?.status === 200) {
-          setDiaries(res.data);
-          setError(null);
-        } else {
-          setError("Failed to load diaries");
-        }
-      })
-      .catch(() => setError("Failed to fetch diaries"))
-      .finally(() => setLoading(false));
-  };
+const fetchDiaries = (
+  sortBy?: "CreatedAt" | "UpdatedAt",
+  order?: "asc" | "desc"
+) => {
+  setLoading(true);
 
-  const fetchDiariesByPatientAndTherapyCase = (
-    patientId: number | string,
-    therapyCaseId: number | string,
-    sortBy: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
-    order: "asc" | "desc" = "desc"
-  ) => {
-    setLoading(true);
-    GetDiariesByPatientAndTherapyCase(patientId, therapyCaseId, sortBy, order)
-      .then((res) => {
-        if (res?.status === 200) {
-          setDiaries(res.data);
-          setError(null);
-        } else {
-          setError("Failed to load diaries");
-        }
-      })
-      .catch(() => setError("Failed to fetch diaries"))
-      .finally(() => setLoading(false));
-  };
+  // ถ้าไม่ได้รับค่า sortBy หรือ order ให้ลองอ่านจาก localStorage
+  const sortField =
+    sortBy || (localStorage.getItem("diary_sortField") as "CreatedAt" | "UpdatedAt") || "UpdatedAt";
+  const sortOrder =
+    order || (localStorage.getItem("diary_sortOrder") as "asc" | "desc") || "desc";
+
+  GetDiary(sortField, sortOrder)
+    .then((res) => {
+      if (res?.status === 200) {
+        setDiaries(res.data);
+        setError(null);
+      } else {
+        setError("Failed to load diaries");
+      }
+    })
+    .catch(() => setError("Failed to fetch diaries"))
+    .finally(() => setLoading(false));
+};
+
+const fetchDiariesByPatientAndTherapyCase = (
+  patientId: number | string,
+  therapyCaseId: number | string,
+  sortBy?: "CreatedAt" | "UpdatedAt",
+  order?: "asc" | "desc"
+) => {
+  setLoading(true);
+
+  const sortField =
+    sortBy || (localStorage.getItem("diary_sortField") as "CreatedAt" | "UpdatedAt") || "UpdatedAt";
+  const sortOrder =
+    order || (localStorage.getItem("diary_sortOrder") as "asc" | "desc") || "desc";
+
+  GetDiariesByPatientAndTherapyCase(patientId, therapyCaseId, sortField, sortOrder)
+    .then((res) => {
+      if (res?.status === 200) {
+        setDiaries(res.data);
+        setError(null);
+      } else {
+        setError("Failed to load diaries");
+      }
+    })
+    .catch(() => setError("Failed to fetch diaries"))
+    .finally(() => setLoading(false));
+};
+
 
   const getDiaryById = async (id: number): Promise<DiaryInterface | null> => {
     const res = await GetDiaryById(id);

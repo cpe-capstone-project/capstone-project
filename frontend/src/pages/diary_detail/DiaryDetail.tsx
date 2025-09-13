@@ -34,6 +34,7 @@ import DiaryFeedback from "./DiaryFeedback";
 import ColorPickerTooltip from "../../components/color-picker-tooltip/ColorPickerTooltip";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 import "./DiaryDetail.css";
+import EmotionDisplay from "../../components/emotion-display/EmotionDisplay";
 
 function DiaryDetail() {
   const patientId = Number(localStorage.getItem("id"));
@@ -41,6 +42,8 @@ function DiaryDetail() {
   const { basePath } = usePath();
   const { diaries, updateDiary, createDiary } = useDiary();
   const { getTherapyCaseByPatient } = useTherapyCase();
+
+  // console.log("Diaries in DiaryDetail:", diaries);
 
   const [speechLang, setSpeechLang] = useState("th-TH");
 
@@ -151,7 +154,7 @@ function DiaryDetail() {
     }
 
     const newDiary: DiaryInterface = {
-      Title: "New Diary",
+      Title: "ไดอารี่ใหม่",
       Content: '<p style="text-align: left;"></p>',
       TherapyCaseID: therapyCases.ID,
     };
@@ -340,6 +343,11 @@ function DiaryDetail() {
                 </div>
 
                 <div className="title-container-action">
+                  <EmotionDisplay
+                    emotionAnalysisResults={diary.EmotionAnalysisResults || []}
+                    maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                  />
+                  
                   <ColorPickerTooltip
                     colorOptions={colorOptions}
                     selectedColors={tagColorsArray}

@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { GetDiariesByTherapyCaseID } from "../../services/https/TherapyCase";
 import { CreateFeedback, GetFeedbackTime } from "../../services/https/Feedback";
+import { DeleteDiaryById, } from "../../services/https/Diary";
 import type { DiaryInterface } from "../../interfaces/IDiary";
 import type { FeedbackTimeInterface } from "../../interfaces/IFeedbackTime";
-import { ArrowLeft, FileText, BookOpen, X, Send, CalendarDays, MessageCircle, Clock, MessageSquare } from "lucide-react";
+import { Modal,message } from "antd";
+import { ArrowLeft, FileText, BookOpen, X, Send, CalendarDays, MessageCircle, Clock, MessageSquare,Trash } from "lucide-react";
 
 export default function DiaryList() {
   const { id } = useParams<{ id: string }>();
@@ -213,6 +215,42 @@ export default function DiaryList() {
     }, {});
   };
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedDiaryId, setSelectedDiaryId] = useState<number | null>(null);
+
+  // เปิด modal
+  const handleOpenDeleteModal = (id: number) => {
+    setSelectedDiaryId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  // ปิด modal
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedDiaryId(null);
+  };
+
+  // ยืนยันลบ
+  const handleConfirmDelete = async () => {
+  if (selectedDiaryId) {
+    try {
+      await DeleteDiaryById(selectedDiaryId); // 🚀 call API ลบ
+      message.success("ลบ Diary สำเร็จ");
+      setNotification({ message: "ลบ Diary สำเร็จ", success: true });
+
+      // โหลดข้อมูลใหม่หลังลบ
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500); 
+    } catch (error) {
+      message.error("ไม่สามารถลบ Diary ได้");
+      setNotification({ message: "ไม่สามารถลบ Diary ได้", success: false });
+    }
+  }
+  setIsDeleteModalOpen(false);
+  setSelectedDiaryId(null);
+};
+
   if (loading) return <div className="!min-h-screen !bg-white !p-8 text-center">กำลังโหลดข้อมูล...</div>;
 
   return (
@@ -312,6 +350,12 @@ export default function DiaryList() {
                         key={diary.ID}
                         className="!group !bg-gradient-to-br !from-white !to-gray-50 !border !border-gray-200 !rounded-2xl !p-6 hover:!shadow-lg hover:!border-blue-200 !transition-all !duration-300 hover:!-translate-y-1"
                       >
+                        <button
+                          onClick={() => handleOpenDeleteModal(diary.ID!)}
+                          className="!absolute !top-3 !right-3 !bg-red-500 hover:!bg-red-600 !text-white !rounded-full !p-2 !shadow-md !transition-all !duration-200"
+                        >
+                          <Trash className="!h-4 !w-4" />
+                        </button>
                         <div className="!flex !items-start !justify-between !mb-4">
                           <div className="!flex !items-start !space-x-3 !flex-1">
                             <div className="!bg-gradient-to-br !from-blue-100 !to-indigo-100 !p-2 !rounded-xl !flex-shrink-0">
@@ -628,6 +672,17 @@ export default function DiaryList() {
           <button className="!ml-3 !font-bold" onClick={() => setNotification(null)}>x</button>
         </div>
       )}
+      <Modal
+        title="ยืนยันการลบ Diary"
+        open={isDeleteModalOpen}
+        onOk={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        okText="ลบ"
+        cancelText="ยกเลิก"
+        okButtonProps={{ danger: true }}
+      >
+        <p>คุณแน่ใจหรือไม่ว่าต้องการลบ Diary นี้? การลบไม่สามารถกู้คืนได้</p>
+      </Modal>
     </div>
   );
 }

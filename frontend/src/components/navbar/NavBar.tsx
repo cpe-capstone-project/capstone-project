@@ -18,6 +18,7 @@ declare global {
 function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeMenu, setActiveMenu] = useState("home");
   const [showMenu, setShowMenu] = useState(false);
   const [hasNotice, setHasNotice] = useState(localStorage.getItem(NOTICE_FLAG_KEY) === "true");
 const [, setNoticeList] = useState(() => {
@@ -184,6 +185,7 @@ localStorage.setItem(NOTICE_FLAG_KEY, "true");
 
 
   const handleNavigate = (path: string) => {
+    setActiveMenu(path);
     const basePath = location.pathname.split("/")[1];
     navigate(`/${basePath}/${path}`);
   };
@@ -461,21 +463,41 @@ const out = () => {
 
   return (
     <section className="navbar">
-      <a href="/patient">
+      <a href="/patient/home">
         <img className="logo" src={healthImage} alt="Health Logo" />
       </a>
       <ul className="menu">
         <li>
-          <a onClick={() => handleNavigate("home")}>Main Menu</a>
+          <a
+            onClick={() => handleNavigate("home")}
+            className={activeMenu === "home" ? "active" : ""}
+          >
+            Main Menu
+          </a>
         </li>
         <li>
-          <a onClick={() => handleNavigate("diary")}>Diary</a>
+          <a
+            onClick={() => handleNavigate("diary")}
+            className={activeMenu === "diary" ? "active" : ""}
+          >
+            Diary
+          </a>
         </li>
         <li>
-          <a onClick={() => handleNavigate("thought_records")}>Thought Record</a>
+          <a
+            onClick={() => handleNavigate("thought_records")}
+            className={activeMenu === "thought_records" ? "active" : ""}
+          >
+            Thought Record
+          </a>
         </li>
         <li>
-          <a onClick={() => handleNavigate("feedback")}>Feedback</a>
+          <a
+            onClick={() => handleNavigate("feedback")}
+            className={activeMenu === "feedback" ? "active" : ""}
+          >
+            Feedback
+          </a>
         </li>
    <li style={{ position: "relative" }}>
   <img

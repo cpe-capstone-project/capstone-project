@@ -6,6 +6,7 @@ import (
 	"capstone-project/entity"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -160,19 +161,21 @@ func SummarizeDiaries(c *gin.Context) {
 
 // Struct สำหรับส่งออก
 type EmotionCount struct {
-	EmotionName string  `json:"emotion_name"`
-	Color       string  `json:"color"`
-	Count       int     `json:"count"`
-	Percentage  float64 `json:"percentage"`
+	EmotionNameEng  string  `json:"emotion_name_eng"`
+	EmotionNameThai string  `json:"emotion_name_thai"`
+	Color           string  `json:"color"`
+	Count           int     `json:"count"`
+	Percentage      float64 `json:"percentage"`
 }
 
 // Service: ดึงสถิติอารมณ์ของ DiarySummary
 func GetDiarySummaryEmotionStats(summaryID uint) ([]EmotionCount, error) {
 	var totalCount int64
 	var results []struct {
-		EmotionName string
-		Color       string
-		Count       int64
+		EmotionNameEng  string
+		EmotionNameThai string
+		Color           string
+		Count           int64
 	}
 
 	db := config.DB()
@@ -189,29 +192,35 @@ func GetDiarySummaryEmotionStats(summaryID uint) ([]EmotionCount, error) {
 		return nil, err
 	}
 
-	// ✅ ดึงข้อมูลอารมณ์ + สี + count
+	// ✅ ดึงข้อมูลอารมณ์ (Eng, Thai) + สี + count
 	err = db.Table("sub_emotion_analyses").
-		Select("e.emotionsname as emotion_name, e.emotions_color as color, COUNT(*) as count").
+		Select("e.emotionsname AS emotion_name_eng, e.thai_emotionsname AS emotion_name_thai, e.emotions_color AS color, COUNT(*) AS count").
 		Joins("JOIN emotions e ON e.id = sub_emotion_analyses.emotions_id").
 		Joins("JOIN emotion_analysis_results ear ON ear.id = sub_emotion_analyses.emotion_analysis_results_id").
 		Joins("JOIN diaries d ON d.id = ear.diary_id").
 		Joins("JOIN diary_summary_entries dse ON dse.diary_id = d.id").
 		Joins("JOIN diary_summaries ds ON ds.id = dse.diary_summary_id").
 		Where("ds.id = ?", summaryID).
-		Group("e.emotionsname, e.emotions_color").
+		Group("e.emotionsname, e.thai_emotionsname, e.emotions_color").
 		Scan(&results).Error
 	if err != nil {
 		return nil, err
 	}
 
-	// ✅ คำนวณเปอร์เซ็นต์
+	// ✅ คำนวณเปอร์เซ็นต์ (ปัดทศนิยม 2 ตำแหน่ง)
 	var stats []EmotionCount
 	for _, r := range results {
+		percentage := 0.0
+		if totalCount > 0 {
+			percentage = math.Round((float64(r.Count)/float64(totalCount))*100*100) / 100 // ปัดทศนิยม 2 ตำแหน่ง
+		}
+
 		stats = append(stats, EmotionCount{
-			EmotionName: r.EmotionName,
-			Color:       r.Color,
-			Count:       int(r.Count),
-			Percentage:  (float64(r.Count) / float64(totalCount)) * 100,
+			EmotionNameEng:  r.EmotionNameEng,
+			EmotionNameThai: r.EmotionNameThai,
+			Color:           r.Color,
+			Count:           int(r.Count),
+			Percentage:      percentage,
 		})
 	}
 

@@ -1,6 +1,8 @@
 /* diary-card */
 .diary-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   border: 2px solid #ddd;
@@ -24,6 +26,12 @@
 }
 
 .card-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  /* height: 100%; */
   padding: 16px;
 
   .card-header {
@@ -132,10 +140,13 @@
   justify-content: center;
   
   .confirm-modal {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     padding: var(--space-lg);
-    text-align: center;
+    align-items: center;
+    justify-content: center;
   }
   
   .confirm-buttons {

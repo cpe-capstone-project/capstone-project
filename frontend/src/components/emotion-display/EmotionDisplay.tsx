@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Flex, Tooltip, Modal, List } from "antd";
 import "./EmotionDisplay.css";
+import type { DiaryInterface } from "../../interfaces/IDiary";
 
 interface Emotion {
   ID: number;
@@ -26,11 +27,13 @@ interface EmotionAnalysisResult {
 interface EmotionDisplayProps {
   emotionAnalysisResults: EmotionAnalysisResult[];
   maxDisplay?: number;
+  diary: DiaryInterface;
 }
 
 const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
   emotionAnalysisResults,
   maxDisplay = 3,
+  diary,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -84,7 +87,7 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
 
       {/* Popup modal */}
       <Modal
-        title="อารมณ์ทั้งหมด"
+        title={`อารมณ์ทั้งหมดของไดอารี่ "${diary.Title ?? ""}"`}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}

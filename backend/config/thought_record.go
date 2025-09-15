@@ -34,11 +34,12 @@ func SetupThoughtRecordDatabase() {
 		{Situation: "ผิดหวังเรื่องสอบ", Thoughts: "คะแนนต่ำเกินไป", Behaviors: `"ร้องไห้"`, AlternateThought: "ยังมีโอกาสปรับปรุงครั้งหน้า", TagColors: "#708090", UpdatedAt: time.Date(2025, 8, 23, 11, 0, 0, 0, utcPlus7), TherapyCaseID: 1, SituationTagID: 2, Emotions: []entity.Emotions{{Model: gorm.Model{ID: 29}}, {Model: gorm.Model{ID: 18}}}},
 		{Situation: "ทะเลาะกับแฟน", Thoughts: "ไม่เข้าใจกัน", Behaviors: `"ไม่คุย"`, AlternateThought: "ยังคุยกันได้และปรับความเข้าใจ", TagColors: "#ff4d4f", UpdatedAt: time.Date(2025, 8, 24, 16, 0, 0, 0, utcPlus7), TherapyCaseID: 1, SituationTagID: 1, Emotions: []entity.Emotions{{Model: gorm.Model{ID: 24}}, {Model: gorm.Model{ID: 10}}}},
 		{Situation: "ผิดหวังเรื่องงาน", Thoughts: "งานไม่เป็นไปตามแผน", Behaviors: `"ถอนหายใจ"`, AlternateThought: "ทำให้ครั้งหน้าเราเตรียมตัวดีขึ้น", TagColors: "#faad14", UpdatedAt: time.Date(2025, 8, 25, 15, 0, 0, 0, utcPlus7), TherapyCaseID: 1, SituationTagID: 2, Emotions: []entity.Emotions{{Model: gorm.Model{ID: 18}}, {Model: gorm.Model{ID: 29}}, {Model: gorm.Model{ID: 24}}}},
+
 	}
 
 	for i := range records {
 		db.FirstOrCreate(&records[i], entity.ThoughtRecord{Situation: records[i].Situation})
 	}
-
+	
 	fmt.Println("Thought Record data with multiple emotions has been added to the database.")
 }

@@ -18,6 +18,4 @@ type EmotionAnalysisResults struct {
 	ThoughtRecord   *ThoughtRecord `gorm:"foreignKey:ThoughtRecordID"`
 	PatientID uint
   	Patient   Patients `gorm:"foreignKey:PatientID"`
-
-	SubEmotionAnalysis []SubEmotionAnalysis `gorm:"foreignKey:EmotionAnalysisResultsID"`
 }

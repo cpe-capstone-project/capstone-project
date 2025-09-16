@@ -93,6 +93,9 @@
   height: 20px;
 }
 
+
+
+/* reset */
 .toolbar button.reset-btn {
   display: flex;  
   align-items: center;         

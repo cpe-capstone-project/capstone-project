@@ -100,12 +100,21 @@ const DiarySummaryEmotionChart: React.FC<Props> = ({ className }) => {
           />
           <Tooltip
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(value: any) => [`${value}%`, "เปอร์เซ็นต์"]}
+            formatter={(value: any, name, props) => {
+              const emo = data.find(
+                (d) => d.emotionNameEng === props.payload.emotionNameEng
+              );
+              return [`${value}% (จำนวน ${emo ? emo.count : 0})`, "เปอร์เซ็นต์"];
+            }}
             labelFormatter={(label) => {
               const emo = data.find((d) => d.emotionNameEng === label);
               if (!emo) return label;
 
-              return `อารมณ์: ${emo.emotionNameThai} (${emo.emotionNameEng})`;
+              return (
+                <span>
+                  อารมณ์: {emo.emotionNameThai} ({emo.emotionNameEng})
+                </span>
+              );
             }}
             cursor={{ fill: "rgba(0,0,0,0.04)" }}
             labelStyle={{ fontWeight: 600 }}

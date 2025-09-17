@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
+import ThoughtRecordSummary from "../../components/thought-record-summary/ThoughtRecordSummary";
 import {
   Select,
   Spin,
@@ -416,6 +417,10 @@ function ThoughtRecordList() {
               {filterType !== "all" && <span style={{ color: "#1890ff" }}> (กรองแล้ว)</span>}
             </Text>
           </div>
+
+          {records.length > 0 && (
+  <ThoughtRecordSummary records={records} />
+)}
 
           <Row gutter={[24, 24]}>
             {paginatedRecords.map((record) => (

@@ -1,3 +1,6 @@
+/* =========================
+   Layout & Container
+========================= */
 .thought-record-create {
   min-height: 100vh;
   background-color: #ffffff;
@@ -9,7 +12,9 @@
   margin: 0 auto;
 }
 
-/* Form Card */
+/* =========================
+   Form Card
+========================= */
 .form-card {
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -18,16 +23,19 @@
   background: white;
 }
 
-/* Header Inside Card */
+/* =========================
+   Header Content
+========================= */
 .header-content {
   text-align: center;
- 
+  margin-bottom: 32px;
 }
 
 .page-title {
   margin: 0 !important;
-  color: #1f2937;
+  font-size: 23px !important;
   font-weight: 700;
+  color: #1f2937;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,30 +47,68 @@
   font-size: 1.2em;
 }
 
-/* Form Sections */
+.page-subtitle {
+  font-size: 15px;
+  color: #979899; /* เทาเข้ม */
+  margin: 12px 0 24px 0;
+  line-height: 1.5;
+}
+
+/* =========================
+   Guide Button
+========================= */
+.guide-button-capsule {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 22px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  background: #006aff !important;
+  border: none !important;
+  border-radius: 9999px !important; /* capsule */
+  transition: all 0.3s ease;
+  margin-top: 16px; /* เว้นระยะจาก subtitle */
+}
+
+.guide-button-capsule:hover,
+.guide-button-capsule:focus {
+  background: #0958d9 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(22, 119, 255, 0.3);
+}
+
+/* =========================
+   Form Sections
+========================= */
 .form-section {
-  margin-bottom: 0px;
+  margin-bottom: 40px; /* เว้นระยะระหว่าง section */
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
-.form-section:last-of-type {
-  margin-bottom: 32px;
-}
-
-.section-header {
-  margin-bottom: 24px;
-  margin-top: 16px;
-}
-
-.section-title {
-  color: #374151;
+/* Field Header */
+.form-section > h4 {
+  font-size: 17px;
   font-weight: 600;
-  margin: 0 !important;
-  font-size: 18px;
+  color: #226fff;  /* เปลี่ยนเป็นส้มถ้าต้องการ */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
-.section-divider {
-  margin: 8px 0 0 0 !important;
-  border-color: #e5e7eb;
+/* Divider แบบบางเบา */
+.form-section > .ant-divider {
+  margin: 0 0 16px 0;
+  border-color: #e5e7eb;  /* สีเทาอ่อนมาก */
+}
+
+/* Hover effect แบบ subtle สำหรับฟอร์มทั่วไป */
+.form-section:hover {
+  background-color: #ffffff;
 }
 
 /* Field Labels and Icons */
@@ -77,35 +123,30 @@
   width: 18px;
 }
 
-.field-icon.situation {
-  color: #059669;
-}
-
-.field-icon.thoughts {
-  color: #dc2626;
-}
-
-.field-icon.behaviors {
-  color: #7c3aed;
-}
-
-.field-icon.alternate {
-  color: #ea580c;
-}
+.field-icon.situation { color: #059669; }
+.field-icon.thoughts { color: #dc2626; }
+.field-icon.behaviors { color: #7c3aed; }
+.field-icon.alternate { color: #ea580c; }
 
 /* Form Controls */
 .create-form .ant-form-item-label > label {
   font-weight: 600;
   color: #374151;
-  font-size: 14px;
+  font-size: 16px !important;
 }
 
-.textarea-field {
+.create-form .ant-input,
+.create-form .ant-select-selector,
+.create-form .ant-picker-input > input {
+  font-size: 15px !important;
+}
+
+.create-form textarea {
+  font-size: 15px !important;
+  padding: 12px 14px !important;
+  line-height: 1.6;
   border-radius: 12px !important;
   border: 2px solid #e5e7eb !important;
-  padding: 12px 16px !important;
-  font-size: 14px;
-  line-height: 1.6;
   transition: all 0.3s ease;
   resize: vertical;
 }
@@ -121,7 +162,14 @@
   font-style: italic;
 }
 
-/* Action Buttons */
+/* Spacing between form items */
+.create-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+/* =========================
+   Form Actions (Buttons)
+========================= */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -132,56 +180,62 @@
   margin: 0 !important;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .thought-record-create {
-    padding: 16px 12px;
-  }
-
-  .form-card {
-    padding: 20px 16px;
-    border-radius: 16px;
-  }
-
-  .header-content {
-    padding: 20px 16px;
-    margin: 0 -4px;
-  }
-
-  .page-title {
-    font-size: 24px;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .form-section {
-    margin-bottom: 32px;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions .ant-btn {
-    width: 100% !important;
-  }
+/* =========================
+   Tip Section (แยกจาก form-section)
+========================= */
+.tip-section {
+  background-color: #e6f4ff; /* ฟ้าอ่อน */
+  padding: 16px 20px;
+  border-radius: 12px; /* มุมโค้ง */
+  border: 1px solid #90c3ff; /* เส้นขอบฟ้าอ่อน */
+  margin-bottom: 24px;
+  transition: none; /* ปิด hover */
 }
 
-@media (max-width: 480px) {
-  .container {
-    max-width: 100%;
-  }
-
-  .textarea-field {
-    padding: 10px 12px !important;
-  }
-
-  .section-title {
-    font-size: 16px;
-  }
+.tip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 8px;
 }
 
-/* Primary Button Override */
+.tip-icon { font-size: 20px; }
+
+.tip-content {
+  font-size: 14px;
+  color: #1e40af;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* =========================
+   Tables & Highlight
+========================= */
+.highlight-col {
+  background-color: #e6f4ff !important; /* ฟ้าอ่อน */
+}
+
+.ant-table-thead .highlight-col {
+  background-color: #3d79f1 !important; /* ฟ้าเข้ม */
+  color: #fff !important;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #f0f2f5 !important; /* เทาอ่อน */
+  color: #333 !important;
+  font-weight: 600 !important;
+  text-align: center;
+  border: 1px solid #d9d9d9 !important;
+  border-bottom: 2px solid #d9d9d9 !important;
+}
+
+/* =========================
+   Buttons Override
+========================= */
 .ant-btn-primary {
   background-color: #1677ff !important;
   border-color: #1677ff !important;
@@ -201,32 +255,28 @@
   color: #fff !important;
 }
 
-/* ไฮไลต์ทั้ง column (ข้อมูล) */
-.highlight-col {
-  background-color: #e6f4ff !important; /* ฟ้าอ่อน */
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 768px) {
+  .thought-record-create { padding: 16px 12px; }
+
+  .form-card { padding: 20px 16px; border-radius: 16px; }
+
+  .header-content { padding: 20px 16px; margin: 0 -4px; }
+
+  .page-title { font-size: 24px; flex-direction: column; gap: 8px; }
+
+  .form-section { margin-bottom: 32px; }
+
+  .form-actions { flex-direction: column-reverse; }
+
+  .form-actions .ant-btn { width: 100% !important; }
 }
 
-/* ไฮไลต์เฉพาะหัวตารางให้เข้มกว่า */
-.ant-table-thead .highlight-col {
-  background-color: #3d79f1 !important; /* ฟ้าเข้ม */
-  color: #fff !important;              /* ตัวอักษรขาว */
-  font-weight: bold !important;
-  text-align: center !important;
+@media (max-width: 480px) {
+  .container { max-width: 100%; }
+  .textarea-field { padding: 10px 12px !important; }
+  .section-title { font-size: 16px; }
 }
 
-/* หัวตารางปกติ (ยังไม่ถูกไฮไลต์) */
-.ant-table-thead > tr > th {
-  background-color: #f0f2f5 !important; /* เทาอ่อน */
-  color: #333 !important;
-  font-weight: 600 !important;
-  text-align: center;
-  border: 1px solid #d9d9d9 !important;   /* เส้นรอบหัวตาราง */
-  border-bottom: 2px solid #d9d9d9 !important; /* เส้นคั่นด้านล่าง */
-}
-
-.guide-button {
-  padding: 0;       /* เอา padding ของ ant-btn ออก */
-  margin: 0 0 16px; /* margin bottom ตามต้องการ */
-  font-size: 14px;
-  color: #1677ff;   /* ให้สีเหมือนไอคอนหัวข้อ */
-}

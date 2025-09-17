@@ -66,11 +66,12 @@ function ThoughtRecordDetail() {
   return (
     <section className="thought-record-detail">
       <div className="container">
-        <div style={{ marginBottom: 16 }}>
+        <div className="navigation-section">
           <Button
             type="default"
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
+            className="back-button"
           >
             ย้อนกลับ
           </Button>
@@ -79,67 +80,90 @@ function ThoughtRecordDetail() {
         <Card className="main-card">
           <div className="title-section">
             <div className="title-left">
-              <Title level={2} className="card-title">บันทึกความคิด</Title>
+              <Title level={2} className="card-title">
+                📝 บันทึกความคิด
+              </Title>
             </div>
             <Tag className="record-tag">รายการที่ {id}</Tag>
           </div>
+          
           <Divider className="custom-divider" />
-          {contentItems.map(({ key, label, icon: Icon, className }) => (
-            <div key={key} className={`content-item ${className}`}>
-              <div className="content-header">
-                <Icon className={`content-icon ${className}-icon`} /> {/* เพิ่ม className */}
-                <Text className="content-label">{label}</Text>
+          
+          <div className="content-grid">
+            {contentItems.map(({ key, label, icon: Icon, className }) => (
+              <div key={key} className={`content-item ${className}`}>
+                <div className="content-header">
+                  <div className="icon-wrapper">
+                    <Icon className={`content-icon ${className}-icon`} />
+                  </div>
+                  <Text className="content-label">{label}</Text>
+                </div>
+                <div className="content-body">
+                  <div className="content-box">
+                    <Paragraph
+                      className={`content-text ${key === "AlternateThought" ? "alternative-text" : ""}`}
+                    >
+                      {record[key] ? (
+                        record[key]
+                      ) : (
+                        <span className="empty-text">ไม่ได้ระบุ</span>
+                      )}
+                    </Paragraph>
+                  </div>
+                </div>
               </div>
-              <div className="content-body">
-                <Paragraph
-                  className={`content-text ${key === "AlternateThought" ? "alternative-text" : ""}`}
-                >
-                  {record[key] || "ไม่ได้ระบุ"}
-                </Paragraph>
-              </div>
-            </div>
-          ))}
-          {/* แสดง Emotion */}
-          {record.Emotions && record.Emotions.length > 0 ? (
-            <div className="content-item emotions">
+            ))}
+
+            {/* แสดง Emotion */}
+            <div className="content-item emotions full-width">
               <div className="content-header">
-                <GiDramaMasks className="content-icon" />
+                <div className="icon-wrapper">
+                  <GiDramaMasks className="content-icon emotions-icon" />
+                </div>
                 <Text className="content-label">อารมณ์</Text>
               </div>
-              <div
-                className="content-body"
-                style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
-              >
-                {record.Emotions.map((emotion: any) => (
-                  <Tag
-                    key={emotion.ID}
-                    className="emotion-tag"
-                    style={{
-                      background: emotion.EmotionsColor || "#519bf1", // ใช้สีจาก EmotionsColor หรือ fallback
-                      color: "#fff",
-                    }}
-                    title={emotion.ThaiEmotionsname || emotion.Emotionsname}
-                  >
-                    {emotion.ThaiEmotionsname || emotion.Emotionsname}
-                  </Tag>
-                ))}
-
+              <div className="content-body">
+                <div className="content-box">
+                  {record.Emotions && record.Emotions.length > 0 ? (
+                    <div className="emotions-grid">
+                      {record.Emotions.map((emotion: any, index: number) => (
+                        <Tag
+                          key={emotion.ID || index}
+                          className="emotion-tag"
+                          style={{
+                            background: emotion.EmotionsColor || "#519bf1",
+                            color: "#fff",
+                            borderColor: emotion.EmotionsColor || "#519bf1",
+                          }}
+                          title={emotion.ThaiEmotionsname || emotion.Emotionsname}
+                        >
+                          {emotion.ThaiEmotionsname || emotion.Emotionsname}
+                        </Tag>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="empty-text">ไม่ได้ระบุอารมณ์</span>
+                  )}
+                </div>
               </div>
             </div>
-          ) : (
-            <Paragraph className="content-text">ไม่ได้ระบุอารมณ์</Paragraph>
-          )}
-
+          </div>
 
           <Divider className="timestamp-divider" />
 
           <div className="timestamp-section">
             <div className="timestamp-item">
-              <EditOutlined className="timestamp-icon" />
-              <Text type="secondary">
-                แก้ไขล่าสุด:{" "}
-                <span className="timestamp-value">{formatDate(record.UpdatedAt)}</span>
-              </Text>
+              <div className="timestamp-icon-wrapper">
+                <EditOutlined className="timestamp-icon" />
+              </div>
+              <div className="timestamp-content">
+                <Text type="secondary" className="timestamp-label">
+                  แก้ไขล่าสุด
+                </Text>
+                <Text className="timestamp-value">
+                  {formatDate(record.UpdatedAt)}
+                </Text>
+              </div>
             </div>
           </div>
         </Card>

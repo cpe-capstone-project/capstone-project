@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { Modal, Typography, Table, Button } from "antd";
-
-const { Text } = Typography;
+import { Modal, Table, Button } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 
 type GuideType = "situation" | "thoughts" | "behaviors" | "alternate";
 
 interface GuideButtonProps {
-  type?: GuideType; // สำหรับปุ่มตัวอย่าง field
-  formGuide?: boolean; // ถ้าเป็นปุ่ม "การกรอกฟอร์ม" จะใช้ prop นี้
+  type?: GuideType;
+  formGuide?: boolean;
 }
 
 const titleMap: Record<GuideType, string> = {
@@ -38,6 +37,7 @@ const formData = [
 const GuideButton: React.FC<GuideButtonProps> = ({ type, formGuide }) => {
   const [open, setOpen] = useState(false);
   const [highlightType, setHighlightType] = useState<GuideType | null>(null);
+  const [hovered, setHovered] = useState(false);
 
   const columns = [
     {
@@ -74,7 +74,7 @@ const GuideButton: React.FC<GuideButtonProps> = ({ type, formGuide }) => {
           type="link"
           style={{ padding: 0, fontSize: 14, color: "#1677ff" }}
           onClick={() => {
-            setHighlightType(null); // ไม่ไฮไลต์
+            setHighlightType(null);
             setOpen(true);
           }}
         >
@@ -103,15 +103,28 @@ const GuideButton: React.FC<GuideButtonProps> = ({ type, formGuide }) => {
   if (type) {
     return (
       <>
-        <Text
-          style={{ fontSize: "12px", color: "#1677ff", cursor: "pointer", marginLeft: 8 }}
+        <Button
+          type="default"
+          shape="round"
+          size="small"
+          icon={<EyeOutlined />}
+          style={{
+            fontSize: 12,
+            marginLeft: 8,
+            backgroundColor: hovered ? "#e6f0ff" : "#f0f5ff",
+            color: "#1677ff",
+            border: hovered ? "1px solid #1677ff" : "none",
+            transition: "all 0.3s ease",
+          }}
           onClick={() => {
             setHighlightType(type);
             setOpen(true);
           }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         >
-          (ดูตัวอย่าง)
-        </Text>
+          ดูตัวอย่าง
+        </Button>
 
         <Modal
           title={`ตัวอย่าง - ${titleMap[type]}`}

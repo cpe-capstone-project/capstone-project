@@ -1,7 +1,9 @@
+// ThoughtRecordCreate.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
+import { FaBookOpen } from "react-icons/fa";
 import {
   Card,
   Typography,
@@ -10,7 +12,6 @@ import {
   Button,
   Divider,
   message,
-  ColorPicker,
   Row,
   Col,
   Space,
@@ -24,13 +25,14 @@ import {
   SmileOutlined,
   BgColorsOutlined,
 } from "@ant-design/icons";
-import { FaRegCommentDots, FaRedoAlt } from "react-icons/fa";
+import { FaRegCommentDots, FaRedoAlt, FaLightbulb } from "react-icons/fa";
 import { GiDramaMasks } from "react-icons/gi";
 import { MdEvStation } from "react-icons/md";
 import GuideButton from "../../components/thought-record-guide/GuideModel";
 import FormGuide from "../../components/thought-record-guide/FormGuide";
 import SituationTagSelect from "../../components/situation-tag/SituationTagSelect";
 import ThoughtRecordSubmit from "../../components/thought_record-submit/ThoughtRecordSubmit";
+import ColorPickerWithPresets from "../../components/thought_record-submit/ColorPickerWithPresets";
 import "./ThoughtRecordCreate.css";
 import { GetAllEmotions } from "../../services/https/Emotions";
 import type { EmotionsInterface } from "../../interfaces/IEmotions";
@@ -53,17 +55,12 @@ interface ThoughtRecordFormValues {
 function ThoughtRecordCreate() {
   const { createRecord } = useThoughtRecord();
   const { getTherapyCaseByPatient } = useTherapyCase();
-
-  const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(
-    null
-  );
+  const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(null);
   const [loading, setLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [emotions, setEmotions] = useState<EmotionsInterface[]>([]);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [pendingValues, setPendingValues] =
-    useState<ThoughtRecordFormValues | null>(null);
-
+  const [pendingValues, setPendingValues] = useState<ThoughtRecordFormValues | null>(null);
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
@@ -72,9 +69,7 @@ function ThoughtRecordCreate() {
     (async () => {
       const res = await GetAllEmotions();
       if (Array.isArray(res)) {
-        const filtered = res.filter(
-          (emotion: EmotionsInterface) => emotion.ID && emotion.ID > 3
-        );
+        const filtered = res.filter((emotion) => emotion.ID && emotion.ID > 3);
         setEmotions(filtered);
       }
     })();
@@ -107,10 +102,8 @@ function ThoughtRecordCreate() {
   // บันทึกจริง
   const handleConfirmSave = async () => {
     if (!pendingValues) return;
-
     setLoading(true);
     setConfirmModalVisible(false);
-
     const payload = {
       ...pendingValues,
       EmotionsID: Array.isArray(pendingValues.EmotionsID)
@@ -120,7 +113,6 @@ function ThoughtRecordCreate() {
           : [],
       TherapyCaseID: therapyCase?.ID ?? null,
     };
-
     console.log("Payload to API:", payload);
     const success = await createRecord(payload);
     if (success) {
@@ -166,19 +158,21 @@ function ThoughtRecordCreate() {
 
         {!showGuide ? (
           <Card className="form-card">
-            <div className="header-content" style={{ marginBottom: 16 }}>
+            <div className="header-content" style={{ textAlign: "center", marginBottom: 32 }}>
               <Title level={2} className="page-title">
                 <BulbOutlined className="title-icon" /> สร้างบันทึกความคิด
               </Title>
+              <p className="page-subtitle">
+                เขียนบันทึกความคิดของคุณอย่างตรงไปตรงมา โดยใส่ความรู้สึกและความคิดจริงของตัวเอง
+              </p>
+              <Button
+                onClick={() => setShowGuide(true)}
+                className="guide-button-capsule"
+                icon={<FaBookOpen style={{ color: "white" }} />}
+              >
+                คำแนะนำการกรอกฟอร์ม
+              </Button>
             </div>
-            {/* ปุ่มคำแนะนำ */}
-            <Row>
-              <Col xs={24} sm={24} md={24} lg={24}>
-                <Button type="link" onClick={() => setShowGuide(true)} className="guide-button">
-                  📘 คำแนะนำการกรอกฟอร์ม
-                </Button>
-              </Col>
-            </Row>
             <Form
               form={form}
               layout="vertical"
@@ -188,7 +182,7 @@ function ThoughtRecordCreate() {
             >
               {/* การปรับแต่ง */}
               <div className="form-section">
-                <Title level={4}>การปรับแต่ง</Title>
+                <Title level={4}>🎨 การปรับแต่ง</Title>
                 <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12}>
@@ -202,13 +196,9 @@ function ThoughtRecordCreate() {
                       name="TagColors"
                       rules={[{ required: true, message: "กรุณาเลือกสี" }]}
                     >
-                      <ColorPicker
-                        showText
-                        size="large"
-                        format="hex"
-                        onChange={(color) =>
-                          form.setFieldsValue({ TagColors: color.toHexString() })
-                        }
+                      <ColorPickerWithPresets
+                        value={form.getFieldValue("TagColors")}
+                        onChange={(color: any) => form.setFieldsValue({ TagColors: color })}
                       />
                     </Form.Item>
                   </Col>
@@ -217,7 +207,7 @@ function ThoughtRecordCreate() {
 
               {/* ข้อมูลหลัก */}
               <div className="form-section">
-                <Title level={4}>ข้อมูลหลัก</Title>
+                <Title level={4}>📝 ข้อมูลหลัก</Title>
                 <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24}>
@@ -232,7 +222,10 @@ function ThoughtRecordCreate() {
                       name="Situation"
                       rules={[{ required: true, message: "กรุณากรอกสถานการณ์" }]}
                     >
-                      <TextArea rows={4} placeholder="อธิบายสถานการณ์..." />
+                      <TextArea
+                        rows={4}
+                        placeholder="อธิบายสถานการณ์อย่างละเอียดที่สุด เช่น เกิดอะไรขึ้นกับคุณ ใครบ้างที่เกี่ยวข้อง สถานที่ เวลา และความรู้สึกตอนนั้น..."
+                      />
                     </Form.Item>
                   </Col>
 
@@ -248,19 +241,20 @@ function ThoughtRecordCreate() {
                       name="Thoughts"
                       rules={[{ required: true, message: "กรุณากรอกความคิด" }]}
                     >
-                      <TextArea rows={4} placeholder="บันทึกความคิด..." />
+                      <TextArea
+                        rows={4}
+                        placeholder="บันทึกความคิดหรือคำพูดในใจของคุณตอนนั้น ลองระบุให้ชัดเจนและตรงกับความรู้สึกที่สุด..."
+                      />
                     </Form.Item>
                   </Col>
-
                   <Col xs={24}>
                     <Form.Item
                       label={
                         <Space>
-                          <SmileOutlined style={{ color: "#f59e0b" }} />
-                          <span>อารมณ์</span>
+                          <SmileOutlined style={{ color: "#f59e0b" }} /> <span>อารมณ์</span>
                         </Space>
                       }
-                      // name="EmotionsID"
+                      name="EmotionsID"
                       // rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
                     >
                       <Select
@@ -281,7 +275,6 @@ function ThoughtRecordCreate() {
                       </Select>
                     </Form.Item>
                   </Col>
-
                   <Col xs={24}>
                     <Form.Item
                       label={
@@ -304,7 +297,7 @@ function ThoughtRecordCreate() {
 
               {/* การตอบสนองและวิเคราะห์ */}
               <div className="form-section">
-                <Title level={4}>การตอบสนองและวิเคราะห์</Title>
+                <Title level={4}>🔍 การตอบสนองและวิเคราะห์</Title>
                 <Divider />
                 <Row gutter={[16, 16]}>
                   <Col xs={24} lg={12}>
@@ -319,7 +312,10 @@ function ThoughtRecordCreate() {
                       name="Behaviors"
                       rules={[{ required: true, message: "กรุณากรอกพฤติกรรม" }]}
                     >
-                      <TextArea rows={3} placeholder="สิ่งที่คุณทำ..." />
+                      <TextArea
+                        rows={3}
+                        placeholder="สิ่งที่คุณทำหรือวิธีตอบสนองต่อสถานการณ์นั้น ลองเขียนให้ชัดเจนที่สุด..."
+                      />
                     </Form.Item>
                   </Col>
 
@@ -335,17 +331,40 @@ function ThoughtRecordCreate() {
                       name="AlternateThought"
                       rules={[{ required: true, message: "กรุณากรอกความคิดทางเลือก" }]}
                     >
-                      <TextArea rows={3} placeholder="ความคิดทางเลือก..." />
+                      <TextArea
+                        rows={3}
+                        placeholder="เขียนความคิดที่เป็นทางเลือกและเป็นบวกมากขึ้นสำหรับสถานการณ์นี้..."
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
               </div>
 
+              {/* Tip Section */}
+              <div className="tip-section">
+                <div className="tip-header">
+                  <FaLightbulb className="tip-icon" />
+                  <span>เคล็ดลับการบันทึกที่ดี</span>
+                </div>
+                <div className="tip-content">
+                  เขียนให้ตรงกับความรู้สึกและความคิดจริงของคุณ
+                  ใช้ภาษาง่าย ๆ ที่คุณเข้าใจ
+                  อย่ากังวลเรื่องถูกผิด เขียนเพื่อเข้าใจตัวเอง
+                  อ่านทบทวนทุกสัปดาห์เพื่อเห็นพัฒนาการและแนวทางปรับปรุงตัวเอง
+                </div>
+              </div>
+
+
               <div className="form-actions">
                 <Button type="default" onClick={() => navigate(-1)}>
                   ยกเลิก
                 </Button>
-                <Button type="primary" htmlType="submit" loading={loading} style={{ width: "auto", minWidth: 20 }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  style={{ width: "auto", minWidth: 20 }}
+                >
                   บันทึก
                 </Button>
               </div>
@@ -355,7 +374,6 @@ function ThoughtRecordCreate() {
           <FormGuide onBack={() => setShowGuide(false)} />
         )}
 
-        {/* ใช้ component แยกสำหรับ Modal ยืนยัน */}
         <ThoughtRecordSubmit
           visible={confirmModalVisible}
           loading={loading}

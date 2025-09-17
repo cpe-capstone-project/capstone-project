@@ -264,6 +264,7 @@ const DiarySidebar = ({
                 <EmotionDisplay
                   emotionAnalysisResults={item.EmotionAnalysisResults || []}
                   maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                  diary={item}
                 />
               </Flex>
             </div>

@@ -1,29 +1,24 @@
-.diary-summary-container {
+.diary-summary-psy-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   gap: var(--space-lg);
   border-radius: 18px;
 
-  /* Box shadow ทำให้นูน */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 6px 12px rgba(0, 0, 0, 0.05);
+
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   border: 3.5px solid transparent;
-  background-image: linear-gradient(white, white),
-    /* พื้นหลังสีขาว */
-      linear-gradient(135deg, #4caf50, #2196f3, #ff9800, #9c27b0); /* Gradient รอบกรอบ */
+
   background-origin: border-box;
   background-clip: padding-box, border-box;
 
   position: relative;
   overflow: hidden;
-  padding: 24px;
   border-radius: 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-.diary-summary-header {
+.diary-summary-psy-header {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -34,51 +29,53 @@
 
   p {
     font-size: var(--font-size-md);
-    color: #6b7280;
+    color: #4e7397;
     margin-bottom: var(--space-md);
   }
+
+  .timeframe-container {
+    display: flex;
+    gap: var(--space-md);
+    height: 40px;
+    background-color: #e7edf3;
+    border-radius: var(--radius-md);
+    padding: 4px;
+    gap: 4px;
+
+    .timeframe-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      padding: 0 8px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      color: #4e7397;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .timeframe-option.selected {
+      background-color: #f8fafc; /* เหมือน bg-slate-50 */
+      color: #0e141b;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .timeframe-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .timeframe-input {
+      display: none;
+    }
+  }
+  
 }
 
-.timeframe-container {
-  display: flex;
-  gap: var(--space-md);
-  height: 40px;
-  background-color: #e7edf3;
-  border-radius: var(--radius-md);
-  padding: 4px;
-  gap: 4px;
-}
-
-.timeframe-option {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-  padding: 0 8px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  color: #4e7397;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.2s ease-in-out;
-}
-
-.timeframe-option.selected {
-  background-color: #f8fafc; /* เหมือน bg-slate-50 */
-  color: #0e141b;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-}
-
-.timeframe-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.timeframe-input {
-  display: none;
-}
 
 /* Content */
 .diary-summary-content {

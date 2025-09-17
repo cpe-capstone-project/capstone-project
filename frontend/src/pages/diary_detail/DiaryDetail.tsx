@@ -26,6 +26,9 @@ import Highlight from "@tiptap/extension-highlight";
 import TextStyle from "@tiptap/extension-text-style";
 import FontFamily from "@tiptap/extension-font-family";
 import TextAlign from "@tiptap/extension-text-align";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 
 // Components & Styles
 import Toolbar from "../../components/text-editor/Toolbar";
@@ -114,6 +117,9 @@ function DiaryDetail() {
         types: ["heading", "paragraph"],
         defaultAlignment: "left",
       }),
+      BulletList,
+      OrderedList,
+      ListItem,
     ],
     content: '<p style="text-align: left;"></p>',
     editable: diary ? !diary.Confirmed : true,
@@ -346,8 +352,9 @@ function DiaryDetail() {
                   <EmotionDisplay
                     emotionAnalysisResults={diary.EmotionAnalysisResults || []}
                     maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                    diary={diary}
                   />
-                  
+
                   <ColorPickerTooltip
                     colorOptions={colorOptions}
                     selectedColors={tagColorsArray}

@@ -5,6 +5,7 @@ import type { TherapyInterface } from "../../interfaces/ITherapy"
 import {
   GetTherapyCaseByID,
 } from "../../services/https/TherapyCase";
+import DiarySummaryPsy from '../diary_summary/DiarySummaryPsy';
 
 export default function TherapyCaseDetailPage() {
   const navigate = useNavigate();
@@ -209,6 +210,9 @@ export default function TherapyCaseDetailPage() {
                 </div>
               )}
             </div>
+          </div>
+          <div className="!bg-white !border !border-gray-200 !rounded-lg !p-6">
+            <DiarySummaryPsy therapyCaseId={id ? Number(id) : null} />
           </div>
         </div>
       </div>

@@ -6,9 +6,10 @@ import { useDiary } from "../../contexts/DiaryContext";
 import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router";
 import EditDiaryModal from "../edit-diary-modal/EditDiaryModal";
+
+import { Flex } from "antd";
 import "./DiaryCard.css";
 import EmotionDisplay from "../emotion-display/EmotionDisplay";
-import { Flex } from "antd";
 
 interface DiaryCardProps {
   diary: DiaryInterface;
@@ -61,27 +62,30 @@ const DiaryCard: React.FC<DiaryCardProps> = ({ diary, sortField }) => {
         </div>
 
         <div className="card-content">
-          <div
-            className="card-header-with-menu"
-            style={{ position: "relative" }}
-          >
-            <div className="card-header">
-              <h2 className="card-title">{diary.Title || "Untitled"}</h2>
-              <span className="card-date">
-                {formatShort(
-                  sortField === "UpdatedAt"
-                    ? diary.UpdatedAt ?? ""
-                    : diary.CreatedAt ?? ""
-                )}
-              </span>
+          <div className="card-content-info">
+            <div
+              className="card-header-with-menu"
+              style={{ position: "relative" }}
+            >
+              <div className="card-header">
+                <h2 className="card-title">{diary.Title || "Untitled"}</h2>
+                <span className="card-date">
+                  {formatShort(
+                    sortField === "UpdatedAt"
+                      ? diary.UpdatedAt ?? ""
+                      : diary.CreatedAt ?? ""
+                  )}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <p className="card-text">{stripHtml(diary.Content || "")}</p>
+            <p className="card-text">{stripHtml(diary.Content || "")}</p>
+          </div>
           <Flex align="flex-start" style={{ marginTop: "8px" }}>
             <EmotionDisplay
               emotionAnalysisResults={diary.EmotionAnalysisResults || []}
               maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+              diary={diary}
             />
           </Flex>
 

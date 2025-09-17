@@ -19,5 +19,6 @@ type EmotionAnalysisResults struct {
 	PatientID uint
   	Patient   Patients `gorm:"foreignKey:PatientID"`
 
+	// อย่าลบเอาไว้ preload ข้อมูงของ diary
 	SubEmotionAnalysis []SubEmotionAnalysis `gorm:"foreignKey:EmotionAnalysisResultsID"`
 }

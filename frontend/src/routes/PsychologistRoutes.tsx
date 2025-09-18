@@ -10,7 +10,8 @@ import TherapyDiaryList from "../pages/therapy/therapyDiary"
 import TherapyThougthRecord from "../pages/therapy/therapyThougthRecord"
 import HistoryFeedbackDiary from "../pages/feedback/history_feedback_diary"
 import HistoryFeedbackThought from "../pages/feedback/history_feedback_thought"
-
+import EmotionDashBoard from "../pages/emotion/emotion_dashboard_main/EmotionDashBoard"
+import EmotionAnalyzeDashboardDetail from "../pages/emotion/emotion_dashboard_detail/emotion_dashboard_detail"
 
 
 const PsychologistRoutes = {
@@ -31,6 +32,8 @@ const PsychologistRoutes = {
     { path: "thoughtrecord/patient/:id", element: <TherapyThougthRecord /> },
     { path: "diary/patient/feedback-history/:id", element: <HistoryFeedbackDiary /> },
     { path: "thought/patient/feedback-history/:id", element: <HistoryFeedbackThought /> },
+      { path: "EmotionAnalyzeDashboard/:id", element: <EmotionDashBoard /> },
+    { path: "EmotionAnalyzeDashboardDetail/:id", element: <EmotionAnalyzeDashboardDetail /> },
   ],
 };
 

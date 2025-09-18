@@ -312,190 +312,166 @@ func SetupEmotionDatabase() {
 	}
 	db.FirstOrCreate(&EmotionsAnalysis10, &entity.EmotionAnalysisResults{DiaryID: 10})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 1 (excitement)
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 1
 	SubEmotionsAnalysis01 := &entity.SubEmotionAnalysis{
 		Score:                    0.8478781580924988,
 		ConfidencePercentage:     84.78781580924988,
 		EmotionAnalysisResultsID: 1,
-		EmotionsID:               10, // excitement
+		EmotionsID:               EmotionsGrief.ID,
 	}
 	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1})
-	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: 10})
+	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: EmotionsGrief.ID})
 
 	SubEmotionsAnalysis02 := &entity.SubEmotionAnalysis{
 		Score:                    0.06275680661201477,
 		ConfidencePercentage:     6.275680661201477,
 		EmotionAnalysisResultsID: 1,
-		EmotionsID:               11, // joy
+		EmotionsID:               Emotionssadness.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: 11})
+	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: Emotionssadness.ID})
 
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 2
 	SubEmotionsAnalysis03 := &entity.SubEmotionAnalysis{
-		Score:                    0.04521503567309475,
-		ConfidencePercentage:     4.521503567309475,
-		EmotionAnalysisResultsID: 1,
-		EmotionsID:               14, // optimism
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis03, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: 14})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 2 (disappointment)
-	SubEmotionsAnalysis04 := &entity.SubEmotionAnalysis{
 		Score:                    0.7234567890123456,
 		ConfidencePercentage:     72.34567890123456,
 		EmotionAnalysisResultsID: 2,
-		EmotionsID:               20, // disappointment
+		EmotionsID:               EmotionsPride.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis04, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: 20})
+	db.FirstOrCreate(&SubEmotionsAnalysis03, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: EmotionsPride.ID})
 
-	SubEmotionsAnalysis05 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis04 := &entity.SubEmotionAnalysis{
 		Score:                    0.1432109876543210,
 		ConfidencePercentage:     14.32109876543210,
 		EmotionAnalysisResultsID: 2,
-		EmotionsID:               25, // sadness
+		EmotionsID:               EmotionsJoy.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis05, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: 25})
+	db.FirstOrCreate(&SubEmotionsAnalysis04, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: EmotionsJoy.ID})
 
-	SubEmotionsAnalysis06 := &entity.SubEmotionAnalysis{
-		Score:                    0.0876543210987654,
-		ConfidencePercentage:     8.76543210987654,
-		EmotionAnalysisResultsID: 2,
-		EmotionsID:               21, // disapproval
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis06, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: 21})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 3 (gratitude)
-	SubEmotionsAnalysis07 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 3
+	SubEmotionsAnalysis05 := &entity.SubEmotionAnalysis{
 		Score:                    0.9012345678901234,
 		ConfidencePercentage:     90.12345678901234,
 		EmotionAnalysisResultsID: 3,
-		EmotionsID:               12, // gratitude
+		EmotionsID:               EmotionsFear.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis07, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 3, EmotionsID: 12})
+	db.FirstOrCreate(&SubEmotionsAnalysis05, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 3, EmotionsID: EmotionsFear.ID})
 
-	SubEmotionsAnalysis08 := &entity.SubEmotionAnalysis{
-		Score:                    0.0567890123456789,
-		ConfidencePercentage:     5.67890123456789,
-		EmotionAnalysisResultsID: 3,
-		EmotionsID:               13, // love
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis08, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 3, EmotionsID: 13})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 4 (nervousness)
-	SubEmotionsAnalysis09 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 4
+	SubEmotionsAnalysis06 := &entity.SubEmotionAnalysis{
 		Score:                    0.6789012345678901,
 		ConfidencePercentage:     67.89012345678901,
 		EmotionAnalysisResultsID: 4,
-		EmotionsID:               24, // nervousness
+		EmotionsID:               EmotionsPride.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis09, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: 24})
+	db.FirstOrCreate(&SubEmotionsAnalysis06, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: EmotionsPride.ID})
 
-	SubEmotionsAnalysis10 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis7:= &entity.SubEmotionAnalysis{
 		Score:                    0.2345678901234567,
 		ConfidencePercentage:     23.45678901234567,
 		EmotionAnalysisResultsID: 4,
-		EmotionsID:               22, // fear
+		EmotionsID:               EmotionsAdmiration.ID, // fear
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis10, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: 22})
+	db.FirstOrCreate(&SubEmotionsAnalysis7, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: EmotionsAdmiration.ID})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 5 (love)
-	SubEmotionsAnalysis11 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 5
+	SubEmotionsAnalysis8 := &entity.SubEmotionAnalysis{
 		Score:                    0.8765432109876543,
 		ConfidencePercentage:     87.65432109876543,
 		EmotionAnalysisResultsID: 5,
-		EmotionsID:               13, // love
+		EmotionsID:               Emotionssadness.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis11, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: 13})
+	db.FirstOrCreate(&SubEmotionsAnalysis8, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: Emotionssadness.ID})
 
-	SubEmotionsAnalysis12 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis9 := &entity.SubEmotionAnalysis{
 		Score:                    0.0987654321098765,
 		ConfidencePercentage:     9.87654321098765,
 		EmotionAnalysisResultsID: 5,
-		EmotionsID:               11, // joy
+		EmotionsID:               EmotionsGrief.ID, // joy
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis12, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: 11})
+	db.FirstOrCreate(&SubEmotionsAnalysis9, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: EmotionsGrief.ID})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 6 (embarrassment)
-	SubEmotionsAnalysis13 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 6
+	SubEmotionsAnalysis10 := &entity.SubEmotionAnalysis{
 		Score:                    0.7654321098765432,
 		ConfidencePercentage:     76.54321098765432,
 		EmotionAnalysisResultsID: 6,
-		EmotionsID:               23, // embarrassment
+		EmotionsID:               EmotionsOptimism.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis13, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: 23})
+	db.FirstOrCreate(&SubEmotionsAnalysis10, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsOptimism.ID})
 
-	SubEmotionsAnalysis14 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis11 := &entity.SubEmotionAnalysis{
 		Score:                    0.1543210987654321,
 		ConfidencePercentage:     15.43210987654321,
 		EmotionAnalysisResultsID: 6,
-		EmotionsID:               26, // remorse
+		EmotionsID:               EmotionsPride.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis14, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: 26})
+	db.FirstOrCreate(&SubEmotionsAnalysis11, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsPride.ID})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 7 (pride)
-	SubEmotionsAnalysis15 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis12 := &entity.SubEmotionAnalysis{
+		Score:                    0.1543210987654321,
+		ConfidencePercentage:     15.43210987654321,
+		EmotionAnalysisResultsID: 6,
+		EmotionsID:               EmotionsJoy.ID,
+	}
+	db.FirstOrCreate(&SubEmotionsAnalysis12, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsJoy.ID})
+
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 7
+	SubEmotionsAnalysis13 := &entity.SubEmotionAnalysis{
 		Score:                    0.8901234567890123,
 		ConfidencePercentage:     89.01234567890123,
 		EmotionAnalysisResultsID: 7,
-		EmotionsID:               15, // pride
+		EmotionsID:               Emotionssadness.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis15, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 7, EmotionsID: 15})
+	db.FirstOrCreate(&SubEmotionsAnalysis13, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 7, EmotionsID: Emotionssadness.ID})
 
-	SubEmotionsAnalysis16 := &entity.SubEmotionAnalysis{
-		Score:                    0.0678901234567890,
-		ConfidencePercentage:     6.78901234567890,
-		EmotionAnalysisResultsID: 7,
-		EmotionsID:               11, // joy
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis16, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 7, EmotionsID: 11})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 8 (curiosity)
-	SubEmotionsAnalysis17 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 8
+	SubEmotionsAnalysis14 := &entity.SubEmotionAnalysis{
 		Score:                    0.8123456789012345,
 		ConfidencePercentage:     81.23456789012345,
 		EmotionAnalysisResultsID: 8,
-		EmotionsID:               8, // curiosity
+		EmotionsID:               EmotionsPride.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis17, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: 8})
+	db.FirstOrCreate(&SubEmotionsAnalysis14, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: EmotionsPride.ID})
 
-	SubEmotionsAnalysis18 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis15 := &entity.SubEmotionAnalysis{
 		Score:                    0.1234567890123456,
 		ConfidencePercentage:     12.34567890123456,
 		EmotionAnalysisResultsID: 8,
-		EmotionsID:               10, // excitement
+		EmotionsID:               EmotionsApproval.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis18, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: 10})
+	db.FirstOrCreate(&SubEmotionsAnalysis15, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: EmotionsApproval.ID})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 9 (anger)
-	SubEmotionsAnalysis19 := &entity.SubEmotionAnalysis{
+	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 9
+	SubEmotionsAnalysis16 := &entity.SubEmotionAnalysis{
 		Score:                    0.7890123456789012,
 		ConfidencePercentage:     78.90123456789012,
 		EmotionAnalysisResultsID: 9,
-		EmotionsID:               17, // anger
+		EmotionsID:               EmotionsEmbarrassment.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis19, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: 17})
+	db.FirstOrCreate(&SubEmotionsAnalysis16, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: EmotionsEmbarrassment.ID})
 
-	SubEmotionsAnalysis20 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis17 := &entity.SubEmotionAnalysis{
 		Score:                    0.1345678901234567,
 		ConfidencePercentage:     13.45678901234567,
 		EmotionAnalysisResultsID: 9,
-		EmotionsID:               18, // annoyance
+		EmotionsID:               EmotionsDisappointment.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis20, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: 18})
+	db.FirstOrCreate(&SubEmotionsAnalysis17, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: EmotionsDisappointment.ID})
 
 	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 10 (relief)
-	SubEmotionsAnalysis21 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis18 := &entity.SubEmotionAnalysis{
 		Score:                    0.8567890123456789,
 		ConfidencePercentage:     85.67890123456789,
 		EmotionAnalysisResultsID: 10,
-		EmotionsID:               16, // relief
+		EmotionsID:               EmotionsDesire.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis21, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: 16})
+	db.FirstOrCreate(&SubEmotionsAnalysis18, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: EmotionsDesire.ID})
 
-	SubEmotionsAnalysis22 := &entity.SubEmotionAnalysis{
+	SubEmotionsAnalysis19 := &entity.SubEmotionAnalysis{
 		Score:                    0.0987654321098765,
 		ConfidencePercentage:     9.87654321098765,
 		EmotionAnalysisResultsID: 10,
-		EmotionsID:               14, // optimism
+		EmotionsID:               EmotionsOptimism.ID,
 	}
-	db.FirstOrCreate(&SubEmotionsAnalysis22, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: 14})
+	db.FirstOrCreate(&SubEmotionsAnalysis19, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: EmotionsOptimism.ID})
 }

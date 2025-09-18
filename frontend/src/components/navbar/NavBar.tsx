@@ -460,6 +460,15 @@ const out = () => {
   setTimeout(() => navigate("/"), 500);
 };
 
+// อัปเดต activeMenu อัตโนมัติเมื่อ URL เปลี่ยน
+useEffect(() => {
+  const parts = location.pathname.split("/").filter(Boolean);
+  // ถ้ามี path เช่น /patient/diary/detail/3
+  // parts = ["patient", "diary", "detail", "3"]
+  // จะเลือก index 1 (เช่น diary)
+  const current = parts[1] || "home";
+  setActiveMenu(current);
+}, [location.pathname]);
 
   return (
     <section className="navbar">

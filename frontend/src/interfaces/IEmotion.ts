@@ -3,4 +3,5 @@ export interface IEmotion {
   Emotionsname?: string;
   Category?: string;
   ThaiEmotionsname?: string;
+  EmotionsColor?: string;
 }

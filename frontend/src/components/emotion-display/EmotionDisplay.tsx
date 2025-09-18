@@ -2,30 +2,32 @@ import React, { useState } from "react";
 import { Flex, Tooltip, Modal, List } from "antd";
 import "./EmotionDisplay.css";
 import type { DiaryInterface } from "../../interfaces/IDiary";
+import type { IEmotionAnalysisResults } from "../../interfaces/IEmotionAnalysisResults";
+import type { ISubEmotion } from "../../interfaces/ISubEmotion";
 
-interface Emotion {
-  ID: number;
-  Emotionsname: string;
-  ThaiEmotionsname: string;
-  EmotionsColor: string;
-  Category: string;
-}
+// interface Emotion {
+//   ID: number;
+//   Emotionsname: string;
+//   ThaiEmotionsname: string;
+//   EmotionsColor: string;
+//   Category: string;
+// }
 
-interface SubEmotionAnalysis {
-  ID: number;
-  ConfidencePercentage: number;
-  Score: number;
-  emotions: Emotion;
-}
+// interface SubEmotionAnalysis {
+//   ID: number;
+//   ConfidencePercentage: number;
+//   Score: number;
+//   emotions: Emotion;
+// }
 
-interface EmotionAnalysisResult {
-  ID: number;
-  PrimaryEmotion: string;
-  SubEmotionAnalysis: SubEmotionAnalysis[];
-}
+// interface EmotionAnalysisResult {
+//   ID: number;
+//   PrimaryEmotion: string;
+//   SubEmotionAnalysis: SubEmotionAnalysis[];
+// }
 
 interface EmotionDisplayProps {
-  emotionAnalysisResults: EmotionAnalysisResult[];
+  emotionAnalysisResults: IEmotionAnalysisResults[];
   maxDisplay?: number;
   diary: DiaryInterface;
 }
@@ -36,15 +38,16 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
   diary,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // console.log("EmotionDisplay emotionAnalysisResults:", emotionAnalysisResults);
 
   // รวม SubEmotionAnalysis ทั้งหมด
-  const getAllEmotions = (): SubEmotionAnalysis[] => {
+  const getAllEmotions = (): ISubEmotion[] => {
     if (!emotionAnalysisResults || emotionAnalysisResults.length === 0) {
       return [];
     }
-    const all: SubEmotionAnalysis[] = [];
+    const all: ISubEmotion[] = [];
     emotionAnalysisResults.forEach((result) => {
-      if (result.SubEmotionAnalysis?.length > 0) {
+      if (result.SubEmotionAnalysis && result.SubEmotionAnalysis?.length > 0) {
         all.push(...result.SubEmotionAnalysis);
       }
     });
@@ -55,7 +58,7 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
 
   // สำหรับ preview สั้น ๆ
   const topEmotions = [...allEmotions]
-    .sort((a, b) => b.ConfidencePercentage - a.ConfidencePercentage)
+    .sort((a, b) => (b.ConfidencePercentage ?? 0) - (a.ConfidencePercentage ?? 0))
     .slice(0, maxDisplay);
 
   if (allEmotions.length === 0) {
@@ -73,6 +76,7 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
         <p>สรุปอารมณ์</p>
         {topEmotions.map((emotionAnalysis) => {
           const emotion = emotionAnalysis.emotions;
+          if (!emotion) return null;
           return (
             <Tooltip
               key={emotionAnalysis.ID}
@@ -95,10 +99,11 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
       >
         <List
           dataSource={allEmotions.sort(
-            (a, b) => b.ConfidencePercentage - a.ConfidencePercentage
+            (a, b) => (b.ConfidencePercentage ?? 0 ) - (a.ConfidencePercentage  ?? 0)
           )}
           renderItem={(item) => {
             const emotion = item.emotions;
+            if (!emotion) return null;
             return (
               <List.Item key={item.ID}>
                 <Flex justify="space-between" style={{ width: "100%" }}>

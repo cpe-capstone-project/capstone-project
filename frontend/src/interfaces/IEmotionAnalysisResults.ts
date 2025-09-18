@@ -1,3 +1,5 @@
+import type { ISubEmotion } from "./ISubEmotion";
+
 export interface IEmotionAnalysisResults {
   ID?: number;
   InputText?: string;
@@ -7,4 +9,6 @@ export interface IEmotionAnalysisResults {
   PrimaryEmotion?: string;
   DiaryID?: number;
   ThoughtRecordID?: number;
+
+  SubEmotionAnalysis?: ISubEmotion[];
 }

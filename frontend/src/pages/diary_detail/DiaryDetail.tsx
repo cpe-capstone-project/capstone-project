@@ -6,7 +6,7 @@ import { usePath } from "../../contexts/PathContext";
 import { colorOptions } from "../../constants/colors";
 import { useMediaQuery } from "react-responsive";
 
-import { FloatButton, Modal } from "antd";
+import { FloatButton, message, Modal } from "antd";
 import {
   CloseOutlined,
   CommentOutlined,
@@ -38,6 +38,7 @@ import ColorPickerTooltip from "../../components/color-picker-tooltip/ColorPicke
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
 import "./DiaryDetail.css";
 import EmotionDisplay from "../../components/emotion-display/EmotionDisplay";
+import { CreateEmotionAnalysisFromDiary } from "../../services/https/EmotionAnalysis";
 
 function DiaryDetail() {
   const patientId = Number(localStorage.getItem("id"));
@@ -45,7 +46,7 @@ function DiaryDetail() {
   const { basePath } = usePath();
   const { diaries, updateDiary, createDiary } = useDiary();
   const { getTherapyCaseByPatient } = useTherapyCase();
-
+  const [messageApi, contextHolder] = message.useMessage();
   // console.log("Diaries in DiaryDetail:", diaries);
 
   const [speechLang, setSpeechLang] = useState("th-TH");
@@ -143,13 +144,36 @@ function DiaryDetail() {
       TagColor3: tagColors.TagColor3,
     };
 
-    const success = await updateDiary(diary.ID, updatedDiary);
-    if (success) {
+    const resDiary = await updateDiary(diary.ID, updatedDiary);
+    if (resDiary) {
       setDiary(updatedDiary);
       setOriginalDiary(updatedDiary);
       editor.commands.setContent(updatedDiary.Content || "<p></p>");
-      setIsModified(false);
+
+      const resEmotion = await CreateEmotionAnalysisFromDiary(diary.ID);
+      if (resEmotion.status === 200 || resEmotion.status === 201) {
+        // console.log("Emotion analysis created/updated:", resEmotion.data);
+        // อัปเดต diary state ด้วยผลลัพธ์การวิเคราะห์อารมณ์ใหม่
+        setDiary(updatedDiary);
+        setOriginalDiary(updatedDiary);
+        editor.commands.setContent(updatedDiary.Content || "<p></p>");
+        setIsModified(false);
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "การวิเคราะห์อารมณ์ล้มเหลว",
+        });
+
+        //  message.success("การวิเคราะห์อารมณ์ล้มเหลว");
+        // window.alert("การวิเคราะห์อารมณ์ล้มเหลว โปรดลองอีกครั้ง");
+      }
+    } else {
+      messageApi.open({
+        type: "error",
+        content: "การบันทึกไดอารี่ล้มเหลว",
+      });
     }
+    setIsModified(false);
   };
 
   // ฟังก์ชันสร้างไดอารี่ใหม่
@@ -313,9 +337,10 @@ function DiaryDetail() {
 
   return (
     <section className="diary-detail-container">
+      {contextHolder}
       {!browserSupportsSpeechRecognition && (
         <div className="speech-recognition-warning">
-          Browser does not support speech recognition.
+          เบราว์เซอร์นี้ไม่รองรับการจดจำเสียงพูด (speech recognition)
         </div>
       )}
       <div className="diary-detail-content">
@@ -471,6 +496,14 @@ function DiaryDetail() {
                   </div>
 
                   <div className="title-container-action">
+                    <EmotionDisplay
+                      emotionAnalysisResults={
+                        diary.EmotionAnalysisResults || []
+                      }
+                      maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                      diary={diary}
+                    />
+
                     <ColorPickerTooltip
                       colorOptions={colorOptions}
                       selectedColors={tagColorsArray}
@@ -576,6 +609,13 @@ function DiaryDetail() {
                   </div>
 
                   <div className="title-container-action">
+                    <EmotionDisplay
+                      emotionAnalysisResults={
+                        diary.EmotionAnalysisResults || []
+                      }
+                      maxDisplay={3} // จำนวนอารมณ์สูงสุดที่จะแสดง (optional, default = 3)
+                      diary={diary}
+                    />
                     <ColorPickerTooltip
                       colorOptions={colorOptions}
                       selectedColors={tagColorsArray}

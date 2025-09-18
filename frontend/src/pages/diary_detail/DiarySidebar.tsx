@@ -154,7 +154,7 @@ const DiarySidebar = ({
         <div className="control">
           <Link to={getBackPath(2)} className="back-container">
             <IoChevronBackOutline />
-            <strong>Back</strong>
+            <strong>ย้อนกลับ</strong>
           </Link>
 
           <Dropdown

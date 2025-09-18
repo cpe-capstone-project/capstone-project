@@ -1,3 +1,4 @@
+import type { IEmotionAnalysisResults } from "./IEmotionAnalysisResults";
 import type { FeedbackDiaryInterface } from "./IFeedbackDiary";
 import type { TherapyInterface } from "./ITherapy";
 
@@ -20,5 +21,5 @@ export interface DiaryInterface {
 
   FeedbackDiary?: FeedbackDiaryInterface[];
 
-  // EmotionAnalysisResults?: EmotionAnalysisResult[];
+  EmotionAnalysisResults?: IEmotionAnalysisResults[];
 }

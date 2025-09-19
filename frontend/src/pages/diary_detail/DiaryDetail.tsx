@@ -44,7 +44,7 @@ function DiaryDetail() {
   const patientId = Number(localStorage.getItem("id"));
   const { id } = useParams();
   const { basePath } = usePath();
-  const { diaries, updateDiary, createDiary } = useDiary();
+  const { diaries, fetchDiaries, updateDiary, createDiary } = useDiary();
   const { getTherapyCaseByPatient } = useTherapyCase();
   const [messageApi, contextHolder] = message.useMessage();
   // console.log("Diaries in DiaryDetail:", diaries);
@@ -157,6 +157,7 @@ function DiaryDetail() {
         setDiary(updatedDiary);
         setOriginalDiary(updatedDiary);
         editor.commands.setContent(updatedDiary.Content || "<p></p>");
+        fetchDiaries();
         setIsModified(false);
       } else {
         messageApi.open({

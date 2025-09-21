@@ -126,7 +126,7 @@ export {
   GetAllEmotionAnalysis,
   GetAllEmotions,
   GetEmotionAnalysisById,
-  UpdateEmotionAnalysis,
+  UpdateEmotionAnalysis, 
   DeleteEmotionAnalysis,
   GetPatientsDashboardByPsychologistId,
   GetPatientDashboardByID,

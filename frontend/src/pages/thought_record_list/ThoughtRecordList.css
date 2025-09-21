@@ -129,8 +129,9 @@
 
 /* Emotion Tag */
 .emotion-tag {
-  background: #519bf1; /* เปลี่ยนเป็นสีฟ้าเรียบ */
-  color: #fff; /* ตัวอักษรสีขาว */
+  background: #519bf1;
+  color: #fff !important;   /* บังคับข้อความเป็นสีขาว */
+  border: none !important;  /* ตัดเส้นกรอบน้ำเงิน */
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 12px;
@@ -147,6 +148,7 @@
   line-height: 1.2;
   cursor: default;
 }
+
 
 /* Emotion Tag สำหรับ indicator +x */
 .emotion-tag.indicator {

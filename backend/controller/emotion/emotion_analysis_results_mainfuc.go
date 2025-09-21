@@ -879,7 +879,7 @@ func CreateEmotionAnalysisFromThoughtRecord(c *gin.Context) {
 			"source_type": "thought_record",
 			"top_3_emotions_saved": min(3, len(emotionResults.AllEmotions)),
 		},
-	})
+	}) 
 }
 
 // Step 1: Get thought record content and create emotion analysis record

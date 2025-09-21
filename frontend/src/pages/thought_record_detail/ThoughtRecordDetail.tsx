@@ -71,12 +71,10 @@ function ThoughtRecordDetail() {
             type="default"
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
-            className="back-button"
           >
             ย้อนกลับ
           </Button>
         </div>
-
         <Card className="main-card">
           <div className="title-section">
             <div className="title-left">
@@ -86,9 +84,8 @@ function ThoughtRecordDetail() {
             </div>
             <Tag className="record-tag">รายการที่ {id}</Tag>
           </div>
-          
           <Divider className="custom-divider" />
-          
+
           <div className="content-grid">
             {contentItems.map(({ key, label, icon: Icon, className }) => (
               <div key={key} className={`content-item ${className}`}>

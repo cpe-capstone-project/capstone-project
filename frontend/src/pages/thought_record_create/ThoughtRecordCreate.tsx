@@ -3,12 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useThoughtRecord } from "../../contexts/ThoughtRecordContext";
 import { useTherapyCase } from "../../contexts/TherapyCaseContext";
-import { FaBookOpen } from "react-icons/fa";
+import { FaBookOpen, FaRegCommentDots, FaRedoAlt, FaLightbulb } from "react-icons/fa";
+import { GiDramaMasks } from "react-icons/gi";
+import { MdEvStation } from "react-icons/md";
 import {
   Card,
   Typography,
   Form,
-  Input,
+  Input, 
   Button,
   Divider,
   message,
@@ -17,6 +19,8 @@ import {
   Space,
   Select,
   Tag,
+  Checkbox,
+  Alert,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -24,18 +28,20 @@ import {
   TagsOutlined,
   SmileOutlined,
   BgColorsOutlined,
+  RobotOutlined,
 } from "@ant-design/icons";
-import { FaRegCommentDots, FaRedoAlt, FaLightbulb } from "react-icons/fa";
-import { GiDramaMasks } from "react-icons/gi";
-import { MdEvStation } from "react-icons/md";
+
 import GuideButton from "../../components/thought-record-guide/GuideModel";
 import FormGuide from "../../components/thought-record-guide/FormGuide";
 import SituationTagSelect from "../../components/situation-tag/SituationTagSelect";
 import ThoughtRecordSubmit from "../../components/thought_record-submit/ThoughtRecordSubmit";
 import ColorPickerWithPresets from "../../components/thought_record-submit/ColorPickerWithPresets";
 import "./ThoughtRecordCreate.css";
-import { GetAllEmotions } from "../../services/https/Emotions";
-import type { EmotionsInterface } from "../../interfaces/IEmotions";
+import { 
+  GetAllEmotions, 
+  CreateEmotionAnalysisFromThoughtRecord 
+} from "../../services/https/EmotionAnalysis";
+import type { IEmotion } from "../../interfaces/IEmotion";
 import type { TherapyCaseInterface } from "../../interfaces/ITherapyCase";
 
 const { Title } = Typography;
@@ -58,21 +64,43 @@ function ThoughtRecordCreate() {
   const [therapyCase, setTherapyCase] = useState<TherapyCaseInterface | null>(null);
   const [loading, setLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
-  const [emotions, setEmotions] = useState<EmotionsInterface[]>([]);
+  const [emotions, setEmotions] = useState<IEmotion[]>([]);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [pendingValues, setPendingValues] = useState<ThoughtRecordFormValues | null>(null);
+  const [useAiAnalysis, setUseAiAnalysis] = useState(false);
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
   // preload รายการอารมณ์
   useEffect(() => {
-    (async () => {
-      const res = await GetAllEmotions();
-      if (Array.isArray(res)) {
-        const filtered = res.filter((emotion) => emotion.ID && emotion.ID > 3);
-        setEmotions(filtered);
+    const fetchEmotions = async () => {
+      try {
+        const res = await GetAllEmotions();
+        console.log("Emotion API response:", res);
+
+        if (res?.data && Array.isArray(res.data)) {
+          const mapped: IEmotion[] = res.data
+            .filter((e: any) => e.emotions_name)
+            .map((e: any, idx: number) => ({
+              ID: idx + 1,
+              Emotionsname: e.emotions_name,
+              ThaiEmotionsname: e.thai_emotions_name || e.emotions_name,
+              EmotionsColor: e.emotion_color || "#999999",
+              Category: e.category || "",
+            }));
+          setEmotions(mapped);
+          console.log("Mapped emotions:", mapped);
+        } else {
+          setEmotions([]);
+        }
+      } catch (err) {
+        console.error("เกิดข้อผิดพลาดในการโหลดอารมณ์:", err);
+        setEmotions([]);
       }
-    })();
+    };
+
+    fetchEmotions();
   }, []);
 
   // โหลด TherapyCase ของ patient
@@ -93,39 +121,102 @@ function ThoughtRecordCreate() {
     fetchTherapyCase();
   }, [getTherapyCaseByPatient]);
 
-  // แสดง Modal ยืนยัน
   const showConfirmModal = (values: ThoughtRecordFormValues) => {
     setPendingValues(values);
     setConfirmModalVisible(true);
   };
 
-  // บันทึกจริง
   const handleConfirmSave = async () => {
     if (!pendingValues) return;
     setLoading(true);
     setConfirmModalVisible(false);
-    const payload = {
-      ...pendingValues,
-      EmotionsID: Array.isArray(pendingValues.EmotionsID)
-        ? pendingValues.EmotionsID
-        : pendingValues.EmotionsID
-          ? [pendingValues.EmotionsID]
-          : [],
-      TherapyCaseID: therapyCase?.ID ?? null,
-    };
-    console.log("Payload to API:", payload);
-    const success = await createRecord(payload);
-    if (success) {
-      message.success("สร้างบันทึกความคิดเรียบร้อย ✅");
-      navigate("/patient/thought_records");
-    } else {
-      message.error("ไม่สามารถสร้างบันทึกความคิดได้ ❌");
+
+    try {
+      const payload = {
+        ...pendingValues,
+        EmotionsID: Array.isArray(pendingValues.EmotionsID)
+          ? pendingValues.EmotionsID
+          : pendingValues.EmotionsID
+            ? [pendingValues.EmotionsID]
+            : [],
+        TherapyCaseID: therapyCase?.ID ?? null,
+      };
+
+      console.log("Payload to API:", payload);
+      const createdRecord = await createRecord(payload);
+      
+      if (createdRecord && createdRecord.ID) {
+        message.success("สร้างบันทึกความคิดเรียบร้อย ✅");
+        
+        // ถ้าเลือกให้ AI วิเคราะห์อารมณ์และไม่ได้เลือกอารมณ์
+        if (useAiAnalysis && (!pendingValues.EmotionsID || pendingValues.EmotionsID.length === 0)) {
+          await handleAiEmotionAnalysis(createdRecord.ID);
+        }
+        
+        navigate("/patient/thought_records");
+      } else {
+        message.error("ไม่สามารถสร้างบันทึกความคิดได้ ❌");
+      }
+    } catch (error) {
+      console.error("Error creating thought record:", error);
+      message.error("เกิดข้อผิดพลาดในการสร้างบันทึกความคิด ❌");
+    } finally {
+      setLoading(false);
+      setPendingValues(null);
     }
-    setLoading(false);
-    setPendingValues(null);
   };
 
+  const handleAiEmotionAnalysis = async (thoughtRecordId: number) => {
+  console.log("AI analyze for ThoughtRecord ID:", thoughtRecordId); // ✅ ID ที่ส่งไป
+
+  setAiAnalysisLoading(true);
+  message.loading("กำลังวิเคราะห์อารมณ์ด้วย AI...", 0);
+
+  try {
+    const response = await CreateEmotionAnalysisFromThoughtRecord(thoughtRecordId);
+
+    // ✅ log response ทั้งหมด
+    console.log("AI Analysis Response:", response);
+
+    if (response?.status === 201 || response?.status === 200) {
+      message.destroy();
+      message.success({
+        content: `AI วิเคราะห์อารมณ์เรียบร้อย! พบอารมณ์หลัก: ${response.data?.emotion_results?.primary_emotion || 'ไม่ระบุ'}`,
+        duration: 5,
+      });
+      console.log("AI primary emotion:", response.data?.emotion_results?.primary_emotion);
+    } else {
+      message.destroy();
+      if (response?.data?.error?.includes("มีอารมณ์อยู่แล้ว")) {
+        message.warning("บันทึกความคิดนี้มีการวิเคราะห์อารมณ์แล้ว");
+      } else {
+        message.error("AI ไม่สามารถวิเคราะห์อารมณ์ได้ กรุณาลองใหม่อีกครั้ง");
+      }
+    }
+  } catch (error) {
+    message.destroy();
+    console.error("AI Emotion Analysis Error:", error); // ✅ log error
+    message.error("เกิดข้อผิดพลาดในการวิเคราะห์อารมณ์ด้วย AI");
+  } finally {
+    setAiAnalysisLoading(false);
+  }
+};
+
+
   const onFinish = async (values: ThoughtRecordFormValues) => {
+    // ตรวจสอบว่าเลือกให้ AI วิเคราะห์หรือเลือกอารมณ์เอง
+    const hasSelectedEmotions = values.EmotionsID && values.EmotionsID.length > 0;
+    
+    if (!useAiAnalysis && !hasSelectedEmotions) {
+      message.warning("กรุณาเลือกอารมณ์หรือเปิดใช้งานการวิเคราะห์อารมณ์ด้วย AI");
+      return;
+    }
+
+    if (useAiAnalysis && hasSelectedEmotions) {
+      message.warning("กรุณาเลือกเพียงวิธีเดียว: เลือกอารมณ์เองหรือใช้ AI วิเคราะห์");
+      return;
+    }
+
     showConfirmModal(values);
   };
 
@@ -139,7 +230,7 @@ function ThoughtRecordCreate() {
         onClose={onClose}
         style={{ marginRight: 3 }}
       >
-        {label}
+        {emotion?.ThaiEmotionsname || label}
       </Tag>
     );
   };
@@ -173,6 +264,7 @@ function ThoughtRecordCreate() {
                 คำแนะนำการกรอกฟอร์ม
               </Button>
             </div>
+
             <Form
               form={form}
               layout="vertical"
@@ -247,34 +339,7 @@ function ThoughtRecordCreate() {
                       />
                     </Form.Item>
                   </Col>
-                  <Col xs={24}>
-                    <Form.Item
-                      label={
-                        <Space>
-                          <SmileOutlined style={{ color: "#f59e0b" }} /> <span>อารมณ์</span>
-                        </Space>
-                      }
-                      name="EmotionsID"
-                      // rules={[{ required: true, message: "กรุณาเลือกอารมณ์" }]}
-                    >
-                      <Select
-                        mode="multiple"
-                        placeholder="เลือกอารมณ์"
-                        allowClear
-                        getPopupContainer={(trigger) => trigger.parentNode}
-                        style={{ width: "100%" }}
-                        dropdownStyle={{ zIndex: 1050 }}
-                        virtual={false}
-                        tagRender={tagRender}
-                      >
-                        {emotions.map((emotion) => (
-                          <Option key={emotion.ID} value={emotion.ID}>
-                            {emotion.ThaiEmotionsname || emotion.Emotionsname}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </Col>
+
                   <Col xs={24}>
                     <Form.Item
                       label={
@@ -340,6 +405,97 @@ function ThoughtRecordCreate() {
                 </Row>
               </div>
 
+              {/* ส่วนเลือกอารมณ์ */}
+              <div className="form-section">
+                <Title level={4}>
+                  <SmileOutlined style={{ color: "#f59e0b" }} /> การเลือกอารมณ์
+                </Title>
+                <Divider />
+                
+                {/* AI Analysis Checkbox */}
+                <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+                  <Col xs={24}>
+                    <Checkbox
+                      checked={useAiAnalysis}
+                      onChange={(e) => {
+                        setUseAiAnalysis(e.target.checked);
+                        if (e.target.checked) {
+                          form.setFieldsValue({ EmotionsID: [] });
+                        }
+                      }}
+                    >
+                      <Space>
+                        <RobotOutlined style={{ color: "#722ed1" }} />
+                        <span>ใช้ AI วิเคราะห์อารมณ์อัตโนมัติ</span>
+                      </Space>
+                    </Checkbox>
+                    {useAiAnalysis && (
+                      <Alert
+                        message="AI จะวิเคราะห์อารมณ์จากเนื้อหาในช่อง 'ความคิดทางเลือก' และ 'พฤติกรรม' ของคุณ"
+                        type="info"
+                        showIcon
+                        style={{ marginTop: 8 }}
+                      />
+                    )}
+                  </Col>
+                </Row>
+
+                <Row gutter={[16, 16]}>
+                  <Col xs={24}>
+                    <Form.Item
+                      label="เลือกอารมณ์ด้วยตัวเอง"
+                      name="EmotionsID"
+                    >
+                      <Select
+                        mode="multiple"
+                        placeholder={useAiAnalysis ? "AI จะเลือกอารมณ์ให้อัตโนมัติ" : "เลือกอารมณ์"}
+                        allowClear
+                        disabled={useAiAnalysis}
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        style={{ width: "100%" }}
+                        virtual={false}
+                        tagRender={(props) => {
+                          const { label, value, closable, onClose } = props;
+                          const emotion = emotions.find((e) => e.ID === value);
+                          return (
+                            <Tag
+                              color={emotion?.EmotionsColor || "default"}
+                              closable={closable}
+                              onClose={onClose}
+                              style={{ marginRight: 3 }}
+                            >
+                              {emotion
+                                ? `${emotion.ThaiEmotionsname || ""} (${emotion.Emotionsname || ""})`
+                                : label}
+                            </Tag>
+                          );
+                        }}
+                      >
+                        {emotions.length > 0 ? (
+                          emotions.map((emotion) => (
+                            <Option key={emotion.ID} value={emotion.ID}>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: emotion.EmotionsColor,
+                                  marginRight: 8,
+                                }}
+                              />
+                              {`${emotion.ThaiEmotionsname} (${emotion.Emotionsname})`}
+                            </Option>
+                          ))
+                        ) : (
+                          <Option disabled>ไม่พบอารมณ์</Option>
+                        )}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+
               {/* Tip Section */}
               <div className="tip-section">
                 <div className="tip-header">
@@ -354,7 +510,6 @@ function ThoughtRecordCreate() {
                 </div>
               </div>
 
-
               <div className="form-actions">
                 <Button type="default" onClick={() => navigate(-1)}>
                   ยกเลิก
@@ -362,10 +517,10 @@ function ThoughtRecordCreate() {
                 <Button
                   type="primary"
                   htmlType="submit"
-                  loading={loading}
+                  loading={loading || aiAnalysisLoading}
                   style={{ width: "auto", minWidth: 20 }}
                 >
-                  บันทึก
+                  {aiAnalysisLoading ? "กำลังวิเคราะห์..." : "บันทึก"}
                 </Button>
               </div>
             </Form>

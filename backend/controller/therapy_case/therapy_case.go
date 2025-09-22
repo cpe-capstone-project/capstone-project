@@ -235,7 +235,7 @@ func GetDiariesByTherapyCaseID(c *gin.Context) {
 	therapyCaseID := c.Param("id")
 
 	var diaries []entity.Diaries
-	if err := config.DB().Where("therapy_case_id = ?", therapyCaseID).Find(&diaries).Error; err != nil {
+	if err := config.DB().Preload("EmotionAnalysisResults").Where("therapy_case_id = ?", therapyCaseID).Find(&diaries).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูล Diaries ได้"})
 		return
 	}

@@ -59,7 +59,7 @@ function DiaryList() {
     }
 
     const newDiary: DiaryInterface = {
-      Title: "New Diary",
+      Title: "ไดอารี่ใหม่",
       Content: '<p style="text-align: left;"></p>',
       TherapyCaseID: therapyCases.ID,
     };

@@ -508,29 +508,7 @@ useEffect(() => {
             Feedback
           </a>
         </li>
-   <li style={{ position: "relative" }}>
-  <img
-    src="https://cdn-icons-png.flaticon.com/128/10099/10099006.png"
-    alt="แจ้งเตือน"
-    width="24"
-    height="24"
-    style={{ cursor: "default" }} // เปลี่ยนจาก pointer → default เพื่อให้รู้ว่าไม่ได้คลิก
-  />
-  {hasNotice && (
-    <span
-      style={{
-        position: "absolute",
-        top: 2,
-        right: 2,
-        backgroundColor: "red",
-        color: "white",
-        borderRadius: "50%",
-        width: 10,
-        height: 10,
-      }}
-    />
-  )}
-</li>
+
 
 
 

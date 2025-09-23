@@ -60,6 +60,14 @@ async function DeleteEmotionAnalysis(id: number) {
     .catch((e) => e.response);
 }
 
+// DELETE /delall-emotion-analysis/:id
+async function DeleteEmotionAnalysisByPatientID(patientId: number) {
+  return await axios
+    .delete(`${apiUrl}/delall-emotion-analysis/${patientId}`, requestOptions)
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
 // GET /patientslist/dashboard_by_psychologist_id/:id
 async function GetPatientsDashboardByPsychologistId(id: number) {
   return await axios
@@ -128,6 +136,7 @@ export {
   GetEmotionAnalysisById,
   UpdateEmotionAnalysis, 
   DeleteEmotionAnalysis,
+  DeleteEmotionAnalysisByPatientID,
   GetPatientsDashboardByPsychologistId,
   GetPatientDashboardByID,
   GetDashboardDetails_1ByID,

@@ -370,13 +370,13 @@ const Exchangeprofile = async () => {
   </div>
 
   <div className="sidebar-menu">
-     <div
+      {/* <div
       className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
       onClick={() => handleNavigate("")}
     >
       <img src="https://cdn-icons-png.flaticon.com/128/1946/1946488.png" alt="" />
       {!isCollapsed && <span>Dashboard</span>}
-    </div>
+    </div> */}
     <div
       className={`sidebar-item ${location.pathname.includes("fill") ? "active" : ""}`}
       onClick={() => handleNavigate("homedoc")}
@@ -393,10 +393,14 @@ const Exchangeprofile = async () => {
     </div>
 
     <div
-      className={`sidebar-item ${location.pathname.includes("notification") ? "active" : ""}`}
-    >
-      <img src="https://cdn-icons-png.flaticon.com/128/5001/5001572.png" alt="Notification" />
-      {!isCollapsed && <span>Notification</span>}
+      className={`sidebar-item ${location.pathname.includes("emotionanalyze") ? "active" : ""}`}
+      onClick={() => {
+          const psychologistId = localStorage.getItem("id");
+          handleNavigate(`EmotionAnalyzeDashboard/${psychologistId}`);
+        }}
+      >
+      <img src="https://cdn-icons-png.flaticon.com/512/66/66464.png" alt="EmotionAnalyzeDashboard" />
+      {!isCollapsed && <span>Emotion Dashboard</span>}
     </div>
 
     <div

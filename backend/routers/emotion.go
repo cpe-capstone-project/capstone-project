@@ -12,6 +12,8 @@ func SetupEmmotionRoutes(r *gin.Engine) {
 	r.GET("/emotion-analysis/:id", emotion.GetEmotionAnalysisByID)
 	r.PATCH("/emotion-analysis/:id", emotion.UpdateEmotionAnalysis)
 	r.DELETE("/emotion-analysis/:id", emotion.DeleteEmotionAnalysis)
+	r.DELETE("/delall-emotion-analysis/:id", emotion.DeleteEmotionAnalysisByPatientID)
+	
 	r.POST("/emotion-analysis", emotion.CreateEmotionAnalysis)
 	// r.POST("/emotion-analysis/ai", emotion.CreateEmotionAnalysisWithAI)
 	// r.POST("/emotion-analysis/analyze-only", emotion.AnalyzeEmotionOnly)

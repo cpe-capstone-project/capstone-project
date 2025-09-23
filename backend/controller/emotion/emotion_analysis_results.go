@@ -208,3 +208,76 @@ func GetPatientLatestEmotion(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+// DELETE /delall-emotion-analysis/:id
+func DeleteEmotionAnalysisByPatientID(c *gin.Context) {
+	patientID := c.Param("id")
+	
+	db := config.DB()
+
+	// เริ่ม transaction เพื่อให้การลบเกิดขึ้นพร้อมกันหรือไม่เกิดขึ้นเลย
+	tx := db.Begin()
+	if tx.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to begin transaction"})
+		return
+	}
+
+	// ตรวจสอบว่า Patient มีอยู่จริงหรือไม่
+	var count int64
+	if err := tx.Model(&entity.Patients{}).Where("id = ?", patientID).Count(&count).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check patient"})
+		return
+	}
+	if count == 0 {
+		tx.Rollback()
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ERROR: PATIENT ID NOT FOUND"})
+		return
+	}
+
+	// หา EmotionAnalysisResults ทั้งหมดของ Patient คนนี้
+	var emotionAnalysisResults []entity.EmotionAnalysisResults
+	if err := tx.Where("patient_id = ?", patientID).Find(&emotionAnalysisResults).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find emotion analysis results"})
+		return
+	}
+
+	// ถ้าไม่มีข้อมูลให้ลบ
+	if len(emotionAnalysisResults) == 0 {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "No emotion analysis results found for this patient"})
+		return
+	}
+
+	// รวบรวม ID ของ EmotionAnalysisResults เพื่อใช้ในการลบ SubEmotionAnalysis
+	var emotionAnalysisIDs []uint
+	for _, result := range emotionAnalysisResults {
+		emotionAnalysisIDs = append(emotionAnalysisIDs, result.ID)
+	}
+
+	// ลบ SubEmotionAnalysis ที่เกี่ยวข้องก่อน (เพราะเป็น child record)
+	if err := tx.Where("emotion_analysis_results_id IN ?", emotionAnalysisIDs).Delete(&entity.SubEmotionAnalysis{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete sub emotion analysis records"})
+		return
+	}
+
+	// ลบ EmotionAnalysisResults
+	if err := tx.Where("patient_id = ?", patientID).Delete(&entity.EmotionAnalysisResults{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete emotion analysis results"})
+		return
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "All emotion analysis records deleted successfully for patient",
+		"patient_id": patientID,
+		"deleted_emotion_analysis_count": len(emotionAnalysisResults),
+	})
+}

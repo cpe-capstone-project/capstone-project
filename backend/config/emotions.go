@@ -1,180 +1,194 @@
 package config
 
 import (
+	 "time"
 	"capstone-project/entity"
-	"time"
 )
 
-func SetupEmotionDatabase() {
+func SetupEmotionDatabase(){
 	db.AutoMigrate(
-		&entity.Emotions{},
-		&entity.EmotionAnalysisResults{},
-		&entity.SubEmotionAnalysis{},
-	)
+       &entity.Emotions{},
+	   &entity.EmotionAnalysisResults{},
+	   &entity.SubEmotionAnalysis{},
+   	)
 	// EmotionsPositive := &entity.Emotions{
 	// 	Emotionsname:	"positive",
 	// 	Category:		"sentiment",
 
-	// }
+   	// }
 	// EmotionsNegative := &entity.Emotions{
 	// 	Emotionsname:	"negative",
 	// 	Category:		"sentiment",
-	// }
+   	// }
 	EmotionsNeutral := &entity.Emotions{
-		Emotionsname:  "neutral",
-		Category:      "sentiment",
-		EmotionsColor: "#c3c3c3ff",
-	}
+		Emotionsname:	"neutral",
+		Category:		"sentiment",
+		EmotionsColor:	"#c3c3c3ff",
+   	}
 	EmotionsAdmiration := &entity.Emotions{
-		Emotionsname:     "admiration",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ชื่นชม",
-		EmotionsColor:    "#77DD77",
-	}
+		Emotionsname:	"admiration",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกชื่นชม",
+		EmotionsColor:	"#77DD77",
+   	}
 	EmotionsAmusement := &entity.Emotions{
-		Emotionsname:     "amusement",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ขบขัน",
-		EmotionsColor:    "#FFD93D",
-	}
+		Emotionsname:	"amusement",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกขบขัน",
+		EmotionsColor:	"#FFD93D",
+   	}
 	EmotionsApproval := &entity.Emotions{
-		Emotionsname:     "approval",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "การยอมรับ",
-		EmotionsColor:    "#6EC1E4",
-	}
+		Emotionsname:	"approval",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกได้รับการยอมรับ",
+		EmotionsColor:	"#6EC1E4",
+   	}
 	EmotionsCaring := &entity.Emotions{
-		Emotionsname:     "caring",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความห่วงใย",
-		EmotionsColor:    "#FFB6C1",
-	}
+		Emotionsname:	"caring",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกถึงความห่วงใย",
+		EmotionsColor:	"#FFB6C1",
+   	}
 	EmotionsCuriosity := &entity.Emotions{
-		Emotionsname:     "curiosity",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "อยากรู้อยากเห็น",
-		EmotionsColor:    "#40E0D0",
-	}
+		Emotionsname:	"curiosity",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกอยากรู้อยากเห็น",
+		EmotionsColor:	"#40E0D0",
+   	}
 	EmotionsDesire := &entity.Emotions{
-		Emotionsname:     "desire",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความปรารถนา",
-		EmotionsColor:    "#FF4C4C",
-	}
+		Emotionsname:	"desire",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกถึงความปรารถนา",
+		EmotionsColor:	"#FF4C4C",
+   	}
 	EmotionsExcitement := &entity.Emotions{
-		Emotionsname:     "excitement",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ตื่นเต้น",
-		EmotionsColor:    "#FF914D",
-	}
+		Emotionsname:	"excitement",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกตื่นเต้น",
+		EmotionsColor:	"#FF914D",
+   	}
 	EmotionsGratitude := &entity.Emotions{
-		Emotionsname:     "gratitude",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "กตัญญู/ขอบคุณ",
-		EmotionsColor:    "#FFD700",
-	}
+		Emotionsname:	"gratitude",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกกตัญญู/ขอบคุณ",
+		EmotionsColor:	"#FFD700",
+   	}
 	EmotionsJoy := &entity.Emotions{
-		Emotionsname:     "joy",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความสุข",
-		EmotionsColor:    "#FFEA00",
-	}
+		Emotionsname:	"joy",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกมีความสุข",
+		EmotionsColor:	"#FFEA00",
+   	}
 	EmotionsLove := &entity.Emotions{
-		Emotionsname:     "love",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความรัก",
-		EmotionsColor:    "#FF69B4",
-	}
+		Emotionsname:	"love",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกมีความรัก",
+		EmotionsColor:	"#FF69B4",
+   	}
 	EmotionsOptimism := &entity.Emotions{
-		Emotionsname:     "optimism",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความมองโลกในแง่ดี",
-		EmotionsColor:    "#32CD32",
-	}
+		Emotionsname:	"optimism",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"มองโลกในแง่ดี",
+		EmotionsColor:	"#32CD32",
+   	}
+	EmotionsRealization := &entity.Emotions{
+		Emotionsname:	"realization",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"ตระหนักได้",
+		EmotionsColor:	"#f7b900ff",
+   	}
 	EmotionsPride := &entity.Emotions{
-		Emotionsname:     "pride",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความภาคภูมิใจ",
-		EmotionsColor:    "#4169E1",
-	}
+		Emotionsname:	"pride",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกถึงความภาคภูมิใจ",
+		EmotionsColor:	"#4169E1",
+   	}
 	EmotionsRelief := &entity.Emotions{
-		Emotionsname:     "relief",
-		Category:         "PositiveEmotions",
-		ThaiEmotionsname: "ความโล่งอก",
-		EmotionsColor:    "#87CEEB",
-	}
+		Emotionsname:	"relief",
+		Category:		"PositiveEmotions",
+		ThaiEmotionsname:	"รู้สึกโล่งอก",
+		EmotionsColor:	"#87CEEB",
+   	}
 	EmotionsAnger := &entity.Emotions{
-		Emotionsname:     "anger",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความโกรธ",
-		EmotionsColor:    "#D72638",
-	}
+		Emotionsname:	"anger",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกโกรธ",
+		EmotionsColor:	"#D72638",
+   	}
 	EmotionsAnnoyance := &entity.Emotions{
-		Emotionsname:     "annoyance",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความรำคาญ",
-		EmotionsColor:    "#FF6F3C",
-	}
+		Emotionsname:	"annoyance",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกรำคาญ",
+		EmotionsColor:	"#FF6F3C",
+   	}
+	EmotionsConfusion := &entity.Emotions{
+		Emotionsname:	"confusion",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกสับสน",
+		EmotionsColor:	"#8700f6ff",
+   	}
+	
 	EmotionsDisappointment := &entity.Emotions{
-		Emotionsname:     "disappointment",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความผิดหวัง",
-		EmotionsColor:    "#708090",
-	}
+		Emotionsname:	"disappointment",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกผิดหวัง",
+		EmotionsColor:	"#708090",
+   	}
 	EmotionsDisapproval := &entity.Emotions{
-		Emotionsname:     "disapproval",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "การไม่เห็นด้วย",
-		EmotionsColor:    "#8B5E3C",
-	}
+		Emotionsname:	"disapproval",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกไม่ยอม",
+		EmotionsColor:	"#8B5E3C",
+   	}
 	EmotionsDisgust := &entity.Emotions{
-		Emotionsname:     "disgust",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความขยะแขยง",
-		EmotionsColor:    "#556B2F",
-	}
+		Emotionsname:	"disgust",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกขยะแขยง",
+		EmotionsColor:	"#556B2F",
+   	}
 	EmotionsEmbarrassment := &entity.Emotions{
-		Emotionsname:     "embarrassment",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความอับอาย",
-		EmotionsColor:    "#DB7093",
-	}
+		Emotionsname:	"embarrassment",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกอับอาย",
+		EmotionsColor:	"#DB7093",
+   	}
 	EmotionsFear := &entity.Emotions{
-		Emotionsname:     "fear",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความกลัว",
-		EmotionsColor:    "#4B0082",
-	}
+		Emotionsname:	"fear",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกกลัว",
+		EmotionsColor:	"#4B0082",
+   	}
 	EmotionsGrief := &entity.Emotions{
-		Emotionsname:     "grief",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความโศกเศร้า",
-		EmotionsColor:    "#2F4F4F",
-	}
+		Emotionsname:	"grief",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกโศกเศร้า",
+		EmotionsColor:	"#2F4F4F",
+   	}
 	EmotionsNervousness := &entity.Emotions{
-		Emotionsname:     "nervousness",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความประหม่า",
-		EmotionsColor:    "#5F9EA0",
-	}
+		Emotionsname:	"nervousness",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกประหม่า",
+		EmotionsColor:	"#487e80ff",
+   	}
 	EmotionsRemorse := &entity.Emotions{
-		Emotionsname:     "remorse",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความสำนึกผิด",
-		EmotionsColor:    "#654321",
-	}
+		Emotionsname:	"remorse",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกสำนึกผิด",
+		EmotionsColor:	"#654321",
+   	}
 	Emotionssadness := &entity.Emotions{
-		Emotionsname:     "sadness",
-		Category:         "NegativeEmotions",
-		ThaiEmotionsname: "ความเศร้า",
-		EmotionsColor:    "#4682B4",
-	}
-	// db.FirstOrCreate(&EmotionsPositive, &entity.Emotions{Emotionsname: "positive"})
-	// db.FirstOrCreate(&EmotionsNegative, &entity.Emotions{Emotionsname: "negative"})
+		Emotionsname:	"sadness",
+		Category:		"NegativeEmotions",
+		ThaiEmotionsname:	"รู้สึกเศร้า",
+		EmotionsColor:	"#4682B4",
+   	}
+	
+   	// db.FirstOrCreate(&EmotionsPositive, &entity.Emotions{Emotionsname: "positive"})
+   	// db.FirstOrCreate(&EmotionsNegative, &entity.Emotions{Emotionsname: "negative"})
 	db.FirstOrCreate(&EmotionsNeutral, &entity.Emotions{Emotionsname: "neutral"})
 
 	db.FirstOrCreate(&EmotionsAdmiration, &entity.Emotions{Emotionsname: "admiration"})
-	db.FirstOrCreate(&EmotionsAmusement, &entity.Emotions{Emotionsname: "amusement"})
+   	db.FirstOrCreate(&EmotionsAmusement, &entity.Emotions{Emotionsname: "amusement"})
 	db.FirstOrCreate(&EmotionsApproval, &entity.Emotions{Emotionsname: "approval"})
 	db.FirstOrCreate(&EmotionsCaring, &entity.Emotions{Emotionsname: "caring"})
 	db.FirstOrCreate(&EmotionsCuriosity, &entity.Emotions{Emotionsname: "curiosity"})
@@ -184,11 +198,13 @@ func SetupEmotionDatabase() {
 	db.FirstOrCreate(&EmotionsJoy, &entity.Emotions{Emotionsname: "joy"})
 	db.FirstOrCreate(&EmotionsLove, &entity.Emotions{Emotionsname: "love"})
 	db.FirstOrCreate(&EmotionsOptimism, &entity.Emotions{Emotionsname: "optimism"})
+	db.FirstOrCreate(&EmotionsRealization, &entity.Emotions{Emotionsname: "realization"})
 	db.FirstOrCreate(&EmotionsPride, &entity.Emotions{Emotionsname: "pride"})
 	db.FirstOrCreate(&EmotionsRelief, &entity.Emotions{Emotionsname: "relief"})
 
 	db.FirstOrCreate(&EmotionsAnger, &entity.Emotions{Emotionsname: "anger"})
 	db.FirstOrCreate(&EmotionsAnnoyance, &entity.Emotions{Emotionsname: "annoyance"})
+	db.FirstOrCreate(&EmotionsConfusion, &entity.Emotions{Emotionsname: "confusion"})
 	db.FirstOrCreate(&EmotionsDisappointment, &entity.Emotions{Emotionsname: "disappointment"})
 	db.FirstOrCreate(&EmotionsDisapproval, &entity.Emotions{Emotionsname: "disapproval"})
 	db.FirstOrCreate(&EmotionsDisgust, &entity.Emotions{Emotionsname: "disgust"})
@@ -200,278 +216,156 @@ func SetupEmotionDatabase() {
 	db.FirstOrCreate(&Emotionssadness, &entity.Emotions{Emotionsname: "sadness"})
 	utcPlus7 := time.FixedZone("UTC+7", 7*60*60)
 	timetestlayout := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
-
-	// EmotionAnalysisResults สำหรับ DiaryID 1-10
-	EmotionsAnalysis01 := &entity.EmotionAnalysisResults{
-		InputText:         "I'm so excited about my new job!",
+	EmotionsAnalysisHappy01 := &entity.EmotionAnalysisResults{
+		InputText: 			"วันนี้มีเพื่อนร่วมงานมาขอบคุณฉันสำหรับคำแนะนำที่ให้ไปเมื่อสัปดาห์ก่อน เขาบอกว่ามันช่วยเขาได้มาก คำพูดนั้นทำให้ฉันรู้สึกอุ่นใจ เหมือนความพยายามของฉันไม่ได้สูญเปล่า...",
 		AnalysisTimestamp: timetestlayout,
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "excitement",
-		TranslatedText:    "",
-		DiaryID:           1,
-		ThoughtRecordID:   1,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis01, &entity.EmotionAnalysisResults{DiaryID: 1})
+		Modelversion:	"SamLowe/roberta-base-go_emotions",
+		PrimaryEmotion:	"caring",
+		TranslatedText:"Today, a coworker thanked me for some advice I gave him last week. He said it helped him a lot. It gave me a sense of comfort, like my efforts were not in vain...",
+		DiaryID:  	2,      
+		PatientID: 1,	
+		ThoughtRecordID:0,
+   	}
+	db.FirstOrCreate(&EmotionsAnalysisHappy01, &entity.EmotionAnalysisResults{PrimaryEmotion: "caring"})
 
-	EmotionsAnalysis02 := &entity.EmotionAnalysisResults{
-		InputText:         "Today was really disappointing. Nothing went as planned.",
-		AnalysisTimestamp: time.Date(2025, 7, 16, 9, 30, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "disappointment",
-		TranslatedText:    "",
-		DiaryID:           2,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis02, &entity.EmotionAnalysisResults{DiaryID: 2})
-
-	EmotionsAnalysis03 := &entity.EmotionAnalysisResults{
-		InputText:         "I'm so grateful for my friends and family. They mean everything to me.",
-		AnalysisTimestamp: time.Date(2025, 7, 17, 18, 45, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "gratitude",
-		TranslatedText:    "",
-		DiaryID:           3,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis03, &entity.EmotionAnalysisResults{DiaryID: 3})
-
-	EmotionsAnalysis04 := &entity.EmotionAnalysisResults{
-		InputText:         "I'm worried about tomorrow's presentation. What if I mess up?",
-		AnalysisTimestamp: time.Date(2025, 7, 18, 22, 15, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "nervousness",
-		TranslatedText:    "",
-		DiaryID:           4,
-		ThoughtRecordID:   2,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis04, &entity.EmotionAnalysisResults{DiaryID: 4})
-
-	EmotionsAnalysis05 := &entity.EmotionAnalysisResults{
-		InputText:         "Spending time with my partner makes me feel so loved and happy.",
-		AnalysisTimestamp: time.Date(2025, 7, 19, 20, 30, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "love",
-		TranslatedText:    "",
-		DiaryID:           5,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis05, &entity.EmotionAnalysisResults{DiaryID: 5})
-
-	EmotionsAnalysis06 := &entity.EmotionAnalysisResults{
-		InputText:         "I can't believe I said that. I feel so embarrassed and stupid.",
-		AnalysisTimestamp: time.Date(2025, 7, 20, 14, 20, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "embarrassment",
-		TranslatedText:    "",
-		DiaryID:           6,
-		ThoughtRecordID:   3,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis06, &entity.EmotionAnalysisResults{DiaryID: 6})
-
-	EmotionsAnalysis07 := &entity.EmotionAnalysisResults{
-		InputText:         "I'm so proud of myself for completing the marathon!",
-		AnalysisTimestamp: time.Date(2025, 7, 21, 16, 10, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "pride",
-		TranslatedText:    "",
-		DiaryID:           7,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis07, &entity.EmotionAnalysisResults{DiaryID: 7})
-
-	EmotionsAnalysis08 := &entity.EmotionAnalysisResults{
-		InputText:         "I'm curious about this new hobby. I wonder what it would be like to try it.",
-		AnalysisTimestamp: time.Date(2025, 7, 22, 11, 45, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "curiosity",
-		TranslatedText:    "",
-		DiaryID:           8,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis08, &entity.EmotionAnalysisResults{DiaryID: 8})
-
-	EmotionsAnalysis09 := &entity.EmotionAnalysisResults{
-		InputText:         "The traffic jam made me so angry today. Such a waste of time!",
-		AnalysisTimestamp: time.Date(2025, 7, 23, 8, 30, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "anger",
-		TranslatedText:    "",
-		DiaryID:           9,
-		ThoughtRecordID:   4,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis09, &entity.EmotionAnalysisResults{DiaryID: 9})
-
-	EmotionsAnalysis10 := &entity.EmotionAnalysisResults{
-		InputText:         "Finally finished that big project! What a relief to have it done.",
-		AnalysisTimestamp: time.Date(2025, 7, 24, 17, 0, 0, 0, utcPlus7),
-		Modelversion:      "SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:    "relief",
-		TranslatedText:    "",
-		DiaryID:           10,
-		ThoughtRecordID:   0,
-	}
-	db.FirstOrCreate(&EmotionsAnalysis10, &entity.EmotionAnalysisResults{DiaryID: 10})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 1
 	SubEmotionsAnalysis01 := &entity.SubEmotionAnalysis{
-		Score:                    0.8478781580924988,
-		ConfidencePercentage:     84.78781580924988,
-		EmotionAnalysisResultsID: 1,
-		EmotionsID:               EmotionsGrief.ID,
-	}
+		Score: 			0.8478781580924988,
+		ConfidencePercentage: 84.78781580924988,
+		EmotionAnalysisResultsID:  	1,      	
+		EmotionsID:5,
+   	}
 	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1})
-	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: EmotionsGrief.ID})
-
 	SubEmotionsAnalysis02 := &entity.SubEmotionAnalysis{
-		Score:                    0.06275680661201477,
-		ConfidencePercentage:     6.275680661201477,
-		EmotionAnalysisResultsID: 1,
-		EmotionsID:               Emotionssadness.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1, EmotionsID: Emotionssadness.ID})
+		Score: 			0.60275680661201477,
+		ConfidencePercentage: 60.275680661201477,
+		EmotionAnalysisResultsID:  	1,      	
+		EmotionsID:10,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionsID: 4})
+	timetestlayout02 := time.Date(2025, 8, 24, 12, 00, 0, 0, utcPlus7)
+	EmotionsAnalysisBad01 := &entity.EmotionAnalysisResults{
+		InputText: 			"วันนี้ทั้งวันแทบไม่ได้คุยกับใครเลย ถึงแม้จะอยู่ท่ามกลางผู้คน แต่กลับรู้สึกเหมือนตัวเองล่องหน ไม่มีใครเห็นหรือสนใจว่าฉันอยู่ตรงนี้ มันทำให้รู้สึกเศร้าอย่างบอกไม่ถูก...",
+		TranslatedText: "I haven&#39;t talked to anyone all day. Even though I&#39;m surrounded by people, I feel invisible. No one sees or cares that I&#39;m here. It makes me feel sad in an indescribable way...",
+		AnalysisTimestamp: timetestlayout02,
+		Modelversion:	"SamLowe/roberta-base-go_emotions",
+		PrimaryEmotion:	"sadness",
+		DiaryID:  	1,  
+		PatientID: 1,	    	
+		ThoughtRecordID:0,
+   	}
+	db.FirstOrCreate(&EmotionsAnalysisBad01, &entity.EmotionAnalysisResults{PrimaryEmotion: "sadness"})
 
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 2
-	SubEmotionsAnalysis03 := &entity.SubEmotionAnalysis{
-		Score:                    0.7234567890123456,
-		ConfidencePercentage:     72.34567890123456,
-		EmotionAnalysisResultsID: 2,
-		EmotionsID:               EmotionsPride.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis03, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: EmotionsPride.ID})
-
-	SubEmotionsAnalysis04 := &entity.SubEmotionAnalysis{
-		Score:                    0.1432109876543210,
-		ConfidencePercentage:     14.32109876543210,
-		EmotionAnalysisResultsID: 2,
-		EmotionsID:               EmotionsJoy.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis04, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 2, EmotionsID: EmotionsJoy.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 3
-	SubEmotionsAnalysis05 := &entity.SubEmotionAnalysis{
-		Score:                    0.9012345678901234,
-		ConfidencePercentage:     90.12345678901234,
-		EmotionAnalysisResultsID: 3,
-		EmotionsID:               EmotionsFear.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis05, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 3, EmotionsID: EmotionsFear.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 4
-	SubEmotionsAnalysis06 := &entity.SubEmotionAnalysis{
-		Score:                    0.6789012345678901,
-		ConfidencePercentage:     67.89012345678901,
-		EmotionAnalysisResultsID: 4,
-		EmotionsID:               EmotionsPride.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis06, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: EmotionsPride.ID})
-
-	SubEmotionsAnalysis7:= &entity.SubEmotionAnalysis{
-		Score:                    0.2345678901234567,
-		ConfidencePercentage:     23.45678901234567,
-		EmotionAnalysisResultsID: 4,
-		EmotionsID:               EmotionsAdmiration.ID, // fear
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis7, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 4, EmotionsID: EmotionsAdmiration.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 5
-	SubEmotionsAnalysis8 := &entity.SubEmotionAnalysis{
-		Score:                    0.8765432109876543,
-		ConfidencePercentage:     87.65432109876543,
-		EmotionAnalysisResultsID: 5,
-		EmotionsID:               Emotionssadness.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis8, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: Emotionssadness.ID})
-
-	SubEmotionsAnalysis9 := &entity.SubEmotionAnalysis{
-		Score:                    0.0987654321098765,
-		ConfidencePercentage:     9.87654321098765,
-		EmotionAnalysisResultsID: 5,
-		EmotionsID:               EmotionsGrief.ID, // joy
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis9, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 5, EmotionsID: EmotionsGrief.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 6
-	SubEmotionsAnalysis10 := &entity.SubEmotionAnalysis{
-		Score:                    0.7654321098765432,
-		ConfidencePercentage:     76.54321098765432,
-		EmotionAnalysisResultsID: 6,
-		EmotionsID:               EmotionsOptimism.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis10, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsOptimism.ID})
-
-	SubEmotionsAnalysis11 := &entity.SubEmotionAnalysis{
-		Score:                    0.1543210987654321,
-		ConfidencePercentage:     15.43210987654321,
-		EmotionAnalysisResultsID: 6,
-		EmotionsID:               EmotionsPride.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis11, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsPride.ID})
-
-	SubEmotionsAnalysis12 := &entity.SubEmotionAnalysis{
-		Score:                    0.1543210987654321,
-		ConfidencePercentage:     15.43210987654321,
-		EmotionAnalysisResultsID: 6,
-		EmotionsID:               EmotionsJoy.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis12, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 6, EmotionsID: EmotionsJoy.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 7
-	SubEmotionsAnalysis13 := &entity.SubEmotionAnalysis{
-		Score:                    0.8901234567890123,
-		ConfidencePercentage:     89.01234567890123,
-		EmotionAnalysisResultsID: 7,
-		EmotionsID:               Emotionssadness.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis13, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 7, EmotionsID: Emotionssadness.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 8
-	SubEmotionsAnalysis14 := &entity.SubEmotionAnalysis{
-		Score:                    0.8123456789012345,
-		ConfidencePercentage:     81.23456789012345,
-		EmotionAnalysisResultsID: 8,
-		EmotionsID:               EmotionsPride.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis14, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: EmotionsPride.ID})
-
-	SubEmotionsAnalysis15 := &entity.SubEmotionAnalysis{
-		Score:                    0.1234567890123456,
-		ConfidencePercentage:     12.34567890123456,
-		EmotionAnalysisResultsID: 8,
-		EmotionsID:               EmotionsApproval.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis15, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 8, EmotionsID: EmotionsApproval.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 9
-	SubEmotionsAnalysis16 := &entity.SubEmotionAnalysis{
-		Score:                    0.7890123456789012,
-		ConfidencePercentage:     78.90123456789012,
-		EmotionAnalysisResultsID: 9,
-		EmotionsID:               EmotionsEmbarrassment.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis16, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: EmotionsEmbarrassment.ID})
-
-	SubEmotionsAnalysis17 := &entity.SubEmotionAnalysis{
-		Score:                    0.1345678901234567,
-		ConfidencePercentage:     13.45678901234567,
-		EmotionAnalysisResultsID: 9,
-		EmotionsID:               EmotionsDisappointment.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis17, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 9, EmotionsID: EmotionsDisappointment.ID})
-
-	// SubEmotionAnalysis สำหรับ EmotionAnalysisResults ID 10 (relief)
-	SubEmotionsAnalysis18 := &entity.SubEmotionAnalysis{
-		Score:                    0.8567890123456789,
-		ConfidencePercentage:     85.67890123456789,
-		EmotionAnalysisResultsID: 10,
-		EmotionsID:               EmotionsDesire.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis18, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: EmotionsDesire.ID})
-
-	SubEmotionsAnalysis19 := &entity.SubEmotionAnalysis{
-		Score:                    0.0987654321098765,
-		ConfidencePercentage:     9.87654321098765,
-		EmotionAnalysisResultsID: 10,
-		EmotionsID:               EmotionsOptimism.ID,
-	}
-	db.FirstOrCreate(&SubEmotionsAnalysis19, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 10, EmotionsID: EmotionsOptimism.ID})
+	SubEmotionsAnalysis21 := &entity.SubEmotionAnalysis{
+		Score: 			0.8078781580924988,
+		ConfidencePercentage: 80.78781580924988,
+		EmotionAnalysisResultsID:  	2,      	
+		EmotionsID:25,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis21, &entity.SubEmotionAnalysis{EmotionsID: 25})
+	SubEmotionsAnalysis22 := &entity.SubEmotionAnalysis{
+		Score: 			0.103620804846287,
+		ConfidencePercentage: 10.3620804846287,
+		EmotionAnalysisResultsID:  	2,      	
+		EmotionsID:17,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis22, &entity.SubEmotionAnalysis{EmotionsID: 17})
+	SubEmotionsAnalysis23 := &entity.SubEmotionAnalysis{
+		Score: 			0.0270794611424208,
+		ConfidencePercentage: 2.70794611424208,
+		EmotionAnalysisResultsID:  	2,      	
+		EmotionsID:3,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis23, &entity.SubEmotionAnalysis{EmotionsID: 3})
+	timetestlayout03 := time.Date(2025, 9, 1, 12, 00, 0, 0, utcPlus7)
+	EmotionsAnalysisBad02 := &entity.EmotionAnalysisResults{
+		InputText: 			"วันนี้ฉันกล้าพูดในที่ประชุม แม้จะรู้สึกประหม่า แต่ฉันก็ทำได้ และได้รับคำชมจากหัวหน้าด้วย รู้สึกภูมิใจที่กล้าแสดงความเห็น แม้จะเป็นก้าวเล็กๆ แต่ก็เป็นก้าวที่สำคัญ...",
+		TranslatedText: "Today I dared to speak in a meeting. Although I felt nervous, I did it and received praise from my boss. I feel proud that I dared to express my opinion. Even though it was a small step, it was an important step...",
+		AnalysisTimestamp: timetestlayout03,
+		Modelversion:	"SamLowe/roberta-base-go_emotions",
+		PrimaryEmotion:	"nervousness",
+		PatientID: 1,	
+		DiaryID:  	4,      	
+		ThoughtRecordID:0,
+   	}
+	db.FirstOrCreate(&EmotionsAnalysisBad02, &entity.EmotionAnalysisResults{PrimaryEmotion: "nervousness"})
+	SubEmotionsAnalysis31 := &entity.SubEmotionAnalysis{
+		Score: 			0.8878781580924988,
+		ConfidencePercentage: 88.78781580924988,
+		EmotionAnalysisResultsID:  	3,      	
+		EmotionsID:23,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis31, &entity.SubEmotionAnalysis{EmotionsID: 23})
+	SubEmotionsAnalysis32 := &entity.SubEmotionAnalysis{
+		Score: 			0.873620804846287,
+		ConfidencePercentage: 87.3620804846287,
+		EmotionAnalysisResultsID:  	3,      	
+		EmotionsID:4,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis32, &entity.SubEmotionAnalysis{EmotionsID: 4})
+	SubEmotionsAnalysis33 := &entity.SubEmotionAnalysis{
+		Score: 			0.2070794611424208,
+		ConfidencePercentage: 20.70794611424208,
+		EmotionAnalysisResultsID:  	3,      	
+		EmotionsID:14,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis33, &entity.SubEmotionAnalysis{EmotionsID: 14})
+	timetestlayout04 := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
+	EmotionsAnalysisThoughtR01 := &entity.EmotionAnalysisResults{
+		InputText: 			"ทำให้ครั้งหน้าเราเตรียมตัวดีขึ้น ทำให้ครั้งหน้าเราเตรียมตัวดีขึ้น",
+		TranslatedText: "Make us better prepared next time. Make us better prepared next time.",
+		AnalysisTimestamp: timetestlayout04,
+		Modelversion:	"SamLowe/roberta-base-go_emotions",
+		PrimaryEmotion:	"caring",
+		PatientID: 1,	
+		DiaryID:  	0,      	
+		ThoughtRecordID:11,
+   	}
+	db.FirstOrCreate(&EmotionsAnalysisThoughtR01, &entity.EmotionAnalysisResults{ThoughtRecordID: 11})
+	SubEmotionsAnalysis41 := &entity.SubEmotionAnalysis{
+		Score: 			0.496004402637482,
+		ConfidencePercentage: 49.6004402637482,
+		EmotionAnalysisResultsID:  	4,      	
+		EmotionsID:5,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis41, &entity.SubEmotionAnalysis{EmotionsID: 5,EmotionAnalysisResultsID:  4})
+	SubEmotionsAnalysis42 := &entity.SubEmotionAnalysis{
+		Score: 			0.286047160625458,
+		ConfidencePercentage: 28.6047160625458,
+		EmotionAnalysisResultsID:  	4,      	
+		EmotionsID:1,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis42, &entity.SubEmotionAnalysis{EmotionsID: 4,EmotionAnalysisResultsID:  	4})
+	SubEmotionsAnalysis43 := &entity.SubEmotionAnalysis{
+		Score: 			0.178936704993248,
+		ConfidencePercentage: 17.8936704993248,
+		EmotionAnalysisResultsID:  	4,      	
+		EmotionsID:12,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis43, &entity.SubEmotionAnalysis{EmotionsID: 12})
+	timetestlayout05 := time.Date(2025, 8, 24, 12, 00, 0, 0, utcPlus7)
+	EmotionsAnalysisThoughtR02 := &entity.EmotionAnalysisResults{
+		InputText: 			"ยังคุยกันได้และปรับความเข้าใจ ไม่คุย",
+		TranslatedText: "We can still talk and understand each other. We don't talk.",
+		AnalysisTimestamp: timetestlayout05,
+		Modelversion:	"SamLowe/roberta-base-go_emotions",
+		PrimaryEmotion:	"neutral",
+		PatientID: 1,	
+		DiaryID:  	0,      	
+		ThoughtRecordID:10,
+   	}
+	db.FirstOrCreate(&EmotionsAnalysisThoughtR02, &entity.EmotionAnalysisResults{PrimaryEmotion: "neutral"})
+	SubEmotionsAnalysis51 := &entity.SubEmotionAnalysis{
+		Score: 			0.676080465316772,
+		ConfidencePercentage: 67.6080465316772,
+		EmotionAnalysisResultsID:  	5,      	
+		EmotionsID:1,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis51, &entity.SubEmotionAnalysis{EmotionsID: 1})
+	SubEmotionsAnalysis52 := &entity.SubEmotionAnalysis{
+		Score: 			0.409135073423386,
+		ConfidencePercentage: 40.9135073423386,
+		EmotionAnalysisResultsID:  	5,      	
+		EmotionsID:13,
+   	}
+	db.FirstOrCreate(&SubEmotionsAnalysis52, &entity.SubEmotionAnalysis{EmotionsID: 13})
 }

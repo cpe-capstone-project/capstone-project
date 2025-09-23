@@ -33,7 +33,6 @@ func SetupDatabase() {
     SetupPsychologistDatabase() 
     SetupEmotionDatabase()
     SetupInitialData()
-    SetupNotifications()
     SetupThoughtRecordDatabase()
     SetupFeedbackDatabase()
     SetupTherapyCaseDatabase()

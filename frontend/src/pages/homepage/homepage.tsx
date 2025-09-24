@@ -2103,6 +2103,7 @@ function openChecklistModal(startDate?: Date) {
                   <DiarySummary /> 
             </div>
           </div>
+          <ThoughtRecordStatsChart/>
         </div>
       </div>
     </div>

@@ -223,7 +223,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 60px;
-  padding: 20px;
   background-color: #ffffff;
   justify-content: flex-start; /* ชิดซ้าย */
   margin-bottom: 70px;

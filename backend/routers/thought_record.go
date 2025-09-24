@@ -8,7 +8,7 @@ import (
 func SetupThoughtRecordRoutes(r *gin.RouterGroup) {
 
 	// Routes for ThoughtRecord
-	r.GET("/thought_records", thought_record.ListThoughtRecord)
+	r.GET("/thought_record/patient/:patientId/therapy-case/:caseId", thought_record.ListThoughtRecord)
 	r.GET("/thought_record/:id", thought_record.GetThoughtRecordByID)
 	r.GET("/thoughtrecords/case/:id", thought_record.GetThoughtRecordsByTherapyCaseID)
 	r.POST("/thought_record", thought_record.CreateThoughtRecord)

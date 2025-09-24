@@ -20,21 +20,31 @@ interface ThoughtRecordFilter {
   year?: string;   // yyyy
 }
 
-// ✅ GET /thought_records?sort=UpdatedAt&order=desc
 async function GetThoughtRecords(
+  patientId: number,
+  therapyCaseId: number,
   sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
   order: "asc" | "desc" = "desc",
   filter?: ThoughtRecordFilter
 ) {
   try {
-    const params: any = { sort, order, ...filter };
-    const res = await axios.get(`${apiUrl}/thought_records`, {
-      ...requestOptions,
-      params,
-    });
-    return res;
+    // รวม params
+    const params: Record<string, string> = {
+      sort,
+      order,
+      ...filter, // date/week/month/year
+    };
+
+    const res = await axios.get(
+      `${apiUrl}/thought_record/patient/${patientId}/therapy-case/${therapyCaseId}`,
+      {
+        ...requestOptions,
+        params,
+      }
+    );
+    return res.data; // ✅ ส่งข้อมูลตรง ๆ ไม่ต้อง return response ทั้งหมด
   } catch (e: any) {
-    return e.response;
+    return e.response || { error: e.message };
   }
 }
 

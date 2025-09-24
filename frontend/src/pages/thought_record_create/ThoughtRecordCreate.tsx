@@ -261,7 +261,7 @@ function ThoughtRecordCreate() {
                 className="guide-button-capsule"
                 icon={<FaBookOpen style={{ color: "white" }} />}
               >
-                คำแนะนำการกรอกฟอร์ม
+                คำแนะนำการสร้างบันทึกความคิด
               </Button>
             </div>
 

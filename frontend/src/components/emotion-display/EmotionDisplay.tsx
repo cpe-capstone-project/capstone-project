@@ -5,27 +5,6 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 import type { IEmotionAnalysisResults } from "../../interfaces/IEmotionAnalysisResults";
 import type { ISubEmotion } from "../../interfaces/ISubEmotion";
 
-// interface Emotion {
-//   ID: number;
-//   Emotionsname: string;
-//   ThaiEmotionsname: string;
-//   EmotionsColor: string;
-//   Category: string;
-// }
-
-// interface SubEmotionAnalysis {
-//   ID: number;
-//   ConfidencePercentage: number;
-//   Score: number;
-//   emotions: Emotion;
-// }
-
-// interface EmotionAnalysisResult {
-//   ID: number;
-//   PrimaryEmotion: string;
-//   SubEmotionAnalysis: SubEmotionAnalysis[];
-// }
-
 interface EmotionDisplayProps {
   emotionAnalysisResults: IEmotionAnalysisResults[];
   maxDisplay?: number;

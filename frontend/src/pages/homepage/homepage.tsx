@@ -12,6 +12,7 @@ import type { DiaryInterface } from "../../interfaces/IDiary";
 //import pamemo1 from "../assets/pamemo1.png"; // ปรับ path ให้ถูกต้องตามโปรเจกต์คุณ
 import { k, KEYS } from "../../unid/storageKeys";
 import DiaryStatsChart from "../../components/DiaryStatsChart/DiaryStatsChart";
+import ThoughtRecordStatsChart from "../../components/thought-record-summary/ThoughtRecordStatsChart";
 import { useDiary } from "../../contexts/DiaryContext";
 import { useDiarySummary, TAGS } from "../../hooks/useDiarySummary";
 import { useMemo } from "react";

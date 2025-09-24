@@ -49,7 +49,7 @@ function DiaryFeedback({ onClose }: DiaryFeedbackProps) {
     <div className="diary-feedback">
       <Flex vertical={false} align="center" justify="space-between">
         <h1 style={{ fontSize: "var(--font-size-xl)", fontWeight: "bold" }}>
-          คำแนะนำ
+          การตอบกลับ
         </h1>
         <button className="feedback-close-btn" onClick={onClose}>
           <CloseOutlined />
@@ -58,7 +58,7 @@ function DiaryFeedback({ onClose }: DiaryFeedbackProps) {
 
       {feedbacks.length === 0 && (
         <div className="no-feedback">
-          <Empty description={"ยังไม่มีคำแนะนำสำหรับไดอารี่ของคุณ"} />
+          <Empty description={"ยังไม่มีการตอบกลับสำหรับไดอารี่ของคุณ"} />
         </div>
       )}
       

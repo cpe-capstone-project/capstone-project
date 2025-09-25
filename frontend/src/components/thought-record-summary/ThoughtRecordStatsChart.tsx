@@ -165,7 +165,7 @@ const ThoughtRecordStatsChart: React.FC<ThoughtRecordStatsChartProps> = ({
   return (
     <div className={`thought-record-summary-container ${className ?? ""}`}>
       <div className="diary-summary-header">
-        <h1>สรุปการทำ Thought Record</h1>
+        <h1>Thought Record Summary</h1>
         <p>รวม {total} รายการ</p>
         <div className="timeframe-container">
           {["daily", "weekly", "monthly"].map((v) => (

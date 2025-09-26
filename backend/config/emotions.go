@@ -215,100 +215,100 @@ func SetupEmotionDatabase(){
 	db.FirstOrCreate(&EmotionsRemorse, &entity.Emotions{Emotionsname: "remorse"})
 	db.FirstOrCreate(&Emotionssadness, &entity.Emotions{Emotionsname: "sadness"})
 	utcPlus7 := time.FixedZone("UTC+7", 7*60*60)
-	timetestlayout := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
-	EmotionsAnalysisHappy01 := &entity.EmotionAnalysisResults{
-		InputText: 			"วันนี้มีเพื่อนร่วมงานมาขอบคุณฉันสำหรับคำแนะนำที่ให้ไปเมื่อสัปดาห์ก่อน เขาบอกว่ามันช่วยเขาได้มาก คำพูดนั้นทำให้ฉันรู้สึกอุ่นใจ เหมือนความพยายามของฉันไม่ได้สูญเปล่า...",
-		AnalysisTimestamp: timetestlayout,
-		Modelversion:	"SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:	"caring",
-		TranslatedText:"Today, a coworker thanked me for some advice I gave him last week. He said it helped him a lot. It gave me a sense of comfort, like my efforts were not in vain...",
-		DiaryID:  	2,      
-		PatientID: 1,	
-		ThoughtRecordID:0,
-   	}
-	db.FirstOrCreate(&EmotionsAnalysisHappy01, &entity.EmotionAnalysisResults{PrimaryEmotion: "caring"})
+	// timetestlayout := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
+	// EmotionsAnalysisHappy01 := &entity.EmotionAnalysisResults{
+	// 	InputText: 			"วันนี้มีเพื่อนร่วมงานมาขอบคุณฉันสำหรับคำแนะนำที่ให้ไปเมื่อสัปดาห์ก่อน เขาบอกว่ามันช่วยเขาได้มาก คำพูดนั้นทำให้ฉันรู้สึกอุ่นใจ เหมือนความพยายามของฉันไม่ได้สูญเปล่า...",
+	// 	AnalysisTimestamp: timetestlayout,
+	// 	Modelversion:	"SamLowe/roberta-base-go_emotions",
+	// 	PrimaryEmotion:	"caring",
+	// 	TranslatedText:"Today, a coworker thanked me for some advice I gave him last week. He said it helped him a lot. It gave me a sense of comfort, like my efforts were not in vain...",
+	// 	DiaryID:  	2,      
+	// 	PatientID: 1,	
+	// 	ThoughtRecordID:0,
+   	// }
+	// db.FirstOrCreate(&EmotionsAnalysisHappy01, &entity.EmotionAnalysisResults{PrimaryEmotion: "caring"})
 
-	SubEmotionsAnalysis01 := &entity.SubEmotionAnalysis{
-		Score: 			0.8478781580924988,
-		ConfidencePercentage: 84.78781580924988,
-		EmotionAnalysisResultsID:  	1,      	
-		EmotionsID:5,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1})
-	SubEmotionsAnalysis02 := &entity.SubEmotionAnalysis{
-		Score: 			0.60275680661201477,
-		ConfidencePercentage: 60.275680661201477,
-		EmotionAnalysisResultsID:  	1,      	
-		EmotionsID:10,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionsID: 4})
-	timetestlayout02 := time.Date(2025, 8, 24, 12, 00, 0, 0, utcPlus7)
-	EmotionsAnalysisBad01 := &entity.EmotionAnalysisResults{
-		InputText: 			"วันนี้ทั้งวันแทบไม่ได้คุยกับใครเลย ถึงแม้จะอยู่ท่ามกลางผู้คน แต่กลับรู้สึกเหมือนตัวเองล่องหน ไม่มีใครเห็นหรือสนใจว่าฉันอยู่ตรงนี้ มันทำให้รู้สึกเศร้าอย่างบอกไม่ถูก...",
-		TranslatedText: "I haven&#39;t talked to anyone all day. Even though I&#39;m surrounded by people, I feel invisible. No one sees or cares that I&#39;m here. It makes me feel sad in an indescribable way...",
-		AnalysisTimestamp: timetestlayout02,
-		Modelversion:	"SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:	"sadness",
-		DiaryID:  	1,  
-		PatientID: 1,	    	
-		ThoughtRecordID:0,
-   	}
-	db.FirstOrCreate(&EmotionsAnalysisBad01, &entity.EmotionAnalysisResults{PrimaryEmotion: "sadness"})
+	// SubEmotionsAnalysis01 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.8478781580924988,
+	// 	ConfidencePercentage: 84.78781580924988,
+	// 	EmotionAnalysisResultsID:  	1,      	
+	// 	EmotionsID:5,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis01, &entity.SubEmotionAnalysis{EmotionAnalysisResultsID: 1})
+	// SubEmotionsAnalysis02 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.60275680661201477,
+	// 	ConfidencePercentage: 60.275680661201477,
+	// 	EmotionAnalysisResultsID:  	1,      	
+	// 	EmotionsID:10,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis02, &entity.SubEmotionAnalysis{EmotionsID: 4})
+	// timetestlayout02 := time.Date(2025, 8, 24, 12, 00, 0, 0, utcPlus7)
+	// EmotionsAnalysisBad01 := &entity.EmotionAnalysisResults{
+	// 	InputText: 			"วันนี้ทั้งวันแทบไม่ได้คุยกับใครเลย ถึงแม้จะอยู่ท่ามกลางผู้คน แต่กลับรู้สึกเหมือนตัวเองล่องหน ไม่มีใครเห็นหรือสนใจว่าฉันอยู่ตรงนี้ มันทำให้รู้สึกเศร้าอย่างบอกไม่ถูก...",
+	// 	TranslatedText: "I haven&#39;t talked to anyone all day. Even though I&#39;m surrounded by people, I feel invisible. No one sees or cares that I&#39;m here. It makes me feel sad in an indescribable way...",
+	// 	AnalysisTimestamp: timetestlayout02,
+	// 	Modelversion:	"SamLowe/roberta-base-go_emotions",
+	// 	PrimaryEmotion:	"sadness",
+	// 	DiaryID:  	1,  
+	// 	PatientID: 1,	    	
+	// 	ThoughtRecordID:0,
+   	// }
+	// db.FirstOrCreate(&EmotionsAnalysisBad01, &entity.EmotionAnalysisResults{PrimaryEmotion: "sadness"})
 
-	SubEmotionsAnalysis21 := &entity.SubEmotionAnalysis{
-		Score: 			0.8078781580924988,
-		ConfidencePercentage: 80.78781580924988,
-		EmotionAnalysisResultsID:  	2,      	
-		EmotionsID:25,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis21, &entity.SubEmotionAnalysis{EmotionsID: 25})
-	SubEmotionsAnalysis22 := &entity.SubEmotionAnalysis{
-		Score: 			0.103620804846287,
-		ConfidencePercentage: 10.3620804846287,
-		EmotionAnalysisResultsID:  	2,      	
-		EmotionsID:17,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis22, &entity.SubEmotionAnalysis{EmotionsID: 17})
-	SubEmotionsAnalysis23 := &entity.SubEmotionAnalysis{
-		Score: 			0.0270794611424208,
-		ConfidencePercentage: 2.70794611424208,
-		EmotionAnalysisResultsID:  	2,      	
-		EmotionsID:3,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis23, &entity.SubEmotionAnalysis{EmotionsID: 3})
-	timetestlayout03 := time.Date(2025, 9, 1, 12, 00, 0, 0, utcPlus7)
-	EmotionsAnalysisBad02 := &entity.EmotionAnalysisResults{
-		InputText: 			"วันนี้ฉันกล้าพูดในที่ประชุม แม้จะรู้สึกประหม่า แต่ฉันก็ทำได้ และได้รับคำชมจากหัวหน้าด้วย รู้สึกภูมิใจที่กล้าแสดงความเห็น แม้จะเป็นก้าวเล็กๆ แต่ก็เป็นก้าวที่สำคัญ...",
-		TranslatedText: "Today I dared to speak in a meeting. Although I felt nervous, I did it and received praise from my boss. I feel proud that I dared to express my opinion. Even though it was a small step, it was an important step...",
-		AnalysisTimestamp: timetestlayout03,
-		Modelversion:	"SamLowe/roberta-base-go_emotions",
-		PrimaryEmotion:	"nervousness",
-		PatientID: 1,	
-		DiaryID:  	4,      	
-		ThoughtRecordID:0,
-   	}
-	db.FirstOrCreate(&EmotionsAnalysisBad02, &entity.EmotionAnalysisResults{PrimaryEmotion: "nervousness"})
-	SubEmotionsAnalysis31 := &entity.SubEmotionAnalysis{
-		Score: 			0.8878781580924988,
-		ConfidencePercentage: 88.78781580924988,
-		EmotionAnalysisResultsID:  	3,      	
-		EmotionsID:23,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis31, &entity.SubEmotionAnalysis{EmotionsID: 23})
-	SubEmotionsAnalysis32 := &entity.SubEmotionAnalysis{
-		Score: 			0.873620804846287,
-		ConfidencePercentage: 87.3620804846287,
-		EmotionAnalysisResultsID:  	3,      	
-		EmotionsID:4,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis32, &entity.SubEmotionAnalysis{EmotionsID: 4})
-	SubEmotionsAnalysis33 := &entity.SubEmotionAnalysis{
-		Score: 			0.2070794611424208,
-		ConfidencePercentage: 20.70794611424208,
-		EmotionAnalysisResultsID:  	3,      	
-		EmotionsID:14,
-   	}
-	db.FirstOrCreate(&SubEmotionsAnalysis33, &entity.SubEmotionAnalysis{EmotionsID: 14})
+	// SubEmotionsAnalysis21 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.8078781580924988,
+	// 	ConfidencePercentage: 80.78781580924988,
+	// 	EmotionAnalysisResultsID:  	2,      	
+	// 	EmotionsID:25,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis21, &entity.SubEmotionAnalysis{EmotionsID: 25})
+	// SubEmotionsAnalysis22 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.103620804846287,
+	// 	ConfidencePercentage: 10.3620804846287,
+	// 	EmotionAnalysisResultsID:  	2,      	
+	// 	EmotionsID:17,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis22, &entity.SubEmotionAnalysis{EmotionsID: 17})
+	// SubEmotionsAnalysis23 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.0270794611424208,
+	// 	ConfidencePercentage: 2.70794611424208,
+	// 	EmotionAnalysisResultsID:  	2,      	
+	// 	EmotionsID:3,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis23, &entity.SubEmotionAnalysis{EmotionsID: 3})
+	// timetestlayout03 := time.Date(2025, 9, 1, 12, 00, 0, 0, utcPlus7)
+	// EmotionsAnalysisBad02 := &entity.EmotionAnalysisResults{
+	// 	InputText: 			"วันนี้ฉันกล้าพูดในที่ประชุม แม้จะรู้สึกประหม่า แต่ฉันก็ทำได้ และได้รับคำชมจากหัวหน้าด้วย รู้สึกภูมิใจที่กล้าแสดงความเห็น แม้จะเป็นก้าวเล็กๆ แต่ก็เป็นก้าวที่สำคัญ...",
+	// 	TranslatedText: "Today I dared to speak in a meeting. Although I felt nervous, I did it and received praise from my boss. I feel proud that I dared to express my opinion. Even though it was a small step, it was an important step...",
+	// 	AnalysisTimestamp: timetestlayout03,
+	// 	Modelversion:	"SamLowe/roberta-base-go_emotions",
+	// 	PrimaryEmotion:	"nervousness",
+	// 	PatientID: 1,	
+	// 	DiaryID:  	4,      	
+	// 	ThoughtRecordID:0,
+   	// }
+	// db.FirstOrCreate(&EmotionsAnalysisBad02, &entity.EmotionAnalysisResults{PrimaryEmotion: "nervousness"})
+	// SubEmotionsAnalysis31 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.8878781580924988,
+	// 	ConfidencePercentage: 88.78781580924988,
+	// 	EmotionAnalysisResultsID:  	3,      	
+	// 	EmotionsID:23,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis31, &entity.SubEmotionAnalysis{EmotionsID: 23})
+	// SubEmotionsAnalysis32 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.873620804846287,
+	// 	ConfidencePercentage: 87.3620804846287,
+	// 	EmotionAnalysisResultsID:  	3,      	
+	// 	EmotionsID:4,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis32, &entity.SubEmotionAnalysis{EmotionsID: 4})
+	// SubEmotionsAnalysis33 := &entity.SubEmotionAnalysis{
+	// 	Score: 			0.2070794611424208,
+	// 	ConfidencePercentage: 20.70794611424208,
+	// 	EmotionAnalysisResultsID:  	3,      	
+	// 	EmotionsID:14,
+   	// }
+	// db.FirstOrCreate(&SubEmotionsAnalysis33, &entity.SubEmotionAnalysis{EmotionsID: 14})
 	timetestlayout04 := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
 	EmotionsAnalysisThoughtR01 := &entity.EmotionAnalysisResults{
 		InputText: 			"ทำให้ครั้งหน้าเราเตรียมตัวดีขึ้น ทำให้ครั้งหน้าเราเตรียมตัวดีขึ้น",
@@ -324,24 +324,24 @@ func SetupEmotionDatabase(){
 	SubEmotionsAnalysis41 := &entity.SubEmotionAnalysis{
 		Score: 			0.496004402637482,
 		ConfidencePercentage: 49.6004402637482,
-		EmotionAnalysisResultsID:  	4,      	
+		EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR01.ID,      	
 		EmotionsID:5,
    	}
-	db.FirstOrCreate(&SubEmotionsAnalysis41, &entity.SubEmotionAnalysis{EmotionsID: 5,EmotionAnalysisResultsID:  4})
+	db.FirstOrCreate(&SubEmotionsAnalysis41, &entity.SubEmotionAnalysis{EmotionsID: 5,EmotionAnalysisResultsID:  EmotionsAnalysisThoughtR01.ID})
 	SubEmotionsAnalysis42 := &entity.SubEmotionAnalysis{
 		Score: 			0.286047160625458,
 		ConfidencePercentage: 28.6047160625458,
-		EmotionAnalysisResultsID:  	4,      	
+		EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR01.ID,      	
 		EmotionsID:1,
    	}
-	db.FirstOrCreate(&SubEmotionsAnalysis42, &entity.SubEmotionAnalysis{EmotionsID: 4,EmotionAnalysisResultsID:  	4})
+	db.FirstOrCreate(&SubEmotionsAnalysis42, &entity.SubEmotionAnalysis{EmotionsID: 4,EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR01.ID})
 	SubEmotionsAnalysis43 := &entity.SubEmotionAnalysis{
 		Score: 			0.178936704993248,
 		ConfidencePercentage: 17.8936704993248,
-		EmotionAnalysisResultsID:  	4,      	
+		EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR01.ID,      	
 		EmotionsID:12,
    	}
-	db.FirstOrCreate(&SubEmotionsAnalysis43, &entity.SubEmotionAnalysis{EmotionsID: 12})
+	db.FirstOrCreate(&SubEmotionsAnalysis43, &entity.SubEmotionAnalysis{EmotionsID: 12, EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR01.ID})
 	timetestlayout05 := time.Date(2025, 8, 24, 12, 00, 0, 0, utcPlus7)
 	EmotionsAnalysisThoughtR02 := &entity.EmotionAnalysisResults{
 		InputText: 			"ยังคุยกันได้และปรับความเข้าใจ ไม่คุย",
@@ -357,15 +357,15 @@ func SetupEmotionDatabase(){
 	SubEmotionsAnalysis51 := &entity.SubEmotionAnalysis{
 		Score: 			0.676080465316772,
 		ConfidencePercentage: 67.6080465316772,
-		EmotionAnalysisResultsID:  	5,      	
+		EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR02.ID,      	
 		EmotionsID:1,
    	}
-	db.FirstOrCreate(&SubEmotionsAnalysis51, &entity.SubEmotionAnalysis{EmotionsID: 1})
+	db.FirstOrCreate(&SubEmotionsAnalysis51, &entity.SubEmotionAnalysis{EmotionsID: 1, EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR02.ID})
 	SubEmotionsAnalysis52 := &entity.SubEmotionAnalysis{
 		Score: 			0.409135073423386,
 		ConfidencePercentage: 40.9135073423386,
-		EmotionAnalysisResultsID:  	5,      	
+		EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR02.ID,      	
 		EmotionsID:13,
    	}
-	db.FirstOrCreate(&SubEmotionsAnalysis52, &entity.SubEmotionAnalysis{EmotionsID: 13})
+	db.FirstOrCreate(&SubEmotionsAnalysis52, &entity.SubEmotionAnalysis{EmotionsID: 13, EmotionAnalysisResultsID:  	EmotionsAnalysisThoughtR02.ID})
 }

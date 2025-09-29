@@ -1,21 +1,26 @@
 import { useNavigate } from "react-router";
+import { Button, Result } from "antd";
+import "./Unknown.css";
 
 function Unknown() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleBack = () => {
+    navigate(-1); // กลับไปยังหน้าก่อนหน้า
   };
+
   return (
-    <div className="p-6 text-center">
-      <h2 className="text-xl font-semibold mb-4">Awaiting Approval</h2>
-      <p className="text-gray-600">
-        Your account is pending approval by an administrator. You will be
-        notified once your role has been assigned.
-      </p>
-      <button onClick={handleLogout} className="mt-6 bg-gray-800 text-white px-4 py-2 rounded">
-        Logout
-      </button>
+    <div className="unknown-container">
+      <Result
+        status="404"
+        title="404 - ไม่พบหน้านี้"
+        subTitle="ขออภัย หน้าที่คุณพยายามเข้าถึงไม่มีอยู่จริงหรืออาจถูกย้ายไปแล้ว กรุณากลับไปยังหน้าก่อนหน้า"
+        extra={
+          <Button type="primary" onClick={handleBack}>
+            กลับไปหน้าก่อนหน้า
+          </Button>
+        }
+      />
     </div>
   );
 }

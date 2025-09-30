@@ -20,7 +20,7 @@ interface ThoughtRecordContextType {
   records: ThoughtRecordInterface[];
   loading: boolean;
   error: string | null;
-  fetchRecords: (filter?: ThoughtRecordFilter) => void;
+  fetchRecords: (sort?: "CreatedAt" | "UpdatedAt", order?: "asc" | "desc", filter?: ThoughtRecordFilter) => void;
   getRecordById: (id: number) => Promise<ThoughtRecordInterface | null>;
   createRecord: (data: ThoughtRecordInterface) => Promise<ThoughtRecordInterface | null>;
   updateRecord: (id: number, data: ThoughtRecordInterface) => Promise<boolean>;
@@ -36,32 +36,34 @@ export const ThoughtRecordProvider = ({ children }: { children: React.ReactNode 
 
   const { getTherapyCaseByPatient } = useTherapyCase();
 
- const fetchRecords = async (filter?: ThoughtRecordFilter) => {
-  setLoading(true);
-  try {
-    const patientId = Number(localStorage.getItem("id"));
-    if (!patientId) throw new Error("No patient id found in localStorage");
+  const fetchRecords = async (
+    sort: "CreatedAt" | "UpdatedAt" = "UpdatedAt",
+    order: "asc" | "desc" = "desc",
+    filter?: ThoughtRecordFilter
+  ) => {
+    setLoading(true);
+    try {
+      const patientId = Number(localStorage.getItem("id"));
+      if (!patientId) throw new Error("No patient id found in localStorage");
 
-    const therapyCase = await getTherapyCaseByPatient(patientId);
-    if (!therapyCase) throw new Error("No therapy case found for patient");
-    console.log("Fetched therapy case:", therapyCase);
+      const therapyCase = await getTherapyCaseByPatient(patientId);
+      if (!therapyCase) throw new Error("No therapy case found for patient");
+      console.log("Fetched therapy case:", therapyCase);
 
-    // ❌ เปลี่ยน id เป็น ID
-    const data = await GetThoughtRecords(patientId, therapyCase.ID!, "UpdatedAt", "desc", filter);
+      const data = await GetThoughtRecords(patientId, therapyCase.ID!, sort, order, filter);
 
-    const normalized = Array.isArray(data)
-      ? data.map((r: ThoughtRecordInterface) => ({ ...r, Emotions: r.Emotions || [] }))
-      : [];
-    setRecords(normalized);
-    setError(null);
-  } catch (e: any) {
-    setError(e.message || "Failed to fetch thought records");
-    setRecords([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+      const normalized = Array.isArray(data)
+        ? data.map((r: ThoughtRecordInterface) => ({ ...r, Emotions: r.Emotions || [] }))
+        : [];
+      setRecords(normalized);
+      setError(null);
+    } catch (e: any) {
+      setError(e.message || "Failed to fetch thought records");
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getRecordById = async (id: number): Promise<ThoughtRecordInterface | null> => {
     const res = await GetThoughtRecordById(id);

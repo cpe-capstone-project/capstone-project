@@ -39,6 +39,8 @@ func SetupDatabase() {
     SetuprequestData() 
     SetupInitialChecklist()
     SetupSituationTagDatabase()
+
+    SetupEmotionForDiaryDatabase()
     
     fmt.Println("Sample data has been added to the database.")
 }

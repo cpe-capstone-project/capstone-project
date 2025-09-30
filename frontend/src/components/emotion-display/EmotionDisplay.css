@@ -12,11 +12,27 @@
     }
     
     span {
+        display: inline-block;
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        display: inline-block;
         margin: 0 4px;
         border: 2px solid white;
+    }
+
+    .emotion-badge-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin: 0 4px;
+        border: 2px solid white;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        background-color: #BDBDBD;
     }
 }

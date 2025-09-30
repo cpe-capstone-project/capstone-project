@@ -12,6 +12,7 @@
   position: relative;
   overflow: hidden;
   padding: 24px;
+  margin-top: -85px;
 }
 
 .diary-summary-header {

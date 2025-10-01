@@ -1,12 +1,12 @@
 // components/thought_record-summary/ThoughtRecordSummary.tsx
 import React, { useMemo } from "react";
 import { Card, Typography, Row, Col, Progress, Tag, Space, Statistic, Divider } from "antd";
-import { 
-  BookOutlined, 
-  HeartOutlined, 
-  BarChartOutlined, 
-  SmileOutlined, 
-  FrownOutlined 
+import {
+    BookOutlined,
+    HeartOutlined,
+    BarChartOutlined,
+    SmileOutlined,
+    FrownOutlined
 } from "@ant-design/icons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import type { ThoughtRecordInterface } from "../../interfaces/IThoughtRecord";
@@ -62,7 +62,7 @@ function ThoughtRecordSummary({ records }: Props) {
     const emotionPieData = useMemo(() => {
         const freq: Record<string, { count: number; color: string }> = {};
         let totalEmotions = 0;
-        
+
         records.forEach((r) => {
             r.Emotions?.forEach((e) => {
                 const name = e.ThaiEmotionsname || e.Emotionsname;
@@ -72,7 +72,7 @@ function ThoughtRecordSummary({ records }: Props) {
                 totalEmotions++;
             });
         });
-        
+
         return Object.entries(freq)
             .sort((a, b) => b[1].count - a[1].count)
             .map(([name, { count, color }]) => ({
@@ -86,18 +86,18 @@ function ThoughtRecordSummary({ records }: Props) {
     // Custom label function for pie chart
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
         if (percent < 0.05) return null; // ไม่แสดง label ถ้าน้อยกว่า 5%
-        
+
         const RADIAN = Math.PI / 180;
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
         return (
-            <text 
-                x={x} 
-                y={y} 
-                fill="white" 
-                textAnchor={x > cx ? 'start' : 'end'} 
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? 'start' : 'end'}
                 dominantBaseline="central"
                 fontSize={11}
                 fontWeight="bold"
@@ -112,7 +112,7 @@ function ThoughtRecordSummary({ records }: Props) {
         const freq: Record<string, { count: number; color: string }> = {};
         records.forEach((r) => {
             if (!r.SituationTag?.Name) return;
-            const hasPositive = r.Emotions?.some((e) => 
+            const hasPositive = r.Emotions?.some((e) =>
                 (e.Category?.trim().toLowerCase() || "") === "positiveemotions"
             );
             if (hasPositive) {
@@ -133,7 +133,7 @@ function ThoughtRecordSummary({ records }: Props) {
         const freq: Record<string, { count: number; color: string }> = {};
         records.forEach((r) => {
             if (!r.SituationTag?.Name) return;
-            const hasNegative = r.Emotions?.some((e) => 
+            const hasNegative = r.Emotions?.some((e) =>
                 (e.Category?.trim().toLowerCase() || "") === "negativeemotions"
             );
             if (hasNegative) {
@@ -157,12 +157,12 @@ function ThoughtRecordSummary({ records }: Props) {
                         <BarChartOutlined style={{ marginRight: 8 }} />
                         สรุปภาพรวมบันทึกความคิด
                     </Title>
-                
+
                 </>
             }
-            style={{ 
-                marginBottom: 24, 
-                borderRadius: 16, 
+            style={{
+                marginBottom: 24,
+                borderRadius: 16,
                 boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
                 border: "1px solid #f0f0f0"
             }}
@@ -170,11 +170,11 @@ function ThoughtRecordSummary({ records }: Props) {
             {/* แถวที่ 1: สถิติพื้นฐาน */}
             <Row gutter={[24, 24]}>
                 <Col xs={24} sm={12} lg={8}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
-                            background: "linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%)", 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
+                            background: "linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%)",
                             borderRadius: 12,
                             textAlign: "center"
                         }}
@@ -194,12 +194,12 @@ function ThoughtRecordSummary({ records }: Props) {
                 </Col>
 
                 <Col xs={24} sm={12} lg={16}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
-                            background: "linear-gradient(135deg, #fff2e8 0%, #ffd8bf 100%)", 
-                            borderRadius: 12 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
+                            background: "linear-gradient(135deg, #fff2e8 0%, #ffd8bf 100%)",
+                            borderRadius: 12
                         }}
                     >
                         <Space direction="vertical" style={{ width: "100%" }}>
@@ -210,11 +210,11 @@ function ThoughtRecordSummary({ records }: Props) {
                             <Space wrap size={[8, 8]}>
                                 {topEmotions.length > 0 ? (
                                     topEmotions.map(([name, { color, count }], index) => (
-                                        <Tag 
-                                            key={name} 
+                                        <Tag
+                                            key={name}
                                             color={color}
-                                            style={{ 
-                                                fontSize: 14, 
+                                            style={{
+                                                fontSize: 14,
                                                 padding: "4px 12px",
                                                 borderRadius: 20,
                                                 fontWeight: index === 0 ? "bold" : "normal"
@@ -235,19 +235,19 @@ function ThoughtRecordSummary({ records }: Props) {
             {/* แถวที่ 2: สัดส่วนอารมณ์ + Pie chart */}
             <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
                 <Col xs={24} lg={12}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
-                            borderRadius: 12, 
-                            background: "#fafafa", 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
+                            borderRadius: 12,
+                            background: "#fafafa",
                             height: "100%"
                         }}
                         bodyStyle={{ padding: "16px" }}
                     >
                         <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
                             <Text strong style={{ fontSize: 16, marginBottom: 30 }}>สัดส่วนอารมณ์ในการบันทึก</Text>
-                            
+
                             {/* แสดงผลเปอร์เซ็นต์และจำนวน */}
                             <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                                 <Row gutter={[12, 16]}>
@@ -278,20 +278,19 @@ function ThoughtRecordSummary({ records }: Props) {
                                         </div>
                                     </Col>
                                 </Row>
-                                
+
                                 {/* Progress bar */}
                                 <div style={{ marginTop: 26 }}>
                                     <Progress
                                         percent={emotionRatio.percent.pos}
-                                        success={{ percent: emotionRatio.percent.neg }}
                                         strokeColor="#52c41a"
                                         trailColor="#ff4d4f"
                                         showInfo={false}
                                         strokeWidth={10}
                                     />
-                                    <div style={{ 
-                                        display: "flex", 
-                                        justifyContent: "space-between", 
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
                                         marginTop: 4,
                                         fontSize: 12,
                                         color: "#666"
@@ -306,12 +305,12 @@ function ThoughtRecordSummary({ records }: Props) {
                 </Col>
 
                 <Col xs={24} lg={12}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
-                            borderRadius: 12, 
-                            background: "#fafafa", 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
+                            borderRadius: 12,
+                            background: "#fafafa",
                             height: "100%"
                         }}
                         bodyStyle={{ padding: "16px" }}
@@ -336,14 +335,14 @@ function ThoughtRecordSummary({ records }: Props) {
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip 
+                                            <Tooltip
                                                 formatter={(value: any, name: any, props: any) => [
-                                                    `${value} ครั้ง (${props.payload.percentage}%)`, 
+                                                    `${value} ครั้ง (${props.payload.percentage}%)`,
                                                     name
                                                 ]}
                                                 labelFormatter={(name) => `อารมณ์: ${name}`}
                                             />
-                                            <Legend 
+                                            <Legend
                                                 formatter={(value) => (
                                                     <span style={{ fontSize: 11 }}>{value}</span>
                                                 )}
@@ -352,11 +351,11 @@ function ThoughtRecordSummary({ records }: Props) {
                                     </ResponsiveContainer>
                                 </div>
                             ) : (
-                                <div style={{ 
+                                <div style={{
                                     height: 220,
-                                    display: "flex", 
-                                    alignItems: "center", 
-                                    justifyContent: "center" 
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center"
                                 }}>
                                     <Text type="secondary" style={{ fontSize: 13 }}>
                                         ยังไม่มีข้อมูลอารมณ์
@@ -371,10 +370,10 @@ function ThoughtRecordSummary({ records }: Props) {
             {/* แถวที่ 3: สถานการณ์ที่ส่งผลต่ออารมณ์ */}
             <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
                 <Col xs={24} lg={12}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
                             borderRadius: 12,
                             background: "linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%)",
                             height: "100%"
@@ -390,10 +389,10 @@ function ThoughtRecordSummary({ records }: Props) {
                             <Space wrap size={[8, 8]} style={{ marginTop: 8 }}>
                                 {topPositiveSituations.length > 0 ? (
                                     topPositiveSituations.map(([name, { color, count }], index) => (
-                                        <Tag 
-                                            key={name} 
+                                        <Tag
+                                            key={name}
                                             color={color}
-                                            style={{ 
+                                            style={{
                                                 fontSize: 13,
                                                 padding: "4px 10px",
                                                 borderRadius: 16,
@@ -412,10 +411,10 @@ function ThoughtRecordSummary({ records }: Props) {
                 </Col>
 
                 <Col xs={24} lg={12}>
-                    <Card 
-                        size="small" 
-                        bordered={false} 
-                        style={{ 
+                    <Card
+                        size="small"
+                        bordered={false}
+                        style={{
                             borderRadius: 12,
                             background: "linear-gradient(135deg, #fff2f0 0%, #ffccc7 100%)",
                             height: "100%"
@@ -431,10 +430,10 @@ function ThoughtRecordSummary({ records }: Props) {
                             <Space wrap size={[8, 8]} style={{ marginTop: 8 }}>
                                 {topNegativeSituations.length > 0 ? (
                                     topNegativeSituations.map(([name, { color, count }], index) => (
-                                        <Tag 
-                                            key={name} 
+                                        <Tag
+                                            key={name}
                                             color={color}
-                                            style={{ 
+                                            style={{
                                                 fontSize: 13,
                                                 padding: "4px 10px",
                                                 borderRadius: 16,

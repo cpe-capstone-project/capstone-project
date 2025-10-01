@@ -910,8 +910,8 @@ func createEmotionAnalysisFromThoughtRecord(thoughtRecordID uint) (*entity.Emoti
 		return nil, fmt.Errorf("thought record not found")
 	}
 
-	// Combine AlternateThought and Behaviors text
-	combinedText := combineThoughtRecordText(thoughtRecord.AlternateThought, thoughtRecord.Behaviors)
+	// Combine Thoughts and Behaviors text
+	combinedText := combineThoughtRecordText(thoughtRecord.Thoughts, thoughtRecord.Behaviors)
 	if combinedText == "" {
 		return nil, fmt.Errorf("thought record has no content")
 	}
@@ -937,13 +937,13 @@ func createEmotionAnalysisFromThoughtRecord(thoughtRecordID uint) (*entity.Emoti
 	return &emotionAnalysis, nil
 }
 
-// Helper function to combine AlternateThought and Behaviors text
-func combineThoughtRecordText(alternateThought, behaviors string) string {
+// Helper function to combine Thoughts and Behaviors text
+func combineThoughtRecordText(Thoughts, behaviors string) string {
 	var combinedParts []string
 	
-	// Add AlternateThought if not empty
-	if strings.TrimSpace(alternateThought) != "" {
-		combinedParts = append(combinedParts, strings.TrimSpace(alternateThought))
+	// Add Thoughts if not empty
+	if strings.TrimSpace(Thoughts) != "" {
+		combinedParts = append(combinedParts, strings.TrimSpace(Thoughts))
 	}
 	
 	// Add Behaviors if not empty

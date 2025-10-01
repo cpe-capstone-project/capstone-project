@@ -11,18 +11,10 @@ func SetupEmotionDatabase(){
 	   &entity.EmotionAnalysisResults{},
 	   &entity.SubEmotionAnalysis{},
    	)
-	// EmotionsPositive := &entity.Emotions{
-	// 	Emotionsname:	"positive",
-	// 	Category:		"sentiment",
-
-   	// }
-	// EmotionsNegative := &entity.Emotions{
-	// 	Emotionsname:	"negative",
-	// 	Category:		"sentiment",
-   	// }
 	EmotionsNeutral := &entity.Emotions{
 		Emotionsname:	"neutral",
-		Category:		"sentiment",
+		Category:		"NeutralEmotions",
+		ThaiEmotionsname:	"อารมณ์กลางๆ",
 		EmotionsColor:	"#c3c3c3ff",
    	}
 	EmotionsAdmiration := &entity.Emotions{
@@ -51,7 +43,7 @@ func SetupEmotionDatabase(){
    	}
 	EmotionsCuriosity := &entity.Emotions{
 		Emotionsname:	"curiosity",
-		Category:		"PositiveEmotions",
+		Category:		"NeutralEmotions",
 		ThaiEmotionsname:	"รู้สึกอยากรู้อยากเห็น",
 		EmotionsColor:	"#40E0D0",
    	}
@@ -93,7 +85,7 @@ func SetupEmotionDatabase(){
    	}
 	EmotionsRealization := &entity.Emotions{
 		Emotionsname:	"realization",
-		Category:		"PositiveEmotions",
+		Category:		"NeutralEmotions",
 		ThaiEmotionsname:	"ตระหนักได้",
 		EmotionsColor:	"#f7b900ff",
    	}
@@ -123,7 +115,7 @@ func SetupEmotionDatabase(){
    	}
 	EmotionsConfusion := &entity.Emotions{
 		Emotionsname:	"confusion",
-		Category:		"NegativeEmotions",
+		Category:		"NeutralEmotions",
 		ThaiEmotionsname:	"รู้สึกสับสน",
 		EmotionsColor:	"#8700f6ff",
    	}
@@ -182,11 +174,13 @@ func SetupEmotionDatabase(){
 		ThaiEmotionsname:	"รู้สึกเศร้า",
 		EmotionsColor:	"#4682B4",
    	}
-	
-   	// db.FirstOrCreate(&EmotionsPositive, &entity.Emotions{Emotionsname: "positive"})
-   	// db.FirstOrCreate(&EmotionsNegative, &entity.Emotions{Emotionsname: "negative"})
+	EmotionsSurprise := &entity.Emotions{
+		Emotionsname:	"surprise",
+		ThaiEmotionsname:	"รู้สึกเซอร์ไพรส์",
+		Category:		"NeutralEmotions",
+		EmotionsColor:	"#f87a0cff",
+   	}
 	db.FirstOrCreate(&EmotionsNeutral, &entity.Emotions{Emotionsname: "neutral"})
-
 	db.FirstOrCreate(&EmotionsAdmiration, &entity.Emotions{Emotionsname: "admiration"})
    	db.FirstOrCreate(&EmotionsAmusement, &entity.Emotions{Emotionsname: "amusement"})
 	db.FirstOrCreate(&EmotionsApproval, &entity.Emotions{Emotionsname: "approval"})
@@ -201,7 +195,6 @@ func SetupEmotionDatabase(){
 	db.FirstOrCreate(&EmotionsRealization, &entity.Emotions{Emotionsname: "realization"})
 	db.FirstOrCreate(&EmotionsPride, &entity.Emotions{Emotionsname: "pride"})
 	db.FirstOrCreate(&EmotionsRelief, &entity.Emotions{Emotionsname: "relief"})
-
 	db.FirstOrCreate(&EmotionsAnger, &entity.Emotions{Emotionsname: "anger"})
 	db.FirstOrCreate(&EmotionsAnnoyance, &entity.Emotions{Emotionsname: "annoyance"})
 	db.FirstOrCreate(&EmotionsConfusion, &entity.Emotions{Emotionsname: "confusion"})
@@ -214,6 +207,7 @@ func SetupEmotionDatabase(){
 	db.FirstOrCreate(&EmotionsNervousness, &entity.Emotions{Emotionsname: "nervousness"})
 	db.FirstOrCreate(&EmotionsRemorse, &entity.Emotions{Emotionsname: "remorse"})
 	db.FirstOrCreate(&Emotionssadness, &entity.Emotions{Emotionsname: "sadness"})
+	db.FirstOrCreate(&EmotionsSurprise, &entity.Emotions{Emotionsname: "surprise"})
 	utcPlus7 := time.FixedZone("UTC+7", 7*60*60)
 	// timetestlayout := time.Date(2025, 8, 23, 12, 00, 0, 0, utcPlus7)
 	// EmotionsAnalysisHappy01 := &entity.EmotionAnalysisResults{

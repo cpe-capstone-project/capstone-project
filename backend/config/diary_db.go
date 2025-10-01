@@ -144,6 +144,46 @@ func SetupDiaryDatabase() {
 			Confirmed:     true,
 			TherapyCaseID: 2,
 		},
+		{
+			Title:         "วันที่อยากพักบ้าง",
+			Content:       `<p>วันนี้เป็นวันที่รู้สึกเหนื่อย ๆ อยากหยุดพักจากทุกสิ่ง แม้ไม่ได้มีเหตุผลชัดเจน แต่ใจมันอ่อนล้า เหมือนอยากให้เวลาหมุนช้าลงสักหน่อย...</p>`,
+			UpdatedAt:     time.Date(2568-543, 9, 28, 10, 30, 0, 0, time.Local), // 28/9/2568
+			TagColor1:     "#FF5722",
+			TagColor2:     "#FF8A65",
+			TagColor3:     "#FFCCBC",
+			Confirmed:     true,
+			TherapyCaseID: 1,
+		},
+		{
+			Title:         "วันที่ท้องฟ้าโปร่ง",
+			Content:       `<p>อากาศสดใส แดดแรงแต่ไม่ร้อนจนเกินไป เหมือนกับใจที่เบาขึ้นหลังจากได้พักผ่อนเมื่อคืน รู้สึกว่ามีแรงกลับมาสู้ต่ออีกครั้ง</p>`,
+			UpdatedAt:     time.Date(2568-543, 9, 30, 8, 45, 0, 0, time.Local), // 30/9/2568
+			TagColor1:     "#03A9F4",
+			TagColor2:     "#4FC3F7",
+			TagColor3:     "#B3E5FC",
+			Confirmed:     true,
+			TherapyCaseID: 1,
+		},
+		{
+			Title:         "วันที่เงียบสงบ",
+			Content:       `<p>วันนี้ไม่มีเหตุการณ์อะไรพิเศษ แต่ก็ไม่รู้สึกว่างเปล่า ความเงียบสงบนี้กลับทำให้ใจค่อย ๆ ได้ยินเสียงของตัวเองมากขึ้น</p>`,
+			UpdatedAt:     time.Date(2568-543, 10, 2, 19, 15, 0, 0, time.Local), // 2/10/2568
+			TagColor1:     "#9C27B0",
+			TagColor2:     "#BA68C8",
+			TagColor3:     "#E1BEE7",
+			Confirmed:     true,
+			TherapyCaseID: 1,
+		},
+		{
+			Title:         "วันที่ก้าวข้ามความกลัวเล็ก ๆ",
+			Content:       `<p>วันนี้ได้ลองทำสิ่งที่เคยลังเลอยู่หลายครั้ง แม้จะเป็นก้าวเล็ก ๆ แต่ก็รู้สึกเหมือนตัวเองเริ่มแข็งแรงขึ้นนิดหน่อย</p>`,
+			UpdatedAt:     time.Date(2568-543, 10, 4, 14, 0, 0, 0, time.Local), // 4/10/2568
+			TagColor1:     "#4CAF50",
+			TagColor2:     "#81C784",
+			TagColor3:     "#A5D6A7",
+			Confirmed:     true,
+			TherapyCaseID: 1,
+		},
 	}
 	for d := range diaries {
 		db.FirstOrCreate(&diaries[d], entity.Diaries{Title: diaries[d].Title})

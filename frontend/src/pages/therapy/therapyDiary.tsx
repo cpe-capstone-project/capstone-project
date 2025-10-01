@@ -116,6 +116,7 @@ export default function DiaryList() {
       .catch((err) => console.error("Error fetching diaries:", err))
       .finally(() => setLoading(false));
   }, [id]);
+  console.log("ee: ", diaries)
   // กรอง Diary ตาม batchPeriod และ selectedFeedbackTimeID
   useEffect(() => {
     const now = new Date();
@@ -526,12 +527,13 @@ export default function DiaryList() {
 
                 {/* Diaries Grid */}
                 <div className="!p-8">
-                  <div className="!grid !grid-cols-1 lg:!grid-cols-2 xl:!grid-cols-3 !gap-6">
+                  <div className="!grid !grid-cols-1 lg:!grid-cols-2 xl:!grid-cols-3 !gap-6 !items-stretch">
                     {filteredTimeDiaries.map((diary, index) => (
-
                       <div
                         key={diary.ID}
-                        className="!relative !bg-gradient-to-br !from-white !to-gray-50 !border !border-gray-200 !rounded-2xl !p-6 hover:!shadow-lg hover:!border-blue-200 !transition-all !duration-300"
+                        className="!relative !bg-gradient-to-br !from-white !to-gray-50 !border !border-gray-200 
+                 !rounded-2xl !p-6 hover:!shadow-lg hover:!border-blue-200 !transition-all !duration-300 
+                 !h-full !flex !flex-col"
                       >
                         {isSelecting && (
                           <div className="!absolute !top-3 !right-3">
@@ -569,17 +571,21 @@ export default function DiaryList() {
                         <div className="!flex !items-center !text-m !font-semibold !text-gray-900 !space-x-4 ">
                           <span>ผลการวิเคราะห์อารมณ์</span>
                         </div>
-                        <div className="!mb-1 !h-15">
+                        <div className="mb-4 h-24 overflow-y-auto">
                           {diary.EmotionAnalysisResults?.map((result, index) => (
-                            <p
-                              key={index}
-                              className="!text-gray-700 !line-clamp-3 !text-sm !leading-relaxed"
-                            >
-                              - {result.PrimaryEmotion}
-                            </p>
+                            <div key={index}>
+                              {result.SubEmotionAnalysis?.map((sub, subIndex) => (
+                                <p
+                                  key={subIndex}
+                                  className="text-gray-700 text-sm leading-relaxed"
+                                >
+                                  - {sub.emotions?.Emotionsname}
+                                </p>
+                              ))}
+                            </div>
                           ))}
                         </div>
-                        <div className="!flex !items-center !justify-between !pt-1 !border-t !border-gray-100">
+                        <div className="!flex !items-center !justify-between !pt-1 !border-t !border-gray-100 !mt-2">
                           <div className="!flex !items-center !text-xs !text-gray-500 !space-x-4">
                             <span>{diary.Content?.length || 0} ตัวอักษร</span>
                           </div>
@@ -675,34 +681,43 @@ export default function DiaryList() {
           width={500}
           bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }}
         >
-          <div className="!space-y-4">
+          <div className="space-y-4">
             {/* วันที่สร้าง */}
-            <div className="!text-sm !text-gray-500 !flex !items-center !gap-1">
-              <Clock className="!h-4 !w-4" />
-              <span>{readingDiary ? new Date(readingDiary.CreatedAt!).toLocaleString("th-TH") : ""}</span>
+            <div className="text-sm text-gray-500 flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>
+                {readingDiary
+                  ? new Date(readingDiary.CreatedAt!).toLocaleString("th-TH")
+                  : ""}
+              </span>
             </div>
 
             {/* เนื้อหา Diary */}
             <div
-              className="!prose !max-w-none !text-gray-800"
+              className="prose max-w-none text-gray-800"
               dangerouslySetInnerHTML={{ __html: readingDiary?.Content || "<p>ไม่มีเนื้อหา</p>" }}
             />
 
             {/* ผลการวิเคราะห์อารมณ์ */}
             {readingDiary?.EmotionAnalysisResults && readingDiary.EmotionAnalysisResults.length > 0 && (
-              <div className="!mt-4">
-                <h3 className="!font-semibold !text-gray-900 !mb-2">ผลการวิเคราะห์อารมณ์</h3>
-                <ul className="!list-disc !list-inside !text-gray-700 !text-sm !space-y-1">
-                  {readingDiary.EmotionAnalysisResults.map((result, index) => (
-                    <li key={index}>
-                      {result.PrimaryEmotion}
-                    </li>
-                  ))}
+              <div className="mt-4">
+                <h3 className="font-semibold text-gray-900 mb-2">ผลการวิเคราะห์อารมณ์</h3>
+
+                {/* แสดง SubEmotionAnalysis */}
+                <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 max-h-40 overflow-y-auto">
+                  {readingDiary.EmotionAnalysisResults.map((result, index) =>
+                    result.SubEmotionAnalysis?.map((sub, subIndex) => (
+                      <li key={`${index}-${subIndex}`}>
+                        {sub.emotions?.Emotionsname || "-"}
+                      </li>
+                    ))
+                  )}
                 </ul>
               </div>
             )}
           </div>
         </Modal>
+
       </div>
       <Modal
         title="ยืนยันการส่ง Feedback"

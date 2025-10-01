@@ -71,8 +71,8 @@ const PatientsDashboard: React.FC = () => {
     if (!emotion || emotion.trim() === "" || emotion === "null") {
       return {
         color: "ยังไม่ได้วิเคราะห์อารมณ์",
-        bgColor: "#f8f9fa",
-        borderColor: "#6c757d",
+        bgColor: "#000000",
+        borderColor: "#000000",
         isAnalyzed: false,
       };
     }
@@ -92,7 +92,7 @@ const PatientsDashboard: React.FC = () => {
 
     return {
       color: found.thai_emotions_name || found.emotions_name,
-      bgColor: found.emotion_color, // หรือจะคำนวณสีพื้นหลังให้อ่อนลงก็ได้
+      bgColor: found.emotion_color, 
       borderColor: found.emotion_color,
       isAnalyzed: true,
     };
@@ -247,7 +247,9 @@ const PatientsDashboard: React.FC = () => {
                     backgroundColor: emotionStyle.bgColor,
                     borderColor: emotionStyle.borderColor,
                     color: emotionStyle.borderColor
-                  } : {}}
+                  } : {backgroundColor: "#000000ff",   // สีพื้นหลัง (ถ้าต้องการ)
+                      borderColor: "#000000ff",       // สีขอบ (ถ้าต้องการ)
+                      color: "black"}}
                 >
                   {emotionStyle.color}
                 </div>

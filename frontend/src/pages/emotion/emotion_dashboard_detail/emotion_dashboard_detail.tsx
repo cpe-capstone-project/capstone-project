@@ -555,7 +555,7 @@ const EmotionAnalyzeDashboardDetail: React.FC = () => {
 
           {/* Emotion Analysis Section */}
           <div className="analysis-card">
-            <h3 className="analysis-title">อารมณ์การวิเคราะห์รายวัน</h3>
+            <h3 className="analysis-title">ข้อมูลอารมณ์รายวันของ{mode === 1 ? 'ไดอารี่' : 'thought record'}</h3>
             
             {/* Updated Date Display with Calendar Icon */}
             <div className="analysis-date-container">
@@ -698,15 +698,16 @@ const EmotionAnalyzeDashboardDetail: React.FC = () => {
                   {(() => {
                     const positiveEmotions = pieChartData.filter(item => 
                       item.category.toLowerCase().includes('positive') || 
-                      ['joy', 'excitement', 'pride', 'love', 'approval', 'gratitude', 'admiration', 'amusement', 'caring', 'curiosity', 'desire', 'optimism', 'relief'].includes(item.name.toLowerCase())
+                      ['joy', 'excitement', 'pride', 'love', 'approval', 'gratitude', 'admiration', 'amusement', 'caring', 'desire', 'optimism', 'relief'].includes(item.name.toLowerCase())
                     );
                     const negativeEmotions = pieChartData.filter(item => 
                       item.category.toLowerCase().includes('negative') || 
                       ['sadness', 'anger', 'disappointment', 'fear', 'nervousness', 'annoyance', 'embarrassment', 'disgust', 'grief', 'remorse'].includes(item.name.toLowerCase())
                     );
                     const neutralEmotions = pieChartData.filter(item => 
-                      item.category.toLowerCase().includes('sentiment') || 
-                      item.name.toLowerCase() === 'neutral'
+                      item.category.toLowerCase().includes('neutral') || 
+                      // item.name.toLowerCase() === 'neutral'
+                      ['curiosity','neutral','realization','confusion','surprise'].includes(item.name.toLowerCase())
                     );
                     
                     return (
@@ -877,7 +878,7 @@ const EmotionAnalyzeDashboardDetail: React.FC = () => {
       {/* Sub Emotion Weekly Chart Section */}
       <div className="sub-emotion-chart-section">
         <div className="sub-emotion-header">
-          <h3>กราฟแสดงอารมณ์รายสัปดาห์</h3>
+          <h3>กราฟแสดงอารมณ์ทั้งหมด</h3>
           <div className="sub-emotion-period">
             {getDateRangeDisplay()}
           </div>
@@ -885,7 +886,7 @@ const EmotionAnalyzeDashboardDetail: React.FC = () => {
 
         <div className="sub-emotion-content">
           {subEmotionLoading ? (
-            <div className="chart-loading">กำลังโหลดข้อมูลกราฟรายสัปดาห์...</div>
+            <div className="chart-loading">กำลังโหลดข้อมูลกราฟรายอารมณ์ทั้งหมด...</div>
           ) : subEmotionData && subEmotionData.length > 0 ? (
             <div className="vertical-bars-container">
               <div className="vertical-bars-wrapper">

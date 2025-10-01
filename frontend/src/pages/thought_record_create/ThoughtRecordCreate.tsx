@@ -345,7 +345,7 @@ function ThoughtRecordCreate() {
                       label={
                         <Space>
                           <TagsOutlined style={{ color: "#3b82f6" }} />
-                          <span>Tag</span>
+                          <span>Tag สถานการณ์</span>
                         </Space>
                       }
                       name="SituationTagID"
@@ -431,7 +431,7 @@ function ThoughtRecordCreate() {
                     </Checkbox>
                     {useAiAnalysis && (
                       <Alert
-                        message="AI จะวิเคราะห์อารมณ์จากเนื้อหาในช่อง 'ความคิดทางเลือก' และ 'พฤติกรรม' ของคุณ"
+                        message="AI จะวิเคราะห์อารมณ์จากเนื้อหาในช่อง 'ความคิด' และ 'พฤติกรรม' ของคุณ"
                         type="info"
                         showIcon
                         style={{ marginTop: 8 }}

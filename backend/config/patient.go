@@ -47,6 +47,7 @@ func SetupPatientDatabase() {
 	   Image: 		"https://static.vecteezy.com/system/resources/previews/002/275/847/original/male-avatar-profile-icon-of-smiling-caucasian-man-vector.jpg",
        GenderID:  	1,
        RoleID: 		3,
+	   PsychologistID: 1,
    	}
     db.FirstOrCreate(Patients, &entity.Patients{Email: "pattest@gmail.com",})
 
@@ -63,6 +64,7 @@ func SetupPatientDatabase() {
 	   Image: 		"https://static.vecteezy.com/system/resources/previews/002/275/847/original/male-avatar-profile-icon-of-smiling-caucasian-man-vector.jpg",
        GenderID:  	2,
        RoleID: 		3,
+	   PsychologistID: 1,
    	}
     db.FirstOrCreate(Psychologists, &entity.Patients{Email: "psytest@gmail.com",})
 
@@ -77,6 +79,7 @@ func SetupPatientDatabase() {
 	Image:     "https://example.com/avatar-other.jpg",
 	GenderID:  3,              // ✅ เพศ Other
 	RoleID:    3,              // Patient
+	PsychologistID: 1,
 }
     db.FirstOrCreate(PatientOther, &entity.Patients{Email: "otheruser@gmail.com"})
 

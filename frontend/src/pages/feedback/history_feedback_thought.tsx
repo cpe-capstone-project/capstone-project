@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Clock, User, History, Calendar, FileText } from "lucide-react";
+import { ArrowLeft, MessageSquare, User, History, Calendar, FileText } from "lucide-react";
 import { GetFeedbackByThoughtID } from "../../services/https/Feedback";
 import { GetThoughtRecordById } from "../../services/https/ThoughtRecord";
 import type { FeedBackInterface } from "../../interfaces/IFeedback";
@@ -73,10 +73,10 @@ export default function FeedbackHistoryThought() {
                     <History className="!h-10 !w-10 !text-white" />
                 </div>
                 <h1 className="!text-4xl !font-bold !text-gray-900 !mb-2">
-                    Feedback ของ Diary: {thought?.Situation || "ไม่ระบุชื่อ"}
+                    Feedback ของ Thought: {thought?.Situation || "ไม่ระบุชื่อ"}
                 </h1>
                 <p className="!text-gray-600 !text-lg !max-w-2xl !mx-auto">
-                    ประวัติทั้งหมดของ Diary: {thought?.Situation || "ไม่ระบุชื่อ"}
+                    ประวัติทั้งหมดของ Thought: {thought?.Situation || "ไม่ระบุชื่อ"}
                 </p>
             </div>
             {/* Summary Card */}
@@ -138,7 +138,7 @@ export default function FeedbackHistoryThought() {
                                 </div>
 
                                 {/* Metadata Grid */}
-                                <div className="!grid !grid-cols-1 md:!grid-cols-3 !gap-3 !text-sm">
+                                <div className="!grid !grid-cols-1 md:!grid-cols-2 !gap-2 !text-sm">
                                     {/* Psychologist */}
                                     {fb.Psychologist && (
                                         <div className="!flex !items-center !gap-2 !p-2 !bg-green-50 !rounded">
@@ -160,19 +160,6 @@ export default function FeedbackHistoryThought() {
                                                 <span className="!text-gray-600">ผู้ป่วย:</span>
                                                 <span className="!font-medium !text-purple-700 !ml-1">
                                                     {fb.Patient.FirstName || "ไม่ระบุชื่อ"}{" "}{fb.Patient.LastName || "ไม่ระบุชื่อ"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Feedback Time */}
-                                    {fb.FeedbackTime && (
-                                        <div className="!flex !items-center !gap-2 !p-2 !bg-orange-50 !rounded">
-                                            <Clock className="!h-4 !w-4 !text-orange-600 !flex-shrink-0" />
-                                            <div>
-                                                <span className="!text-gray-600">ประเภท:</span>
-                                                <span className="!font-medium !text-orange-700 !ml-1">
-                                                    {fb.FeedbackTime.FeedbackTimeName || "ไม่ระบุเวลา"}
                                                 </span>
                                             </div>
                                         </div>

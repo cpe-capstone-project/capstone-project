@@ -12,7 +12,7 @@ const PatientFeedback: React.FC = () => {
     const [diaryFeedbacks, setDiaryFeedbacks] = useState<any[]>([]);
     const [thoughtFeedbacks, setThoughtFeedbacks] = useState<any[]>([]);
     const [feedbackTimes, setFeedbackTimes] = useState<string[]>([]);
-    const patientId = 1;
+    const patientId = Number(localStorage.getItem("patient_id"));
 
     useEffect(() => {
         const fetchData = async () => {

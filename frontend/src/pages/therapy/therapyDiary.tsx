@@ -43,7 +43,7 @@ export default function DiaryList() {
   const filterDiariesByTime = (diaries: DiaryInterface[]) => {
     const now = new Date();
     return diaries.filter(diary => {
-      const created = new Date(diary.CreatedAt || "");
+      const created = new Date(diary.UpdatedAt || "");
       if (selectedTimeFilter === "all") return true;
       if (selectedTimeFilter === "day") return created.toDateString() === now.toDateString();
       if (selectedTimeFilter === "week") {
@@ -60,18 +60,10 @@ export default function DiaryList() {
 
   const filteredTimeDiaries = filterDiariesByTime(diaries);
   const now = new Date();
-  // วันนี้
-  const today = now.toLocaleDateString("th-TH");
-  // สัปดาห์นี้ (Sunday – Saturday)
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate() - now.getDay()); // วันอาทิตย์
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6); // วันเสาร์
-  const weekRange = `${weekStart.toLocaleDateString("th-TH")} - ${weekEnd.toLocaleDateString("th-TH")}`;
-  // เดือนนี้
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const monthRange = `${monthStart.toLocaleDateString("th-TH")} - ${monthEnd.toLocaleDateString("th-TH")}`;
 
   // ฟังก์ชัน toggle เลือก/ยกเลิกเลือก diary
   const handleSelectDiary = (id: number) => {
@@ -121,8 +113,8 @@ export default function DiaryList() {
   useEffect(() => {
     const now = new Date();
     const filtered = diaries.filter((d) => {
-      if (!d.CreatedAt) return false;
-      const diaryDate = new Date(d.CreatedAt);
+      if (!d.UpdatedAt) return false;
+      const diaryDate = new Date(d.UpdatedAt);
       if (!selectedFeedbackTimeID) return true; // ถ้าไม่มีเลือก feedbackTime แสดงทั้งหมด
 
       switch (selectedFeedbackTimeID) {
@@ -247,8 +239,8 @@ export default function DiaryList() {
   // --- helper ฟังก์ชัน grouping ---
   const groupDiariesByDate = (diaries: DiaryInterface[]) => {
     return diaries.reduce((groups: Record<string, DiaryInterface[]>, diary) => {
-      if (!diary.CreatedAt) return groups;
-      const date = new Date(diary.CreatedAt).toLocaleDateString("th-TH", {
+      if (!diary.UpdatedAt) return groups;
+      const date = new Date(diary.UpdatedAt).toLocaleDateString("th-TH", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -473,7 +465,7 @@ export default function DiaryList() {
           </div>
         ) : (
           <div ref={diariesGridRef} className="!space-y-8">
-            {Object.entries(groupDiariesByDate(diaries)).map(([date]) => (
+            {Object.entries(groupDiariesByDate(filteredTimeDiaries)).map(([date, diariesForDate]) => (
               <div key={date} className="!bg-white !rounded-2xl !shadow-sm !border !border-gray-100 !overflow-hidden">
                 {/* Date Header */}
                 <div className="!bg-gradient-to-r !from-gray-50 !to-gray-100 !px-8 !py-6 !border-b !border-gray-200">
@@ -483,18 +475,7 @@ export default function DiaryList() {
                     </div>
                     <div>
                       <h2 className="!text-xl !font-bold !text-gray-900">
-                        {(() => {
-                          switch (selectedTimeFilter) {
-                            case "day":
-                              return `วันนี้ (${today})`;
-                            case "week":
-                              return `สัปดาห์นี้ (${weekRange})`;
-                            case "month":
-                              return `เดือนนี้ (${monthRange})`;
-                            default:
-                              return `ทั้งหมด`;
-                          }
-                        })()}
+                          {date}
                       </h2>
                       <p className="!text-gray-600">{filteredTimeDiaries.length} รายการ</p>
                     </div>
@@ -528,7 +509,7 @@ export default function DiaryList() {
                 {/* Diaries Grid */}
                 <div className="!p-8">
                   <div className="!grid !grid-cols-1 lg:!grid-cols-2 xl:!grid-cols-3 !gap-6 !items-stretch">
-                    {filteredTimeDiaries.map((diary, index) => (
+                    {diariesForDate.map((diary, index) => (
                       <div
                         key={diary.ID}
                         className="!relative !bg-gradient-to-br !from-white !to-gray-50 !border !border-gray-200 
@@ -556,7 +537,7 @@ export default function DiaryList() {
                               </h3>
                               <div className="!flex !items-center !text-sm !text-gray-500 !space-x-2">
                                 <Clock className="!h-4 !w-4" />
-                                <span>{diary ? new Date(diary.CreatedAt!).toLocaleString("th-TH") : ""}</span>
+                                <span>{diary ? new Date(diary.UpdatedAt!).toLocaleString("th-TH") : ""}</span>
                               </div>
                             </div>
                           </div>
@@ -687,7 +668,7 @@ export default function DiaryList() {
               <Clock className="h-4 w-4" />
               <span>
                 {readingDiary
-                  ? new Date(readingDiary.CreatedAt!).toLocaleString("th-TH")
+                  ? new Date(readingDiary.UpdatedAt!).toLocaleString("th-TH")
                   : ""}
               </span>
             </div>

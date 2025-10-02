@@ -164,26 +164,26 @@ func SetupDiaryDatabase() {
 			Confirmed:     true,
 			TherapyCaseID: 1,
 		},
-		{
-			Title:         "วันที่เงียบสงบ",
-			Content:       `<p>วันนี้ไม่มีเหตุการณ์อะไรพิเศษ แต่ก็ไม่รู้สึกว่างเปล่า ความเงียบสงบนี้กลับทำให้ใจค่อย ๆ ได้ยินเสียงของตัวเองมากขึ้น</p>`,
-			UpdatedAt:     time.Date(2568-543, 10, 2, 19, 15, 0, 0, time.Local), // 2/10/2568
-			TagColor1:     "#9C27B0",
-			TagColor2:     "#BA68C8",
-			TagColor3:     "#E1BEE7",
-			Confirmed:     true,
-			TherapyCaseID: 1,
-		},
-		{
-			Title:         "วันที่ก้าวข้ามความกลัวเล็ก ๆ",
-			Content:       `<p>วันนี้ได้ลองทำสิ่งที่เคยลังเลอยู่หลายครั้ง แม้จะเป็นก้าวเล็ก ๆ แต่ก็รู้สึกเหมือนตัวเองเริ่มแข็งแรงขึ้นนิดหน่อย</p>`,
-			UpdatedAt:     time.Date(2568-543, 10, 4, 14, 0, 0, 0, time.Local), // 4/10/2568
-			TagColor1:     "#4CAF50",
-			TagColor2:     "#81C784",
-			TagColor3:     "#A5D6A7",
-			Confirmed:     true,
-			TherapyCaseID: 1,
-		},
+		// {
+		// 	Title:         "วันที่เงียบสงบ",
+		// 	Content:       `<p>วันนี้ไม่มีเหตุการณ์อะไรพิเศษ แต่ก็ไม่รู้สึกว่างเปล่า ความเงียบสงบนี้กลับทำให้ใจค่อย ๆ ได้ยินเสียงของตัวเองมากขึ้น</p>`,
+		// 	UpdatedAt:     time.Date(2568-543, 10, 2, 19, 15, 0, 0, time.Local), // 2/10/2568
+		// 	TagColor1:     "#9C27B0",
+		// 	TagColor2:     "#BA68C8",
+		// 	TagColor3:     "#E1BEE7",
+		// 	Confirmed:     true,
+		// 	TherapyCaseID: 1,
+		// },
+		// {
+		// 	Title:         "วันที่ก้าวข้ามความกลัวเล็ก ๆ",
+		// 	Content:       `<p>วันนี้ได้ลองทำสิ่งที่เคยลังเลอยู่หลายครั้ง แม้จะเป็นก้าวเล็ก ๆ แต่ก็รู้สึกเหมือนตัวเองเริ่มแข็งแรงขึ้นนิดหน่อย</p>`,
+		// 	UpdatedAt:     time.Date(2568-543, 10, 4, 14, 0, 0, 0, time.Local), // 4/10/2568
+		// 	TagColor1:     "#4CAF50",
+		// 	TagColor2:     "#81C784",
+		// 	TagColor3:     "#A5D6A7",
+		// 	Confirmed:     true,
+		// 	TherapyCaseID: 1,
+		// },
 	}
 	for d := range diaries {
 		db.FirstOrCreate(&diaries[d], entity.Diaries{Title: diaries[d].Title})

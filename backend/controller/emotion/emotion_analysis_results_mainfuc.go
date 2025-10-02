@@ -190,7 +190,7 @@ func createEmotionAnalysisFromDiary(diaryID uint) (*entity.EmotionAnalysisResult
 	emotionAnalysis := entity.EmotionAnalysisResults{
 		DiaryID:           diaryID,
 		ThoughtRecordID:   0,
-		InputText:         diary.cleanedContent,
+		InputText:         cleanedContent,
 		PatientID:         diary.TherapyCase.PatientID, // เพิ่ม PatientID
 		AnalysisTimestamp: time.Now(),
 	}

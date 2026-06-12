@@ -414,20 +414,6 @@ erDiagram
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-- **Go** (1.20+)
-- **Node.js** (18+)
-- **npm**
-
-### Backend Setup
-```bash
-cd backend
-go mod download
-go run main.go
-```
-
 ### ตารางหลัก
 
 | Table | Description |

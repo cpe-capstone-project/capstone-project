@@ -32,26 +32,19 @@
 
 ## 🏗️ System Architecture
 
-<!-- TODO: ใส่รูป System Architecture Diagram ที่นี่ -->
-<!-- ![System Architecture Diagram](path/to/system-architecture-diagram.png) -->
+```mermaid
+graph TD
+    FE["**Frontend**\nReact + TypeScript + Vite + Ant Design"]
+    BE["**Backend**\nGo (Golang) REST API"]
+    DB["**Database**\nSQLite"]
 
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ Frontend │ │ Backend │ │ Database │
-│ React + TS + │◄─────►│ Go (Golang) │◄─────►│ SQLite │
-│ Vite + Ant │ │ REST API │ │ │
-└─────────────────┘ └────────┬─────────┘ └─────────────────┘
-│
-┌────────────┼────────────┐
-▼ ▼ ▼
-┌──────────┐ ┌──────────┐ ┌──────────────┐
-│ Gemini │ │ Hugging │ │ Google Cloud │
-│Flash 2.5 │ │ Face API │ │ Translation │
-│(Summary) │ │(Emotion) │ │ API │
-└──────────┘ └──────────┘ └──────────────┘
+    FE <--> BE
+    BE <--> DB
 
-
----
-
+    BE --> GF["**Gemini Flash 2.5**\nSummary"]
+    BE --> HF["**Hugging Face API**\nEmotion"]
+    BE --> GCT["**Google Cloud Translation**\nTranslation"]
+```
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -82,36 +75,36 @@
 ---
 
 ## 📁 Project Structure
+
+```
 capstone-project/
-├── backend/ # Go Backend
-│ ├── ai/ # AI integration (Gemini, Emotion Analysis)
-│ ├── config/ # Configuration files
-│ ├── controller/ # Request handlers
-│ ├── entity/ # Data models / entities
-│ ├── middlewares/ # Authentication & middleware
-│ ├── routers/ # API route definitions
-│ ├── services/ # Business logic
-│ ├── test/ # Unit tests
-│ ├── uploads/ # Uploaded files storage
-│ ├── go.mod # Go module definition
-│ ├── go.sum # Go dependencies checksum
-│ └── main.go # Application entry point
+├── backend/                  # Go Backend
+│   ├── ai/                   # AI integration (Gemini, Emotion Analysis)
+│   ├── config/               # Configuration files
+│   ├── controller/           # Request handlers
+│   ├── entity/               # Data models / entities
+│   ├── middlewares/          # Authentication & middleware
+│   ├── routers/              # API route definitions
+│   ├── services/             # Business logic
+│   ├── test/                 # Unit tests
+│   ├── uploads/              # Uploaded files storage
+│   ├── go.mod                # Go module definition
+│   ├── go.sum                # Go dependencies checksum
+│   └── main.go               # Application entry point
 │
-├── frontend/ # React Frontend
-│ ├── public/ # Static assets
-│ ├── src/ # Source code
-│ ├── .env # Environment variables
-│ ├── index.html # Entry HTML
-│ ├── package.json # Node.js dependencies
-│ ├── tsconfig.json # TypeScript configuration
-│ ├── vite.config.ts # Vite configuration
-│ └── eslint.config.js # ESLint configuration
+├── frontend/                 # React Frontend
+│   ├── public/               # Static assets
+│   ├── src/                  # Source code
+│   ├── .env                  # Environment variables
+│   ├── index.html            # Entry HTML
+│   ├── package.json          # Node.js dependencies
+│   ├── tsconfig.json         # TypeScript configuration
+│   ├── vite.config.ts        # Vite configuration
+│   └── eslint.config.js      # ESLint configuration
 │
 ├── .gitignore
 └── README.md
-
-
----
+```
 
 ## 👤 User Roles
 
@@ -154,28 +147,249 @@ capstone-project/
 
 ---
 
-## 🗄️ Database Schema
+## 🗄️ Class Diagram
 
-<!-- TODO: ใส่รูป Class Diagram ที่นี่ -->
-<!-- ![Class Diagram](path/to/class-diagram.png) -->
+```mermaid
+erDiagram
+  Patients {
+    int id PK
+    string first_name
+    string last_name
+    date birthday
+    string email
+    string phone_number
+    string address
+    string password
+    bool consent
+    string image
+    int age
+    int psychologist_id FK
+    int gender_id FK
+    int role_id FK
+  }
 
-### ER Diagram Overview
-Patients ──── Therapy Cases ──── Psychologists
-│
-┌──────────┼──────────┐
-▼ ▼ ▼
-Diaries Thought Feedback
-│ Records │
-▼ │ ▼
-Diary ▼ Feedback Time
-Summaries Emotions Feedback Type
-│ │
-└────┬─────┘
-▼
-Emotion Analysis Results
-│
-▼
-Sub Emotion Analysis
+  Psychologists {
+    int id PK
+    string first_name
+    string last_name
+    date birthday
+    string email
+    string password
+    string phone_number
+    string address
+    string medical_license
+    string verify_code
+    int age
+    int gender_id FK
+    int role_id FK
+  }
+
+  Admin {
+    int id PK
+    string first_name
+    string last_name
+    string email
+    string password
+    int role_id FK
+  }
+
+  Genders {
+    int id PK
+    string gender
+  }
+
+  Roles {
+    int id PK
+    string name
+  }
+
+  Checklist {
+    int id PK
+    date date
+    string timezone
+    string tasks
+    string other
+    string done
+    int version
+    int patient_id FK
+  }
+
+  Request {
+    int id PK
+    string type
+    text detail
+    string other
+    date meeting_start
+    date meeting_end
+    int patient_id FK
+    int psychologist_id FK
+  }
+
+  Feedback {
+    int id PK
+    string title
+    string content
+    date startdate
+    date enddate
+    int psychologist_id FK
+    int patient_id FK
+    int feedback_time_id FK
+    int feedback_type_id FK
+  }
+
+  FeedbackTime {
+    int id PK
+    string name_time
+  }
+
+  FeedbackType {
+    int id PK
+    string name_type
+  }
+
+  FeedbackDiary {
+    int id FK
+    int feedback_id FK
+    int diary_id FK
+  }
+
+  Diaries {
+    int id PK
+    string title
+    string content
+    date updated_at
+    string tag_color1
+    string tag_color2
+    string tag_color3
+    int therapy_case_id FK
+  }
+
+  DiarySummaryEntry {
+    int id PK
+    int diary_summary_id FK
+    int diary_id FK
+  }
+
+  DiarySummaries {
+    int id PK
+    string time_frame
+    date start_date
+    date end_date
+    string summary_text
+    string keyword
+    int therapy_case_id FK
+  }
+
+  TherapyCases {
+    int id PK
+    string title
+    string description
+    date start_date
+    int patient_id FK
+    int psychologist_id FK
+    int status_id FK
+  }
+
+  CaseStatus {
+    int id PK
+    string name
+  }
+
+  ThoughtRecords {
+    int id PK
+    string situation
+    string thought
+    string behavior
+    string alternate_thought
+    int therapy_case_id FK
+    int emotions_id FK
+    int situation_tag_id FK
+  }
+
+  SituationTag {
+    int id PK
+    string situation_name
+    string color
+    bool user_create
+  }
+
+  ThoughtRecordEmotion {
+    int emotion_id FK
+    int thought_record_id FK
+  }
+
+  Emotions {
+    int id PK
+    string emotions_name
+    float score
+    string thai_name
+    string category
+    string emotions_color
+  }
+
+  EmotionAnalysisResults {
+    int id PK
+    string input_text
+    string translated_text
+    string primary_emotion
+    date analysis_timestamp
+    string model_version
+    int diary_id FK
+    int thought_record_id FK
+    int patient_id FK
+  }
+
+  SubEmotionAnalysis {
+    int id PK
+    float confidence_percentage
+    int emotion_analysis_result_id FK
+    int emotion_id FK
+  }
+
+  Patients ||--o{ Checklist : has
+  Patients ||--o{ Request : makes
+  Patients ||--o{ Feedback : receives
+  Patients ||--o{ Diaries : writes
+  Patients ||--o{ EmotionAnalysisResults : has
+  Patients ||--|| Genders : has
+  Patients ||--|| Roles : has
+  Patients }o--|| Psychologists : assigned-to
+
+  Psychologists ||--o{ Request : handles
+  Psychologists ||--o{ Feedback : gives
+  Psychologists ||--o{ TherapyCases : manages
+  Psychologists ||--|| Genders : has
+  Psychologists ||--|| Roles : has
+
+  Admin ||--|| Roles : has
+
+  Feedback ||--|| FeedbackTime : has
+  Feedback ||--|| FeedbackType : has
+  Feedback ||--o{ FeedbackDiary : links
+
+  FeedbackDiary ||--|| Diaries : references
+
+  Diaries ||--o{ DiarySummaryEntry : has
+  Diaries ||--|| TherapyCases : belongs-to
+  DiarySummaryEntry }o--|| DiarySummaries : part-of
+
+  DiarySummaries ||--|| TherapyCases : linked-to
+
+  TherapyCases ||--|| CaseStatus : has
+  TherapyCases ||--o{ ThoughtRecords : contains
+
+  ThoughtRecords ||--o{ ThoughtRecordEmotion : has
+  ThoughtRecords ||--|| SituationTag : tagged-with
+  ThoughtRecords ||--|| Emotions : uses
+
+  ThoughtRecordEmotion ||--|| Emotions : references
+
+  EmotionAnalysisResults ||--o{ SubEmotionAnalysis : contains
+  EmotionAnalysisResults ||--|| Diaries : from
+  EmotionAnalysisResults ||--|| ThoughtRecords : from
+
+  SubEmotionAnalysis ||--|| Emotions : references
+```
 
 
 ### ตารางหลัก
@@ -212,7 +426,7 @@ Sub Emotion Analysis
 cd backend
 go mod download
 go run main.go
-
+```
 
 ### ตารางหลัก
 
@@ -248,13 +462,13 @@ go run main.go
 cd backend
 go mod download
 go run main.go
-
+```
 ### Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
-
+```
 ### Environment Variables
 ```bash
 สร้างไฟล์ .env ใน frontend/ directory:
